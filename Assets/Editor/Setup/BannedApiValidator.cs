@@ -10,6 +10,7 @@ public static class BannedApiValidator
 {
     private static readonly (string pattern, string message)[] BANNED = {
         (@"UnityEngine\.Random\b",  "Use GameRNG wrapper instead of UnityEngine.Random (§9.7)"),
+        (@"\bnew\s+System\.Random\b", "Use GameRNG wrapper instead of System.Random (§9.7)"),
         (@"Resources\.Load\b",      "Use Addressables instead of Resources.Load (§9.2)"),
         (@"GameObject\.Find\b",     "Use DI / ServiceLocator instead of GameObject.Find (§9.5)"),
         (@"FindObjectOfType\b",     "Use DI / ServiceLocator instead of FindObjectOfType (§9.5)"),

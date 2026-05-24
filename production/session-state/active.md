@@ -6,11 +6,11 @@
 
 **Open decisions:** none
 
-**Next action:** Task 2.5 — GameRNG (5 Streams)
+**Next action:** Task 2.6 — InputLog Recorder
 
 **Blocked on:** nothing
 
-**Last commit:** feat(core): Task 2.4 — Factory Pattern + Object Pooling (§9.6)
+**Last commit:** feat(core): Task 2.5 — GameRNG (5 Streams) (§9.7)
 
 ---
 
@@ -20,7 +20,7 @@
 - [x] **2.2** EventBus Hybrid Model — static EventBus + GameEventSO<T> + 8 channels + 9 SO assets + 20 tests
 - [x] **2.3** Hierarchical State Machine — GameStateNode + GameStateMachine + full state tree (§9.5.1 + §9.5.2) + 12 HSM tests (32/32 total)
 - [x] **2.4** Factory + Object Pooling — Pool\<T\> + 5 factories (PokemonInstance/MoveCard/IntentData/DamageContext/Enemy) + 4 stub SOs + 19 tests (51/51 total)
-- [ ] 2.5 GameRNG (5 Streams)
+- [x] **2.5** GameRNG (5 Streams) — GameRNG xorshift32 + RNGStreams (FNV1a seed derivation) + BannedApiValidator System.Random ban + Bootstrap registration + 13 tests (64/64 total)
 - [ ] 2.6 InputLog Recorder
 - [ ] 2.7 SaveSystem Skeleton
 - [ ] 2.8 ScriptableHook Framework
