@@ -6,11 +6,11 @@
 
 **Open decisions:** none
 
-**Next action:** Task 2.6 — InputLog Recorder
+**Next action:** Task 2.7 — SaveSystem Skeleton
 
 **Blocked on:** nothing
 
-**Last commit:** feat(core): Task 2.5 — GameRNG (5 Streams) (§9.7)
+**Last commit:** feat(core): Task 2.6 — InputLog Recorder (§9.7.4 + §9.10.3)
 
 ---
 
@@ -21,7 +21,7 @@
 - [x] **2.3** Hierarchical State Machine — GameStateNode + GameStateMachine + full state tree (§9.5.1 + §9.5.2) + 12 HSM tests (32/32 total)
 - [x] **2.4** Factory + Object Pooling — Pool\<T\> + 5 factories (PokemonInstance/MoveCard/IntentData/DamageContext/Enemy) + 4 stub SOs + 19 tests (51/51 total)
 - [x] **2.5** GameRNG (5 Streams) — GameRNG xorshift32 + RNGStreams (FNV1a seed derivation) + BannedApiValidator System.Random ban + Bootstrap registration + 13 tests (64/64 total)
-- [ ] 2.6 InputLog Recorder
+- [x] **2.6** InputLog Recorder — InputLogEntry/InputLog/InputLogRecorder/InputLogReplayer + InputReplayedContext + RunState stub replaced + 7 tests (71/71 total)
 - [ ] 2.7 SaveSystem Skeleton
 - [ ] 2.8 ScriptableHook Framework
 

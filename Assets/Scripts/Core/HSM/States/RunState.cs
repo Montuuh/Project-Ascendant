@@ -1,18 +1,16 @@
-using System.Collections.Generic;
-
 namespace ProjectAscendant.Core
 {
-    // Per §9.5.1 + §9.3.2.4 — active run state; owns the transition log stub.
+    // Per §9.5.1 + §9.3.2.4 — active run state; owns the input log for determinism replay.
     public sealed class RunState : GameStateNode
     {
-        public readonly MapViewState        MapView;
-        public readonly NodeState           Node;
+        public readonly MapViewState         MapView;
+        public readonly NodeState            Node;
         public readonly EvolutionScreenState EvolutionScreen;
         public readonly RunEndState          RunEnd;
 
-        // TODO: Task 2.6 — replace with InputLog RecordedInputs (§9.3.2.4).
-        // Stub stores raw transition strings until InputLog struct is defined.
-        public List<string> RecordedTransitions { get; } = new();
+        // Per §9.3.2.4 + §9.7.4 — transition log for determinism replay.
+        // Full wiring (RecordedInputs ↔ InputLogRecorder) deferred to Epic 3 (RunStateSO).
+        public readonly InputLog RecordedInputs = new();
 
         private readonly GameRootState _root;
 
