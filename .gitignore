@@ -6,8 +6,18 @@
 node_modules/
 .vscode/
 
-# AI tooling (local only)
+# AI tooling (local only — not for public repo)
 .antigravitycli/
+.antigravity-rules.md
+.claude/
+CLAUDE.md
+
+# Dev workflow (internal)
+.editorconfig
+CONTRIBUTING.md
+
+# IDE solution files (auto-generated)
+*.slnx
 
 # Visual Studio / Rider
 .vs/
