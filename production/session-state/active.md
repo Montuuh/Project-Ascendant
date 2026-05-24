@@ -6,11 +6,11 @@
 
 **Open decisions:** none
 
-**Next action:** Task 2.4 — Factory Pattern + Object Pooling
+**Next action:** Task 2.5 — GameRNG (5 Streams)
 
 **Blocked on:** nothing
 
-**Last commit:** feat(core): Task 2.3 — Hierarchical State Machine (§9.5)
+**Last commit:** feat(core): Task 2.4 — Factory Pattern + Object Pooling (§9.6)
 
 ---
 
@@ -19,7 +19,7 @@
 - [x] **2.1** Service Locator — Services.cs + 6 unit tests
 - [x] **2.2** EventBus Hybrid Model — static EventBus + GameEventSO<T> + 8 channels + 9 SO assets + 20 tests
 - [x] **2.3** Hierarchical State Machine — GameStateNode + GameStateMachine + full state tree (§9.5.1 + §9.5.2) + 12 HSM tests (32/32 total)
-- [ ] 2.4 Factory Pattern + Object Pooling
+- [x] **2.4** Factory + Object Pooling — Pool\<T\> + 5 factories (PokemonInstance/MoveCard/IntentData/DamageContext/Enemy) + 4 stub SOs + 19 tests (51/51 total)
 - [ ] 2.5 GameRNG (5 Streams)
 - [ ] 2.6 InputLog Recorder
 - [ ] 2.7 SaveSystem Skeleton

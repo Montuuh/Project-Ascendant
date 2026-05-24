@@ -29,6 +29,13 @@ namespace ProjectAscendant.Core
             GameStateMachine hsm = new GameStateMachine();
             Services.Register<GameStateMachine>(hsm);
 
+            // Per §9.6 — register pooled factories for hot-path allocations.
+            Services.Register<PokemonInstanceFactory>(new PokemonInstanceFactory());
+            Services.Register<MoveCardInstanceFactory>(new MoveCardInstanceFactory());
+            Services.Register<IntentDataFactory>(new IntentDataFactory());
+            Services.Register<DamageContextFactory>(new DamageContextFactory());
+            Services.Register<EnemyInstanceFactory>(new EnemyInstanceFactory());
+
             yield return SceneLoader.LoadAsync(_firstScene);
         }
     }
