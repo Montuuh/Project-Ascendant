@@ -19,7 +19,8 @@ namespace ProjectAscendant.Core
         public StatusCondition PrimaryStatus;
         public StatusCondition SecondaryStatus; // Confusion only at launch
         public EvolutionStage CurrentStage;
-        public EvolutionBranch SelectedBranch;
+        // Per §5.3.3 — SO reference to the chosen branch; null until first evolution.
+        public EvolutionBranchSO SelectedBranch;
 
         // Called by PokemonInstanceFactory.Release() before returning to pool.
         // Clears collections in-place to avoid re-allocating them on reuse.

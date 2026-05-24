@@ -1,16 +1,16 @@
 # Session State — Project Ascendant
 
-**Date:** 2026-05-24
+**Date:** 2026-05-25
 **Active topic:** Epic 3 — Data Layer (ScriptableObjects)
 **Sprint goal:** Implement full SO schemas, author VS content (3 starters + 3 wild lines)
 
 **Open decisions:** none
 
-**Next action:** Task 3.1 — Read Epic 3 Notion page + GDD §9.3 before starting
+**Next action:** Task 3.3 — Content Authoring (Pokémon lines, moves, relics, consumables, etc.)
 
 **Blocked on:** nothing
 
-**Last commit:** feat(core): Task 2.8 — ScriptableHook Framework (§8.7)
+**Last commit:** feat(data): Task 3.1 + 3.2 — Full SO schema layer (§9.3)
 
 ---
 
@@ -26,6 +26,29 @@
 - [x] **2.8** ScriptableHook Framework — ScriptableHook + EventContext + 6 hook subclasses + HookSubscriber + 8 tests (89/89)
 
 **Total EditMode tests: 89/89 ✅**
+
+---
+
+## Epic 3 status — 🟡 IN PROGRESS
+
+- [x] **3.1** SO Schema Design — 25 SO types implemented (§9.3.2.1–9.3.2.6)
+  - StatGrowthCurveSO, PokemonSpeciesSO (expanded), EvolutionBranchSO, MoveSO (expanded)
+  - AbilitySO (expanded), HeldItemSO (expanded), RelicSO, ConsumableSO, TMSO, BadgeSO
+  - MoveEffectSO + 6 subclasses, ConsumableEffectSO + 6 subclasses
+  - BattleConfigSO, EconomyConfigSO, MapGenerationConfigSO
+  - RunStateSO (expanded), MetaProgressionSO (expanded), SettingsSO (expanded)
+  - BestiaryProgressSO, BiomeSO, MysteryEventSO, TrainerArchetypeSO
+  - EncounterTableSO, DifficultyModifierSO, RegionModifierSO, LeagueBoonSO
+  - GameTypes.cs expanded (BranchArchetype, Biome, SynergyCategory, AbilityCategory, NodeType, StringIntPair)
+  - PokemonInstance.SelectedBranch → EvolutionBranchSO reference
+- [x] **3.2** Data Schema Tests — 7 new tests (96/96 total)
+  - StatGrowthCurve: Level1=0, accumulate, null-safe
+  - PokemonInstance.Reset: HP=0, status cleared, stat stages cleared, SelectedBranch=null
+- [ ] **3.3** Content Authoring — 6 Pokémon lines, ~50 moves, 10 consumables, 15 relics, 5 Held Items, 3 TMs, 4 Mystery Events, 4 trainer archetypes, 3 difficulty modifiers, 4 badges, configs (content-designer)
+- [ ] **3.4** Editor Tooling — Custom inspectors, asset-creation menus, bulk validator
+- [ ] **3.5** Lint & Data Discipline — Roslyn analyzer, naming convention enforcement
+
+**Total EditMode tests: 96/96 ✅**
 
 ---
 
