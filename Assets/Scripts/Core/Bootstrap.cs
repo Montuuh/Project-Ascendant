@@ -26,6 +26,9 @@ namespace ProjectAscendant.Core
 
             EventBus.Initialise();
 
+            GameStateMachine hsm = new GameStateMachine();
+            Services.Register<GameStateMachine>(hsm);
+
             yield return SceneLoader.LoadAsync(_firstScene);
         }
     }

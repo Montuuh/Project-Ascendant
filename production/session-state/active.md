@@ -1,35 +1,60 @@
 # Session State — Project Ascendant
 
 **Date:** 2026-05-24
-**Active topic:** Epic 1 — Foundation & Project Setup (Phase A)
-**Sprint goal:** Epic 1 complete; ready for first commit and Epic 2 (Core Architecture)
+**Active topic:** Epic 2 — Core Architecture (Phase A)
+**Sprint goal:** Complete all 8 Epic 2 tasks; advance to Epic 3 (Data Layer)
 
 **Open decisions:** none
 
-**Next action:** 
-1. Make first commit and tag `v0.0.0-foundation` (user instruction required)
-2. Begin **Epic 2 — Core Architecture** (https://www.notion.so/36a0450715b4811c8fb4e935922ec7c2)
+**Next action:** Task 2.4 — Factory Pattern + Object Pooling
 
 **Blocked on:** nothing
 
-**Last commit:** (none yet — awaiting user commit instruction)
+**Last commit:** feat(core): Task 2.3 — Hierarchical State Machine (§9.5)
 
-**Epic 1 status (Tasks 1.1–1.7):**
-- [x] 1.1.1 Unity 6000.4.6f1 + URP 2D (pre-existing)
-- [x] 1.1.2–1.1.6 Player Settings, scripting backend, Input System, packages, Quality Settings
-- [x] 1.2.1–1.2.4 Folder structure + 9 .asmdef files (Core, Combat, Deck, Progression, Map, Roguelike, UI, Editor, Tests x2)
-- [x] 1.3.1–1.3.4 .gitignore fixed, LFS init, .gitattributes, CONTRIBUTING.md
-- [ ] 1.3.5 First commit + v0.0.0-foundation tag (user must approve)
-- [x] 1.4.1–1.4.4 5 scenes created, Build Settings, Bootstrap.cs, ServiceLocator.cs, EventBus.cs, SceneLoader.cs
-- [x] 1.5.1–1.5.5 .editorconfig, BannedApiValidator.cs, test runners, export-gdd.js, README.md
-- [ ] 1.6.1–1.6.3 Build smoke test (manual — user must trigger Standalone build)
-- [x] 1.7.1–1.7.2 README.md, CONTRIBUTING.md
-- [ ] 1.7.3 Confirm CLAUDE.md + .claude/ committed (awaiting first commit)
+---
 
-**GDD status:**
-- Topics 1–10: 🔒 Locked
+## Epic 2 status (Tasks 2.1–2.8)
+
+- [x] **2.1** Service Locator — Services.cs + 6 unit tests
+- [x] **2.2** EventBus Hybrid Model — static EventBus + GameEventSO<T> + 8 channels + 9 SO assets + 20 tests
+- [x] **2.3** Hierarchical State Machine — GameStateNode + GameStateMachine + full state tree (§9.5.1 + §9.5.2) + 12 HSM tests (32/32 total)
+- [ ] 2.4 Factory Pattern + Object Pooling
+- [ ] 2.5 GameRNG (5 Streams)
+- [ ] 2.6 InputLog Recorder
+- [ ] 2.7 SaveSystem Skeleton
+- [ ] 2.8 ScriptableHook Framework
+
+---
+
+## HSM state tree (Task 2.3 — implemented)
+
+```
+GameRootState (root)
+├── MainMenuState
+├── HubState
+├── RunState
+│   ├── MapViewState
+│   ├── NodeState
+│   │   └── CombatState
+│   │       ├── CombatStartState
+│   │       ├── TurnLoopState
+│   │       │   ├── DrawPhaseState
+│   │       │   ├── IntentPhaseState
+│   │       │   ├── ActionPhaseState
+│   │       │   ├── ResolutionPhaseState
+│   │       │   └── TurnEndState
+│   │       ├── CombatVictoryState
+│   │       └── CombatDefeatState
+│   ├── EvolutionScreenState
+│   └── RunEndState
+└── GameOverState
+```
+
+---
+
+**GDD status:** Topics 1–10: 🔒 Locked
 
 **Notion BACKLOG:** https://www.notion.so/3610450715b48109b2ebd15d97e69fa7
 **Notion GDD:** https://www.notion.so/3610450715b481588234e2e5f1b756ee
-**Epic 1:** https://www.notion.so/36a0450715b4815b9da0f79c772a1e77
 **Epic 2:** https://www.notion.so/36a0450715b4811c8fb4e935922ec7c2
