@@ -1,0 +1,16 @@
+{
+    "name": "ProjectAscendant.Deck",
+    "rootNamespace": "ProjectAscendant.Deck",
+    "references": [
+        "ProjectAscendant.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

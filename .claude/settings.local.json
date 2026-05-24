@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Notion__notion-fetch",
+      "Bash(Select-String -Path \"C:\\\\Users\\\\dmont\\\\Desktop\\\\CODE - Proyectos\\\\ProjectAscendant\\\\Assets\\\\Scenes\\\\SampleScene.unity\" -Pattern \"^- m_ObjectHideFlags:\")",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object -ExpandProperty Count)",
+      "mcp__coplay-mcp__get_unity_editor_state",
+      "mcp__coplay-mcp__list_game_objects_in_hierarchy",
+      "mcp__coplay-mcp__list_packages"
+    ]
+  }
+}

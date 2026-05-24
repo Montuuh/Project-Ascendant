@@ -1,0 +1,16 @@
+{
+    "name": "ProjectAscendant.Progression",
+    "rootNamespace": "ProjectAscendant.Progression",
+    "references": [
+        "ProjectAscendant.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

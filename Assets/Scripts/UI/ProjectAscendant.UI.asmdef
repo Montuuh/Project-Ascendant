@@ -1,0 +1,16 @@
+{
+    "name": "ProjectAscendant.UI",
+    "rootNamespace": "ProjectAscendant.UI",
+    "references": [
+        "ProjectAscendant.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

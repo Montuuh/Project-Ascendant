@@ -1,0 +1,186 @@
+<!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
+<!-- Source: https://www.notion.so/3610450715b481048a3bd46eb1d31a07 -->
+<!-- Exported: 2026-05-19T23:09:49.499Z -->
+<!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
+
+**Status:** 🔒 Locked
+
+
+**Last Updated:** 2026-05-15 (migrated from Drive; HP Economy patch applied)
+
+
+**Cross-references:** Topic 1 (vertical slice), Topic 3 (combat phases), Topic 4 (Victory Road, League), Topic 6 (Trauma System).
+
+
+---
+
+
+# §2.1 Macro Loop ("The Run")
+
+
+A run is the path from selecting a Starter to either defeating the Champion or having your Active Team wiped beyond recovery. A run unfolds in five phases.
+
+
+## §2.1.1 Pre-Run Setup
+
+- The player selects one **Starter Pokémon** from the unlocked pool. Default unlocks: Bulbasaur, Charmander, Squirtle. Additional Starters are unlocked through meta-progression (Topic 6).
+- The player selects one **Starting Relic** (Trainer Item) — three offered, pick one.
+- The starting Box contains _only_ the Starter. The Active Team is the Starter alone until recruitment expands it.
+- A run seed is generated (or pulled from the daily seed, post-launch).
+
+## §2.1.2 Region Traversal (x3 regions)
+
+- Each Region is presented as a **branching ladder map** (~6–8 layers tall, ~3 lanes wide), styled visually as a Pokémon overworld biome (e.g., Region 1 = _Verdant Route_, Region 2 = _Coastal Cliffs_, Region 3 = _Volcanic Highlands_).
+- The player navigates layer by layer; each step offers 1–3 connected nodes.
+- **Node 1 of every Region is always a Wild Pokémon Area** with multiple variant options (different biomes/sub-areas). This guarantees an early recruitment opportunity each Region.
+- Each Region's map contains a **Gym branch point** — two diverging paths leading to two different Gym Leaders (different types, different Badges). The player chooses one path; the other is permanently abandoned for this run. (See §4.4.4.)
+- Node categories (defined fully in Topic 7 — Scenario):
+    - **Combat nodes** — wild Pokémon, trainers, elite trainers.
+    - **Recruitment nodes** — Wild Pokémon Areas (catch attempts) and Special Events (unique/legendary recruits).
+    - **Utility nodes** — Pokémon Center, Shop, Daycare/Move Tutor, Mystery Events.
+    - **Region Boss node** — Gym Leader; mandatory final layer.
+
+### §2.1.2.1 Map View
+
+
+Between nodes, the player sees the upcoming map and accesses a persistent **Map View**, where they can:
+
+- Reorder the Box and select the Active Team of 3 (Map-View Loadout, see §2.3).
+- Inspect each Pokémon's moves, level, current HP, evolution status, and equipped held items.
+- Inspect held relics and consumables.
+- Trigger pending evolutions (see §5.3).
+- Save & quit (the game auto-saves on every node entry).
+
+## §2.1.3 Region Climax: Gym Leader
+
+- The final node of every Region is a Gym Leader fight (the one chosen at the branch point).
+- Each Gym has a **type identity** drawn from a tiered pool (see §4.4.4 for full pool design).
+- Each Gym Leader is a **multi-phase encounter** (signature mechanic activates at HP thresholds), giving each Gym fight meaningful weight given that there are only three in a run.
+- Defeating the Gym Leader awards:
+    - A **Badge** (a permanent run-modifier active from this point until run end; see §4.4.5).
+    - A **rare relic drop**.
+    - Passage to the next phase (City after Gyms 1 and 2; Victory Road after Gym 3).
+
+## §2.1.4 Post-Gym Interstitials: Cities
+
+
+After defeating Gym 1 and Gym 2, the player enters a **City** — a rest-and-restock zone between Regions. Each City contains three sequential events:
+
+1. **Pokémon Center** — full heal of all Box Pokémon (HP only; status conditions clear at combat end automatically). Optional move-tutor service (see §5.4.2).
+2. **Curated Shop** — rotating relic and consumable inventory, weighted to the player's current team composition.
+3. **Reflection node** — pick one of three **Region Modifiers** that apply only during the next Region (e.g., "+1 max hand size," "Lead heals 5 HP per swap"). This is the macro-loop equivalent of StS's Act-end campsite — the moment where runs begin to differentiate from each other.
+
+### §2.1.4.1 Region Modifier stacking
+
+
+Region Modifiers selected at City Reflection nodes stack across both City visits. The player ends their run with up to 2 active Region Modifiers (one from City 1 in Region 2, one from City 2 in Region 3). Both modifiers persist from their selection point until run end.
+
+
+## §2.1.5 Victory Road (post-Gym 3, pre-League)
+
+
+After defeating Gym 3, the player enters **Victory Road** — a dedicated pre-League preparation zone with its own branching mini-map (3–4 layers, 2–3 lanes). Victory Road is the most challenging non-boss traversal content in the game and the player's final window to prepare for the League. All paths converge at the Summit Preparation node. Full design detailed in §4.5.
+
+
+## §2.1.6 League Finale
+
+
+After Victory Road's Summit, the player enters the League — **5 sequential fights** with no map navigation:
+
+- **Elite Four** — four sequential boss-tier trainers, each with a distinct type identity.
+- **Champion** — final boss; multi-phase encounter; a 5-Pokémon team scaled to challenge a fully-evolved player team.
+
+Between League fights: a **micro-rest** (30% HP restoration). No shop, no recruitment. This is the endurance pacing beat that distinguishes the League from Region traversal.
+
+
+Defeating the Champion = run victory.
+
+
+## §2.1.7 End of Run
+
+- _Run failed (Active Team wiped):_ run-state is discarded; **Trainer XP** is awarded based on progress. (Detailed in Topic 6 — Roguelike Progression.)
+- _Run won:_ full Trainer XP + victory bonus + run summary screen + (post-launch) leaderboard submission.
+- Either outcome returns the player to the Trainer Hub.
+
+**Total climactic encounters per run: 8** (3 Gyms + 4 Elite + 1 Champion). At the Pokémon level, this is 21 boss-tier Pokémon fights (see §4.4.2 for breakdown).
+
+
+---
+
+
+# §2.2 Region Escalation Philosophy
+
+
+To prevent later Regions from feeling like "Region 1 with bigger numbers," each Region introduces a **mechanical accent** alongside its aesthetic theme:
+
+- **Region 1 — Verdant Route:** baseline mechanics. Acts as the tutorial Region.
+- **Region 2 — Coastal Cliffs:** introduces _status conditions on enemy intents_ (Burn, Paralysis become regularly telegraphed enemy actions).
+- **Region 3 — Volcanic Highlands:** introduces _multi-enemy encounters_ (1 lead + 1–2 supports) and _enemy field effects_ (weather/terrain).
+- **League:** combines all prior mechanics; each boss layers a unique signature mechanic on top.
+
+These accents are placeholder hooks to be tuned in later topics. The commitment now: escalation is mechanical, not numeric.
+
+
+---
+
+
+# §2.3 Box & Active Team
+
+- **Box:** the persistent run-roster of Pokémon. Default capacity = 6, upgradable to 8 via specific relics or meta-unlocks.
+- **Active Team:** the 3 Pokémon brought into a given combat. Drawn from the Box.
+- **Map-View Loadout:** the player freely reorders the Box and selects the Active Team on the Map View. Changes are committed via a **Confirm** gesture. The Active Team is **locked** the moment a node is entered. Loadout changes are only possible from the Map View (between nodes), not during combat.
+- A Pokémon in the Box but not in the Active Team **contributes nothing to the deck** for that fight. This is the central tension of team selection.
+
+## §2.3.1 Box overflow on recruitment
+
+
+When the player attempts to recruit a Pokémon while the Box is at capacity (6 by default; 8 with relic/meta-unlock expansion), a forced "Swap or Skip" prompt appears:
+
+- **Swap:** Choose one Box Pokémon to release. The released Pokémon is permanently removed from the run. The new Pokémon takes their place.
+- **Skip:** Decline the recruitment. No Pokémon is gained or lost.
+
+There is no "Deposit" pool. The Box is the only Pokémon storage container in a run.
+
+
+---
+
+
+# §2.4 HP Economy
+
+
+Pokémon HP is a **persistent resource that carries across combats and nodes**, not a per-combat reset. A Pokémon entering combat at 30% HP starts that combat at 30% HP.
+
+
+## §2.4.1 Fainted state definition
+
+
+A Pokémon's `CurrentHP` reaching 0 is the fainted state. There is no separate `IsFainted` flag — 0 HP and Fainted are equivalent. A fainted Pokémon (`CurrentHP == 0`) cannot be in the Active Team; they remain in the Box until healed above 0 HP.
+
+
+## §2.4.2 Healing event taxonomy
+
+- **Full heal** (Pokémon Center, Victory Road Summit Preparation): sets all Box Pokémon's `CurrentHP` to `MaxHP × (1 - TraumaPenalty)`, where `TraumaPenalty` is determined by the Trauma System (see Topic 6 — Roguelike Progression). Revives fainted Pokémon to their Trauma-adjusted Max HP.
+- **Partial heal — percentage-of-Max** (League micro-rest, 30%): for every Box Pokémon, sets `CurrentHP` to `max(CurrentHP, floor(EffectiveMaxHP × 0.3))`, where `EffectiveMaxHP = MaxHP × (1 - TraumaPenalty)`. Revives fainted Pokémon to 30% of their Trauma-adjusted Max HP.
+- **Consumable heal** (in-combat items): restores the listed flat or percentage amount up to `EffectiveMaxHP`. Cannot revive fainted Pokémon during combat unless the consumable explicitly states "Revives" (no current launch consumable carries this flag).
+- **Move effect heal** (in-combat moves): same rule as consumable heal.
+
+## §2.4.3 In-combat revival is forbidden by default
+
+
+Fainting during combat is a permanent loss of that Pokémon's deck contribution for the remainder of that combat. This is intentional — fainting is a meaningful tactical loss, not a recoverable one.
+
+
+## §2.4.4 Fainting consequence — Trauma
+
+
+Each time a Pokémon faints (reaches 0 HP), it accrues a permanent run-scoped penalty. See Topic 6 for the full Trauma System specification.
+
+
+---
+
+
+# §2.5 Macro Loop — Visual Summary
+
+
+_Gym types per Region are seeded-randomly drawn from a tiered pool (4 types per tier × 3 tiers = 12 total Gym types). Player earns 3 Badges per run — one per Region from the chosen path. Up to 1 bonus Badge available through rare in-run sources. Maximum 4 Badges per run from a pool of 12._
+
