@@ -1,0 +1,143 @@
+using System;
+using System.IO;
+using UnityEngine;
+
+namespace ProjectAscendant.Core
+{
+    // Per §9.8 — save system facade. Three save layers: Meta, Run, Settings (§9.8.1).
+    // Serialization: JSON via JsonUtility for the skeleton; binary optimization post-VS.
+    // Atomicity: write-to-temp → verify-checksum → rename (§9.8.4).
+    // SaveSystem is a static class — no Services registration needed.
+    public static class SaveSystem
+    {
+        public const int SCHEMA_VERSION = 1;
+
+        // Per §9.8.2 — canonical save directory. Override for testing.
+        public static string SaveDirectoryOverride { get; set; }
+
+        private static string Dir => SaveDirectoryOverride
+            ?? Path.Combine(Application.persistentDataPath, "ProjectAscendant");
+
+        private static string MetaPath     => Path.Combine(Dir, "meta.dat");
+        private static string MetaBakPath  => Path.Combine(Dir, "meta.dat.bak");
+        private static string RunPath      => Path.Combine(Dir, "run-current.dat");
+        private static string SettingsPath => Path.Combine(Dir, "settings.json");
+
+        // Per §9.8.1 — save MetaProgressionSO. Triggered after run end + Pokémart purchase.
+        public static void SaveMeta(MetaProgressionSO meta)
+        {
+            AtomicWrite(MetaPath, MetaBakPath, JsonUtility.ToJson(meta));
+        }
+
+        // Per §9.8.1 — load MetaProgressionSO. Falls back to backup on corruption.
+        public static MetaProgressionSO LoadMeta()
+        {
+            string dataJson = AtomicRead(MetaPath, MetaBakPath);
+            if (dataJson == null) return null;
+
+            MetaProgressionSO meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            JsonUtility.FromJsonOverwrite(dataJson, meta);
+            return meta;
+        }
+
+        // Per §9.8.1 — save RunStateSO after every Node entry.
+        public static void SaveRun(RunStateSO run)
+        {
+            AtomicWrite(RunPath, bakPath: null, JsonUtility.ToJson(run));
+        }
+
+        // Per §9.8.1 — load RunStateSO. Returns null if missing or corrupt (run is forfeited).
+        public static RunStateSO LoadRun()
+        {
+            string dataJson = AtomicRead(RunPath, bakPath: null);
+            if (dataJson == null) return null;
+
+            RunStateSO runState = ScriptableObject.CreateInstance<RunStateSO>();
+            JsonUtility.FromJsonOverwrite(dataJson, runState);
+            return runState;
+        }
+
+        // Per §9.8.1 — save Settings as JSON on change.
+        public static void SaveSettings(SettingsSO settings)
+        {
+            Directory.CreateDirectory(Dir);
+            File.WriteAllText(SettingsPath, JsonUtility.ToJson(settings, prettyPrint: true));
+        }
+
+        // Per §9.8.4 — write-to-temp → verify-checksum → atomic-rename.
+        // If bakPath is non-null, the prior file is preserved as a last-known-good backup.
+        private static void AtomicWrite(string path, string bakPath, string dataJson)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+
+            uint checksum = ComputeChecksum(dataJson);
+            SaveHeader header = new()
+            {
+                SchemaVersion = SCHEMA_VERSION,
+                GameVersion   = Application.version,
+                Timestamp     = DateTime.UtcNow.ToString("o"),
+                Checksum      = checksum,
+            };
+
+            string wrapped  = JsonUtility.ToJson(header) + "\n" + dataJson;
+            string tmpPath  = path + ".tmp";
+            File.WriteAllText(tmpPath, wrapped);
+
+            // Verify: read back and confirm checksum before committing.
+            string readBack = File.ReadAllText(tmpPath);
+            var (readHeader, readData) = UnwrapHeader(readBack);
+            if (readHeader.Checksum != ComputeChecksum(readData))
+            {
+                File.Delete(tmpPath);
+                throw new IOException($"[SaveSystem] Checksum mismatch after temp write: {tmpPath}");
+            }
+
+            // Retain last-known-good backup before overwriting the primary.
+            if (bakPath != null && File.Exists(path))
+                File.Copy(path, bakPath, overwrite: true);
+
+            // Atomic rename: delete-then-move (same-volume rename on Windows is OS-atomic).
+            if (File.Exists(path)) File.Delete(path);
+            File.Move(tmpPath, path);
+        }
+
+        // Reads primary file; falls back to bakPath if primary is missing or corrupt.
+        // Returns null if both are unavailable or corrupt.
+        private static string AtomicRead(string path, string bakPath)
+        {
+            static string TryRead(string filePath)
+            {
+                if (!File.Exists(filePath)) return null;
+                try
+                {
+                    string content = File.ReadAllText(filePath);
+                    var (header, dataJson) = UnwrapHeader(content);
+                    return header.Checksum == ComputeChecksum(dataJson) ? dataJson : null;
+                }
+                catch { return null; }
+            }
+
+            return TryRead(path) ?? (bakPath != null ? TryRead(bakPath) : null);
+        }
+
+        private static (SaveHeader header, string dataJson) UnwrapHeader(string content)
+        {
+            int nl = content.IndexOf('\n');
+            if (nl < 0) throw new FormatException("[SaveSystem] Save file missing header separator.");
+            SaveHeader header = JsonUtility.FromJson<SaveHeader>(content[..nl]);
+            return (header, content[(nl + 1)..]);
+        }
+
+        // FNV-1a 32-bit checksum — matches RNGStreams.FNV1a for consistency.
+        public static uint ComputeChecksum(string data)
+        {
+            uint hash = 2166136261u;
+            foreach (char c in data)
+            {
+                hash ^= (uint)c;
+                hash *= 16777619u;
+            }
+            return hash;
+        }
+    }
+}

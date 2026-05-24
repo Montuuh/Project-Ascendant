@@ -21,7 +21,7 @@ namespace ProjectAscendant.Core
             // Per §9.14 — canonical service registrations.
             // Per §9.7.2 — placeholder RNGStreams with seed 0; Epic 3 overwrites with RunStateSO.RunSeed.
             Services.Register<RNGStreams>(new RNGStreams(0u));
-            // TODO: Task 2.7 — register SaveSystem instance once implemented.
+            // Per §9.8 — SaveSystem is a static facade; no Services registration needed.
             // TODO: Epic 3  — load and register RunStateSO via Addressables.
             // TODO: Epic 3  — load and register MetaProgressionSO via Addressables.
 
