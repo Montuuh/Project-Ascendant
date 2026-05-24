@@ -13,6 +13,7 @@ public static class BannedApiValidator
         (@"Resources\.Load\b",      "Use Addressables instead of Resources.Load (§9.2)"),
         (@"GameObject\.Find\b",     "Use DI / ServiceLocator instead of GameObject.Find (§9.5)"),
         (@"FindObjectOfType\b",     "Use DI / ServiceLocator instead of FindObjectOfType (§9.5)"),
+        (@"async\s+void\b",         "async void is forbidden in event handlers — use synchronous handlers (§9.4.2)"),
         (@"GetComponent\s*<",       null),  // not banned, skip
     };
 

@@ -5,6 +5,9 @@ namespace ProjectAscendant.Core
 {
     // Per §9.14 + Epic 1 Task 1.4.3 — Boot scene entry point.
     // Registers all canonical services, then transitions to MainMenu.
+    // Per §9.4 Task 2.2.7 — execution order -100 guarantees Services + EventBus
+    // are ready before any other MonoBehaviour Start() fires.
+    [DefaultExecutionOrder(-100)]
     public class Bootstrap : MonoBehaviour
     {
         [SerializeField] private string _firstScene = "MainMenu";
