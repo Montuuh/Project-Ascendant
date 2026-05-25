@@ -16,15 +16,16 @@ MonoBehaviour:
   DisplayName: Specialist
   Archetype: 1
   EvolvedSpecies: {fileID: 11400000, guid: 71f3edde4277690449b2a7eab70e75c8, type: 2}
-  MoveOverrides:
-  - SlotIndex: 0
-    ReplacementMove: {fileID: 11400000, guid: 68ad5e2040d031c48bd4497fd0f071bb, type: 2}
-  - SlotIndex: 1
-    ReplacementMove: {fileID: 11400000, guid: 686bfb1634172ad42affc9aa87a6af37, type: 2}
-  - SlotIndex: 2
-    ReplacementMove: {fileID: 11400000, guid: 4d9956e7f8e58014e90971cbedea2c04, type: 2}
-  - SlotIndex: 3
-    ReplacementMove: {fileID: 11400000, guid: a30895b5c0718894e9119980445f6176, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
+    NewMove: {fileID: 11400000, guid: 68ad5e2040d031c48bd4497fd0f071bb, type: 2}
+  - OldMove: {fileID: 11400000, guid: b114c7186c92548449d6e22f20cbeee5, type: 2}
+    NewMove: {fileID: 11400000, guid: 686bfb1634172ad42affc9aa87a6af37, type: 2}
+  - OldMove: {fileID: 11400000, guid: 8af699c93bb2b554f825d68f849db8c3, type: 2}
+    NewMove: {fileID: 11400000, guid: 4d9956e7f8e58014e90971cbedea2c04, type: 2}
+  - OldMove: {fileID: 11400000, guid: 57b250d22425b0248b4684406479c31a, type: 2}
+    NewMove: {fileID: 11400000, guid: a30895b5c0718894e9119980445f6176, type: 2}
+  NewMoves: []
   GrantedAbility: {fileID: 11400000, guid: eb97ca264896c9449a0e8d26804a6bf3, type: 2}
   SubBranches: []
   GDDReference: "\xA75.3.4"

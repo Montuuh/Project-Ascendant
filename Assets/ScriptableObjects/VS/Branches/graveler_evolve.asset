@@ -16,13 +16,14 @@ MonoBehaviour:
   DisplayName: Vanguard
   Archetype: 0
   EvolvedSpecies: {fileID: 11400000, guid: f005ab37e554e4045b8a4d44ac2f08fd, type: 2}
-  MoveOverrides:
-  - SlotIndex: 0
-    ReplacementMove: {fileID: 11400000, guid: dc61fa235068a5c4eb91c89961a62b8e, type: 2}
-  - SlotIndex: 1
-    ReplacementMove: {fileID: 11400000, guid: ea938a84222250940bf3c5286214cf42, type: 2}
-  - SlotIndex: 2
-    ReplacementMove: {fileID: 11400000, guid: ffa7bc09d7bdb9f439028df394b829d2, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: 07f68986483e3ea458954580498dc23e, type: 2}
+    NewMove: {fileID: 11400000, guid: dc61fa235068a5c4eb91c89961a62b8e, type: 2}
+  - OldMove: {fileID: 11400000, guid: 6ac00825b70615347840cd19ef45d692, type: 2}
+    NewMove: {fileID: 11400000, guid: ea938a84222250940bf3c5286214cf42, type: 2}
+  - OldMove: {fileID: 11400000, guid: f39bc894bd25c884fbf3acacb7708760, type: 2}
+    NewMove: {fileID: 11400000, guid: ffa7bc09d7bdb9f439028df394b829d2, type: 2}
+  NewMoves: []
   GrantedAbility: {fileID: 11400000, guid: 258aab2730b7ea74bad9eb40a996fd29, type: 2}
   SubBranches: []
   GDDReference: "\xA75.3.4"

@@ -16,13 +16,14 @@ MonoBehaviour:
   DisplayName: Heavy Brawler
   Archetype: 0
   EvolvedSpecies: {fileID: 11400000, guid: 6677a0d41e22d2a42a2ddc9922ed954a, type: 2}
-  MoveOverrides:
-  - SlotIndex: 0
-    ReplacementMove: {fileID: 11400000, guid: 1bf7ff7c86e8d5e4ba86cc5e2bdf0e31, type: 2}
-  - SlotIndex: 1
-    ReplacementMove: {fileID: 11400000, guid: b27eda9c32a79c34a9d83982cd2931b6, type: 2}
-  - SlotIndex: 2
-    ReplacementMove: {fileID: 11400000, guid: 7bfd384832686544c82565a3dac3c588, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: 9f9a2edb2ac28df4da57e98df035b578, type: 2}
+    NewMove: {fileID: 11400000, guid: 1bf7ff7c86e8d5e4ba86cc5e2bdf0e31, type: 2}
+  - OldMove: {fileID: 11400000, guid: 39c3f4ac179fb6f4583db1a9539ad434, type: 2}
+    NewMove: {fileID: 11400000, guid: b27eda9c32a79c34a9d83982cd2931b6, type: 2}
+  - OldMove: {fileID: 11400000, guid: d34c0e9ccfe611147af8d67c60ddad37, type: 2}
+    NewMove: {fileID: 11400000, guid: 7bfd384832686544c82565a3dac3c588, type: 2}
+  NewMoves: []
   GrantedAbility: {fileID: 11400000, guid: fdc09664190bd29418053d03c6e21109, type: 2}
   SubBranches: []
   GDDReference: "\xA75.6"

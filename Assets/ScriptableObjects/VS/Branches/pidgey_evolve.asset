@@ -16,11 +16,12 @@ MonoBehaviour:
   DisplayName: Support
   Archetype: 2
   EvolvedSpecies: {fileID: 11400000, guid: 262430a8c293ae84298046d92ee493aa, type: 2}
-  MoveOverrides:
-  - SlotIndex: 0
-    ReplacementMove: {fileID: 11400000, guid: e7fa2aefa18715940accff7c57c4976e, type: 2}
-  - SlotIndex: 1
-    ReplacementMove: {fileID: 11400000, guid: 818790dcb65e0124fa9bb42cd1059fea, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: 68ad5e2040d031c48bd4497fd0f071bb, type: 2}
+    NewMove: {fileID: 11400000, guid: e7fa2aefa18715940accff7c57c4976e, type: 2}
+  - OldMove: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
+    NewMove: {fileID: 11400000, guid: 818790dcb65e0124fa9bb42cd1059fea, type: 2}
+  NewMoves: []
   GrantedAbility: {fileID: 11400000, guid: 012126a49af992842a99c2ac69bb7c43, type: 2}
   SubBranches: []
   GDDReference: "\xA75.3.4"

@@ -30,7 +30,7 @@ namespace ProjectAscendant.Editor
             Check(branch     != null, "squirtle_vanguard branch exists");
             Check(squirtle   != null && squirtle.Branches.Count == 1,  "Squirtle has 1 branch");
             Check(branch     != null && branch.EvolvedSpecies == wartortle, "Branch evolves → Wartortle_Vanguard");
-            Check(branch     != null && branch.MoveOverrides.Count == 2, "Squirtle→Wartortle has 2 overrides (SkullBash + AquaJet)");
+            Check(branch     != null && branch.MoveUpgrades.Count == 2, "Squirtle→Wartortle has 2 upgrades (SkullBash + AquaJet)");
 
             // ── Wartortle → Blastoise sub-branch wiring ──────────────────────
             Check(wartortle  != null && wartortle.Branches.Count == 2, "Wartortle_Vanguard has 2 sub-branches (VA1, VA2)");
@@ -38,7 +38,7 @@ namespace ProjectAscendant.Editor
             // ── Bulbasaur learnset ───────────────────────────────────────────
             var bulbasaur = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Bulbasaur.asset");
             Check(bulbasaur  != null && bulbasaur.BaseLearnset.Count == 4, "Bulbasaur has 4 base moves");
-            Check(bulbasaur  != null && bulbasaur.MasteryMoveBase != null,  "Bulbasaur has a Mastery Move");
+            Check(bulbasaur  != null && bulbasaur.MasteryMove != null,  "Bulbasaur has a Mastery Move");
             Check(bulbasaur  != null && bulbasaur.PrimaryAbility == null,   "Bulbasaur has no pre-evo ability (§5.5.1)");
 
             var ivysaur = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Ivysaur_Vanguard.asset");

@@ -18,7 +18,7 @@ namespace ProjectAscendant.Core
             instance.CurrentXP = 0;
             instance.TraumaStacks = 0;
             instance.CurrentMoves.Clear();
-            instance.MasteryMove = species?.MasteryMoveBase;
+            instance.MasteryMove = species?.MasteryMove;
             instance.Ability = species?.PrimaryAbility;
             instance.HeldItem = null;
             instance.StatStages.Clear();

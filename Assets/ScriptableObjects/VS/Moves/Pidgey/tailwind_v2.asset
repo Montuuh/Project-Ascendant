@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-2398160077782129821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c48a4ef1950539a478deba39a94646cf, type: 3}
-  m_Name: tailwind_v2_DrawCards2
-  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.DrawCardsEffectSO
-  CardsToDrawBonus: 2
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36,7 +23,20 @@ MonoBehaviour:
   RangeModifierMultiplier: 0.75
   AlwaysCrit: 0
   Effects:
-  - {fileID: -2398160077782129821}
+  - {fileID: 7326594876223852488}
   CardArt: {fileID: 0}
   FlavorText: Draws +2 skill cards this turn. Upgraded Tailwind at Pidgeot.
   GDDReference: "\xA75.3.6"
+--- !u!114 &7326594876223852488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c48a4ef1950539a478deba39a94646cf, type: 3}
+  m_Name: tailwind_v2_DrawCards2
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.DrawCardsEffectSO
+  CardsToDrawBonus: 2

@@ -16,13 +16,14 @@ MonoBehaviour:
   DisplayName: Bloom Brawler
   Archetype: 0
   EvolvedSpecies: {fileID: 11400000, guid: cfc4f94ba3e54bc4ebe74409d60ef8ad, type: 2}
-  MoveOverrides:
-  - SlotIndex: 0
-    ReplacementMove: {fileID: 11400000, guid: da32a924cc40cbd4797fb143afe6b347, type: 2}
-  - SlotIndex: 1
-    ReplacementMove: {fileID: 11400000, guid: 9bfdaa8c0a07587479217319d145bfd9, type: 2}
-  - SlotIndex: 2
-    ReplacementMove: {fileID: 11400000, guid: 10fbbbb27efc6e34ea3d9bb246b74596, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: e1b9ad2c4566fd549812edb9a9b0977f, type: 2}
+    NewMove: {fileID: 11400000, guid: da32a924cc40cbd4797fb143afe6b347, type: 2}
+  - OldMove: {fileID: 11400000, guid: aa524b2b0673230488bb9632549f3ab8, type: 2}
+    NewMove: {fileID: 11400000, guid: 9bfdaa8c0a07587479217319d145bfd9, type: 2}
+  - OldMove: {fileID: 11400000, guid: 4ccefcc01fa93b347a38529a8a3d7004, type: 2}
+    NewMove: {fileID: 11400000, guid: 10fbbbb27efc6e34ea3d9bb246b74596, type: 2}
+  NewMoves: []
   GrantedAbility: {fileID: 11400000, guid: 258aab2730b7ea74bad9eb40a996fd29, type: 2}
   SubBranches: []
   GDDReference: "\xA75.3.5"

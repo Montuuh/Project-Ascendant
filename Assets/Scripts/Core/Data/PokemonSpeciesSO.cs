@@ -38,8 +38,8 @@ namespace ProjectAscendant.Core
         // Per §5.5.1 — granted at first evolution.
         public AbilitySO PrimaryAbility;
 
-        // Per §4.3.9.2 — 5th card slot; immutable; cannot be replaced by TM/Tutor.
-        public MoveSO MasteryMoveBase;
+        // Per §4.3.9.2 — this stage's Mastery tier card (Lv1/Lv2/Lv3 depending on evolution stage). Unlocked via meta-progression achievements. Cannot be replaced by TM/Tutor.
+        public MoveSO MasteryMove;
 
         [Header("Wild Encounter")]
         public List<StatusCondition> StatusImmunities;

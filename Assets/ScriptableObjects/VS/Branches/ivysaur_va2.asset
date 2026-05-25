@@ -16,13 +16,14 @@ MonoBehaviour:
   DisplayName: Toxic Briar
   Archetype: 0
   EvolvedSpecies: {fileID: 11400000, guid: 102df173007da2a4192872bdadae1166, type: 2}
-  MoveOverrides:
-  - SlotIndex: 0
-    ReplacementMove: {fileID: 11400000, guid: c62010b92d4c4ef40b47c53d0468f80b, type: 2}
-  - SlotIndex: 2
-    ReplacementMove: {fileID: 11400000, guid: df056291fd4ed084b954727d24c95a9e, type: 2}
-  - SlotIndex: 3
-    ReplacementMove: {fileID: 11400000, guid: 7f9e9566a5883064493da3b630605ae7, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: e1b9ad2c4566fd549812edb9a9b0977f, type: 2}
+    NewMove: {fileID: 11400000, guid: c62010b92d4c4ef40b47c53d0468f80b, type: 2}
+  - OldMove: {fileID: 11400000, guid: 4ccefcc01fa93b347a38529a8a3d7004, type: 2}
+    NewMove: {fileID: 11400000, guid: df056291fd4ed084b954727d24c95a9e, type: 2}
+  - OldMove: {fileID: 11400000, guid: 2d098a8f4c63ec54fbaf2bf4fc027c39, type: 2}
+    NewMove: {fileID: 11400000, guid: 7f9e9566a5883064493da3b630605ae7, type: 2}
+  NewMoves: []
   GrantedAbility: {fileID: 11400000, guid: 88dfab4581c8370458867b0660d0b27f, type: 2}
   SubBranches: []
   GDDReference: "\xA75.3.5"

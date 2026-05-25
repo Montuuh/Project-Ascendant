@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5423653885475207989
+--- !u!114 &-2598747477314382083
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -39,7 +39,7 @@ MonoBehaviour:
   RangeModifierMultiplier: 1
   AlwaysCrit: 0
   Effects:
-  - {fileID: -5423653885475207989}
+  - {fileID: -2598747477314382083}
   CardArt: {fileID: 0}
   FlavorText: 
   GDDReference: "\xA75.3.6"

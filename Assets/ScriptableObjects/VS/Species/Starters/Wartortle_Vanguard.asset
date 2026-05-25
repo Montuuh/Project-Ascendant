@@ -32,7 +32,7 @@ MonoBehaviour:
   TutorLearnset: []
   TMCompatibility: []
   PrimaryAbility: {fileID: 11400000, guid: 512195af6d5615d478873ef3b1578af6, type: 2}
-  MasteryMoveBase: {fileID: 11400000, guid: c008e971871be434da0adc65a7c02954, type: 2}
+  MasteryMove: {fileID: 11400000, guid: c008e971871be434da0adc65a7c02954, type: 2}
   StatusImmunities: 
   WildRarity: 0
   SpawnBiomes: 0300000006000000

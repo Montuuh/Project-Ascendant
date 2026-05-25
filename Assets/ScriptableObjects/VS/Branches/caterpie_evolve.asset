@@ -16,13 +16,14 @@ MonoBehaviour:
   DisplayName: Specialist
   Archetype: 1
   EvolvedSpecies: {fileID: 11400000, guid: 79fcbee40fb6ad84895b373a0bff8755, type: 2}
-  MoveOverrides:
-  - SlotIndex: 1
-    ReplacementMove: {fileID: 11400000, guid: b114c7186c92548449d6e22f20cbeee5, type: 2}
-  - SlotIndex: 2
-    ReplacementMove: {fileID: 11400000, guid: 8af699c93bb2b554f825d68f849db8c3, type: 2}
-  - SlotIndex: 3
-    ReplacementMove: {fileID: 11400000, guid: 57b250d22425b0248b4684406479c31a, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: d49e17b92afc8064faf6556797bb0df4, type: 2}
+    NewMove: {fileID: 11400000, guid: b114c7186c92548449d6e22f20cbeee5, type: 2}
+  - OldMove: {fileID: 11400000, guid: be4f22f4df9c02644a0cee67a693e470, type: 2}
+    NewMove: {fileID: 11400000, guid: 8af699c93bb2b554f825d68f849db8c3, type: 2}
+  - OldMove: {fileID: 11400000, guid: 125f7ae06f4ed44439d41433a04325ad, type: 2}
+    NewMove: {fileID: 11400000, guid: 57b250d22425b0248b4684406479c31a, type: 2}
+  NewMoves: []
   GrantedAbility: {fileID: 11400000, guid: 4651a859cc66dcf43bb4bb0aa3b0f523, type: 2}
   SubBranches: []
   GDDReference: "\xA75.3.4"

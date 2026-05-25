@@ -6,7 +6,7 @@ namespace ProjectAscendant.Core
 {
     // Per §5.3 + Epic 3.1.3 — Definition SO for one evolution branch.
     // A PokemonSpeciesSO holds 2-4 EvolutionBranchSOs per §5.3.3.
-    // Each branch defines the evolved form, which moves change, and which ability is granted.
+    // Each branch defines the evolved form, which pool moves upgrade, and which ability is granted.
     [CreateAssetMenu(fileName = "New Evolution Branch", menuName = "Project Ascendant/Data/Evolution Branch")]
     public class EvolutionBranchSO : ScriptableObject
     {
@@ -19,9 +19,12 @@ namespace ProjectAscendant.Core
         // The evolved species SO for this branch (e.g. Wartortle Vanguard SO).
         public PokemonSpeciesSO EvolvedSpecies;
 
-        // Per §5.3.5 — which of the 4 base move slots change on taking this branch.
-        // Slots not listed are retained unchanged.
-        public List<MoveSlotOverride> MoveOverrides;
+        // Per §5.3.5 + §5.10 — in-place pool upgrades: each pair replaces OldMove with NewMove.
+        // Keyed by old move reference, not slot index.
+        public List<MoveUpgradePair> MoveUpgrades;
+
+        // Per §5.10 — brand-new moves added to the pool on taking this branch.
+        public List<MoveSO> NewMoves;
 
         // Per §5.5.1 — ability granted when this branch is chosen (nullable).
         public AbilitySO GrantedAbility;
@@ -34,14 +37,11 @@ namespace ProjectAscendant.Core
         public string GDDReference;
     }
 
-    // Per §5.3.5 — specifies which move slot is replaced and with what on evolution.
+    // Per §5.3.5 + §5.10 — in-place pool upgrade: OldMove is replaced by NewMove in the pool.
     [Serializable]
-    public struct MoveSlotOverride
+    public struct MoveUpgradePair
     {
-        [Range(0, 3)]
-        [Tooltip("0-3 = base move slots. Mastery Move (slot 4) cannot be overridden per §4.3.9.2.")]
-        public int SlotIndex;
-
-        public MoveSO ReplacementMove;
+        public MoveSO OldMove;
+        public MoveSO NewMove;
     }
 }

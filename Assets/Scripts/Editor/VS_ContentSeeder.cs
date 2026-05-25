@@ -594,7 +594,7 @@ namespace ProjectAscendant.Editor
         }
 
         // ── Branches ──────────────────────────────────────────────────────────
-        // Per §5.3 + §5.3.5. MoveOverrides = only slots that CHANGE from source kit.
+        // Per §5.3 + §5.3.5 + §5.10. MoveUpgrades = pool moves that change; NewMoves = pool additions.
 
         static Dictionary<string, EvolutionBranchSO> SeedBranches(
             Dictionary<string, MoveSO> mv,
@@ -605,123 +605,123 @@ namespace ProjectAscendant.Editor
             string p = $"{ROOT}/Branches";
 
             // ── Bulbasaur → Ivysaur (Vanguard) ──────────────────────────────
-            // Bulbasaur base: [0:tackle, 1:vine_whip, 2:growl, 3:leech_seed]
-            // Ivysaur V:      [0:headbutt(new), 1:vine_lash(new), 2:growl(kept), 3:mega_drain(new)]
+            // Bulbasaur pool: [tackle, vine_whip, growl, leech_seed]
+            // Upgrades: tackle→headbutt, vine_whip→vine_lash, leech_seed→mega_drain (growl kept)
             d["bulbasaur_vanguard"] = Br(p,"bulbasaur_vanguard","Vanguard",
                 BranchArchetype.Vanguard, sp["ivysaur_v"],
-                new[]{(0,mv["headbutt"]),(1,mv["vine_lash"]),(3,mv["mega_drain"])},
+                new[]{(mv["tackle"],mv["headbutt"]),(mv["vine_whip"],mv["vine_lash"]),(mv["leech_seed"],mv["mega_drain"])},
                 null, "§5.3.4");
 
             // Ivysaur V → Venusaur A1 (Bloom Brawler)
-            // Ivysaur V:    [0:headbutt, 1:vine_lash, 2:growl, 3:mega_drain]
-            // Venusaur VA1: [0:petal_blizzard, 1:power_whip, 2:sweet_scent, 3:mega_drain(kept)]
+            // Ivysaur pool: [headbutt, vine_lash, growl, mega_drain]
+            // Upgrades: headbutt→petal_blizzard, vine_lash→power_whip, growl→sweet_scent (mega_drain kept)
             d["ivysaur_va1"] = Br(p,"ivysaur_va1","Bloom Brawler",
                 BranchArchetype.Vanguard, sp["venusaur_va1"],
-                new[]{(0,mv["petal_blizzard"]),(1,mv["power_whip"]),(2,mv["sweet_scent"])},
+                new[]{(mv["headbutt"],mv["petal_blizzard"]),(mv["vine_lash"],mv["power_whip"]),(mv["growl"],mv["sweet_scent"])},
                 ab["tough_claws"], "§5.3.5");
 
             // Ivysaur V → Venusaur A2 (Toxic Briar)
-            // Ivysaur V:    [0:headbutt, 1:vine_lash, 2:growl, 3:mega_drain]
-            // Venusaur VA2: [0:seed_flare, 1:vine_lash(kept), 2:toxic, 3:giga_drain]
+            // Ivysaur pool: [headbutt, vine_lash, growl, mega_drain]
+            // Upgrades: headbutt→seed_flare, growl→toxic, mega_drain→giga_drain (vine_lash kept)
             d["ivysaur_va2"] = Br(p,"ivysaur_va2","Toxic Briar",
                 BranchArchetype.Vanguard, sp["venusaur_va2"],
-                new[]{(0,mv["seed_flare"]),(2,mv["toxic"]),(3,mv["giga_drain"])},
+                new[]{(mv["headbutt"],mv["seed_flare"]),(mv["growl"],mv["toxic"]),(mv["mega_drain"],mv["giga_drain"])},
                 ab["snipe"], "§5.3.5");
 
             // ── Charmander → Charmeleon (Vanguard) ──────────────────────────
-            // Charmander base:  [0:scratch, 1:ember, 2:growl, 3:smokescreen]
-            // Charmeleon V:     [0:dragon_claw(new), 1:flame_wheel(new), 2:growl(kept), 3:slash(new)]
+            // Charmander pool: [scratch, ember, growl, smokescreen]
+            // Upgrades: scratch→dragon_claw, ember→flame_wheel, smokescreen→slash (growl kept)
             d["charmander_vanguard"] = Br(p,"charmander_vanguard","Vanguard",
                 BranchArchetype.Vanguard, sp["charmeleon_v"],
-                new[]{(0,mv["dragon_claw"]),(1,mv["flame_wheel"]),(3,mv["slash"])},
+                new[]{(mv["scratch"],mv["dragon_claw"]),(mv["ember"],mv["flame_wheel"]),(mv["smokescreen"],mv["slash"])},
                 null, "§5.3.4");
 
             // Charmeleon V → Charizard A1 (Sky Striker)
-            // Charmeleon V:  [0:dragon_claw, 1:flame_wheel, 2:growl, 3:slash]
-            // Charizard VA1: [0:wing_attack, 1:flamethrower, 2:roost, 3:dragon_claw_plus]
+            // Charmeleon pool: [dragon_claw, flame_wheel, growl, slash]
+            // Upgrades: all 4 — dragon_claw→wing_attack, flame_wheel→flamethrower, growl→roost, slash→dragon_claw_plus
             d["charmeleon_va1"] = Br(p,"charmeleon_va1","Sky Striker",
                 BranchArchetype.Vanguard, sp["charizard_va1"],
-                new[]{(0,mv["wing_attack"]),(1,mv["flamethrower"]),(2,mv["roost"]),(3,mv["dragon_claw_plus"])},
+                new[]{(mv["dragon_claw"],mv["wing_attack"]),(mv["flame_wheel"],mv["flamethrower"]),(mv["growl"],mv["roost"]),(mv["slash"],mv["dragon_claw_plus"])},
                 ab["tough_claws"], "§5.3.5");
 
             // Charmeleon V → Charizard A2 (Inferno Dragon)
-            // Charmeleon V:  [0:dragon_claw, 1:flame_wheel, 2:growl, 3:slash]
-            // Charizard VA2: [0:fire_fang_plus, 1:flame_wheel(kept), 2:growl(kept), 3:inferno]
+            // Charmeleon pool: [dragon_claw, flame_wheel, growl, slash]
+            // Upgrades: dragon_claw→fire_fang_plus, slash→inferno (flame_wheel, growl kept)
             d["charmeleon_va2"] = Br(p,"charmeleon_va2","Inferno Dragon",
                 BranchArchetype.Vanguard, sp["charizard_va2"],
-                new[]{(0,mv["fire_fang_plus"]),(3,mv["inferno"])},
+                new[]{(mv["dragon_claw"],mv["fire_fang_plus"]),(mv["slash"],mv["inferno"])},
                 ab["snipe"], "§5.3.5");
 
             // ── Squirtle → Wartortle (Vanguard, §5.6) ───────────────────────
-            // Squirtle base: [0:tackle, 1:water_gun, 2:withdraw, 3:tail_whip]
-            // Wartortle V:   [0:skull_bash(new), 1:water_gun(kept), 2:withdraw(kept), 3:aqua_jet(new)]
+            // Squirtle pool: [tackle, water_gun, withdraw, tail_whip]
+            // Upgrades: tackle→skull_bash, tail_whip→aqua_jet (water_gun, withdraw kept)
             d["squirtle_vanguard"] = Br(p,"squirtle_vanguard","Vanguard",
                 BranchArchetype.Vanguard, sp["wartortle_v"],
-                new[]{(0,mv["skull_bash"]),(3,mv["aqua_jet"])},
+                new[]{(mv["tackle"],mv["skull_bash"]),(mv["tail_whip"],mv["aqua_jet"])},
                 null, "§5.6");
 
             // Wartortle V → Blastoise A1 (Heavy Brawler, §5.6)
-            // Wartortle V:    [0:skull_bash, 1:water_gun, 2:withdraw, 3:aqua_jet]
-            // Blastoise VA1:  [0:hydro_crash, 1:surf, 2:aqua_ring, 3:aqua_jet(kept)]
+            // Wartortle pool: [skull_bash, water_gun, withdraw, aqua_jet]
+            // Upgrades: skull_bash→hydro_crash, water_gun→surf, withdraw→aqua_ring (aqua_jet kept)
             d["wartortle_va1"] = Br(p,"wartortle_va1","Heavy Brawler",
                 BranchArchetype.Vanguard, sp["blastoise_va1"],
-                new[]{(0,mv["hydro_crash"]),(1,mv["surf"]),(2,mv["aqua_ring"])},
+                new[]{(mv["skull_bash"],mv["hydro_crash"]),(mv["water_gun"],mv["surf"]),(mv["withdraw"],mv["aqua_ring"])},
                 ab["shell_armor"], "§5.6");
 
             // Wartortle V → Blastoise A2 (Aqua-Jet Duelist, §5.6)
-            // Wartortle V:    [0:skull_bash, 1:water_gun, 2:withdraw, 3:aqua_jet]
-            // Blastoise VA2:  [0:skull_bash_plus, 1:hydro_pump, 2:withdraw(kept), 3:aqua_jet_plus]
+            // Wartortle pool: [skull_bash, water_gun, withdraw, aqua_jet]
+            // Upgrades: skull_bash→skull_bash_plus, water_gun→hydro_pump, aqua_jet→aqua_jet_plus (withdraw kept)
             d["wartortle_va2"] = Br(p,"wartortle_va2","Aqua-Jet Duelist",
                 BranchArchetype.Vanguard, sp["blastoise_va2"],
-                new[]{(0,mv["skull_bash_plus"]),(1,mv["hydro_pump"]),(3,mv["aqua_jet_plus"])},
+                new[]{(mv["skull_bash"],mv["skull_bash_plus"]),(mv["water_gun"],mv["hydro_pump"]),(mv["aqua_jet"],mv["aqua_jet_plus"])},
                 ab["swift_swim"], "§5.6");
 
             // ── Caterpie → Metapod (single Specialist path) ──────────────────
-            // Caterpie base: [0:tackle, 1:string_shot, 2:bug_bite, 3:harden]
-            // Metapod:       [0:tackle(kept), 1:silk_bind, 2:pin_shot, 3:harden_plus]
+            // Caterpie pool: [tackle, string_shot, bug_bite, harden]
+            // Upgrades: string_shot→silk_bind, bug_bite→pin_shot, harden→harden_plus (tackle kept)
             d["caterpie_evolve"] = Br(p,"caterpie_evolve","Specialist",
                 BranchArchetype.Specialist, sp["metapod"],
-                new[]{(1,mv["silk_bind"]),(2,mv["pin_shot"]),(3,mv["harden_plus"])},
+                new[]{(mv["string_shot"],mv["silk_bind"]),(mv["bug_bite"],mv["pin_shot"]),(mv["harden"],mv["harden_plus"])},
                 ab["iron_shell"], "§5.3.4");
 
             // Metapod → Butterfree
-            // Metapod:    [0:tackle, 1:silk_bind, 2:pin_shot, 3:harden_plus]
-            // Butterfree: [0:gust, 1:powder_spread, 2:silver_wind, 3:psybeam]
+            // Metapod pool: [tackle, silk_bind, pin_shot, harden_plus]
+            // Upgrades: all 4 — tackle→gust, silk_bind→powder_spread, pin_shot→silver_wind, harden_plus→psybeam
             d["metapod_evolve"] = Br(p,"metapod_evolve","Specialist",
                 BranchArchetype.Specialist, sp["butterfree"],
-                new[]{(0,mv["gust"]),(1,mv["powder_spread"]),(2,mv["silver_wind"]),(3,mv["psybeam"])},
+                new[]{(mv["tackle"],mv["gust"]),(mv["silk_bind"],mv["powder_spread"]),(mv["pin_shot"],mv["silver_wind"]),(mv["harden_plus"],mv["psybeam"])},
                 ab["compoundeyes"], "§5.3.4");
 
             // ── Pidgey → Pidgeotto (single Support path) ─────────────────────
-            // Pidgey base: [0:gust, 1:tackle, 2:sand_attack, 3:roost]
-            // Pidgeotto:   [0:aerial_ace, 1:tailwind, 2:sand_attack(kept), 3:roost(kept)]
+            // Pidgey pool: [gust, tackle, sand_attack, roost]
+            // Upgrades: gust→aerial_ace, tackle→tailwind (sand_attack, roost kept)
             d["pidgey_evolve"] = Br(p,"pidgey_evolve","Support",
                 BranchArchetype.Support, sp["pidgeotto"],
-                new[]{(0,mv["aerial_ace"]),(1,mv["tailwind"])},
+                new[]{(mv["gust"],mv["aerial_ace"]),(mv["tackle"],mv["tailwind"])},
                 ab["keen_eye"], "§5.3.4");
 
             // Pidgeotto → Pidgeot
-            // Pidgeotto:  [0:aerial_ace, 1:tailwind, 2:sand_attack, 3:roost]
-            // Pidgeot:    [0:hurricane, 1:tailwind_v2, 2:sand_attack(kept), 3:roost_final]
+            // Pidgeotto pool: [aerial_ace, tailwind, sand_attack, roost]
+            // Upgrades: aerial_ace→hurricane, tailwind→tailwind_v2, roost→roost_final (sand_attack kept)
             d["pidgeotto_evolve"] = Br(p,"pidgeotto_evolve","Support",
                 BranchArchetype.Support, sp["pidgeot"],
-                new[]{(0,mv["hurricane"]),(1,mv["tailwind_v2"]),(3,mv["roost_final"])},
+                new[]{(mv["aerial_ace"],mv["hurricane"]),(mv["tailwind"],mv["tailwind_v2"]),(mv["roost"],mv["roost_final"])},
                 ab["healer"], "§5.3.4");
 
             // ── Geodude → Graveler (single Vanguard path) ─────────────────────
-            // Geodude base: [0:tackle, 1:rock_throw, 2:defense_curl, 3:magnitude]
-            // Graveler:     [0:rock_blast, 1:rollout, 2:stealth_rock, 3:earthquake]
+            // Geodude pool: [tackle, rock_throw, defense_curl, magnitude]
+            // Upgrades: all 4 — tackle→rock_blast, rock_throw→rollout, defense_curl→stealth_rock, magnitude→earthquake
             d["geodude_evolve"] = Br(p,"geodude_evolve","Vanguard",
                 BranchArchetype.Vanguard, sp["graveler"],
-                new[]{(0,mv["rock_blast"]),(1,mv["rollout"]),(2,mv["stealth_rock"]),(3,mv["earthquake"])},
+                new[]{(mv["tackle"],mv["rock_blast"]),(mv["rock_throw"],mv["rollout"]),(mv["defense_curl"],mv["stealth_rock"]),(mv["magnitude"],mv["earthquake"])},
                 ab["sturdy"], "§5.3.4");
 
             // Graveler → Golem
-            // Graveler: [0:rock_blast, 1:rollout, 2:stealth_rock, 3:earthquake]
-            // Golem:    [0:stone_edge, 1:rock_polish, 2:body_press, 3:earthquake(kept)]
+            // Graveler pool: [rock_blast, rollout, stealth_rock, earthquake]
+            // Upgrades: rock_blast→stone_edge, rollout→rock_polish, stealth_rock→body_press (earthquake kept)
             d["graveler_evolve"] = Br(p,"graveler_evolve","Vanguard",
                 BranchArchetype.Vanguard, sp["golem"],
-                new[]{(0,mv["stone_edge"]),(1,mv["rock_polish"]),(2,mv["body_press"])},
+                new[]{(mv["rock_blast"],mv["stone_edge"]),(mv["rollout"],mv["rock_polish"]),(mv["stealth_rock"],mv["body_press"])},
                 ab["tough_claws"], "§5.3.4");
 
             return d;
@@ -904,7 +904,7 @@ namespace ProjectAscendant.Editor
             s.BaseLearnset   = new System.Collections.Generic.List<MoveSO>(learnset);
             s.TutorLearnset  = new System.Collections.Generic.List<MoveSO>();
             s.TMCompatibility= new System.Collections.Generic.List<TMSO>();
-            s.MasteryMoveBase= masteryMove;
+            s.MasteryMove    = masteryMove;
             s.PrimaryAbility = primaryAbility;
             // Secondary ability stored as the Branch's GrantedAbility — stored here for
             // reference by inspector; runtime wiring done by BranchSO in Epic 4.
@@ -923,19 +923,24 @@ namespace ProjectAscendant.Editor
 
         // ── Branch factory ────────────────────────────────────────────────────
 
-        // overrides: array of (slotIndex, replacementMove) tuples
+        // upgrades: (oldMove, newMove) pairs — in-place pool upgrades per §5.3.5 + §5.10.
+        // newMoves: additional moves added to pool on evolution (null = none).
         static EvolutionBranchSO Br(string folder, string id, string displayName,
             BranchArchetype archetype, PokemonSpeciesSO evolvedSpecies,
-            (int slot, MoveSO move)[] overrides, AbilitySO grantedAbility, string gddRef)
+            (MoveSO oldMove, MoveSO newMove)[] upgrades, AbilitySO grantedAbility, string gddRef,
+            MoveSO[] newMoves = null)
         {
             var b = CreateSO<EvolutionBranchSO>($"{folder}/{id}.asset");
             b.BranchId      = id;
             b.DisplayName   = displayName;
             b.Archetype     = archetype;
             b.EvolvedSpecies= evolvedSpecies;
-            b.MoveOverrides = new System.Collections.Generic.List<MoveSlotOverride>();
-            foreach (var (slot, move) in overrides)
-                b.MoveOverrides.Add(new MoveSlotOverride { SlotIndex = slot, ReplacementMove = move });
+            b.MoveUpgrades  = new System.Collections.Generic.List<MoveUpgradePair>();
+            foreach (var (oldMove, newMove) in upgrades)
+                b.MoveUpgrades.Add(new MoveUpgradePair { OldMove = oldMove, NewMove = newMove });
+            b.NewMoves      = newMoves != null
+                ? new System.Collections.Generic.List<MoveSO>(newMoves)
+                : new System.Collections.Generic.List<MoveSO>();
             b.GrantedAbility= grantedAbility;
             b.SubBranches   = new System.Collections.Generic.List<EvolutionBranchSO>();
             b.GDDReference  = gddRef;

@@ -16,11 +16,12 @@ MonoBehaviour:
   DisplayName: Vanguard
   Archetype: 0
   EvolvedSpecies: {fileID: 11400000, guid: eebea80048e52154db6ed538b128cf6b, type: 2}
-  MoveOverrides:
-  - SlotIndex: 0
-    ReplacementMove: {fileID: 11400000, guid: 9f9a2edb2ac28df4da57e98df035b578, type: 2}
-  - SlotIndex: 3
-    ReplacementMove: {fileID: 11400000, guid: c0362a0708fe7d64a84d44efea664e1c, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
+    NewMove: {fileID: 11400000, guid: 9f9a2edb2ac28df4da57e98df035b578, type: 2}
+  - OldMove: {fileID: 11400000, guid: 5e6a05289e17de64e9417eac498b099b, type: 2}
+    NewMove: {fileID: 11400000, guid: c0362a0708fe7d64a84d44efea664e1c, type: 2}
+  NewMoves: []
   GrantedAbility: {fileID: 0}
   SubBranches: []
   GDDReference: "\xA75.6"
