@@ -5,9 +5,9 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Editor
 {
-    // Per Task 3.4.1 — Custom inspector for PokemonSpeciesSO.
+    // Per Tasks 3.4.1 + 3.5.3 — Custom inspector for PokemonSpeciesSO.
     // Shows: evolution graph (branches → sub-branches → evolved species),
-    // mastery move summary, and learnset count validation.
+    // mastery move summary, learnset count validation, GDD reference footer.
     [CustomEditor(typeof(PokemonSpeciesSO))]
     public class PokemonSpeciesSOEditor : UnityEditor.Editor
     {
@@ -29,6 +29,7 @@ namespace ProjectAscendant.Editor
             DrawMasterySection(species);
             EditorGUILayout.Space(4);
             DrawLearnsetSummary(species);
+            SOEditorUtils.DrawGDDFooter(target);
         }
 
         // ── Evolution Graph ────────────────────────────────────────────────
@@ -230,11 +231,6 @@ namespace ProjectAscendant.Editor
         }
 
         // ── Helpers ────────────────────────────────────────────────────────
-        private static void DrawSeparator()
-        {
-            Rect rect = EditorGUILayout.GetControlRect(false, 1);
-            EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.4f));
-            EditorGUILayout.Space(2);
-        }
+        private static void DrawSeparator() => SOEditorUtils.DrawSeparator();
     }
 }

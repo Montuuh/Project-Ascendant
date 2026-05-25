@@ -1,3 +1,7 @@
+# Roslyn analyzer build artifacts (source + deployed DLL are committed)
+Analysis/**/bin/
+Analysis/**/obj/
+
 # Secrets
 .env
 .env.local
@@ -23,6 +27,8 @@ CONTRIBUTING.md
 .vs/
 .idea/
 *.csproj
+# Exception: Roslyn analyzer project is hand-authored (not Unity auto-generated)
+!Analysis/**/*.csproj
 *.unityproj
 *.sln
 *.suo

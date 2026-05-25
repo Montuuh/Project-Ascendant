@@ -4,9 +4,10 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Editor
 {
-    // Per Task 3.4.2 — Custom inspector for MoveSO.
+    // Per Tasks 3.4.2 + 3.5.3 — Custom inspector for MoveSO.
     // Validates: SF/SB only on Melee (§3.3.2), APCost 0-4 (§5.3.6),
-    // Ranged moves must use 0.75 multiplier (§9.3.2.2), Offensive with BasePower>0.
+    // Ranged moves must use 0.75 multiplier (§9.3.2.2), Offensive with BasePower>0,
+    // GDD reference footer.
     [CustomEditor(typeof(MoveSO))]
     public class MoveSOEditor : UnityEditor.Editor
     {
@@ -26,6 +27,7 @@ namespace ProjectAscendant.Editor
             DrawValidation(move);
             EditorGUILayout.Space(4);
             DrawEffectsLinks(move);
+            SOEditorUtils.DrawGDDFooter(target);
         }
 
         // ── Validation ─────────────────────────────────────────────────────
@@ -170,11 +172,6 @@ namespace ProjectAscendant.Editor
         }
 
         // ── Helpers ────────────────────────────────────────────────────────
-        private static void DrawSeparator()
-        {
-            Rect rect = EditorGUILayout.GetControlRect(false, 1);
-            EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.4f));
-            EditorGUILayout.Space(2);
-        }
+        private static void DrawSeparator() => SOEditorUtils.DrawSeparator();
     }
 }

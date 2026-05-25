@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Editor
 {
-    // Per Task 3.4.4 — Bulk validator for all Project Ascendant ScriptableObjects.
+    // Per Tasks 3.4.4 + 3.5.3 — Bulk validator for all Project Ascendant ScriptableObjects.
     // Run from: Project Ascendant → Run Bulk Validator
     // Outputs errors/warnings to the Console with clickable asset context.
     // Does NOT fix issues — diagnosis only.
@@ -25,6 +26,7 @@ namespace ProjectAscendant.Editor
             errorCount   += ValidateRelics(ref warningCount);
             errorCount   += ValidateTMs(ref warningCount);
             errorCount   += ValidateConsumables(ref warningCount);
+            warningCount += ValidateGDDReferences();
 
             string summary = errorCount == 0 && warningCount == 0
                 ? "✓ All checks passed — no issues found."
@@ -412,6 +414,70 @@ namespace ProjectAscendant.Editor
             }
 
             return errorCount;
+        }
+
+        // ── GDDReference — cross-check all SOs ────────────────────────────
+        // Per Task 3.5.3 — Every SO must have a GDDReference field populated.
+        // Uses reflection so this check covers ALL SO types automatically,
+        // including types added in future epics.
+        private static int ValidateGDDReferences()
+        {
+            int warningCount = 0;
+            string[] guids = AssetDatabase.FindAssets("t:ScriptableObject",
+                new[] { "Assets/ScriptableObjects" });
+
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                ScriptableObject so = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+                if (so == null) continue;
+
+                // Skip runtime-singleton SOs that don't belong to GDD content
+                System.Type type = so.GetType();
+                if (IsRuntimeSingleton(type)) continue;
+
+                // Find GDDReference field by name (public string field)
+                FieldInfo field = type.GetField("GDDReference",
+                    BindingFlags.Public | BindingFlags.Instance);
+
+                if (field == null)
+                {
+                    // SO type has no GDDReference field at all
+                    Debug.LogWarning(
+                        $"⚠ [GDDRef] {type.Name} has no GDDReference field. " +
+                        $"Add 'public string GDDReference;' per data-assets.md. " +
+                        $"Asset: {path}",
+                        so);
+                    warningCount++;
+                    continue;
+                }
+
+                string value = field.GetValue(so) as string;
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    Debug.LogWarning(
+                        $"⚠ [GDDRef] {type.Name} '{so.name}' has an empty GDDReference. " +
+                        $"Fill it with the canonical §N.N.N section. Asset: {path}",
+                        so);
+                    warningCount++;
+                }
+            }
+
+            return warningCount;
+        }
+
+        // Runtime singleton SOs are global state containers, not GDD content entries.
+        // They don't require §N.N.N references.
+        private static bool IsRuntimeSingleton(System.Type t)
+        {
+            string name = t.Name;
+            return name == "RunStateSO"          ||
+                   name == "MetaProgressionSO"   ||
+                   name == "BestiaryProgressSO"  ||
+                   name == "SettingsSO"           ||
+                   name == "BattleConfigSO"       ||
+                   name == "EconomyConfigSO"      ||
+                   name == "MapGenerationConfigSO";
         }
     }
 }
