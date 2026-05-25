@@ -1,12 +1,12 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
 <!-- Source: https://www.notion.so/3610450715b4818bb876f6d9fd5d2ab0 -->
-<!-- Exported: 2026-05-19T23:10:19.399Z -->
+<!-- Exported: 2026-05-25T22:40:58.033Z -->
 <!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
 
 **Status:** 🔒 Locked
 
 
-**Last Updated:** 2026-05-15 (migrated from Drive; multiple patches applied)
+**Last Updated:** 2026-05-25 (§4.3.9.2 Mastery Move system redesigned — pool-based meta-progression with per-species achievement unlock tiers)
 
 
 **Cross-references:** Topic 2 (Region Modifiers, Cities), Topic 3 (combat phases, Lead mechanic), Topic 5 (move kits, evolutions, passives), Topic 6 (Trauma System).
@@ -475,15 +475,49 @@ The **Bestiary** tracks cumulative experience with each enemy species across all
 
 ### §4.3.9.2 Mastery Move system
 
-- Permanently added as a **5th move** — no selection or replacement required. **Mastery Moves are immutable**: they cannot be replaced by TMs, Move Tutors, or any other move-modification system.
-- **Mastery Move evolution:** The Mastery Move upgrades alongside its host Pokémon's evolution stages. When a Pokémon evolves, their Mastery Move upgrades immediately to the evolved Mastery Move card. The Mastery is owned by the evolution line, not by a specific stage.
-- Deck size scales with mastery: 0 mastered = 12 cards (baseline); 1 mastered = 13; 2 = 14; 3 = 15.
+
+Every Pokémon species has a Mastery Move line defined across its evolution stages — a dedicated **5th card slot** that exists beyond the active 4-move configuration. Unlike the 4 pool moves, the Mastery card occupies a permanent slot: the player cannot swap it out or reconfigure it, and TMs, Move Tutors, and evolution upgrades do not affect it.
+
+
+**All Pokémon have a base Mastery Move.** The Lv1 Mastery card is defined in the base-form `PokemonSpeciesSO` for every species, regardless of how many evolution stages they have. A two-stage species (e.g., Geodude → Golem) has Mastery Lv1 and Lv2; a three-stage species has Lv1, Lv2, and Lv3. Each tier is defined in the corresponding stage's `PokemonSpeciesSO`.
+
+
+**Mastery tiers — one per evolution stage:**
+
+- **Mastery Lv1 (Base form):** Low-to-mid power, 1 AP cost, no SF/SB modifier. Defined in the base-form `PokemonSpeciesSO`.
+- **Mastery Lv2 (Stage 1 evolution — or final form for 2-stage lines):** Mid-to-high power, 1–2 AP cost. May carry a SF/SB modifier or a status rider.
+- **Mastery Lv3 (Stage 2 / final evolution — 3-stage lines only):** High power, 2–3 AP cost. Signature-tier with branch-themed effect modifiers. May rival the branch signature move.
+
+**Mastery tier advancement:** When a Pokémon evolves, their Mastery Move automatically upgrades to the next tier — provided that tier has been unlocked via meta-progression. If Lv2 has not been unlocked, the Pokémon retains Lv1 after evolution until the Lv2 achievement is earned.
+
+
+**Unlocking Mastery tiers — per-species meta-progression:**
+
+
+Mastery tier access for each species is tracked persistently across runs in `MetaProgressionSO`. Tiers unlock independently:
+
+
+| Tier                      | Unlock Category                  | Criteria                                                                                                                                               |
+| ------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Lv1 — Familiar Bond**   | General progression              | Win 3 combats with this Pokémon in the Active Team, OR recruit/capture this Pokémon for the first time, OR complete any run with it in the Active Team |
+| **Lv2 — Trusted Partner** | Species-specific achievement     | Unique per species — themed to combat identity (see §5.11)                                                                                             |
+| **Lv3 — Deep Bond**       | High-difficulty species-specific | Requires sustained multi-run effort (see §5.11); three-stage lines only                                                                                |
+
+
+**Deck-size integration:**
+
+- Deck size scales with how many Active Team members have Mastery unlocked: 0 = 12 cards (baseline); 1 = 13; 2 = 14; 3 = 15.
 - Hand size remains fixed at 5 skill cards per turn, regardless of deck size.
-- When a mastered Pokémon faints, 5 cards are removed from the Skill Deck and discard pile (4 base + 1 Mastery) instead of 4.
-- Mastery Move design tiers (per evolution stage):
-    - **Base form Mastery:** Low-to-mid power, 1 AP cost, no SF/SB modifier.
-    - **Mid evolution Mastery:** Mid-to-high power, 1-2 AP cost, may carry SF or SB modifier or status rider.
-    - **Final evolution Mastery:** High power, 2-3 AP cost, signature-tier with branch-themed effect modifiers (may rival the branch's signature move).
+- When a Pokémon with an unlocked Mastery faints, 5 cards are removed from the Skill Deck and discard pile (4 pool moves + 1 Mastery) instead of 4.
+
+**Slot immutability:** The Mastery slot is the only card in a Pokémon's hand that the player cannot reconfigure. It cannot be replaced by TMs, Move Tutors, or any other customisation system. Its tier can only advance (via evolution + achievement unlock), never downgrade.
+
+
+**Design intent:** The Mastery system rewards sustained investment in specific Pokémon across multiple runs. A player who repeatedly fields Squirtle unlocks its Lv1 Mastery early; completing Squirtle-specific challenges eventually grants Blastoise a Lv3 Mastery that rivals the branch signature move. Mastery is the meta-game layer that makes a well-travelled Pokémon feel genuinely more powerful in the hands of a trainer who has earned it.
+
+
+Full Mastery Move achievement catalog: see §5.11.
+
 - Mastery Moves are unique to their species' evolution line and stronger than base learnset moves of equivalent AP cost.
 
 **Shiny implementation:** AI-generated alternate sprites per species; runtime hue-shift shader as programmatic fallback. No hand-drawn alternate sprites required.
@@ -906,4 +940,68 @@ Each defeated Champion Pokémon passively buffs all remaining ones: **+5% Attack
 
 
 _(Note: Previous draft used +10%/+40%. Reduced for balance — playtest may re-tune.)_
+
+
+---
+
+
+# §4.8 Open Sev-2/3 Resolutions (added 2026-05-24)
+
+
+This section resolves remaining BACKLOG-tracked combat-system gaps. Each is now LOCKED.
+
+
+## §4.8.1 Counter-Intel Mode Mechanism — RESOLVED (was BACKLOG gap #9)
+
+
+When a boss's full intent pool is revealed (via Keen Eye, Soul Badge + Foresight + Radar combinations, Clear Mind League Boon, etc.), the boss's AI scoring (§4.3.3) applies a **Counter-Intel modifier**:
+
+- The boss's top-scored intent for the turn has its score multiplied by **0.7** (a -30% penalty).
+- The remaining intents are unchanged.
+- This causes the boss to occasionally play its 2nd or 3rd best option, breaking the player's perfect-prediction loop.
+- The Randomness Floor (10-15%) is **disabled** when Counter-Intel is active — Counter-Intel replaces it as the unpredictability source.
+- Standard (non-boss) enemies do NOT use Counter-Intel. They always play optimally regardless of player knowledge — full information is the player's reward.
+
+**Player-facing display:** when Counter-Intel is active in a boss fight, a small badge "Counter-Intel Active" displays under the boss's portrait. Pillar 1 compliance — the system itself is transparent, only its turn-by-turn output is varied.
+
+
+## §4.8.2 Field Effect Category Stacking — RESOLVED (was BACKLOG gap #13)
+
+
+**Weather and Terrain are independent categories. Both can be active simultaneously.** Only one Weather effect and one Terrain effect may be active at a time; applying a second of the same category overwrites the first.
+
+- Multiplicative stacking: a Fire move under Sunny Day (×1.5) AND Electric Terrain (no fire interaction) = ×1.5 net. Sunny Day + a hypothetical "Fire Terrain" would stack multiplicatively to ×2.25.
+- The launch field effects (§4.3.8) are 2 Weather + 1 Terrain. Post-launch may add additional Terrain effects (Grassy Terrain, Misty Terrain).
+
+## §4.8.3 AlwaysCrit vs Crit-Reduction Edge Case — RESOLVED (was BACKLOG gap #15)
+
+
+**At launch, no source of crit-reduction exists.** The system architecturally supports negative crit-chance modifiers (the calculation clamps to 0% floor, 100% ceiling), but no relic, ability, status, or move at launch applies one. If a future content addition introduces crit-reduction:
+
+- AlwaysCrit cards bypass the crit-chance system entirely (they always crit, period).
+- Stackable crit-chance % (consumable + evolution passive) is reduced first.
+- The clamp floor is 0%.
+
+UI hover preview will display the effective crit chance after all modifications (including future crit-reduction).
+
+
+## §4.8.4 Confusion Soft-Lock Mitigation — RESOLVED (was BACKLOG gap #11)
+
+
+Confusion's design safety floor (§4.2.3.1) ensures the player always retains 4 playable cards minimum even with all 3 Active Team Pokémon Confused (2 skill + 2 consumables, Confusion is skill-only). Full Heal consumable cures Confusion. **No additional pity-timer is needed.**
+
+
+Architecture commitment: a `MAX_CONFUSION_STACKS = 3` constant (one per Active Team Pokémon) is enforced — Confusion cannot stack multiple times on the same Pokémon. The status either applies or is already-applied (no re-application boosts duration; new application resets the 3-turn timer).
+
+
+## §4.8.5 Tutor Learnset Evolution Updates — RESOLVED (was BACKLOG gap #14)
+
+
+Each `PokemonSpeciesSO` carries its own `TutorLearnset[]`. **Tutor Learnsets are stage-aware:** the `TutorLearnset` field lives on the species-stage SO, not the evolution line. When a Pokémon evolves, the Move Tutor service at the next visited City offers the evolved form's TutorLearnset — broader and more powerful moves than the pre-evolution.
+
+
+A Pokémon visiting a Move Tutor sees only the moves available to their current evolution stage. Pre-evolution Squirtle can learn Water Gun upgrades; Wartortle can learn Hydro Cannon (mid-form); Blastoise can learn Hydro Pump (final). Each stage's TutorLearnset is authored individually in content.
+
+
+This means a player who delays evolution to use the pre-form's tutor moves can do so, but loses access to the evolved tutor moves until they re-visit a tutor post-evolution.
 

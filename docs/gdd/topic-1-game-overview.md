@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
 <!-- Source: https://www.notion.so/3610450715b481a287bdd5c72573b9d7 -->
-<!-- Exported: 2026-05-19T23:09:48.233Z -->
+<!-- Exported: 2026-05-25T22:40:35.752Z -->
 <!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
 
 **Status:** 🔒 Locked
@@ -150,3 +150,75 @@ When Primary and Secondary preferences conflict, **Primary wins on mechanics and
 - No Steam or commercial storefront release. Portfolio demonstration only, optionally hosted on [itch.io](http://itch.io/) with explicit fan-project disclaimer.
 - All trademarks acknowledged as belonging to their respective owners.
 - **Architectural alignment:** because all creature, move, and region content is ScriptableObject-driven, swapping the IP-bound layer for original designs is an asset-and-data operation rather than a code refactor — itself a portfolio-worthy demonstration of the data-driven pillar.
+
+---
+
+
+# §1.10 Glossary (cross-topic anchor — added 2026-05-24)
+
+
+This glossary consolidates the most-referenced terms across the GDD. Each entry links to the canonical defining section.
+
+
+| Term                         | Defined in      | One-liner                                                                   |
+| ---------------------------- | --------------- | --------------------------------------------------------------------------- |
+| Active Team                  | §2.3            | The 3 Pokémon brought into a combat from the Box.                           |
+| AP (Action Points)           | §3.7            | Per-turn budget; 3 baseline, modified by relics/Badges/Region Modifiers.    |
+| Backstrike                   | §4.3.4          | Position-targeted intent bypassing Lead; fizzles on empty slot (§4.3.4.1).  |
+| Badge                        | §4.4.5          | Permanent run-modifier earned from Gym Leaders (12 total; 3 per run base).  |
+| Bestiary                     | §4.3.9          | Cross-run knowledge accumulation; gates Mastery rewards.                    |
+| Box                          | §2.3            | Persistent run-roster of Pokémon (capacity 6, upgradable to 8).             |
+| Branch (evolution)           | §5.3.3          | Permanent choice at evolution; rewrites move kit.                           |
+| Champion buff                | §4.7.1          | +5% Attack per defeated ally, cap +20%.                                     |
+| City                         | §2.1.4 / §7.8   | Post-Gym 1/2 rest zone — Pokémon Center + Shop + Reflection.                |
+| Cleave                       | §4.3.4          | All-slot damage intent; never fizzles (min 1 target).                       |
+| Combat phase                 | §3.2            | Five-phase loop: Start → Draw → Intent → Action → Resolution.               |
+| Confusion                    | §4.2.3.1        | Secondary status; discards 1 random skill card per Confused Pokémon.        |
+| Effective Max HP             | §6.2            | `BaseMaxHP × (1 − 0.05 × min(Trauma, 5))`.                                  |
+| Faint                        | §2.4.1          | `CurrentHP == 0`. No separate flag. Applies Trauma stack.                   |
+| Field effect                 | §4.3.8          | Weather/terrain effect persisting full combat.                              |
+| Held Item                    | §8.4            | Per-Pokémon equipment. One slot per Pokémon.                                |
+| Hub upgrade                  | §6.4.2          | Permanent QoL/option-expanding unlock from the Pokémart.                    |
+| Intent                       | §4.3.2          | Telegraphed enemy action targeting a slot, not a Pokémon.                   |
+| Lead                         | §3.3            | The Pokémon absorbing damage; gates Melee cards.                            |
+| Lead Aura                    | §5.5.4          | Ability/Held-Item-gated type bonus to bench while wearer is Lead.           |
+| League                       | §2.1.6          | Final 5 fights: 4 Elite + Champion.                                         |
+| League Boon                  | §4.5.2          | Selected at Victory Road Summit; active only in League.                     |
+| Manual swap cost             | §3.3.1          | 1st=1AP, 2nd=2AP, 3rd=3AP; counter resets per turn.                         |
+| Mastery Move                 | §4.3.9.2        | Immutable 5th move from Bestiary Master tier; evolves with the Pokémon.     |
+| Meta currency                | §6.3            | Trainer XP (drives Level) + Trainer Tokens (manual unlock spend).           |
+| Pokéball                     | §7.3.4          | Catching consumable; deterministic threshold.                               |
+| Region                       | §2.1.2          | One of 3 branching ladders per run.                                         |
+| Region Modifier              | §2.1.4 / §7.8.3 | Persistent buff picked at City Reflection; up to 2 active.                  |
+| Relic                        | §8.3            | Persistent run-state modifier. ~50 launch.                                  |
+| Run                          | §2.1            | Single playthrough; Pre-Run → Region×3 → Victory Road → League.             |
+| Step-Forward / Step-Backward | §3.3.2 / §3.3.3 | Melee modifier; bundles Lead change with effect; no swap counter increment. |
+| TM                           | §5.4.1 / §8.5   | Consumable that teaches a move. Mastery Moves excluded.                     |
+| Trauma stack                 | §6.2            | Per-Pokémon-per-run penalty per faint; multiplicative −5% MaxHP, cap 5.     |
+| Trauma Salve                 | §6.2.4 / §8.3.4 | Uncommon relic that removes all Trauma from one Pokémon.                    |
+| Trainer Hub                  | §6.4            | Pre/post-run menu space; 5 kiosks.                                          |
+| Trainer Token                | §6.3.4          | Per-run currency for chosen unlocks; capped 50/run.                         |
+| Type chart                   | §4.1.2          | Gen I 15-type matrix; immunities and 4× multipliers preserved.              |
+| Vertical Slice               | §1.6            | Region 1 end-to-end at launch quality.                                      |
+| Victory Road                 | §2.1.5 / §4.5   | Pre-League prep zone; 3 specialized node types + Summit.                    |
+
+
+# §1.11 Topic-Lock Status — Master Table (updated 2026-05-24)
+
+
+All 10 GDD topics are 🔒 Locked as of 2026-05-24. Future modifications require explicit user re-lock acknowledgment per the GDD workflow skill.
+
+
+| Topic                      | Status | Lock Date                                          | Owner                               |
+| -------------------------- | ------ | -------------------------------------------------- | ----------------------------------- |
+| 1 — Game Overview          | 🔒     | 2026-05-15 (initial) / 2026-05-24 (glossary added) | game-designer                       |
+| 2 — Core Gameplay Loop     | 🔒     | 2026-05-15                                         | game-designer                       |
+| 3 — Micro Loop             | 🔒     | 2026-05-15                                         | game-designer                       |
+| 4 — Combat System          | 🔒     | 2026-05-15                                         | game-designer + systems-designer    |
+| 5 — Progression            | 🔒     | 2026-05-15                                         | game-designer + content-designer    |
+| 6 — Roguelike Progression  | 🔒     | 2026-05-24                                         | game-designer                       |
+| 7 — Scenario & Nodes       | 🔒     | 2026-05-24                                         | content-designer                    |
+| 8 — Items & Relics         | 🔒     | 2026-05-24                                         | content-designer + systems-designer |
+| 9 — Technical Architecture | 🔒     | 2026-05-24                                         | lead-programmer                     |
+| 10 — Art, UI, Audio        | 🔒     | 2026-05-24                                         | ui-programmer                       |
+

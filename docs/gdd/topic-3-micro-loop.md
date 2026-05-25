@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
 <!-- Source: https://www.notion.so/3610450715b481e08404ded0b96924c9 -->
-<!-- Exported: 2026-05-19T23:09:59.940Z -->
+<!-- Exported: 2026-05-25T22:40:40.692Z -->
 <!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
 
 **Status:** 🔒 Locked
@@ -211,4 +211,32 @@ Every move card is classified along two primary axes, plus optional effect modif
 | Swap Counter    | 0                       | Each turn             | Manual swaps only; SF/SB do NOT increment         |
 | Skill Deck      | 12 cards                | Reshuffles when empty | One Pokémon = 4 cards (+1 if mastered)            |
 | AP cost ceiling | 3 standard / 4 ultimate | /                     | Caps single-card dominance                        |
+
+
+---
+
+
+# §3.8 Combat-State Pointer to Topic 9 (added 2026-05-24)
+
+
+The five-phase combat loop is implemented as a sub-state machine under the `CombatState` HSM node. Topic 9 §9.5.2 details the full HSM transitions. The 5 phases here map 1:1 to: `DrawPhase`, `IntentPhase`, `ActionPhase` (with `PlayerActing` / `PlayerEndTurn` sub-states), `ResolutionPhase` (with `ApplyEnemyIntents` / `ApplyStatusTicks` / `ResolveFaints` / `CheckVictoryDefeat` sub-states), and `TurnEnd` (transition back to `DrawPhase`).
+
+
+# §3.9 Consumable Catalog Pointer (added 2026-05-24)
+
+
+The 24 launch consumables (healing, status cures, combat utility, Pokéballs) and tiered upgrade chains are LOCKED in Topic 8 §8.2.
+
+
+# §3.10 Trauma Compatibility (added 2026-05-24)
+
+
+Within combat, `MaxHP` references resolve to `EffectiveMaxHP` per §6.2. This includes:
+
+- Healing consumable caps.
+- Move-effect heal caps.
+- Burn / Poison DoT formula: `floor(EffectiveMaxHP / 16)` (NOT BaseMaxHP).
+- Leftovers Held Item regen: `floor(EffectiveMaxHP / 16)` (per §8.4.4).
+
+Stat-stage debuffs (§4.2.6) operate on Attack/Defense and are unaffected by Trauma.
 

@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
 <!-- Source: https://www.notion.so/3610450715b481048a3bd46eb1d31a07 -->
-<!-- Exported: 2026-05-19T23:09:49.499Z -->
+<!-- Exported: 2026-05-25T22:40:36.982Z -->
 <!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
 
 **Status:** 🔒 Locked
@@ -183,4 +183,25 @@ Each time a Pokémon faints (reaches 0 HP), it accrues a permanent run-scoped pe
 
 
 _Gym types per Region are seeded-randomly drawn from a tiered pool (4 types per tier × 3 tiers = 12 total Gym types). Player earns 3 Badges per run — one per Region from the chosen path. Up to 1 bonus Badge available through rare in-run sources. Maximum 4 Badges per run from a pool of 12._
+
+
+---
+
+
+# §2.6 Trauma System Reference (added 2026-05-24 — pointer to §6.2)
+
+
+Topic 2 §2.4.4 hooks the Trauma System. The full mechanic specification, application rules, clearing sources, and edge cases are LOCKED in Topic 6 §6.2. Summary anchor:
+
+- **Stack:** +1 per faint, multiplicatively reduces Effective Max HP by 5%, soft-capped at 5 stacks (-25%).
+- **Persistence:** Across combats, nodes, Cities. Cleared at run end OR via Trauma Salve relic / Therapy service / Daycare Mystery Event.
+- **Healing:** All healing events compute against `EffectiveMaxHP`, not `BaseMaxHP`.
+
+See §6.2 for full spec.
+
+
+# §2.7 City Sequence Detail Pointer (added 2026-05-24)
+
+
+Per §2.1.4, each City has three sequential events. Topic 7 §7.8 expands the City Pokémon Center service catalog (now includes Daycare for +1 level, PC Box reorder, Therapy for Trauma), the City Shop curation algorithm (8 slots, team-aware), and the launch Region Modifier pool (12 modifiers).
 

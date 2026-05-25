@@ -1,12 +1,12 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
 <!-- Source: https://www.notion.so/3610450715b4813ea29ae0c992898d01 -->
-<!-- Exported: 2026-05-19T23:10:23.122Z -->
+<!-- Exported: 2026-05-25T22:41:03.993Z -->
 <!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
 
 **Status:** 🔒 Locked
 
 
-**Last Updated:** 2026-05-15 (migrated from Drive; §5.5.4 Lead Aura section added)
+**Last Updated:** 2026-05-25 (Move Pool system + Mastery progression redesign — §5.3.3, §5.3.5, §5.4.1, §5.4.2, §5.6 rewritten; new §5.10–5.11 added)
 
 
 **Cross-references:** Topic 3 (Lead mechanic, move modifiers), Topic 4 (Mastery Moves, Branch synergy with Boons/Badges), Topic 6 (meta-progression), Topic 8 (Held Items — Lead Aura source).
@@ -84,11 +84,12 @@ Certain Pokémon (primarily Eevee-line and stone-based evolutions) require both 
 
 When evolution is triggered, the player is presented with the Branch Selection screen:
 
-- Each branch is displayed with a clear identity label (e.g., "Vanguard," "Specialist") and a before/after comparison of every move that changes.
-- Moves that are **upgraded** show the base move → evolved move transition with diff highlights (changed Power, new modifiers, new status riders).
-- Moves that are **retained** are shown unchanged.
-- Moves that are **added** are shown as new additions.
+- Each branch is displayed with a clear identity label (e.g., "Vanguard," "Specialist") and a full preview of how that branch affects the Pokémon's **Learned Move Pool** (see §5.10):
+    - Moves that are **upgraded** show the current move → evolved version with diff highlights (changed Power, new modifiers, new status riders). Upgraded moves auto-apply to the active 4 if the old version was active.
+    - Moves that are **added** (new pool entries not present before) are shown as new additions — these expand the pool, giving more configuration options post-evolution.
+    - Moves that are **unaffected** by this branch are noted as retained.
 - The branch's passive ability reward (if any) is displayed.
+- After confirming, the player may immediately reconfigure their active 4 from the updated pool before re-entering the Map View.
 - The player confirms their choice — the choice is permanent, with a confirmation dialogue ("This cannot be undone").
 
 **Branch count:**
@@ -115,24 +116,36 @@ No Pokémon is required to have all three archetypes — a naturally physical sp
 ## §5.3.5 What Changes on Evolution
 
 
-Evolution upgrades 1–2 of the 4 base moves, retains 1–2 unchanged, and optionally adds 1 new move (replacing a retained base move). The specific changes depend on the chosen branch.
+Evolution operates on the **Learned Move Pool** (see §5.10). It is a purely additive event — no moves are removed from the pool. A branch does two things simultaneously:
 
+1. **Upgrades:** selected pool moves are replaced in-place by their evolved versions. If the old version was in the active 4, the upgraded version takes that active slot automatically.
+2. **Additions:** new moves are added to the pool, expanding it beyond its pre-evolution size. The player then reconfigures their active 4 from the larger pool before re-entering the Map View.
 
 **Evolution stage 1 (mid-form) — typical changes:**
 
-- 1–2 moves upgraded (higher Power, added effect modifiers or status riders).
-- 1–2 moves retained unchanged.
-- 0–1 new moves added (branch-dependent).
-- 0–1 SF/SB modifiers introduced (Vanguard branch).
+- 1–2 pool moves upgraded (higher Power, added modifiers or status riders — branch-dependent).
+- 0–1 new moves added to the pool (branch-dependent; expands pool to 5 if 1 addition).
+- 0–1 SF/SB modifiers introduced on upgraded moves (Vanguard branch).
+- Primary passive ability granted (see §5.5.1).
 
 **Evolution stage 2 (final form) — typical changes:**
 
-- 1–2 moves upgraded further from mid-form versions.
-- 1 signature move added (unique to this final form and branch — strongest move in the kit).
-- 1–2 SF/SB modifiers likely present (especially Vanguard branch).
+- 1–2 further upgrades from mid-form versions already in the pool.
+- 1 signature move added (unique to this branch and final form — strongest move in the kit; expands pool).
+- 1–2 SF/SB modifiers on the highest-impact moves (especially Vanguard branch).
 - Branch-specific secondary passive ability granted (see §5.5).
+- Sub-branch choice available for starter and high-rarity species (e.g., "Heavy Brawler Blastoise" vs "Aqua-Jet Duelist Blastoise") — this choice determines which upgrades and additions are applied.
 
-**Final evolution continues the first branch's direction** — choosing Vanguard at stage 1 locks the Pokémon into Vanguard-archetype upgrades at stage 2, with one sub-choice available (e.g., "Heavy Brawler Blastoise" vs "Aqua-Jet Duelist Blastoise" within the Vanguard path).
+**Final evolution continues the first branch's direction** — choosing Vanguard at stage 1 locks the Pokémon into Vanguard-archetype upgrades at stage 2, with one sub-choice available within that path.
+
+
+**Pool size progression (typical):**
+
+- Base form: 4 moves (pool = active 4; no surplus)
+- Stage 1 evolution: 4–5 moves (1 addition possible; player picks active 4)
+- Stage 2 evolution + TMs/Tutors: 5–8 moves (player picks active 4 from growing pool)
+
+The growing pool creates meaningful out-of-combat decisions: which 4 of my learned moves do I want active for this encounter?
 
 
 ## §5.3.6 Move-Set Construction Rules
@@ -177,20 +190,20 @@ Two systems provide mid-run move customization outside of evolution.
 ## §5.4.1 TMs (Technical Machines)
 
 - **What they are:** consumable items found in shops, combat drops, or specific event nodes.
-- **What they do:** teach a specific named move to a compatible Pokémon, **permanently replacing one of their 4 current moves** for the rest of the run. **Mastery Moves are excluded** — see §4.3.9.2.
+- **What they do:** teach a specific named move to a compatible Pokémon, **permanently adding it to their Learned Move Pool** for the rest of the run. The player then reconfigures their active 4 from the expanded pool. **Mastery Moves are excluded** — the Mastery slot cannot be reached by TMs (see §4.3.9.2).
 - **Compatibility:** each TM move has a `CompatibleSpecies[]` list in its ScriptableObject. A TM cannot be used on an incompatible Pokémon — the UI greys out incompatible options.
-- **Usage:** applied from the inventory in the Map View. The player selects the TM → selects a compatible Pokémon → selects which of the 4 current moves to replace. Permanent, confirmed with a dialogue.
+- **Usage:** applied from the inventory in the Map View (out of combat only). The player selects the TM → selects a compatible Pokémon → the move is added to that Pokémon's Learned Move Pool. The player may immediately reconfigure their active 4. Permanent, confirmed with a dialogue.
 - **Single-use:** the TM item is consumed on use. It does not persist after use.
 - **Design intent:** TMs create a secondary customization axis — the "happy accident" discovery moment. Finding a Thunderbolt TM compatible with Clefairy opens a build path the player didn't anticipate.
 
 ## §5.4.2 Move Tutors
 
 - **What they are:** a service available at specific nodes — Pokémon Center (City nodes) and Training Grounds (Victory Road).
-- **What they do:** the Tutor offers a curated list of learnable moves for each of the player's Pokémon. The player selects one Pokémon and one move to learn, replacing one of the Pokémon's 4 current moves.
+- **What they do:** the Tutor offers a curated list of learnable moves for each of the player's Pokémon. The player selects one Pokémon and one move to learn, which is **permanently added to that Pokémon's Learned Move Pool**. The player then reconfigures their active 4 from the expanded pool.
 - **Compatibility:** each Pokémon species has a `TutorLearnset[]` in their ScriptableObject — the moves available to them from tutors. Distinct from TM compatibility (tutors teach different moves than TMs).
 - **Cost:** free as part of the node offering (City nodes; Training Grounds). May cost Poké Dollars at shop-style tutors.
 - **Repeatable:** the player can use the Move Tutor service at every City they visit — but they only pass through 2 Cities per run, plus Victory Road's Training Grounds.
-> ⚠️ **Open Sev-3 gap:** Tutor Learnset evolution updates needed. See BACKLOG gap #14.
+> ✅ **Resolved (2026-05-24):** Tutor Learnsets are stage-aware — see §5.7.1.
 
 ---
 
@@ -280,15 +293,14 @@ Pokémon in Project Ascendant may have passive abilities — always-on effects t
 # §5.6 Evolution Branch — Worked Example (Squirtle Line)
 
 
-To make the system concrete, here is a full worked example for the Squirtle evolution line:
+To make the pool system concrete, here is a full worked example for the Squirtle evolution line using the **Learned Move Pool** (§5.10):
 
 
-**Squirtle (base form) — 4 moves:**
+**Squirtle (base form)**
 
-- Tackle (Melee, 1 AP, Offensive)
-- Water Gun (Ranged, 1 AP, Offensive)
-- Withdraw (Melee, 1 AP, Defensive)
-- Tail Whip (Utility, 0 AP, lowers enemy Defense one stage)
+- Learned Pool: {Tackle, Water Gun, Withdraw, Tail Whip}
+- Active 4 (player-configured, out of combat): all four (pool = active; no surplus)
+- Mastery (if Lv1 unlocked): _Aqua Tail Lv1_ — Melee, 1 AP, 65 Power (5th slot — fixed, not configurable)
 - **Passive:** none.
 
 **Evolution threshold:** Level 16.
@@ -296,36 +308,309 @@ To make the system concrete, here is a full worked example for the Squirtle evol
 
 **→ Wartortle, Branch A: Vanguard**
 
-- Tackle → **Skull Bash** (Melee, 2 AP, Offensive, Step-Backward, +50% Power vs Tackle)
-- Water Gun → Water Gun (retained)
-- Withdraw → Withdraw (retained)
+
+Pool upgrades (auto-apply to active 4 if old version was active):
+
+- Tackle → **Skull Bash** (Melee, 2 AP, Offensive, Step-Backward — +50% Power vs Tackle)
 - Tail Whip → **Aqua Jet** (Melee, 1 AP, Offensive, Step-Forward)
-- **Passive gained:** Torrent (Water moves +20% when HP < 30%)
-- **CritChance passive:** +10% added to PokemonInstance.CritChance
+
+Pool additions: none.
+
+
+Updated pool: {Skull Bash, Water Gun, Withdraw, Aqua Jet}
+
+
+Active 4 (auto-updated): Skull Bash | Water Gun | Withdraw | Aqua Jet
+
+
+**Passive gained:** Torrent (Water moves +20% when HP < 30%) + CritChance +10%
+
+
+**Mastery (if Lv2 unlocked):** _Aqua Tail Lv2_ — Melee, 2 AP, 95 Power, Step-Forward
+
 
 **→ Wartortle, Branch B: Specialist**
 
-- Tackle → Tackle (retained)
+
+Pool upgrades:
+
 - Water Gun → **Water Pulse** (Ranged, 2 AP, Offensive, 25% Confusion rider)
 - Withdraw → **Iron Defense** (Melee, 1 AP, Defensive, raises Defense 2 stages, Step-Backward)
 - Tail Whip → **Charm** (Utility, 0 AP, lowers enemy Attack 2 stages)
-- **Passive gained:** Torrent (Water moves +20% when HP < 30%)
+
+Pool additions: none. Tackle is retained unchanged in the pool.
+
+
+Updated pool: {Tackle, Water Pulse, Iron Defense, Charm}
+
+
+Active 4 (auto-updated): Tackle | Water Pulse | Iron Defense | Charm
+
+
+**Passive gained:** Torrent (Water moves +20% when HP < 30%)
+
+
+**Mastery (if Lv2 unlocked):** _Aqua Tail Lv2_ — Melee, 2 AP, 95 Power, Step-Forward
+
+
+**If the player uses TM05 Surf before evolving (example of TM pool expansion):**
+
+
+Pool additions: +Surf (Ranged, 2 AP, Offensive — hits all enemies, Cleave equivalent)
+
+
+Updated pool: {Skull Bash, Water Gun, Withdraw, Aqua Jet, **Surf**} — 5 moves; player picks active 4
+
+
+Player decision: drop Water Gun (it upgrades at Blastoise anyway) or Withdraw?
+
 
 **Evolution threshold (Wartortle → Blastoise):** Level 36.
 
 
-**→ Blastoise, Vanguard sub-branch A1: "Heavy Brawler"**
+**→ Blastoise, Vanguard sub-branch A1: "Heavy Brawler"** (continuing from Vanguard Wartortle)
 
-- Skull Bash → **Hydro Crash** (Melee, 3 AP, Offensive, Step-Forward, very high Power — ultimate eligible)
-- Water Gun → **Surf** (Ranged, 2 AP, Offensive, hits all enemies for 70% damage — Cleave equivalent)
-- Withdraw → **Aqua Ring** (Defensive, 1 AP, restores `floor(MaxHP/8)` HP at turn end for 3 turns)
-- Aqua Jet → Aqua Jet (retained)
-- **Secondary passive gained:** Shell Armor (Lead Blastoise takes −2 incoming damage; enhances Boulder Badge to −3 if held)
 
-**→ Blastoise, Vanguard sub-branch A2: "Aqua-Jet Duelist"**
+Pool upgrades:
 
-- Skull Bash → **Skull Bash+** (Melee, 2 AP, Offensive, Step-Backward, higher Power than base Skull Bash, now also lowers enemy Defense 1 stage)
-- Water Gun → **Hydro Pump** (Ranged, 3 AP, Offensive, highest single-target damage in kit)
-- Withdraw → Withdraw (retained)
-- Aqua Jet → **Aqua Jet+** (Melee, 1 AP, Offensive, Step-Forward, now ignores 1 point of enemy Defense)
-- **Secondary passive gained:** Swift Swim (draw 1 extra skill card on the first turn of Rain Dance-active combats)
+- Skull Bash → **Hydro Crash** (Melee, 3 AP, Offensive, Step-Forward — very high Power, ultimate eligible)
+- Water Gun → **Surf** (Ranged, 2 AP, Offensive, Cleave equivalent) _[if already in pool via TM, no duplicate added — pool deduplicates]_
+- Withdraw → **Aqua Ring** (Defensive, 1 AP — restores `floor(MaxHP/8)` HP at turn end for 3 turns)
+
+Pool additions: none beyond upgrades.
+
+
+Updated pool: {Hydro Crash, Surf, Aqua Ring, Aqua Jet}
+
+
+Active 4 (auto-updated): Hydro Crash | Surf | Aqua Ring | Aqua Jet
+
+
+**Secondary passive gained:** Shell Armor (Lead Blastoise takes −2 incoming damage; enhances Boulder Badge to −3 if held)
+
+
+**Mastery (if Lv3 unlocked):** _Aqua Tail Lv3_ — Melee, 3 AP, 130 Power, Step-Forward, ignores 2 Defense
+
+
+**→ Blastoise, Vanguard sub-branch A2: "Aqua-Jet Duelist"** (continuing from Vanguard Wartortle)
+
+
+Pool upgrades:
+
+- Skull Bash → **Skull Bash+** (Melee, 2 AP, Offensive, Step-Backward — higher Power, also lowers enemy Defense 1 stage)
+- Water Gun → **Hydro Pump** (Ranged, 3 AP, Offensive — highest single-target damage in kit)
+- Aqua Jet → **Aqua Jet+** (Melee, 1 AP, Offensive, Step-Forward — ignores 1 point of enemy Defense)
+
+Pool additions: none beyond upgrades.
+
+
+Updated pool: {Skull Bash+, Hydro Pump, Withdraw, Aqua Jet+}
+
+
+Active 4 (auto-updated): Skull Bash+ | Hydro Pump | Withdraw | Aqua Jet+
+
+
+**Secondary passive gained:** Swift Swim (draw 1 extra skill card on the first turn of Rain Dance-active combats)
+
+
+**Mastery (if Lv3 unlocked):** _Aqua Tail Lv3_ — Melee, 3 AP, 130 Power, Step-Forward, ignores 2 Defense
+
+
+**Pool system summary — Squirtle's full progression:**
+
+- Base form: 4 pool moves (pool = active 4, no choice needed)
+- After evolving to Wartortle: 4 pool moves (2 upgraded in-place, same size)
+- After TM05 Surf: 5 pool moves → player picks active 4
+- After evolving to Blastoise: 4 pool moves (Surf merge deduplicates; upgrades consolidate)
+- After a post-Blastoise Move Tutor visit: 5 pool moves → player picks active 4 again
+
+By late-run, a Blastoise who has received 2 TMs and 1 Tutor visit has 7 pool entries and picks active 4 — a sustained deckbuilding decision before each hard node.
+
+
+---
+
+
+# §5.7 Open Gaps — RESOLVED (added 2026-05-24)
+
+
+## §5.7.1 Tutor Learnset Evolution Updates — RESOLVED (was BACKLOG gap #14)
+
+
+See §4.8.5 — Tutor Learnsets are stage-aware. The `TutorLearnset[]` lives on the per-stage species SO. Evolving a Pokémon changes which moves the Move Tutor service offers for that Pokémon — broader and more powerful at higher stages.
+
+
+# §5.8 Ability Catalog — Full Launch Pool (added 2026-05-24)
+
+
+Locks the species-ability assignment surface. ~30 launch abilities; each Pokémon line gets a primary ability at first evolution and a branch-dependent secondary at final evolution.
+
+
+| Ability                     | Category   | Description                                                                                                                |
+| --------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Torrent                     | Combat     | Water moves +20% when HP < 30% (Squirtle line)                                                                             |
+| Blaze                       | Combat     | Fire moves +20% when HP < 30% (Charmander line)                                                                            |
+| Overgrow                    | Combat     | Grass moves +20% when HP < 30% (Bulbasaur line)                                                                            |
+| Static                      | Combat     | When dealing damage with Electric move, 25% chance to apply Paralysis (Pikachu line)                                       |
+| Keen Eye                    | Vision     | All Unknown intents revealed at combat start (Pidgey, Hoothoot, etc.)                                                      |
+| Foresight (passive variant) | Vision     | First Unknown intent per turn revealed (separate from move card §5.5.3.2)                                                  |
+| Levitate                    | Type       | Immune to Ground; unaffected by Electric Terrain (Gastly line, Koffing line)                                               |
+| Intimidate                  | Positional | On entering Lead, lower all enemy Attack -1 stage (Growlithe line, Gyarados)                                               |
+| Sturdy                      | Survival   | Survive one lethal hit at 1 HP per combat (Geodude line, Onix line)                                                        |
+| Swift Swim                  | Combat     | Draw +1 card on turn 1 of Rain Dance combats (Magikarp line, water Pokémon)                                                |
+| Pickup                      | Meta       | 25% chance per combat win to find a random consumable (Meowth line)                                                        |
+| Limber                      | Status     | Immune to Paralysis beyond type immunity (Persian, Hitmonlee)                                                              |
+| Insomnia                    | Status     | Immune to Sleep beyond type immunity (Hypno, Drowzee line)                                                                 |
+| Compoundeyes                | Combat     | Player's status-rider moves always apply (no rider miss) (Butterfree line)                                                 |
+| Volt Absorb                 | Type       | Electric moves heal this Pokémon instead of damaging (Voltorb evolution path branch)                                       |
+| Water Absorb                | Type       | Water moves heal instead of damaging (Vaporeon path)                                                                       |
+| Drought (Aura)              | Aura       | Grants Fire Lead Aura while Lead (specialty evolution path; ~3 Pokémon)                                                    |
+| Drizzle (Aura)              | Aura       | Grants Water Lead Aura while Lead                                                                                          |
+| Shell Armor                 | Combat     | Lead receives −2 damage per hit (Blastoise Vanguard A1)                                                                    |
+| Tough Claws                 | Combat     | Melee moves +15% damage (Persian, Charizard Vanguard)                                                                      |
+| Snipe                       | Combat     | Ranged moves +15% damage (Specialist evolution branch frequency)                                                           |
+| Healer                      | Support    | Heals random ally for 3 HP at turn end (Support evolution branch)                                                          |
+| Friend Guard                | Support    | Bench Pokémon take −10% damage from Cleave (Chansey path)                                                                  |
+| Speed Boost                 | Combat     | +1 AP on turn 2 of every combat (Eevee/Jolteon path)                                                                       |
+| Adaptability                | Combat     | STAB multiplier 1.5× → 1.75× (Eevee final branches)                                                                        |
+| Anger Point                 | Combat     | When critted, all moves next turn AlwaysCrit (Primeape)                                                                    |
+| Mold Breaker                | Combat     | Player's moves ignore enemy type immunities (rare; Champion-tier earned)                                                   |
+| Multiscale                  | Combat     | Lead at full HP takes −50% damage from first hit per combat (Dragonite path)                                               |
+| Magic Guard                 | Survival   | Immune to status DoT (Burn/Poison damage; status effects still apply)                                                      |
+| Sheer Force                 | Combat     | Status-rider moves: status applies as normal, plus +20% damage; loses ability to apply some self-buffs (boss-tier ability) |
+
+
+**Vertical Slice subset:** Torrent, Blaze, Overgrow, Static, Keen Eye, Levitate, Sturdy, Intimidate, Swift Swim, Shell Armor.
+
+
+# §5.9 Pre-Evolution Pokémon Passive Note (added 2026-05-24)
+
+
+Per §5.5.1, pre-evolution Pokémon either have **no passive** or a very simple one (e.g., Swift Swim on Magikarp). Launch convention: ~70% of pre-evolution Pokémon have no passive; ~30% have a minor passive. First evolution always grants a meaningful passive; final evolution always grants a branch-dependent secondary.
+
+
+# §5.10 Learned Move Pool
+
+
+Each Pokémon maintains a **Learned Move Pool** — the complete set of moves they have access to. The player configures which 4 of these moves are **active** (contributing cards to the Skill Deck) from the Map View, out of combat, at any time between nodes.
+
+
+## §5.10.1 Pool composition
+
+
+The pool starts at 4 moves (the Pokémon's base kit). It grows through:
+
+- **Evolution:** branches upgrade existing pool entries in-place and optionally add new moves (see §5.3.5).
+- **TMs:** add one new move to the pool (see §5.4.1).
+- **Move Tutors:** add one new move to the pool (see §5.4.2).
+
+Moves are **never removed** from the pool. A move upgraded by evolution (e.g., Tackle → Skull Bash) replaces the old entry in-place — same pool slot, advanced version. If the TM-taught move is already in the pool (e.g., TM05 Surf added, then Blastoise evolution also grants Surf), the pool deduplicates — no duplicate entries.
+
+
+## §5.10.2 Active 4 configuration
+
+
+The player selects which 4 pool moves are active from the **Move Management screen** — accessible from any Pokémon's detail view in the Map View, **out of combat only, at any point between nodes**.
+
+- Reconfiguration is free and unlimited between combat nodes.
+- The active 4 are the cards contributed to the Skill Deck for that Pokémon.
+- The Mastery Move (§4.3.9.2) is always the 5th card — it is not part of pool configuration and cannot be toggled off.
+
+## §5.10.3 Auto-upgrade on evolution
+
+
+When an evolution branch upgrades a pool move:
+
+- If the move **was active** (in the current active 4), the upgraded version automatically takes that active slot. The player is shown what changed post-evolution and may immediately reconfigure their active 4 before re-entering the Map View.
+- If the move **was not active** (sitting in the pool but benched), it upgrades in-place without affecting the current active 4.
+
+## §5.10.4 Design intent
+
+
+The pool gives the player a growing library of options and a recurring tactical out-of-combat decision: "Which 4 do I want for the next encounter?" This decision is informed by the visible upcoming node type, scouted enemy information, and the player's current relic and badge synergies.
+
+
+Every pool addition (TM, Tutor, evolution addition) is a net gain — never a forced replacement at the deck level. Trade-offs emerge from the fixed active-4 budget, which never grows. The expanding pool makes TMs and Tutors feel genuinely powerful (more options, not slot pressure), while the fixed active-4 keeps the Skill Deck consistent and intentional — matching the design pillar of synergy being sculpted, not drafted.
+
+
+---
+
+
+# §5.11 Mastery Move Progression & Achievement Catalog
+
+
+Each Pokémon species has up to three Mastery tiers (Lv1–Lv3), tracked persistently in `MetaProgressionSO`. Two-stage lines cap at Lv2. All tiers are defined across the species' stage-specific `PokemonSpeciesSO` assets.
+
+
+## §5.11.1 Lv1 Mastery — "Familiar Bond"
+
+
+**Universal unlock category** — satisfied by any ONE of the following across any number of runs:
+
+- Win 3 combats with this Pokémon in the Active Team.
+- Recruit or capture this Pokémon for the first time.
+- Complete any run (win or loss) with this Pokémon in the Active Team.
+
+Once unlocked, Lv1 Mastery is permanently available for this species in all future runs. The base-form Mastery card appears in the Skill Deck from the Pokémon's first combat in any qualifying run.
+
+
+## §5.11.2 Lv2 Mastery — "Trusted Partner"
+
+
+**Species-specific achievement** — unique to each species, themed to their combat identity. Examples:
+
+
+| Species Line     | Lv2 Achievement                                                                                                 |
+| ---------------- | --------------------------------------------------------------------------------------------------------------- |
+| Bulbasaur line   | Apply Poison or Sleep to 5 enemies across any number of runs using this Pokémon's moves                         |
+| Charmander line  | Deal a single hit of 40+ damage with a Fire-type move using this Pokémon                                        |
+| Squirtle line    | Absorb a combined 60+ incoming damage with Defensive moves across any number of runs while this Pokémon is Lead |
+| Caterpie line    | Win a combat without this Pokémon taking any damage (DoT excluded)                                              |
+| Pidgey line      | Use Step-Forward or Step-Backward 10+ times in combats with this Pokémon across any number of runs              |
+| Geodude line     | Survive a lethal hit via the Sturdy ability while this Pokémon is Lead                                          |
+| Generic fallback | Win 3 runs with this Pokémon in the Active Team                                                                 |
+
+
+For two-stage lines, Lv2 is the highest tier — it unlocks the final-form Mastery card.
+
+
+## §5.11.3 Lv3 Mastery — "Deep Bond" (three-stage lines only)
+
+
+**High-difficulty species-specific achievement** — requires sustained, intentional multi-run effort. Examples:
+
+
+| Species Line                | Lv3 Achievement                                                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Bulbasaur line (Venusaur)   | Win a run with Venusaur as Lead for 60%+ of all combat turns tracked across that run                                     |
+| Charmander line (Charizard) | Win a run without using any consumable items across all combats                                                          |
+| Squirtle line (Blastoise)   | Win a run without any Active Team Pokémon fainting in any combat                                                         |
+| Caterpie line (Butterfree)  | Apply at least one status condition to every enemy in a combat encounter, achieved 5 times across runs with this Pokémon |
+| Pidgey line (Pidgeot)       | Win a run on the "Ruthless" difficulty modifier with Pidgeot in the Active Team                                          |
+
+
+Lv3 unlocks the final-form Stage 2 Mastery card permanently. All future runs featuring a fully-evolved member of this line field the Lv3 Mastery.
+
+
+## §5.11.4 Mastery Move design guidelines (content)
+
+
+Mastery Moves must exceed the base learnset at equivalent AP cost and feel species-defining. Target output per tier:
+
+
+| Tier    | Power Range | AP Cost | Modifiers                        | Notes                                                                                      |
+| ------- | ----------- | ------- | -------------------------------- | ------------------------------------------------------------------------------------------ |
+| **Lv1** | 60–80       | 1       | None                             | Clean and reliable — the "always useful" fallback card                                     |
+| **Lv2** | 85–110      | 1–2     | SF or SB, or 1 status rider      | Begins to express the species' tactical identity                                           |
+| **Lv3** | 110–140     | 2–3     | Composite, species-unique effect | Rivals the branch signature move; the effect is unreplicable by any other card in the game |
+
+
+The Lv3 Mastery's unique effect should reflect the player's deep investment in that Pokémon — a reward that feels earned, not found.
+
+
+## §5.11.5 Vertical Slice scope
+
+- Lv1 unlock logic and tracking is implemented for all 6 VS Pokémon lines.
+- Lv2 and Lv3 achievement tracking infrastructure is in place (`MetaProgressionSO.MasteryAchievements[]`); specific check logic per species is **stubbed** for the post-VS content pass.
+- All 6 Mastery Lv1 move assets are authored in their base-form species SOs.
+- Lv2 and Lv3 move assets are authored for all VS species; achievement unlock gates are stubbed.
+- The full achievement catalog (all launched species) is a post-VS content task.

@@ -43,7 +43,8 @@ Thumbs.db
 # GDD snapshots (optional — remove this line if you want them committed)
 # docs/gdd/
 
-# Session logs (committed for history, but large files excluded)
+# Session state — local only, changes every session
+production/session-state/active.md
 production/session-state/session-log.md
 production/session-state/agent-log.md
 
