@@ -16,11 +16,11 @@ MonoBehaviour:
   DisplayName: Awakening
   Icon: {fileID: 0}
   APCost: 0
-  Effect: {fileID: 3716327779059928493}
+  Effect: {fileID: 4769587932592750622}
   Tier: 1
   UpgradeTo: {fileID: 0}
   GDDReference: "\xA78.2.3"
---- !u!114 &3716327779059928493
+--- !u!114 &4769587932592750622
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

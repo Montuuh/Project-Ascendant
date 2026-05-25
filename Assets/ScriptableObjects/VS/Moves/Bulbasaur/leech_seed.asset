@@ -1,5 +1,20 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3595641225051435506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67d941c579259f4f956f50863adc0e1, type: 3}
+  m_Name: leech_seed_PoisonRider
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.StatusRiderEffectSO
+  StatusToApply: 4
+  ApplicationChance: 1
+  ApplyToSelf: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23,22 +38,7 @@ MonoBehaviour:
   RangeModifierMultiplier: 0.75
   AlwaysCrit: 0
   Effects:
-  - {fileID: 7120573030938165206}
+  - {fileID: -3595641225051435506}
   CardArt: {fileID: 0}
   FlavorText: "Poisons the target. (Modelled as Poison rider \u2014 \xA74.2.3)"
   GDDReference: "\xA75.3.6"
---- !u!114 &7120573030938165206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f67d941c579259f4f956f50863adc0e1, type: 3}
-  m_Name: leech_seed_PoisonRider
-  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.StatusRiderEffectSO
-  StatusToApply: 4
-  ApplicationChance: 1
-  ApplyToSelf: 0

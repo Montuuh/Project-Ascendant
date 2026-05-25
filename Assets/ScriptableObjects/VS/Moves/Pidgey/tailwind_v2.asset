@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7957813025241567852
+--- !u!114 &-2398160077782129821
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -36,7 +36,7 @@ MonoBehaviour:
   RangeModifierMultiplier: 0.75
   AlwaysCrit: 0
   Effects:
-  - {fileID: -7957813025241567852}
+  - {fileID: -2398160077782129821}
   CardArt: {fileID: 0}
   FlavorText: Draws +2 skill cards this turn. Upgraded Tailwind at Pidgeot.
   GDDReference: "\xA75.3.6"

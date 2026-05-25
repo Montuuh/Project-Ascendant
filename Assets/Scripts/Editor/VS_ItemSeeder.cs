@@ -202,17 +202,18 @@ namespace ProjectAscendant.Editor
 
             // ── Uncommon Relics (x5) ─────────────────────────────────────────
 
-            // Choice Specs: SpAttack +1 stage at combat start; SpAtk moves cost +1 AP.
+            // Choice Specs: Ranged moves deal +15% damage; Melee moves cost +1 AP.
+            // Mapped to Ranged/Melee split (no SpAtk/SpDef in this game — §4.1.1).
             d["choice_specs"]    = Rl(p,"choice_specs",   "Choice Specs",
                 RarityTier.Uncommon, metaTier:1,
                 new[]{SynergyCategory.Combat},
-                "§8.3 | Effect: At combat start, SpAttack +1 stage. Sp. offensive moves cost +1 AP.");
+                "§8.3 | Effect: Ranged moves deal +15% damage. Melee moves cost +1 AP (min 0).");
 
-            // Choice Band: Attack +1 stage at combat start; physical moves cost +1 AP.
+            // Choice Band: Melee moves deal +15% damage; Ranged moves cost +1 AP.
             d["choice_band"]     = Rl(p,"choice_band",    "Choice Band",
                 RarityTier.Uncommon, metaTier:1,
                 new[]{SynergyCategory.Combat},
-                "§8.3 | Effect: At combat start, Attack +1 stage. Physical offensive moves cost +1 AP.");
+                "§8.3 | Effect: Melee moves deal +15% damage. Ranged moves cost +1 AP (min 0).");
 
             // Move Echo: after playing a move, 20% chance to draw it again.
             d["move_echo"]       = Rl(p,"move_echo",      "Move Echo",

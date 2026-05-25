@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-1198773424237014019
+--- !u!114 &-6236932010113636830
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -30,7 +30,7 @@ MonoBehaviour:
   DisplayName: "Pok\xE9ball"
   Icon: {fileID: 0}
   APCost: 1
-  Effect: {fileID: -1198773424237014019}
+  Effect: {fileID: -6236932010113636830}
   Tier: 1
   UpgradeTo: {fileID: 0}
   GDDReference: "\xA78.2.5"

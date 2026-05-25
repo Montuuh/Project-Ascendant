@@ -16,11 +16,11 @@ MonoBehaviour:
   DisplayName: Antidote
   Icon: {fileID: 0}
   APCost: 0
-  Effect: {fileID: 157224936436524663}
+  Effect: {fileID: 6017060200601148193}
   Tier: 1
   UpgradeTo: {fileID: 0}
   GDDReference: "\xA78.2.3"
---- !u!114 &157224936436524663
+--- !u!114 &6017060200601148193
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

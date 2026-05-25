@@ -19,8 +19,6 @@ MonoBehaviour:
     BaseHP: 40
     BaseAtk: 45
     BaseDef: 40
-    BaseSpAtk: 35
-    BaseSpDef: 35
     BaseSpd: 56
   GrowthCurve: {fileID: 11400000, guid: ebda4002628b67841a1d16b9b11a543e, type: 2}
   Branches:

@@ -20,5 +20,5 @@ MonoBehaviour:
   Categories: 02000000
   OnAcquireHook: {fileID: 0}
   EventHooks: []
-  GDDReference: "\xA78.3 | Effect: At combat start, SpAttack +1 stage. Sp. offensive
-    moves cost +1 AP."
+  GDDReference: "\xA78.3 | Effect: Ranged moves deal +15% damage. Melee moves cost
+    +1 AP (min 0)."

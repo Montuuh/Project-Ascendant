@@ -23,11 +23,11 @@ MonoBehaviour:
   RangeModifierMultiplier: 0.75
   AlwaysCrit: 0
   Effects:
-  - {fileID: 2284990255269169447}
+  - {fileID: 376171304840911528}
   CardArt: {fileID: 0}
   FlavorText: 
   GDDReference: "\xA75.4.1 | TM15 Foresight \u2014 strips 1 enemy Defense stage."
---- !u!114 &2284990255269169447
+--- !u!114 &376171304840911528
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -16,11 +16,11 @@ MonoBehaviour:
   DisplayName: Ether
   Icon: {fileID: 0}
   APCost: 0
-  Effect: {fileID: 1776174847081016955}
+  Effect: {fileID: 7507660322326468637}
   Tier: 1
   UpgradeTo: {fileID: 0}
   GDDReference: "\xA78.2.4"
---- !u!114 &1776174847081016955
+--- !u!114 &7507660322326468637
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

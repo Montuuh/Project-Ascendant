@@ -23,11 +23,11 @@ MonoBehaviour:
   RangeModifierMultiplier: 0.75
   AlwaysCrit: 0
   Effects:
-  - {fileID: 3326406025654168538}
+  - {fileID: 6841294924819453615}
   CardArt: {fileID: 0}
   FlavorText: 
   GDDReference: "\xA75.3.6"
---- !u!114 &3326406025654168538
+--- !u!114 &6841294924819453615
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

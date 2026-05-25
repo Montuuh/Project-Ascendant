@@ -116,13 +116,13 @@ namespace ProjectAscendant.Editor
         {
             var d = new Dictionary<string, StatGrowthCurveSO>();
             string p = $"{ROOT}/GrowthCurves";
-            // Crv(path, id, hp, atk, def, spatk, spdef, spd)
-            d["bulbasaur"]  = Crv(p,"Bulbasaur_Line",   3,2,2,3,3,2);
-            d["charmander"] = Crv(p,"Charmander_Line",  2,3,2,3,2,3);
-            d["squirtle"]   = Crv(p,"Squirtle_Line",    3,2,3,2,3,2);
-            d["caterpie"]   = Crv(p,"Caterpie_Line",    2,1,2,1,2,2);
-            d["pidgey"]     = Crv(p,"Pidgey_Line",      2,2,2,2,2,3);
-            d["geodude"]    = Crv(p,"Geodude_Line",     3,3,3,1,2,2);
+            // Crv(path, id, hp, atk, def, spd) — no SpAtk/SpDef per §4.1.1
+            d["bulbasaur"]  = Crv(p,"Bulbasaur_Line",   3,2,2,2);
+            d["charmander"] = Crv(p,"Charmander_Line",  2,3,2,3);
+            d["squirtle"]   = Crv(p,"Squirtle_Line",    3,2,3,2);
+            d["caterpie"]   = Crv(p,"Caterpie_Line",    2,1,2,2);
+            d["pidgey"]     = Crv(p,"Pidgey_Line",      2,2,2,3);
+            d["geodude"]    = Crv(p,"Geodude_Line",     3,3,3,2);
             return d;
         }
 
@@ -389,7 +389,7 @@ namespace ProjectAscendant.Editor
             // ── Bulbasaur line ───────────────────────────────────────────────
             d["bulbasaur"] = Sp(pst,"Bulbasaur","Bulbasaur","bulbasaur",
                 new[]{PokemonType.Grass},
-                BS(45,49,49,65,65,45), crv["bulbasaur"],
+                BS(45,49,49,45), crv["bulbasaur"],
                 new[]{mv["tackle"],mv["vine_whip"],mv["growl"],mv["leech_seed"]},
                 masteryMove: mv["mastery_seedbomb"],
                 primaryAbility: null,      // no ability at base form — §5.5.1
@@ -398,7 +398,7 @@ namespace ProjectAscendant.Editor
 
             d["ivysaur_v"] = Sp(pst,"Ivysaur_Vanguard","Ivysaur","ivysaur",
                 new[]{PokemonType.Grass,PokemonType.Poison},
-                BS(60,62,63,80,80,60), crv["bulbasaur"],
+                BS(60,62,63,60), crv["bulbasaur"],
                 new[]{mv["headbutt"],mv["vine_lash"],mv["growl"],mv["mega_drain"]},
                 masteryMove: mv["mastery_razorleaf"],
                 primaryAbility: ab["overgrow"],   // gained at first evolution — §5.5.1
@@ -407,7 +407,7 @@ namespace ProjectAscendant.Editor
 
             d["venusaur_va1"] = Sp(pst,"Venusaur_VanguardA1","Venusaur","venusaur",
                 new[]{PokemonType.Grass,PokemonType.Poison},
-                BS(80,82,83,100,100,80), crv["bulbasaur"],
+                BS(80,82,83,80), crv["bulbasaur"],
                 new[]{mv["petal_blizzard"],mv["power_whip"],mv["sweet_scent"],mv["mega_drain"]},
                 masteryMove: mv["mastery_solarbeam"],
                 primaryAbility: ab["overgrow"],
@@ -417,7 +417,7 @@ namespace ProjectAscendant.Editor
 
             d["venusaur_va2"] = Sp(pst,"Venusaur_VanguardA2","Venusaur","venusaur",
                 new[]{PokemonType.Grass,PokemonType.Poison},
-                BS(80,82,83,100,100,80), crv["bulbasaur"],
+                BS(80,82,83,80), crv["bulbasaur"],
                 new[]{mv["seed_flare"],mv["vine_lash"],mv["toxic"],mv["giga_drain"]},
                 masteryMove: mv["mastery_solarbeam"],
                 primaryAbility: ab["overgrow"],
@@ -428,7 +428,7 @@ namespace ProjectAscendant.Editor
             // ── Charmander line ──────────────────────────────────────────────
             d["charmander"] = Sp(pst,"Charmander","Charmander","charmander",
                 new[]{PokemonType.Fire},
-                BS(39,52,43,60,50,65), crv["charmander"],
+                BS(39,52,43,65), crv["charmander"],
                 new[]{mv["scratch"],mv["ember"],mv["growl"],mv["smokescreen"]},
                 masteryMove: mv["mastery_firefang"],
                 primaryAbility: null,
@@ -437,7 +437,7 @@ namespace ProjectAscendant.Editor
 
             d["charmeleon_v"] = Sp(pst,"Charmeleon_Vanguard","Charmeleon","charmeleon",
                 new[]{PokemonType.Fire},
-                BS(58,64,58,80,65,80), crv["charmander"],
+                BS(58,64,58,80), crv["charmander"],
                 new[]{mv["dragon_claw"],mv["flame_wheel"],mv["growl"],mv["slash"]},
                 masteryMove: mv["mastery_flamecharge"],
                 primaryAbility: ab["blaze"],
@@ -446,7 +446,7 @@ namespace ProjectAscendant.Editor
 
             d["charizard_va1"] = Sp(pst,"Charizard_VanguardA1","Charizard","charizard",
                 new[]{PokemonType.Fire,PokemonType.Flying},
-                BS(78,84,78,109,85,100), crv["charmander"],
+                BS(78,84,78,100), crv["charmander"],
                 new[]{mv["wing_attack"],mv["flamethrower"],mv["roost"],mv["dragon_claw_plus"]},
                 masteryMove: mv["mastery_overheat"],
                 primaryAbility: ab["blaze"],
@@ -456,7 +456,7 @@ namespace ProjectAscendant.Editor
 
             d["charizard_va2"] = Sp(pst,"Charizard_VanguardA2","Charizard","charizard",
                 new[]{PokemonType.Fire,PokemonType.Flying},
-                BS(78,84,78,109,85,100), crv["charmander"],
+                BS(78,84,78,100), crv["charmander"],
                 new[]{mv["fire_fang_plus"],mv["flame_wheel"],mv["growl"],mv["inferno"]},
                 masteryMove: mv["mastery_overheat"],
                 primaryAbility: ab["blaze"],
@@ -467,7 +467,7 @@ namespace ProjectAscendant.Editor
             // ── Squirtle line (§5.6) ─────────────────────────────────────────
             d["squirtle"] = Sp(pst,"Squirtle","Squirtle","squirtle",
                 new[]{PokemonType.Water},
-                BS(44,48,65,50,64,43), crv["squirtle"],
+                BS(44,48,65,43), crv["squirtle"],
                 new[]{mv["tackle"],mv["water_gun"],mv["withdraw"],mv["tail_whip"]},
                 masteryMove: mv["mastery_waterpulse"],
                 primaryAbility: null,
@@ -476,7 +476,7 @@ namespace ProjectAscendant.Editor
 
             d["wartortle_v"] = Sp(pst,"Wartortle_Vanguard","Wartortle","wartortle",
                 new[]{PokemonType.Water},
-                BS(59,63,80,65,80,58), crv["squirtle"],
+                BS(59,63,80,58), crv["squirtle"],
                 new[]{mv["skull_bash"],mv["water_gun"],mv["withdraw"],mv["aqua_jet"]},
                 masteryMove: mv["mastery_waterfall"],
                 primaryAbility: ab["torrent"],
@@ -485,7 +485,7 @@ namespace ProjectAscendant.Editor
 
             d["blastoise_va1"] = Sp(pst,"Blastoise_VanguardA1","Blastoise","blastoise",
                 new[]{PokemonType.Water},
-                BS(79,83,100,85,105,78), crv["squirtle"],
+                BS(79,83,100,78), crv["squirtle"],
                 new[]{mv["hydro_crash"],mv["surf"],mv["aqua_ring"],mv["aqua_jet"]},
                 masteryMove: mv["mastery_hydrocannon"],
                 primaryAbility: ab["torrent"],
@@ -495,7 +495,7 @@ namespace ProjectAscendant.Editor
 
             d["blastoise_va2"] = Sp(pst,"Blastoise_VanguardA2","Blastoise","blastoise",
                 new[]{PokemonType.Water},
-                BS(79,83,100,85,105,78), crv["squirtle"],
+                BS(79,83,100,78), crv["squirtle"],
                 new[]{mv["skull_bash_plus"],mv["hydro_pump"],mv["withdraw"],mv["aqua_jet_plus"]},
                 masteryMove: mv["mastery_hydrocannon"],
                 primaryAbility: ab["torrent"],
@@ -506,7 +506,7 @@ namespace ProjectAscendant.Editor
             // ── Caterpie line (Bug — single Specialist path) ─────────────────
             d["caterpie"] = Sp(pwl,"Caterpie","Caterpie","caterpie",
                 new[]{PokemonType.Bug},
-                BS(45,30,35,20,20,45), crv["caterpie"],
+                BS(45,30,35,45), crv["caterpie"],
                 new[]{mv["tackle"],mv["string_shot"],mv["bug_bite"],mv["harden"]},
                 masteryMove: mv["mastery_silkshot"],
                 primaryAbility: null,
@@ -515,7 +515,7 @@ namespace ProjectAscendant.Editor
 
             d["metapod"] = Sp(pwl,"Metapod","Metapod","metapod",
                 new[]{PokemonType.Bug},
-                BS(50,20,55,25,25,30), crv["caterpie"],
+                BS(50,20,55,30), crv["caterpie"],
                 new[]{mv["tackle"],mv["silk_bind"],mv["pin_shot"],mv["harden_plus"]},
                 masteryMove: mv["mastery_bflycoil"],
                 primaryAbility: ab["iron_shell"],
@@ -524,7 +524,7 @@ namespace ProjectAscendant.Editor
 
             d["butterfree"] = Sp(pwl,"Butterfree","Butterfree","butterfree",
                 new[]{PokemonType.Bug,PokemonType.Flying},
-                BS(60,45,50,90,80,70), crv["caterpie"],
+                BS(60,45,50,70), crv["caterpie"],
                 new[]{mv["gust"],mv["powder_spread"],mv["silver_wind"],mv["psybeam"]},
                 masteryMove: mv["mastery_bugbuzz"],
                 primaryAbility: ab["iron_shell"],
@@ -535,7 +535,7 @@ namespace ProjectAscendant.Editor
             // ── Pidgey line (Flying/Normal — single Support path) ─────────────
             d["pidgey"] = Sp(pwl,"Pidgey","Pidgey","pidgey",
                 new[]{PokemonType.Normal,PokemonType.Flying},
-                BS(40,45,40,35,35,56), crv["pidgey"],
+                BS(40,45,40,56), crv["pidgey"],
                 new[]{mv["gust"],mv["tackle"],mv["sand_attack"],mv["roost"]},
                 masteryMove: mv["mastery_peck"],
                 primaryAbility: null,
@@ -544,7 +544,7 @@ namespace ProjectAscendant.Editor
 
             d["pidgeotto"] = Sp(pwl,"Pidgeotto","Pidgeotto","pidgeotto",
                 new[]{PokemonType.Normal,PokemonType.Flying},
-                BS(63,60,55,50,50,71), crv["pidgey"],
+                BS(63,60,55,71), crv["pidgey"],
                 new[]{mv["aerial_ace"],mv["tailwind"],mv["sand_attack"],mv["roost"]},
                 masteryMove: mv["mastery_wingattack_mid"],
                 primaryAbility: ab["keen_eye"],
@@ -553,7 +553,7 @@ namespace ProjectAscendant.Editor
 
             d["pidgeot"] = Sp(pwl,"Pidgeot","Pidgeot","pidgeot",
                 new[]{PokemonType.Normal,PokemonType.Flying},
-                BS(83,80,75,70,70,101), crv["pidgey"],
+                BS(83,80,75,101), crv["pidgey"],
                 new[]{mv["hurricane"],mv["tailwind_v2"],mv["sand_attack"],mv["roost_final"]},
                 masteryMove: mv["mastery_airslash"],
                 primaryAbility: ab["keen_eye"],
@@ -564,7 +564,7 @@ namespace ProjectAscendant.Editor
             // ── Geodude line (Rock/Ground — single Vanguard path) ─────────────
             d["geodude"] = Sp(pwl,"Geodude","Geodude","geodude",
                 new[]{PokemonType.Rock,PokemonType.Ground},
-                BS(40,80,100,30,30,20), crv["geodude"],
+                BS(40,80,100,20), crv["geodude"],
                 new[]{mv["tackle"],mv["rock_throw"],mv["defense_curl"],mv["magnitude"]},
                 masteryMove: mv["mastery_smackdown"],
                 primaryAbility: null,
@@ -573,7 +573,7 @@ namespace ProjectAscendant.Editor
 
             d["graveler"] = Sp(pwl,"Graveler","Graveler","graveler",
                 new[]{PokemonType.Rock,PokemonType.Ground},
-                BS(55,95,115,45,45,35), crv["geodude"],
+                BS(55,95,115,35), crv["geodude"],
                 new[]{mv["rock_blast"],mv["rollout"],mv["stealth_rock"],mv["earthquake"]},
                 masteryMove: mv["mastery_rocksmash"],
                 primaryAbility: ab["sturdy"],
@@ -582,7 +582,7 @@ namespace ProjectAscendant.Editor
 
             d["golem"] = Sp(pwl,"Golem","Golem","golem",
                 new[]{PokemonType.Rock,PokemonType.Ground},
-                BS(80,120,130,55,65,45), crv["geodude"],
+                BS(80,120,130,45), crv["geodude"],
                 new[]{mv["stone_edge"],mv["rock_polish"],mv["body_press"],mv["earthquake"]},
                 masteryMove: mv["mastery_fissure"],
                 primaryAbility: ab["sturdy"],
@@ -789,16 +789,15 @@ namespace ProjectAscendant.Editor
 
         // ── Growth curve factory ──────────────────────────────────────────────
 
+        // Per §4.1.1 — 4 stats only: HP, Atk, Def, Speed (no SpAtk/SpDef).
         static StatGrowthCurveSO Crv(string folder, string id,
-            int hp, int atk, int def, int spa, int spd, int spe)
+            int hp, int atk, int def, int spe)
         {
             var c = CreateSO<StatGrowthCurveSO>($"{folder}/{id}.asset");
-            c.HPGrowthPerLevel       = Flat(hp);
-            c.AttackGrowthPerLevel   = Flat(atk);
-            c.DefenseGrowthPerLevel  = Flat(def);
-            c.SpAttackGrowthPerLevel = Flat(spa);
-            c.SpDefenseGrowthPerLevel= Flat(spd);
-            c.SpeedGrowthPerLevel    = Flat(spe);
+            c.HPGrowthPerLevel      = Flat(hp);
+            c.AttackGrowthPerLevel  = Flat(atk);
+            c.DefenseGrowthPerLevel = Flat(def);
+            c.SpeedGrowthPerLevel   = Flat(spe);
             EditorUtility.SetDirty(c);
             return c;
         }
@@ -952,9 +951,9 @@ namespace ProjectAscendant.Editor
 
         // ── Base stats shorthand ──────────────────────────────────────────────
 
-        static BaseStats BS(int hp, int atk, int def, int spa, int spd, int spe) =>
-            new BaseStats { BaseHP=hp, BaseAtk=atk, BaseDef=def,
-                            BaseSpAtk=spa, BaseSpDef=spd, BaseSpd=spe };
+        // Per §4.1.1 — 4 stats only: HP, Atk, Def, Speed.
+        static BaseStats BS(int hp, int atk, int def, int spe) =>
+            new BaseStats { BaseHP=hp, BaseAtk=atk, BaseDef=def, BaseSpd=spe };
     }
 }
 #endif

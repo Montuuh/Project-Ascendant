@@ -11,7 +11,9 @@ namespace ProjectAscendant.Core
         Dragon, Dark, Steel, Fairy
     }
 
-    public enum Stat { Attack, Defense, SpAttack, SpDefense, Speed }
+    // Per §4.1.1 — the game uses a simplified 3-stat model (no SpAtk/SpDef split).
+    // All damage is Attack vs Defense regardless of move range.
+    public enum Stat { Attack, Defense, Speed }
 
     // Per §3.3.5.1 — None is the non-affected state.
     // Confusion is SecondaryStatus only; all others are PrimaryStatus.
@@ -40,14 +42,13 @@ namespace ProjectAscendant.Core
     // Per §3.1.20 / §9.5 — node types for map generation weights.
     public enum NodeType { Wild, Trainer, Center, Shop, Mystery, Gym }
 
+    // Per §4.1.1 — simplified stat block: HP, Attack, Defense, Speed only.
     [Serializable]
     public struct BaseStats
     {
         public int BaseHP;
         public int BaseAtk;
         public int BaseDef;
-        public int BaseSpAtk;
-        public int BaseSpDef;
         public int BaseSpd;
     }
 

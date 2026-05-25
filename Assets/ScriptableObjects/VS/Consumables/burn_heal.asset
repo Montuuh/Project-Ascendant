@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-149213652295379748
+--- !u!114 &-2634819401619499477
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -30,7 +30,7 @@ MonoBehaviour:
   DisplayName: Burn Heal
   Icon: {fileID: 0}
   APCost: 0
-  Effect: {fileID: -149213652295379748}
+  Effect: {fileID: -2634819401619499477}
   Tier: 1
   UpgradeTo: {fileID: 0}
   GDDReference: "\xA78.2.3"

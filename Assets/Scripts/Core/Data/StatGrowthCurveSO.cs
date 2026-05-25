@@ -8,11 +8,10 @@ namespace ProjectAscendant.Core
     [CreateAssetMenu(fileName = "New Growth Curve", menuName = "Project Ascendant/Data/Stat Growth Curve")]
     public class StatGrowthCurveSO : ScriptableObject
     {
+        // Per §4.1.1 — HP, Attack, Defense, Speed only (no SpAtk/SpDef split).
         public int[] HPGrowthPerLevel;
         public int[] AttackGrowthPerLevel;
         public int[] DefenseGrowthPerLevel;
-        public int[] SpAttackGrowthPerLevel;
-        public int[] SpDefenseGrowthPerLevel;
         public int[] SpeedGrowthPerLevel;
 
         // Returns total accumulated HP growth from level 1 to targetLevel (exclusive of base HP).

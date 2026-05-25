@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8845590655715702496
+--- !u!114 &-2953999353429943428
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -36,7 +36,7 @@ MonoBehaviour:
   RangeModifierMultiplier: 0.75
   AlwaysCrit: 0
   Effects:
-  - {fileID: -8845590655715702496}
+  - {fileID: -2953999353429943428}
   CardArt: {fileID: 0}
   FlavorText: "Draws +1 skill card this turn. Support archetype \u2014 \xA75.3.4."
   GDDReference: "\xA75.3.6"

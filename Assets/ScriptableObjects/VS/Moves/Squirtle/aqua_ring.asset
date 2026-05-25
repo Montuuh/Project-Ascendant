@@ -23,11 +23,11 @@ MonoBehaviour:
   RangeModifierMultiplier: 1
   AlwaysCrit: 0
   Effects:
-  - {fileID: 556395448525613433}
+  - {fileID: 894844570729123197}
   CardArt: {fileID: 0}
   FlavorText: "Regen: floor(MaxHP/8) HP per turn for 3 turns. \xA75.6."
   GDDReference: "\xA75.3.6"
---- !u!114 &556395448525613433
+--- !u!114 &894844570729123197
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
