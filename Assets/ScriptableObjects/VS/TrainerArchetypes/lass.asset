@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73490a67450edba44bcd60700063da6a, type: 3}
+  m_Name: lass
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.TrainerArchetypeSO
+  ArchetypeId: lass
+  DisplayName: Lass
+  TrainerSprite: {fileID: 0}
+  Composition:
+  - Species: {fileID: 11400000, guid: b42f51e93511fce49a83cba53bb9a950, type: 2}
+    Level: 8
+  - Species: {fileID: 11400000, guid: efc5571bf4edfc34eac2d4473360a590, type: 2}
+    Level: 7
+  TacticalIdentity: Disrupts with Growl + Feather Dance to shred Attack stages. Then
+    Vine Whip + Gust for chip. Roost to stall. Targets highest-ATK slot to neutralise
+    threats.
+  RelicLootTable: []
+  ConsumableLootTable:
+  - {fileID: 11400000, guid: 783619d0328dc384badc1785f81c1663, type: 2}
+  - {fileID: 11400000, guid: a267882c346dc7441904e22909bf894d, type: 2}
+  BasePokeDollarReward: 130
+  GDDReference: "\xA73.1.15 | Control Lass. Debuff heavy, Roost stall."

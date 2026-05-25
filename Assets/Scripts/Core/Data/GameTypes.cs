@@ -33,8 +33,9 @@ namespace ProjectAscendant.Core
     // Per §8.3.2 — five synergy categories for relic curation (City Shop algorithm).
     public enum SynergyCategory { LeadEconomy, CardEconomy, Combat, MetaAcquisition, Status }
 
-    // Per §5.5.2 — six passive ability categories.
-    public enum AbilityCategory { Combat, Vision, Positional, Type, Survival, Aura }
+    // Per §5.5.2 + §5.8 — ability categories. §5.8 added Support for team-sustain passives
+    // (Healer, Friend Guard). §5.5.2 table predates that addition; consider it authoritative.
+    public enum AbilityCategory { Combat, Vision, Positional, Type, Survival, Aura, Support }
 
     // Per §3.1.20 / §9.5 — node types for map generation weights.
     public enum NodeType { Wild, Trainer, Center, Shop, Mystery, Gym }

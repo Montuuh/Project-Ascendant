@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
+  m_Name: Golem
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
+  SpeciesId: golem
+  DisplayName: Golem
+  Types: 0c00000008000000
+  BaseStats:
+    BaseHP: 80
+    BaseAtk: 120
+    BaseDef: 130
+    BaseSpAtk: 55
+    BaseSpDef: 65
+    BaseSpd: 45
+  GrowthCurve: {fileID: 11400000, guid: b4b56443aab562a49a5c3750cafb413b, type: 2}
+  Branches: []
+  BaseLearnset:
+  - {fileID: 11400000, guid: dc61fa235068a5c4eb91c89961a62b8e, type: 2}
+  - {fileID: 11400000, guid: ea938a84222250940bf3c5286214cf42, type: 2}
+  - {fileID: 11400000, guid: ffa7bc09d7bdb9f439028df394b829d2, type: 2}
+  - {fileID: 11400000, guid: ead3a06e041cc5f4c8c729b866fd39fa, type: 2}
+  TutorLearnset: []
+  TMCompatibility: []
+  PrimaryAbility: {fileID: 11400000, guid: 991a0c52d6158194e80eb0314b7b9fae, type: 2}
+  MasteryMoveBase: {fileID: 11400000, guid: 17137303daca3a04c8b2017806e4a81b, type: 2}
+  StatusImmunities: 
+  WildRarity: 1
+  SpawnBiomes: 0200000005000000
+  Portrait: {fileID: 0}
+  GDDReference: "\xA75.3 | Secondary ability (branch): Tough Claws"

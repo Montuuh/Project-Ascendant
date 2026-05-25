@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
+  m_Name: charmander_vanguard
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
+  BranchId: charmander_vanguard
+  DisplayName: Vanguard
+  Archetype: 0
+  EvolvedSpecies: {fileID: 11400000, guid: 806fe06acb6e13240beef1cc408fc958, type: 2}
+  MoveOverrides:
+  - SlotIndex: 0
+    ReplacementMove: {fileID: 11400000, guid: d503a4b3850e4bc4481740825c6ddfc2, type: 2}
+  - SlotIndex: 1
+    ReplacementMove: {fileID: 11400000, guid: 0af34f1c932af1a489c2dce043f80860, type: 2}
+  - SlotIndex: 3
+    ReplacementMove: {fileID: 11400000, guid: d73bc61ec3c2ffe4f9955881d66b1cdc, type: 2}
+  GrantedAbility: {fileID: 0}
+  SubBranches: []
+  GDDReference: "\xA75.3.4"

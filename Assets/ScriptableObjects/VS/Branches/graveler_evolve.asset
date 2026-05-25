@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
+  m_Name: graveler_evolve
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
+  BranchId: graveler_evolve
+  DisplayName: Vanguard
+  Archetype: 0
+  EvolvedSpecies: {fileID: 11400000, guid: f005ab37e554e4045b8a4d44ac2f08fd, type: 2}
+  MoveOverrides:
+  - SlotIndex: 0
+    ReplacementMove: {fileID: 11400000, guid: dc61fa235068a5c4eb91c89961a62b8e, type: 2}
+  - SlotIndex: 1
+    ReplacementMove: {fileID: 11400000, guid: ea938a84222250940bf3c5286214cf42, type: 2}
+  - SlotIndex: 2
+    ReplacementMove: {fileID: 11400000, guid: ffa7bc09d7bdb9f439028df394b829d2, type: 2}
+  GrantedAbility: {fileID: 11400000, guid: 258aab2730b7ea74bad9eb40a996fd29, type: 2}
+  SubBranches: []
+  GDDReference: "\xA75.3.4"

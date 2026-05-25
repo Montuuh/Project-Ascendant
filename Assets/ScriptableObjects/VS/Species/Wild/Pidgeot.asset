@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
+  m_Name: Pidgeot
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
+  SpeciesId: pidgeot
+  DisplayName: Pidgeot
+  Types: 0000000009000000
+  BaseStats:
+    BaseHP: 83
+    BaseAtk: 80
+    BaseDef: 75
+    BaseSpAtk: 70
+    BaseSpDef: 70
+    BaseSpd: 101
+  GrowthCurve: {fileID: 11400000, guid: ebda4002628b67841a1d16b9b11a543e, type: 2}
+  Branches: []
+  BaseLearnset:
+  - {fileID: 11400000, guid: a24483cd016c9ec4ebb9e0fa1ce045ac, type: 2}
+  - {fileID: 11400000, guid: eadcbc224bd54274d8be55762d68d352, type: 2}
+  - {fileID: 11400000, guid: 8362c826a5dc8e6488000c7d3fb1fcd2, type: 2}
+  - {fileID: 11400000, guid: 0c413079dee5bd34a8815b824ecb353b, type: 2}
+  TutorLearnset: []
+  TMCompatibility: []
+  PrimaryAbility: {fileID: 11400000, guid: 012126a49af992842a99c2ac69bb7c43, type: 2}
+  MasteryMoveBase: {fileID: 11400000, guid: d518eca136d46c3489801900860f3920, type: 2}
+  StatusImmunities: 
+  WildRarity: 1
+  SpawnBiomes: 01000000
+  Portrait: {fileID: 0}
+  GDDReference: "\xA75.3 | Secondary ability (branch): Healer"

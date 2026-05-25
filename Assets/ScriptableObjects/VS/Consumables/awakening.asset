@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ff0d6dfdb0c1384793311e5da4709c4, type: 3}
+  m_Name: awakening
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.ConsumableSO
+  Id: awakening
+  DisplayName: Awakening
+  Icon: {fileID: 0}
+  APCost: 0
+  Effect: {fileID: 3716327779059928493}
+  Tier: 1
+  UpgradeTo: {fileID: 0}
+  GDDReference: "\xA78.2.3"
+--- !u!114 &3716327779059928493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d2121642eea4de45a37a203d7b56078, type: 3}
+  m_Name: awakening_Cure
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.StatusCureConsumableEffectSO
+  CuresStatus: 5
+  CureAll: 0

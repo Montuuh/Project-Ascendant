@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
+  m_Name: Metapod
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
+  SpeciesId: metapod
+  DisplayName: Metapod
+  Types: 0b000000
+  BaseStats:
+    BaseHP: 50
+    BaseAtk: 20
+    BaseDef: 55
+    BaseSpAtk: 25
+    BaseSpDef: 25
+    BaseSpd: 30
+  GrowthCurve: {fileID: 11400000, guid: 91ef93e96286d9243af28696c89d89dc, type: 2}
+  Branches:
+  - {fileID: 11400000, guid: 9f59c35f4d7e6f943ac03f6e1b0ce112, type: 2}
+  BaseLearnset:
+  - {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
+  - {fileID: 11400000, guid: b114c7186c92548449d6e22f20cbeee5, type: 2}
+  - {fileID: 11400000, guid: 8af699c93bb2b554f825d68f849db8c3, type: 2}
+  - {fileID: 11400000, guid: 57b250d22425b0248b4684406479c31a, type: 2}
+  TutorLearnset: []
+  TMCompatibility: []
+  PrimaryAbility: {fileID: 11400000, guid: 4651a859cc66dcf43bb4bb0aa3b0f523, type: 2}
+  MasteryMoveBase: {fileID: 11400000, guid: 8c9f4ea464e24ce4b9f0b688b56db8de, type: 2}
+  StatusImmunities: 
+  WildRarity: 0
+  SpawnBiomes: 0100000004000000
+  Portrait: {fileID: 0}
+  GDDReference: "\xA75.3"

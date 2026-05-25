@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
+  m_Name: Graveler
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
+  SpeciesId: graveler
+  DisplayName: Graveler
+  Types: 0c00000008000000
+  BaseStats:
+    BaseHP: 55
+    BaseAtk: 95
+    BaseDef: 115
+    BaseSpAtk: 45
+    BaseSpDef: 45
+    BaseSpd: 35
+  GrowthCurve: {fileID: 11400000, guid: b4b56443aab562a49a5c3750cafb413b, type: 2}
+  Branches:
+  - {fileID: 11400000, guid: 7768f8e0fdd70fe43817c86a117876a9, type: 2}
+  BaseLearnset:
+  - {fileID: 11400000, guid: 07f68986483e3ea458954580498dc23e, type: 2}
+  - {fileID: 11400000, guid: 6ac00825b70615347840cd19ef45d692, type: 2}
+  - {fileID: 11400000, guid: f39bc894bd25c884fbf3acacb7708760, type: 2}
+  - {fileID: 11400000, guid: ead3a06e041cc5f4c8c729b866fd39fa, type: 2}
+  TutorLearnset: []
+  TMCompatibility: []
+  PrimaryAbility: {fileID: 11400000, guid: 991a0c52d6158194e80eb0314b7b9fae, type: 2}
+  MasteryMoveBase: {fileID: 11400000, guid: 776e32d7d934add42bbab6604419cb51, type: 2}
+  StatusImmunities: 
+  WildRarity: 0
+  SpawnBiomes: 0200000005000000
+  Portrait: {fileID: 0}
+  GDDReference: "\xA75.3"

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640b8ab588ea3d8458b118855b3e9302, type: 3}
+  m_Name: harden_plus
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.MoveSO
+  MoveId: harden_plus
+  DisplayName: Harden+
+  Type: 0
+  Role: 2
+  Range: 0
+  Modifier: 0
+  BasePower: 0
+  APCost: 0
+  RangeModifierMultiplier: 1
+  AlwaysCrit: 0
+  Effects:
+  - {fileID: 6347140543071983060}
+  CardArt: {fileID: 0}
+  FlavorText: 
+  GDDReference: "\xA75.3.6"
+--- !u!114 &6347140543071983060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8b5fe0e3a139584b96bb07d2e016a66, type: 3}
+  m_Name: harden_plus_BuffDefense
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.BuffSelfEffectSO
+  TargetStat: 1
+  StageChange: 2

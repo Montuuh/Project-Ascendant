@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1198773424237014019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbab9f841093d7742a0b694471fb748f, type: 3}
+  m_Name: pokeball_Catch
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.CatchConsumableEffectSO
+  CatchThresholdPercent: 0.5
+  CatchWithAnyStatus: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ff0d6dfdb0c1384793311e5da4709c4, type: 3}
+  m_Name: pokeball
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.ConsumableSO
+  Id: pokeball
+  DisplayName: "Pok\xE9ball"
+  Icon: {fileID: 0}
+  APCost: 1
+  Effect: {fileID: -1198773424237014019}
+  Tier: 1
+  UpgradeTo: {fileID: 0}
+  GDDReference: "\xA78.2.5"

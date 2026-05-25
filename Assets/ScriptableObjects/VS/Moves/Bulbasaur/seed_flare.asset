@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2254300196055283175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bde69302f5c26f4784d2c9e5d03daed, type: 3}
+  m_Name: seed_flare_DebuffDefense
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.DebuffTargetEffectSO
+  TargetStat: 1
+  StageChange: -1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640b8ab588ea3d8458b118855b3e9302, type: 3}
+  m_Name: seed_flare
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.MoveSO
+  MoveId: seed_flare
+  DisplayName: Seed Flare
+  Type: 3
+  Role: 0
+  Range: 0
+  Modifier: 1
+  BasePower: 70
+  APCost: 2
+  RangeModifierMultiplier: 1
+  AlwaysCrit: 0
+  Effects:
+  - {fileID: -2254300196055283175}
+  CardArt: {fileID: 0}
+  FlavorText: 
+  GDDReference: "\xA75.3.6"

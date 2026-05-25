@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640b8ab588ea3d8458b118855b3e9302, type: 3}
+  m_Name: aqua_ring
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.MoveSO
+  MoveId: aqua_ring
+  DisplayName: Aqua Ring
+  Type: 2
+  Role: 1
+  Range: 0
+  Modifier: 0
+  BasePower: 0
+  APCost: 1
+  RangeModifierMultiplier: 1
+  AlwaysCrit: 0
+  Effects:
+  - {fileID: 556395448525613433}
+  CardArt: {fileID: 0}
+  FlavorText: "Regen: floor(MaxHP/8) HP per turn for 3 turns. \xA75.6."
+  GDDReference: "\xA75.3.6"
+--- !u!114 &556395448525613433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d4fef52b8dfd6d45b8a9d7c1d0d60f7, type: 3}
+  m_Name: aqua_ring_Heal
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.HealEffectSO
+  FlatHealAmount: 0
+  PercentageOfMaxHP: 0.125
+  HealSelf: 1
+  DurationTurns: 3

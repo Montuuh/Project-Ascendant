@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640b8ab588ea3d8458b118855b3e9302, type: 3}
+  m_Name: body_slam
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.MoveSO
+  MoveId: body_slam
+  DisplayName: Body Slam
+  Type: 0
+  Role: 0
+  Range: 0
+  Modifier: 0
+  BasePower: 85
+  APCost: 2
+  RangeModifierMultiplier: 1
+  AlwaysCrit: 0
+  Effects:
+  - {fileID: 1552982445426482523}
+  CardArt: {fileID: 0}
+  FlavorText: 
+  GDDReference: "\xA75.4.1 | TM11 Body Slam"
+--- !u!114 &1552982445426482523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67d941c579259f4f956f50863adc0e1, type: 3}
+  m_Name: body_slam_ParalysisRider
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.StatusRiderEffectSO
+  StatusToApply: 3
+  ApplicationChance: 0.2
+  ApplyToSelf: 0

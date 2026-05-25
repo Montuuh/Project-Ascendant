@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
+  m_Name: metapod_evolve
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
+  BranchId: metapod_evolve
+  DisplayName: Specialist
+  Archetype: 1
+  EvolvedSpecies: {fileID: 11400000, guid: 71f3edde4277690449b2a7eab70e75c8, type: 2}
+  MoveOverrides:
+  - SlotIndex: 0
+    ReplacementMove: {fileID: 11400000, guid: 68ad5e2040d031c48bd4497fd0f071bb, type: 2}
+  - SlotIndex: 1
+    ReplacementMove: {fileID: 11400000, guid: 686bfb1634172ad42affc9aa87a6af37, type: 2}
+  - SlotIndex: 2
+    ReplacementMove: {fileID: 11400000, guid: 4d9956e7f8e58014e90971cbedea2c04, type: 2}
+  - SlotIndex: 3
+    ReplacementMove: {fileID: 11400000, guid: a30895b5c0718894e9119980445f6176, type: 2}
+  GrantedAbility: {fileID: 11400000, guid: eb97ca264896c9449a0e8d26804a6bf3, type: 2}
+  SubBranches: []
+  GDDReference: "\xA75.3.4"

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 686210a47df6edd46802160f4d95a0a2, type: 3}
+  m_Name: EconomyConfig
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EconomyConfigSO
+  LevelUpThresholds: 64000000c800000045010000db0100008a02000052030000330400002d050000400600006c070000b10800000f0a0000860b0000160d0000bf0e0000811000005c120000501400005d16000083180000
+  WildXPMultiplier: 1
+  TrainerXPMultiplier: 1.5
+  EliteXPMultiplier: 2
+  GymLeaderXPMultiplier: 3
+  TokenPerXP: 1
+  TraumaStackPenaltyPercent: 5
+  TraumaStackCap: 5
+  TraumaStacksPerFaint: 1
+  BoxCapacity: 18

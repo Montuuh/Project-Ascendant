@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 514e28df064b02b4e8ae1eb077c988a4, type: 3}
+  m_Name: boulder_badge
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.BadgeSO
+  BadgeId: boulder_badge
+  DisplayName: Boulder Badge
+  GymSource: R1-Gym1
+  Icon: {fileID: 0}
+  GrantedHook: {fileID: 0}
+  EffectDescription: "All Pok\xE9mon's Defense increased by 10% (run-wide)."
+  GDDReference: "\xA74.4.5 | Boulder Badge. Rock Gym R1. Def +10% run-wide."

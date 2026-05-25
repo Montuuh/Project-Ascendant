@@ -6,11 +6,11 @@
 
 **Open decisions:** none
 
-**Next action:** Task 3.3 — Content Authoring (Pokémon lines, moves, relics, consumables, etc.)
+**Next action:** Task 3.4 — Editor Tooling (custom inspectors, asset-creation menus, bulk validator)
 
 **Blocked on:** nothing
 
-**Last commit:** feat(data): Task 3.1 + 3.2 — Full SO schema layer (§9.3)
+**Last commit:** feat(content): Task 3.3 — VS content authoring (6 Pokémon lines, items, world)
 
 ---
 
@@ -39,16 +39,48 @@
   - RunStateSO (expanded), MetaProgressionSO (expanded), SettingsSO (expanded)
   - BestiaryProgressSO, BiomeSO, MysteryEventSO, TrainerArchetypeSO
   - EncounterTableSO, DifficultyModifierSO, RegionModifierSO, LeagueBoonSO
-  - GameTypes.cs expanded (BranchArchetype, Biome, SynergyCategory, AbilityCategory, NodeType, StringIntPair)
+  - GameTypes.cs expanded (BranchArchetype, Biome, SynergyCategory, AbilityCategory + Support, NodeType, StringIntPair)
   - PokemonInstance.SelectedBranch → EvolutionBranchSO reference
 - [x] **3.2** Data Schema Tests — 7 new tests (96/96 total)
   - StatGrowthCurve: Level1=0, accumulate, null-safe
   - PokemonInstance.Reset: HP=0, status cleared, stat stages cleared, SelectedBranch=null
-- [ ] **3.3** Content Authoring — 6 Pokémon lines, ~50 moves, 10 consumables, 15 relics, 5 Held Items, 3 TMs, 4 Mystery Events, 4 trainer archetypes, 3 difficulty modifiers, 4 badges, configs (content-designer)
+- [x] **3.3** Content Authoring — ✅ COMPLETE (63/63 verifier checks, 0 failed)
+  - **3.3.A+B** VS_ContentSeeder.cs — 6 Pokémon lines, 86 moves, 12 abilities, 6 growth curves, 15 branches, 21 species
+  - **3.3.C** VS_ItemSeeder.cs — 10 consumables (Potion→Super Potion upgrade chain, status cures, Ether, X Attack, Pokéball)
+  - **3.3.D** 15 relics (10 Common + 5 Uncommon; hook stubs — wired in Epic 4)
+  - **3.3.E** 5 held items (Charcoal, Mystic Water, Magnet, Miracle Seed, Leftovers; type Lead Aura wiring per §5.5.4)
+  - **3.3.F** 3 TMs (TM05 Surf, TM11 Body Slam, TM15 Foresight; 2 new TM-exclusive moves)
+  - **3.3.G** 3 biomes, 4 mystery events, 4 trainer archetypes, 3 difficulty modifiers, 4 badges, BattleConfigSO, EconomyConfigSO, MapGenerationConfigSO
+  - VS_Verifier.cs — 63 spot-checks across all authored content; all pass
 - [ ] **3.4** Editor Tooling — Custom inspectors, asset-creation menus, bulk validator
 - [ ] **3.5** Lint & Data Discipline — Roslyn analyzer, naming convention enforcement
 
 **Total EditMode tests: 96/96 ✅**
+
+---
+
+## Asset inventory (Assets/ScriptableObjects/VS/)
+
+```
+Abilities/          12 assets
+GrowthCurves/        6 assets
+Moves/              88 assets (86 species + 2 TM-exclusive)
+Branches/           15 assets
+Species/Starters/   12 assets
+Species/Wild/        9 assets
+Consumables/        10 assets
+Relics/             15 assets
+HeldItems/           5 assets
+TMs/                 3 assets
+Biomes/              3 assets
+MysteryEvents/       4 assets
+TrainerArchetypes/   4 assets
+DifficultyModifiers/ 3 assets
+Badges/              4 assets
+Configs/             3 assets
+─────────────────────────────
+Total:            ~196 .asset files
+```
 
 ---
 

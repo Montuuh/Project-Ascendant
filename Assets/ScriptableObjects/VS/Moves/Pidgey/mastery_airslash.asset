@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640b8ab588ea3d8458b118855b3e9302, type: 3}
+  m_Name: mastery_airslash
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.MoveSO
+  MoveId: mastery_airslash
+  DisplayName: Air Slash
+  Type: 9
+  Role: 0
+  Range: 1
+  Modifier: 0
+  BasePower: 75
+  APCost: 2
+  RangeModifierMultiplier: 0.75
+  AlwaysCrit: 0
+  Effects:
+  - {fileID: 3447745307038712847}
+  CardArt: {fileID: 0}
+  FlavorText: 
+  GDDReference: "\xA74.3.9.2"
+--- !u!114 &3447745307038712847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67d941c579259f4f956f50863adc0e1, type: 3}
+  m_Name: mastery_airslash_ConfusionRider
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.StatusRiderEffectSO
+  StatusToApply: 6
+  ApplicationChance: 0.2
+  ApplyToSelf: 0
