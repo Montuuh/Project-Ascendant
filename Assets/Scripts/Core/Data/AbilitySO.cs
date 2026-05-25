@@ -5,7 +5,7 @@ namespace ProjectAscendant.Core
     // Per §5.5 — Definition SO for a passive ability. Immutable at runtime.
     // Abilities are granted at first evolution (primary) and by branch at final evolution (secondary).
     // Per §5.5.4 — Lead Aura abilities activate/deactivate when this Pokémon enters/leaves Lead.
-    [CreateAssetMenu(fileName = "New Ability", menuName = "Project Ascendant/Data/Ability")]
+    [CreateAssetMenu(fileName = "New Ability", menuName = "Project Ascendant/Pokemon/Ability")]
     public class AbilitySO : ScriptableObject
     {
         public string AbilityId;

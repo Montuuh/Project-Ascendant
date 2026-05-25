@@ -7,7 +7,7 @@ namespace ProjectAscendant.Core
     // Per §3.1.14 — Definition SO for a Mystery Event node.
     // VS events: Mysterious Stone, Berry Bush, Wandering Tutor, Slot Booth (§3.3.17).
     // Full outcome resolution logic implemented in Epic 9 (Map & Nodes).
-    [CreateAssetMenu(fileName = "New Mystery Event", menuName = "Project Ascendant/Data/Mystery Event")]
+    [CreateAssetMenu(fileName = "New Mystery Event", menuName = "Project Ascendant/World/Mystery Event")]
     public class MysteryEventSO : ScriptableObject
     {
         [Header("Identity")]

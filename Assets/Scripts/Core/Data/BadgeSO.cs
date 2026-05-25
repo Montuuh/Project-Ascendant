@@ -5,7 +5,7 @@ namespace ProjectAscendant.Core
     // Per §4.4.5 — Definition SO for a Gym Badge. Earned from Gym Leader victories.
     // Badges provide persistent run-wide passive effects via ScriptableHook.
     // Some abilities and items have explicit Badge synergies (e.g. §5.6 Shell Armor + Boulder Badge).
-    [CreateAssetMenu(fileName = "New Badge", menuName = "Project Ascendant/Data/Badge")]
+    [CreateAssetMenu(fileName = "New Badge", menuName = "Project Ascendant/Combat/Badge")]
     public class BadgeSO : ScriptableObject
     {
         [Header("Identity")]

@@ -7,7 +7,7 @@ namespace ProjectAscendant.Core
     // Per §3.1.15 — Definition SO for a Trainer archetype.
     // VS archetypes: Bug Catcher, Lass, Hiker, Sailor (§3.3.18).
     // Full AI behaviour wired in Epic 8 (Encounters & AI).
-    [CreateAssetMenu(fileName = "New Trainer Archetype", menuName = "Project Ascendant/Data/Trainer Archetype")]
+    [CreateAssetMenu(fileName = "New Trainer Archetype", menuName = "Project Ascendant/World/Trainer Archetype")]
     public class TrainerArchetypeSO : ScriptableObject
     {
         [Header("Identity")]

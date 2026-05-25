@@ -5,7 +5,7 @@ namespace ProjectAscendant.Core
 {
     // Per §9.3.2.1 — Definition SO for a Pokémon species. Immutable at runtime.
     // One SO per evolution stage per branch: e.g. Squirtle, Wartortle_Vanguard, Blastoise_VanguardA1.
-    [CreateAssetMenu(fileName = "New Pokemon Species", menuName = "Project Ascendant/Data/Pokemon Species")]
+    [CreateAssetMenu(fileName = "New Pokemon Species", menuName = "Project Ascendant/Pokemon/Species")]
     public class PokemonSpeciesSO : ScriptableObject
     {
         [Header("Identity")]

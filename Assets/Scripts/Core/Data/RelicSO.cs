@@ -7,7 +7,7 @@ namespace ProjectAscendant.Core
     // Per §8.7 + §8.3 — Definition SO for a Trainer Relic. Immutable at runtime.
     // Relics are persistent run-state modifiers wired via ScriptableHook to EventBus channels.
     // Per §8.3.2 — each relic has a primary + optional secondary SynergyCategory for shop curation.
-    [CreateAssetMenu(fileName = "New Relic", menuName = "Project Ascendant/Data/Relic")]
+    [CreateAssetMenu(fileName = "New Relic", menuName = "Project Ascendant/Items/Relic")]
     public class RelicSO : ScriptableObject
     {
         [Header("Identity")]

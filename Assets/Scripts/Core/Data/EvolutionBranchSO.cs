@@ -7,7 +7,7 @@ namespace ProjectAscendant.Core
     // Per §5.3 + Epic 3.1.3 — Definition SO for one evolution branch.
     // A PokemonSpeciesSO holds 2-4 EvolutionBranchSOs per §5.3.3.
     // Each branch defines the evolved form, which pool moves upgrade, and which ability is granted.
-    [CreateAssetMenu(fileName = "New Evolution Branch", menuName = "Project Ascendant/Data/Evolution Branch")]
+    [CreateAssetMenu(fileName = "New Evolution Branch", menuName = "Project Ascendant/Pokemon/Evolution Branch")]
     public class EvolutionBranchSO : ScriptableObject
     {
         public string BranchId;

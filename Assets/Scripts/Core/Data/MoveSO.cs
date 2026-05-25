@@ -6,7 +6,7 @@ namespace ProjectAscendant.Core
     // Per §9.3.2.2 — Definition SO for a move card. Immutable at runtime.
     // Positional modifiers (SF/SB) only valid on Melee moves — enforced by inspector (Task 3.4.2).
     // APCost 0-4 per §5.3.6; 4-AP only on final-form signature/ultimate moves.
-    [CreateAssetMenu(fileName = "New Move", menuName = "Project Ascendant/Data/Move")]
+    [CreateAssetMenu(fileName = "New Move", menuName = "Project Ascendant/Moves/Move")]
     public class MoveSO : ScriptableObject
     {
         [Header("Identity")]

@@ -5,7 +5,7 @@ namespace ProjectAscendant.Core
 {
     // Per §3.1.13 — Definition SO for a biome. Used in encounter tables and map generation.
     // VS biomes: Meadow, Cave, River (§3.3.16).
-    [CreateAssetMenu(fileName = "New Biome", menuName = "Project Ascendant/Data/Biome")]
+    [CreateAssetMenu(fileName = "New Biome", menuName = "Project Ascendant/World/Biome")]
     public class BiomeSO : ScriptableObject
     {
         [Header("Identity")]

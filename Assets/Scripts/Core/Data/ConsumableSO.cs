@@ -6,7 +6,7 @@ namespace ProjectAscendant.Core
     // Consumables restore at combat end (§3.5) — they are NOT expendable.
     // Exception: Revive has 1 charge per inventory copy (§8.2.2).
     // Upgrade chains (e.g. Potion → Super Potion) use the UpgradeTo reference.
-    [CreateAssetMenu(fileName = "New Consumable", menuName = "Project Ascendant/Data/Consumable")]
+    [CreateAssetMenu(fileName = "New Consumable", menuName = "Project Ascendant/Items/Consumable")]
     public class ConsumableSO : ScriptableObject
     {
         [Header("Identity")]

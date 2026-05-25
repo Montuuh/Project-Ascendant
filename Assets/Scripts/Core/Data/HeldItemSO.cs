@@ -6,7 +6,7 @@ namespace ProjectAscendant.Core
     // Per §8.7 + §8.4 — Definition SO for a Held Item. Immutable at runtime.
     // One slot per Pokémon (§8.4.1). Persists across combats until manually un-equipped.
     // Per §5.5.4 — Type Plates grant a Lead Aura while the wearer is Lead.
-    [CreateAssetMenu(fileName = "New Held Item", menuName = "Project Ascendant/Data/Held Item")]
+    [CreateAssetMenu(fileName = "New Held Item", menuName = "Project Ascendant/Items/Held Item")]
     public class HeldItemSO : ScriptableObject
     {
         [Header("Identity")]

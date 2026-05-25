@@ -5,7 +5,7 @@ namespace ProjectAscendant.Core
     // Per §6.8 + §3.1.17 — Definition SO for a run difficulty modifier.
     // VS modifiers: Iron Will (harder enemies), Dense Fog (hidden intents), One Path (fewer choices).
     // Selected at run start and applied globally for the entire run.
-    [CreateAssetMenu(fileName = "New Difficulty Modifier", menuName = "Project Ascendant/Data/Difficulty Modifier")]
+    [CreateAssetMenu(fileName = "New Difficulty Modifier", menuName = "Project Ascendant/World/Difficulty Modifier")]
     public class DifficultyModifierSO : ScriptableObject
     {
         [Header("Identity")]

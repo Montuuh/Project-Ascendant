@@ -6,7 +6,7 @@ namespace ProjectAscendant.Core
 {
     // Per §3.1.16 — per-region encounter weight table for wild Pokémon.
     // Rolled via EncounterRNG stream (§9.7.2) using PickWeighted.
-    [CreateAssetMenu(fileName = "New Encounter Table", menuName = "Project Ascendant/Data/Encounter Table")]
+    [CreateAssetMenu(fileName = "New Encounter Table", menuName = "Project Ascendant/World/Encounter Table")]
     public class EncounterTableSO : ScriptableObject
     {
         public string TableId;
