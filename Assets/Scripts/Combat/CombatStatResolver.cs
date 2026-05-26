@@ -18,15 +18,23 @@ namespace ProjectAscendant.Combat
         public static int EffectiveAttack(PokemonInstance instance, BattleConfigSO config)
         {
             int baseAtk = BaseAttack(instance);
-            float multiplier = GetStageMultiplier(instance, Stat.Attack, config);
-            return Mathf.Max(1, Mathf.FloorToInt(baseAtk * multiplier));
+            float stageMul = GetStageMultiplier(instance, Stat.Attack, config);
+            // Per OPEN G8 — stat-stage first, then status modifier on top
+            // (multiplicative). Burn applies -25% per §4.2.2.1.
+            float statusMul = StatusModifiers.GetAttackMultiplier(
+                instance?.PrimaryStatus ?? StatusCondition.None, config);
+            return Mathf.Max(1, Mathf.FloorToInt(baseAtk * stageMul * statusMul));
         }
 
         public static int EffectiveDefense(PokemonInstance instance, BattleConfigSO config)
         {
             int baseDef = BaseDefense(instance);
-            float multiplier = GetStageMultiplier(instance, Stat.Defense, config);
-            return Mathf.Max(1, Mathf.FloorToInt(baseDef * multiplier));
+            float stageMul = GetStageMultiplier(instance, Stat.Defense, config);
+            // Per OPEN G8 — stat-stage first, then status modifier on top.
+            // Poison applies -15% per §4.2.2.2.
+            float statusMul = StatusModifiers.GetDefenseMultiplier(
+                instance?.PrimaryStatus ?? StatusCondition.None, config);
+            return Mathf.Max(1, Mathf.FloorToInt(baseDef * stageMul * statusMul));
         }
 
         // Base = species BaseStats + per-level growth curve accumulation (§5.2.3).

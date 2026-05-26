@@ -50,5 +50,42 @@ namespace ProjectAscendant.Core
 
         [Tooltip("Base consumable cards drawn per turn.")]
         public int BaseConsumableCardsPerTurn = 2;
+
+        // ── Status Conditions — §4.2 ──────────────────────────────────────────
+        // Per §4.2.2 — Burn/Poison are permanent; durations below are for
+        // non-permanent statuses. Multiplier values follow the spec exactly.
+        [Header("Status Conditions — §4.2")]
+
+        [Tooltip("Burn DoT = floor(MaxHP / divisor), minimum 1. Per §4.2.2.1.")]
+        public int BurnDoTDivisor = 16;
+
+        [Tooltip("Burn Attack multiplier. Per §4.2.2.1 — Attack reduced 25%.")]
+        public float BurnAttackMultiplier = 0.75f;
+
+        [Tooltip("Poison DoT = floor(MaxHP / divisor), minimum 1. Per §4.2.2.2.")]
+        public int PoisonDoTDivisor = 16;
+
+        [Tooltip("Poison Defense multiplier. Per §4.2.2.2 — Defense reduced 15%.")]
+        public float PoisonDefenseMultiplier = 0.85f;
+
+        [Tooltip("Per §4.2.2.3 — Paralysis adds this AP cost to every move " +
+                 "belonging to the paralyzed Pokémon.")]
+        public int ParalysisAPCostBonus = 1;
+
+        [Tooltip("Paralysis duration in turns. Per §4.2.2.3.")]
+        public int ParalysisDuration = 3;
+
+        [Tooltip("Sleep duration in turns. Per §4.2.2.4 — exactly 1 turn after application.")]
+        public int SleepDuration = 1;
+
+        [Tooltip("Freeze duration in turns. Per §4.2.2.5.")]
+        public int FreezeDuration = 1;
+
+        [Tooltip("Incoming-Fire-damage multiplier on Frozen targets (thaw window). " +
+                 "Per §4.2.2.5.")]
+        public float FreezeFireDamageMultiplier = 1.5f;
+
+        [Tooltip("Confusion duration in turns, tracked per Pokémon. Per §4.2.3.1.")]
+        public int ConfusionDuration = 3;
     }
 }

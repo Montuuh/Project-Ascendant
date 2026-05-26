@@ -18,6 +18,13 @@ namespace ProjectAscendant.Core
         public readonly Dictionary<Stat, int> StatStages = new();
         public StatusCondition PrimaryStatus;
         public StatusCondition SecondaryStatus; // Confusion only at launch
+
+        // Per §4.2 + Task 4.5.1 — duration tracking.
+        // Sentinel: int.MaxValue = permanent (Burn/Poison). 0 = no status.
+        // Otherwise the remaining turn count (decremented by TickAtEndOfTurn).
+        public int PrimaryStatusTurnsRemaining;
+        public int SecondaryStatusTurnsRemaining;
+
         public EvolutionStage CurrentStage;
         // Per §5.3.3 — SO reference to the chosen branch; null until first evolution.
         public EvolutionBranchSO SelectedBranch;
@@ -38,6 +45,8 @@ namespace ProjectAscendant.Core
             StatStages.Clear();
             PrimaryStatus = StatusCondition.None;
             SecondaryStatus = StatusCondition.None;
+            PrimaryStatusTurnsRemaining = 0;
+            SecondaryStatusTurnsRemaining = 0;
             CurrentStage = EvolutionStage.Basic;
             SelectedBranch = default;
         }

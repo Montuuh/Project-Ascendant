@@ -59,9 +59,13 @@ namespace ProjectAscendant.Tests
             PokemonInstance instance = new();
             instance.PrimaryStatus = StatusCondition.Burn;
             instance.SecondaryStatus = StatusCondition.Confusion;
+            instance.PrimaryStatusTurnsRemaining = int.MaxValue;
+            instance.SecondaryStatusTurnsRemaining = 3;
             instance.Reset();
             Assert.That(instance.PrimaryStatus, Is.EqualTo(StatusCondition.None));
             Assert.That(instance.SecondaryStatus, Is.EqualTo(StatusCondition.None));
+            Assert.That(instance.PrimaryStatusTurnsRemaining, Is.EqualTo(0));
+            Assert.That(instance.SecondaryStatusTurnsRemaining, Is.EqualTo(0));
         }
 
         [Test]
