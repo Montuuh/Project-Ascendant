@@ -1,7 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Source: https://www.notion.so/3610450715b481048a3bd46eb1d31a07 -->
-<!-- Exported: 2026-05-26T18:27:46.460Z -->
-<!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
+<!-- Last updated from Notion: 2026-05-24T00:15:00.000Z -->
 
 **Status:** 🔒 Locked
 

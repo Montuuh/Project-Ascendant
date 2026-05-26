@@ -50,19 +50,26 @@ async function exportTopic(topic) {
   const outPath = path.join(OUT_DIR, filename);
 
   try {
+    // Fetch page metadata to get the real last-edit time from Notion.
+    // Using this (not new Date()) means the header only changes when
+    // someone actually edited the page — unchanged files stay identical
+    // in git across consecutive export runs.
+    const pageMeta = await notion.pages.retrieve({ page_id: topic.id });
+    const lastEdited = pageMeta.last_edited_time; // ISO-8601 from Notion
+
     const mdBlocks = await n2m.pageToMarkdown(topic.id);
     const mdString = n2m.toMarkdownString(mdBlocks);
 
+    // Two-line header only — no run-time timestamp.
+    // Files will only diff in git when Notion content actually changed.
     const header = [
       `<!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->`,
-      `<!-- Source: https://www.notion.so/${topic.id} -->`,
-      `<!-- Exported: ${new Date().toISOString()} -->`,
-      `<!-- To update: run \`node docs/scripts/export-gdd.js\` and commit -->`,
+      `<!-- Last updated from Notion: ${lastEdited} -->`,
       ``,
     ].join("\n");
 
     fs.writeFileSync(outPath, header + mdString.parent, "utf8");
-    console.log(`✅  Exported: ${filename}`);
+    console.log(`✅  Exported: ${filename}  (Notion last edited: ${lastEdited})`);
   } catch (err) {
     console.error(`❌  Failed to export topic ${topic.n} (${topic.slug}):`, err.message);
   }
