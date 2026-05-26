@@ -38,24 +38,48 @@ namespace ProjectAscendant.Editor
         [MenuItem("Project Ascendant/Reorganise Assets by Pokémon")]
         public static void Reorganise()
         {
+            // ── Phase 1 (outside batch): discover roots + create all folders ──
+            // AssetDatabase.CreateFolder() inside StartAssetEditing() writes the
+            // directory to disk but does NOT register it in the asset database
+            // until the batch ends. MoveAsset() then fails with "Parent directory
+            // is not in asset database." Fix: create all folders first, Refresh
+            // to register them, then start the batch for the actual moves.
+
+            Dictionary<PokemonSpeciesSO, string> lineRoots = DiscoverLineRoots();
+
+            if (lineRoots.Count == 0)
+            {
+                Debug.LogWarning("[Reorganiser] No line roots found. " +
+                    "Run the VS_ContentSeeder first, or check that Species SOs exist.");
+                return;
+            }
+
+            // Pre-create every target folder (idempotent — EnsureFolder skips
+            // folders that already exist in the asset database).
+            foreach (var kv in lineRoots)
+            {
+                PokemonSpeciesSO root = kv.Key;
+                string lineName       = kv.Value;
+
+                bool isWild = IsWildLine(root);
+                string speciesRoot = isWild
+                    ? $"{ROOT}/Species/Wild"
+                    : $"{ROOT}/Species/Starters";
+
+                EnsureFolder($"{ROOT}/Branches/{lineName}");
+                EnsureFolder($"{ROOT}/Abilities/{lineName}");
+                EnsureFolder($"{speciesRoot}/{lineName}");
+            }
+
+            // Force Unity to register all newly-created folders before the batch.
+            AssetDatabase.Refresh();
+
+            // ── Phase 2 (inside batch): move all assets ────────────────────────
             AssetDatabase.StartAssetEditing();
             try
             {
                 int moved = 0;
 
-                // ── Step 1: discover line roots via evolution-tree traversal ──
-                // A "root" species is one that is never the EvolvedSpecies of
-                // any EvolutionBranchSO. These are the base forms (Bulbasaur, etc.)
-                Dictionary<PokemonSpeciesSO, string> lineRoots = DiscoverLineRoots();
-
-                if (lineRoots.Count == 0)
-                {
-                    Debug.LogWarning("[Reorganiser] No line roots found. " +
-                        "Run the VS_ContentSeeder first, or check that Species SOs exist.");
-                    return;
-                }
-
-                // ── Step 2: BFS each root, collect all related assets ──────────
                 foreach (var kv in lineRoots)
                 {
                     PokemonSpeciesSO root = kv.Key;
@@ -65,10 +89,6 @@ namespace ProjectAscendant.Editor
                     string speciesRoot = isWild
                         ? $"{ROOT}/Species/Wild"
                         : $"{ROOT}/Species/Starters";
-
-                    EnsureFolder($"{ROOT}/Branches/{lineName}");
-                    EnsureFolder($"{ROOT}/Abilities/{lineName}");
-                    EnsureFolder($"{speciesRoot}/{lineName}");
 
                     // BFS through all evolution stages + branches in this line
                     var visitedSpecies  = new HashSet<PokemonSpeciesSO>();
