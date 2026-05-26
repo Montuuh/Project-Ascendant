@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
 <!-- Source: https://www.notion.so/3610450715b4818bb876f6d9fd5d2ab0 -->
-<!-- Exported: 2026-05-25T22:40:58.033Z -->
+<!-- Exported: 2026-05-26T16:27:50.782Z -->
 <!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
 
 **Status:** 🔒 Locked
@@ -23,6 +23,14 @@
 
 ## §4.1.1 Damage Calculation
 
+> ⚠️ OPEN (Claude Code, 2026-05-26) — Epic 4 Tasks 4.2 + 4.3 implementation flagged 6 Sev-3 clarifications. **Not blocking implementation; reasonable defaults adopted in code and listed below for ratification.**
+> **G1 — Algebraic combination of formula variables is not written.** The variables table lists Power, Atk, Def, Divisor, Crit, STAB, TypeEff, Range, but no equation combines them. Code default (matches existing `BattleConfigSO.cs` header comment): `floor( Power × (Atk/Def) × Range × Crit × STAB × TypeEff / Divisor )`.
+> **G2 — RangeModifier ordering is unspecified** (spec only locks Crit-before-STAB-and-TypeEff). Code default: Range is folded into BaseDamage (before Crit), since Range is intrinsic to the move's power profile.
+> **G3 — Floor-only-at-end (task 4.2.4) makes multiplication commutative**, so the Crit-before-STAB-and-TypeEff ordering rule has zero numerical effect. Code default: preserve the ordering in the `DamageBreakdown` struct field order so the breakdown panel reads Power → Crit → STAB → TypeEff → Range — i.e., the rule is treated as presentational, not arithmetic.
+> **G4 — Minimum-damage clamp is not specified.** Code default: no clamp. Only TypeEff=0 (immunity) produces 0 damage. Open question: should a non-immune hit ever floor to 0?
+> **G5 —** **`PokemonType`** **enum has 18 entries (Dark/Steel/Fairy from Gen II+); spec says "Gen I 15 types".** Code default: implement Gen I 15×15 chart; the 3 extras return 1.0× (neutral) with a TODO. Open question: ship as-is for VS, or trim the enum to 15.
+> **G6 — §4.1.2 worked example 3 contains an arithmetic error.** Listed as `Ground vs Water/Rock = 1.0× × 0.5× = 0.5×`. In Gen I: Ground→Water = 1.0× (no relation), Ground→Rock = 2.0× (super-effective). Product = **2.0×**, not 0.5×. Code default: implement Gen I exactly; tests assert 2.0× for this matchup. Worked examples 1, 2, 4 verified correct.
+> **Blocked:** nothing — implementation proceeds with defaults; ratify or amend before any tuning pass.
 
 The base damage formula is a simplified adaptation of the Gen I formula, tuned for the roguelike deckbuilder's shorter fight economy (target: 5–8 turns per combat encounter):
 
