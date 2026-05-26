@@ -49,3 +49,62 @@
 - Object pooling required for: CardInstance, IntentData, DamageNumberVFX
 - Avoid GC allocations in combat Update loops
 - Profile with Unity Profiler before claiming "performance is fine"
+
+---
+
+## Live Editor Bridge (coplay-mcp)
+
+The project has a **live MCP bridge to the running Unity Editor** via the
+`coplay-mcp` server (tools prefixed `mcp__coplay-mcp__*`). When the editor is
+open you can — and should — verify changes directly instead of asking the user
+to run tests manually. Load the tools you need via
+`ToolSearch({ query: "coplay-mcp", max_results: 30 })` if they appear deferred.
+
+### Standard verification loop
+
+1. **`list_unity_project_roots`** — confirm the editor is open on this project.
+2. **`check_compile_errors`** — run after any code change. Cheap, sub-second.
+3. **`execute_script`** — invoke an editor-side static method to drive work.
+4. **`get_unity_logs`** — read results back (filter by `search_term`).
+
+### Running the EditMode test suite
+
+There is a pre-existing helper at
+[Assets/Editor/Setup/RunEditModeTests.cs](../../../Assets/Editor/Setup/RunEditModeTests.cs)
+exposing `RunEditModeTests.Execute()`. It filters to assembly
+`ProjectAscendant.Tests.EditMode` and logs results with the prefix
+`[TestRunner]`.
+
+```
+execute_script({ filePath: "Assets/Editor/Setup/RunEditModeTests.cs",
+                 methodName: "Execute" })
+# then:
+get_unity_logs({ search_term: "TestRunner", limit: 30 })
+# look for:  [TestRunner] Finished — Pass: N, Fail: 0, Skip: 0
+```
+
+**Do NOT create a second `RunEditModeTests` class** — the existing one is a
+`public class : ICallbacks` (not static). A duplicate static class will
+collide and break the editor compile.
+
+### Caveats
+
+- `execute_script` returns when the static method returns. Unity's
+  `TestRunnerApi.Execute` is **async / callback-driven**, so the script will
+  return immediately while tests are still running. Wait ~10–30 s, then poll
+  `get_unity_logs` for the `[TestRunner] Finished` line.
+- Coplay tool calls **time out at 60 s**. A slow compile or a long test run
+  can hit this — that's not a failure, just re-call after a short wait.
+- Use the read-only tools liberally (`check_compile_errors`,
+  `get_unity_logs`, `get_unity_editor_state`). Reserve `execute_script` for
+  intentional editor-side work — every script invocation triggers a domain
+  reload if it adds new files.
+- `play_game` enters Play mode in the real editor; use only when explicitly
+  asked to test runtime behaviour.
+
+### When the bridge is unavailable
+
+If `list_unity_project_roots` returns `count: 0`, the editor is closed. Ask
+the user to open it, or fall back to verifying via reasoning + `git diff`.
+Never claim "tests pass" without either running them through the bridge or
+the user confirming.
