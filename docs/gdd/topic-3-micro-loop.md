@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
 <!-- Source: https://www.notion.so/3610450715b481e08404ded0b96924c9 -->
-<!-- Exported: 2026-05-26T16:27:28.542Z -->
+<!-- Exported: 2026-05-26T18:27:50.312Z -->
 <!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
 
 **Status:** 🔒 Locked

@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
 <!-- Source: https://www.notion.so/3610450715b4818bb876f6d9fd5d2ab0 -->
-<!-- Exported: 2026-05-26T16:27:50.782Z -->
+<!-- Exported: 2026-05-26T18:28:09.706Z -->
 <!-- To update: run `node docs/scripts/export-gdd.js` and commit -->
 
 **Status:** 🔒 Locked
@@ -149,6 +149,12 @@ Stat modifiers from status effects, relics, Badges, and move effects are applied
 
 ## §4.2.1 Overview
 
+> ⚠️ OPEN (Claude Code, 2026-05-26) — Epic 4 Task 4.5 raised 4 Sev-3 clarifications. **Not blocking; reasonable defaults adopted in code; listed for ratification.**
+> **G7 — First DoT tick timing.** §4.2.2.1/§4.2.2.2 say Burn/Poison apply DoT "at end of each Resolution Phase" but don't say whether the application turn counts. **Default:** status applied in turn N takes effect starting turn N+1, consistent with Sleep/Freeze's "the turn after Sleep is applied" wording. Application turn = telegraph only.
+> **G8 — Stat-stage × status-modifier interaction order.** §4.2 doesn't specify how Burn's −25% Atk and Poison's −15% Def combine with the stat-stage ladder. **Default:** stat-stage first, then status multiplier on top, multiplicative: `EffAtk = floor(BaseAtk × StageMul × StatusMul)`.
+> **G9 — Freeze ×1.5 Fire damage window.** §4.2.2.5 says "that turn". **Default:** active while Freeze duration > 0 (the unplayable / position-locked turn), matching G7.
+> **G10 — Sleep + inbound Step-Backward.** §4.2.2.4 says position is NOT locked. **Default:** the Sleeping Pokémon CAN be the destination of another Pokémon's SB and CAN be manually swapped; only its OWN cards are unplayable (so it cannot initiate SF).
+> **Blocked:** nothing — implementation proceeds with defaults; ratify or amend before tuning pass.
 
 Status conditions are debuffs applied to individual Pokémon by move effects, enemy abilities, or field effects. All six classical Gen I conditions are implemented with **RNG-dependent behaviors redesigned as deterministic equivalents** to preserve the Telegraphed-Tactics design pillar.
 
