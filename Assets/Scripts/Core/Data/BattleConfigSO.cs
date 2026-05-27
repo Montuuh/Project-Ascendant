@@ -87,5 +87,48 @@ namespace ProjectAscendant.Core
 
         [Tooltip("Confusion duration in turns, tracked per Pokémon. Per §4.2.3.1.")]
         public int ConfusionDuration = 3;
+
+        // ── AI Intent Scoring — §4.3.3 + Epic 4 Task 4.7 ──────────────────────
+        // All multipliers and thresholds live here so they're tunable without
+        // touching code. Derivation: BaseWeight defaults to MoveSO.BasePower
+        // when > 0, else DefaultUtilityWeight (covers Buff/Stall/Status moves).
+        [Header("AI Intent Scoring — §4.3.3")]
+
+        [Tooltip("Fallback BaseWeight when a move has BasePower == 0. Per §4.3.3.")]
+        public int DefaultUtilityWeight = 50;
+
+        [Tooltip("Score multiplier applied to Attack intents when the target Pokémon's " +
+                 "HP fraction is below LowTargetHPThreshold. Per §4.3.3 HPStateModifier.")]
+        public float LowTargetHPMultiplier = 2.0f;
+
+        [Range(0f, 1f)]
+        [Tooltip("HP fraction below which target counts as wounded. Per §4.3.3.")]
+        public float LowTargetHPThreshold = 0.30f;
+
+        [Tooltip("Score multiplier applied to aggressive intents when the attacker's " +
+                 "own HP fraction is below LowSelfHPThreshold. Per §4.3.3.")]
+        public float AggressiveSelfMultiplier = 1.5f;
+
+        [Range(0f, 1f)]
+        [Tooltip("Attacker's HP fraction below which aggression bonus applies. Per §4.3.3.")]
+        public float LowSelfHPThreshold = 0.40f;
+
+        [Tooltip("Score multiplier applied to setup intents (Buff/Stall) when the " +
+                 "attacker's own HP fraction is above HighSelfHPThreshold. Per §4.3.3.")]
+        public float SetupSelfMultiplier = 1.5f;
+
+        [Range(0f, 1f)]
+        [Tooltip("Attacker's HP fraction above which setup bonus applies. Per §4.3.3.")]
+        public float HighSelfHPThreshold = 0.70f;
+
+        [Range(0f, 1f)]
+        [Tooltip("Probability per turn that the AI selects a non-top-scored intent. " +
+                 "Per §4.3.3 — '10–15% chance'. Disabled when BossCounterIntel active.")]
+        public float RandomnessFloorChance = 0.125f;
+
+        [Range(0f, 1f)]
+        [Tooltip("Score penalty applied to the top intent when Boss Counter-Intel is " +
+                 "active (full intent pool revealed). Per §4.3.5 + Epic 4.7.7.")]
+        public float BossCounterIntelTopPenalty = 0.7f;
     }
 }
