@@ -42,17 +42,22 @@ namespace ProjectAscendant.Combat.Sandbox
         {
             BattleConfigSO config = ConfigAsset != null ? ConfigAsset : CreateDefaultConfig();
 
-            // Player: Charmander-shaped mock — 50/50/40 with a 50-power Fire move.
-            PokemonSpeciesSO playerSp = MakeSpecies("Charmander", 50, 50, 40, PokemonType.Fire);
-            MoveSO ember = MakeMove("Ember", PokemonType.Fire, power: 40, ap: 1);
-            MoveSO scratch = MakeMove("Scratch", PokemonType.Normal, power: 35, ap: 1);
-            MoveSO claw = MakeMove("Metal Claw", PokemonType.Steel, power: 45, ap: 2);
+            // Player: Charmander — boosted from canonical placeholder values so
+            // the formula produces visible double-digit numbers at Lv 1 with no
+            // growth curve. In the real game, growth curves scale stats over
+            // levels and the canonical Divisor=50 produces correct numbers.
+            PokemonSpeciesSO playerSp = MakeSpecies("Charmander", 80, 70, 50, PokemonType.Fire);
+            MoveSO ember = MakeMove("Ember", PokemonType.Fire, power: 50, ap: 1);
+            MoveSO scratch = MakeMove("Scratch", PokemonType.Normal, power: 40, ap: 1);
+            MoveSO claw = MakeMove("Metal Claw", PokemonType.Steel, power: 60, ap: 2);
             _player = MakeMon(playerSp, new[] { ember, scratch, claw });
 
-            // Enemy: Squirtle — Water 50/40/45 with a 40-power Water move.
-            PokemonSpeciesSO enemySp = MakeSpecies("Squirtle", 50, 40, 45, PokemonType.Water);
-            MoveSO bubble = MakeMove("Bubble", PokemonType.Water, power: 35, ap: 1);
-            MoveSO tackle = MakeMove("Tackle", PokemonType.Normal, power: 30, ap: 1);
+            // Enemy: Squirtle — paired tuning so Water-vs-Fire (super-effective)
+            // bites hard, Fire-vs-Water (resisted) chips slowly. Demonstrates
+            // the type chart visibly.
+            PokemonSpeciesSO enemySp = MakeSpecies("Squirtle", 80, 60, 55, PokemonType.Water);
+            MoveSO bubble = MakeMove("Bubble", PokemonType.Water, power: 45, ap: 1);
+            MoveSO tackle = MakeMove("Tackle", PokemonType.Normal, power: 35, ap: 1);
             _enemy = MakeMon(enemySp, new[] { bubble, tackle });
 
             Agent = new HUDAgent();
@@ -128,7 +133,12 @@ namespace ProjectAscendant.Combat.Sandbox
             // BattleConfigSO has reasonable defaults set in its field initialisers,
             // but pin the AI scoring fields explicitly (they may be 0 on a fresh
             // instance depending on Unity's serialization quirks).
-            c.Divisor = 50;
+            //
+            // Sandbox-specific tuning: Divisor=10 (not the canonical 50) because
+            // mock Pokémon have no growth curve, so their raw Lv-1 stats fed
+            // through the canonical formula floor out to 1. EditMode tests use
+            // their own config with Divisor=50 — unaffected.
+            c.Divisor = 10;
             c.StabMultiplier = 1.5f;
             c.CritMultiplier = 1.5f;
             c.MeleeModifier = 1.0f;
