@@ -554,18 +554,13 @@ namespace ProjectAscendant.Combat
                 if (p.CurrentHP > 0) continue;
                 // Per §4.8.4 — purge fainted Pokémon's cards from deck +
                 // discard via SkillDeck.PurgeOwner (handles factory release).
-                // Also sweep the active hand: a fainted Pokémon's cards
-                // become unplayable, so they leave play entirely.
                 State.Deck.PurgeOwner(p);
-                for (int h = State.SkillHand.Count - 1; h >= 0; h--)
-                {
-                    MoveCardInstance hc = State.SkillHand[h];
-                    if (hc != null && ReferenceEquals(hc.Owner, p))
-                    {
-                        _cardFactory.Release(hc);
-                        State.SkillHand.RemoveAt(h);
-                    }
-                }
+                // Per Epic 5 Task 5.5.2 — fainted-owner cards STAY in the
+                // hand until TurnEnd ("greyed out, not hidden"). The UI
+                // shows them as unplayable; CardPlayValidator rejects play
+                // attempts with PlayResult.OwnerFainted; TurnEnd drops them
+                // (rather than sending to discard) so they don't get
+                // reshuffled into the deck next turn.
                 // Per §4.8.5 — +1 Trauma stack at moment of faint.
                 FaintResolver.ApplyTraumaOnFaint(p);
             }
@@ -605,8 +600,19 @@ namespace ProjectAscendant.Combat
 
             // Unplayed cards in the hand → discard pile so they can be
             // reshuffled into the deck on the next turn when needed.
+            // Per Task 5.5.2 — fainted-owner cards must NOT re-enter the
+            // deck (their owner can't play anything anyway). Release them
+            // here instead of sending to discard.
             for (int i = 0; i < State.SkillHand.Count; i++)
-                State.Deck.Discard(State.SkillHand[i]);
+            {
+                MoveCardInstance hc = State.SkillHand[i];
+                if (hc == null) continue;
+                PokemonInstance owner = hc.Owner;
+                if (owner != null && owner.CurrentHP == 0)
+                    _cardFactory.Release(hc);
+                else
+                    State.Deck.Discard(hc);
+            }
             State.SkillHand.Clear();
             // Consumable cards in hand return implicitly — they were never
             // removed from the inventory (drawing was a read; only the
