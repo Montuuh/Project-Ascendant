@@ -89,6 +89,12 @@ namespace ProjectAscendant.Combat
 
             public int CurrentAP;
             public int SwapCounter;                       // per-turn (§3.3.1)
+            // Per §3.3.1 + Epic 5 Task 5.6.2 — a manual Lead swap grants a
+            // 1-AP discount to the FIRST Defensive-tagged card played after
+            // the swap, that turn. SF/SB swaps do NOT set this. Reset to false
+            // at DrawPhase. Consumed by the first Defensive card play that
+            // matches CardPlayValidator.ShouldConsumeDefensiveDiscount.
+            public bool DefensiveSwapDiscountAvailable;
             public int TurnNumber;
             public FieldState Field;
             public List<Intent> EnemyIntents = new();
@@ -172,6 +178,7 @@ namespace ProjectAscendant.Combat
             State.TurnNumber++;
             State.CurrentAP = State.Config.BaseAPPerTurn;
             State.SwapCounter = 0;
+            State.DefensiveSwapDiscountAvailable = false; // §3.3.1 — per-turn
             State.SkillHand.Clear();
             State.ConsumableHand.Clear();
 
@@ -341,14 +348,38 @@ namespace ProjectAscendant.Combat
             MoveSO move = card.Move;
             if (move == null) return true;
 
-            PokemonInstance attacker = ResolveLead();
-            if (attacker == null) return true;
+            // Per §3.3 + §3.6 + Task 5.6.1 — taxonomy-driven play eligibility.
+            // Rejects Melee cards from bench (unless SF), null/absent/fainted
+            // owners. Replaces the old "attacker = Lead" assumption — SF cards
+            // legitimately play from the bench. (5.4 layers the SF/SB
+            // position-change side effects; this branch only validates.)
+            CardPlayValidator.PlayResult vr = CardPlayValidator.Validate(
+                card, State.PlayerTeam, State.LeadIndex);
+            if (vr != CardPlayValidator.PlayResult.Playable) return true;
+
+            // Attacker is the card's owner — for non-SF cards the owner is
+            // already Lead (validator enforced); for SF cards the owner may
+            // be on the bench (Task 5.4 promotes them to Lead before the
+            // effect resolves). For 5.6 we use the owner-as-attacker.
+            PokemonInstance attacker = card.Owner;
 
             // Per §4.2.2.4/5 — Sleep/Freeze block playing.
             if (!StatusModifiers.AreCardsPlayable(attacker.PrimaryStatus)) return true;
 
+            // Per §3.3.1 + Task 5.6.2 — defensive-swap discount applies to the
+            // FIRST Defensive card after a manual swap. Status modifiers
+            // (Paralysis +1) apply on top of the base cost; the discount
+            // applies to the final cost (so a Paralyzed Defensive card after
+            // swap = baseCost + 1 - 1 = baseCost).
             int apCost = StatusModifiers.GetEffectiveAPCost(move, attacker, State.Config);
+            apCost = CardPlayValidator.ApplyDefensiveDiscount(
+                apCost, move, State.DefensiveSwapDiscountAvailable);
             if (apCost > State.CurrentAP) return true;
+            if (CardPlayValidator.ShouldConsumeDefensiveDiscount(
+                    move, State.DefensiveSwapDiscountAvailable))
+            {
+                State.DefensiveSwapDiscountAvailable = false;
+            }
             State.CurrentAP -= apCost;
             // Card consumed: hand → discard. Faint purge can still find it
             // (the card retains its Owner reference inside the instance).
@@ -397,6 +428,11 @@ namespace ProjectAscendant.Combat
             State.CurrentAP -= cost;
             State.SwapCounter += 1;
             State.LeadIndex = benchSlot;
+            // Per §3.3.1 + Task 5.6.2 — a manual swap grants the defensive
+            // discount. SF/SB position changes do NOT call TryManualSwap, so
+            // they correctly don't trigger this. The flag is sticky until
+            // consumed by a Defensive card play OR TurnEnd resets it.
+            State.DefensiveSwapDiscountAvailable = true;
             return true;
         }
 
