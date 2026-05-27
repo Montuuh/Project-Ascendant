@@ -504,8 +504,16 @@ namespace ProjectAscendant.Combat
                 State.Field, move.Type, target, State.Config);
             float freezeFireMul = StatusModifiers.GetIncomingDamageMultiplier(
                 target, move, State.Config);
+            // Per §5.5.4 + Epic 6 Task 6.6 — Lead Aura broadcasts a +5%
+            // (config-driven) damage bonus to BENCH attackers on the player
+            // team whose move type matches an active aura source on the
+            // player's Lead. Sources stack additively (Ability + Held Item
+            // of the same type → +10%). The resolver returns 1.0 for any
+            // attacker not in PlayerTeam, so enemy intents are unaffected.
+            float playerAuraMul = LeadAuraResolver.GetDamageMultiplier(
+                attacker, move, ResolveLead(), State.PlayerTeam, State.Config);
 
-            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul);
+            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul);
             if (final <= 0) final = (dmg.TypeEffectiveness == 0.0) ? 0 : 1; // immune stays 0
             target.CurrentHP = Mathf.Max(0, target.CurrentHP - final);
             // Faint resolution happens after each strike chain — see HandleAnyFaints.

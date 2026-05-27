@@ -151,5 +151,14 @@ namespace ProjectAscendant.Core
         [Tooltip("Electric Terrain Electric-damage multiplier on grounded targets. " +
                  "Per §4.3.8.3.")]
         public float ElectricTerrainElectricMultiplier = 1.3f;
+
+        // ── Lead Aura — §5.5.4 + Epic 6 Task 6.6 ──────────────────────────────
+        [Header("Lead Aura — §5.5.4")]
+
+        [Tooltip("Damage bonus added per Lead Aura source whose type matches " +
+                 "the attacker's move type. Sources stack additively (e.g. " +
+                 "Ability + Held Item both granting Fire aura → +0.10). " +
+                 "Per §5.5.4 + Epic 6 Task 6.6.")]
+        public float LeadAuraMatchingTypeBonus = 0.05f;
     }
 }
