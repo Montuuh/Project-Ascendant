@@ -141,16 +141,16 @@ namespace ProjectAscendant.Tests
             MoveSO fm2 = MakeMove("F2");
             MoveSO am1 = MakeMove("A1");
 
-            List<CardEntry> deck = new()
+            List<MoveCardInstance> deck = new()
             {
-                new(fm1, fainted),
-                new(am1, ally),
-                new(fm2, fainted),
+                new() { Move = fm1, Owner = fainted },
+                new() { Move = am1, Owner = ally },
+                new() { Move = fm2, Owner = fainted },
             };
-            List<CardEntry> discard = new()
+            List<MoveCardInstance> discard = new()
             {
-                new(am1, ally),
-                new(fm1, fainted),
+                new() { Move = am1, Owner = ally },
+                new() { Move = fm1, Owner = fainted },
             };
 
             int removed = FaintResolver.PurgeCards(fainted, deck, discard);
@@ -172,8 +172,15 @@ namespace ProjectAscendant.Tests
             PokemonInstance fainted = MakeFainted();
             PokemonInstance ally = MakeAlive();
             MoveSO am1 = MakeMove();
-            List<CardEntry> deck = new() { new(am1, ally), new(am1, ally) };
-            List<CardEntry> discard = new() { new(am1, ally) };
+            List<MoveCardInstance> deck = new()
+            {
+                new() { Move = am1, Owner = ally },
+                new() { Move = am1, Owner = ally },
+            };
+            List<MoveCardInstance> discard = new()
+            {
+                new() { Move = am1, Owner = ally },
+            };
 
             int removed = FaintResolver.PurgeCards(fainted, deck, discard);
 
@@ -195,11 +202,17 @@ namespace ProjectAscendant.Tests
         {
             PokemonInstance fainted = MakeFainted();
             MoveSO m = MakeMove();
-            List<CardEntry> deck = new()
+            List<MoveCardInstance> deck = new()
             {
-                new(m, fainted), new(m, fainted), new(m, fainted), new(m, fainted),
+                new() { Move = m, Owner = fainted },
+                new() { Move = m, Owner = fainted },
+                new() { Move = m, Owner = fainted },
+                new() { Move = m, Owner = fainted },
             };
-            List<CardEntry> discard = new() { new(m, fainted) };
+            List<MoveCardInstance> discard = new()
+            {
+                new() { Move = m, Owner = fainted },
+            };
 
             int removed = FaintResolver.PurgeCards(fainted, deck, discard);
             Assert.That(removed, Is.EqualTo(5));
@@ -323,8 +336,15 @@ namespace ProjectAscendant.Tests
 
             MoveSO leadMove = MakeMove("LeadMove");
             MoveSO benchMove = MakeMove("BenchMove");
-            List<CardEntry> deck = new() { new(leadMove, lead), new(benchMove, bench) };
-            List<CardEntry> discard = new() { new(leadMove, lead) };
+            List<MoveCardInstance> deck = new()
+            {
+                new() { Move = leadMove, Owner = lead },
+                new() { Move = benchMove, Owner = bench },
+            };
+            List<MoveCardInstance> discard = new()
+            {
+                new() { Move = leadMove, Owner = lead },
+            };
             int removed = FaintResolver.PurgeCards(lead, deck, discard);
             Assert.That(removed, Is.EqualTo(2));
             Assert.That(deck.Count, Is.EqualTo(1));

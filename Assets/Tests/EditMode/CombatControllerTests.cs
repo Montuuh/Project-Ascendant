@@ -182,8 +182,8 @@ namespace ProjectAscendant.Tests
             CombatController c = new(BuildSetup(p, enemy, 1u), new FirstCardAgent());
             c.Start();
 
-            Assert.That(c.State.SkillDeck.Count, Is.EqualTo(2));
-            Assert.That(c.State.SkillDeck[0].Owner, Is.SameAs(p));
+            Assert.That(c.State.Deck.DeckCount, Is.EqualTo(2));
+            Assert.That(c.State.Deck.DeckView[0].Owner, Is.SameAs(p));
             Assert.That(c.State.CurrentPhase, Is.EqualTo(CombatController.Phase.Start));
         }
 
@@ -199,7 +199,7 @@ namespace ProjectAscendant.Tests
             CombatController c = new(BuildSetup(p, MakeMon(sp, basic), 1u), new FirstCardAgent());
             c.Start();
 
-            Assert.That(c.State.SkillDeck.Count, Is.EqualTo(2),
+            Assert.That(c.State.Deck.DeckCount, Is.EqualTo(2),
                 "Deck should contain 1 base move + 1 Mastery Move.");
         }
 

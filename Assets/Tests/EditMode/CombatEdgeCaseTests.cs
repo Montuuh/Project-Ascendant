@@ -283,8 +283,15 @@ namespace ProjectAscendant.Tests
 
             MoveSO leadMove = MakeMove("L");
             MoveSO benchMove = MakeMove("B");
-            List<CardEntry> deck = new() { new(leadMove, lead), new(benchMove, bench) };
-            List<CardEntry> discard = new() { new(leadMove, lead) };
+            List<MoveCardInstance> deck = new()
+            {
+                new() { Move = leadMove, Owner = lead },
+                new() { Move = benchMove, Owner = bench },
+            };
+            List<MoveCardInstance> discard = new()
+            {
+                new() { Move = leadMove, Owner = lead },
+            };
             int removed = FaintResolver.PurgeCards(lead, deck, discard);
 
             Assert.That(removed, Is.EqualTo(2));

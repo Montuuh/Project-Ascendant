@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ProjectAscendant.Core;
+using ProjectAscendant.Deck;
 
 namespace ProjectAscendant.Combat
 {
@@ -69,13 +70,22 @@ namespace ProjectAscendant.Combat
             public int LeadIndex;
             public List<PokemonInstance> EnemyTeam;
 
-            public List<CardEntry> SkillDeck = new();
-            public List<CardEntry> Discard = new();
-            public List<CardEntry> SkillHand = new();     // skill cards drawn this turn
+            // Per Epic 5 Task 5.1.1 — proper SkillDeck class owns deck+discard.
+            // Hand stays a flat List<MoveCardInstance> (controller-owned;
+            // promoted to a Hand class in Task 5.2).
+            public SkillDeck Deck;
+            public List<MoveCardInstance> SkillHand = new();
+            // Snapshot read accessors so tests / UI can inspect deck + discard
+            // without knowing the SkillDeck class. Forwarded to Deck.
+            public IReadOnlyList<MoveCardInstance> SkillDeckView =>
+                Deck != null ? Deck.DeckView : System.Array.Empty<MoveCardInstance>();
+            public IReadOnlyList<MoveCardInstance> DiscardView =>
+                Deck != null ? Deck.DiscardView : System.Array.Empty<MoveCardInstance>();
 
+            // Per Epic 5 Task 5.1.2 — ConsumablePile owns inventory ref + UsedThisCombat.
             public List<ConsumableSO> ConsumableInventory = new();  // persistent
             public List<ConsumableSO> ConsumableHand = new();       // drawn this turn
-            public List<ConsumableSO> UsedThisCombat = new();       // for §3.5 restore
+            public ConsumablePile Consumables;
 
             public int CurrentAP;
             public int SwapCounter;                       // per-turn (§3.3.1)
@@ -92,12 +102,21 @@ namespace ProjectAscendant.Combat
 
         public CombatState State { get; }
         private readonly IPlayerAgent _agent;
+        private readonly MoveCardInstanceFactory _cardFactory;
 
         // ── Constructor + lifecycle ──────────────────────────────────────────
 
         public CombatController(in CombatSetup setup, IPlayerAgent agent)
+            : this(setup, agent, cardFactory: null) { }
+
+        // Per Epic 5 Task 5.1 — optional factory injection so tests / future
+        // pool tuning can swap the allocation strategy. Defaults to a fresh
+        // factory per controller (matches existing single-arg behaviour).
+        public CombatController(in CombatSetup setup, IPlayerAgent agent,
+                                MoveCardInstanceFactory cardFactory)
         {
             _agent = agent;
+            _cardFactory = cardFactory ?? new MoveCardInstanceFactory();
             State = new CombatState
             {
                 PlayerTeam = setup.PlayerTeam ?? new List<PokemonInstance>(),
@@ -109,16 +128,20 @@ namespace ProjectAscendant.Combat
                 Field = setup.InitialField,
                 Config = setup.Config,
                 Rng = setup.Rng,
+                Deck = new SkillDeck(_cardFactory),
+                Consumables = new ConsumablePile(),
             };
+            State.Consumables.Build(State.ConsumableInventory);
         }
 
         // Per Epic 4 Task 4.1.2 — initial encounter setup.
         public void Start()
         {
             State.CurrentPhase = Phase.Start;
-            BuildSkillDeck();
-            State.Discard.Clear();
-            State.UsedThisCombat.Clear();
+            // Per Epic 5 Task 5.1.1 — SkillDeck.Build clears + repopulates
+            // and ConsumablePile.Build resets the per-combat used-list.
+            State.Deck.Build(State.PlayerTeam);
+            State.Consumables.Build(State.ConsumableInventory);
             State.TurnNumber = 0;
         }
 
@@ -158,9 +181,9 @@ namespace ProjectAscendant.Combat
             // Per §4.2.3.1 — Confusion: each Confused active Pokémon discards
             // one random skill card from the hand. Consumables immune.
             // StatusEffectManager.ResolveConfusionDiscard operates on
-            // IList<MoveSO>; we adapt the CardEntry hand via a temp list and
-            // mirror the removal back. Discarded cards go to the discard pile
-            // so deck reshuffle still sees them.
+            // IList<MoveSO>; adapt the hand via a temp list and mirror the
+            // removal back. Discarded cards go to the discard pile so deck
+            // reshuffle still sees them.
             List<MoveSO> tempMoves = new(State.SkillHand.Count);
             for (int i = 0; i < State.SkillHand.Count; i++) tempMoves.Add(State.SkillHand[i].Move);
             for (int i = 0; i < State.PlayerTeam.Count; i++)
@@ -171,7 +194,7 @@ namespace ProjectAscendant.Combat
                 int removedIdx = StatusEffectManager.ResolveConfusionDiscard(p, tempMoves, State.Rng);
                 if (removedIdx >= 0 && removedIdx < State.SkillHand.Count)
                 {
-                    State.Discard.Add(State.SkillHand[removedIdx]);
+                    State.Deck.Discard(State.SkillHand[removedIdx]);
                     State.SkillHand.RemoveAt(removedIdx);
                 }
             }
@@ -179,45 +202,22 @@ namespace ProjectAscendant.Combat
 
         private void DrawSkillCards(int count)
         {
+            // SkillDeck.Draw handles reshuffle inline + returns null when both
+            // deck and discard are empty.
             for (int i = 0; i < count; i++)
             {
-                if (State.SkillDeck.Count == 0) ReshuffleDiscardIntoDeck();
-                if (State.SkillDeck.Count == 0) break; // empty even after reshuffle
-                int idx = State.Rng.Range(0, State.SkillDeck.Count);
-                // Card moves from deck → hand. It does NOT enter the discard
-                // until it is played (TryPlaySkillCard) or the turn ends
-                // (TurnEnd → DumpHandToDiscard). This prevents the
-                // self-feeding reshuffle loop where a drawn card returns to
-                // the deck the same turn.
-                State.SkillHand.Add(State.SkillDeck[idx]);
-                State.SkillDeck.RemoveAt(idx);
+                MoveCardInstance card = State.Deck.Draw(State.Rng);
+                if (card == null) break;
+                State.SkillHand.Add(card);
             }
-        }
-
-        private void ReshuffleDiscardIntoDeck()
-        {
-            if (State.Discard.Count == 0) return;
-            State.SkillDeck.AddRange(State.Discard);
-            State.Discard.Clear();
         }
 
         private void DrawConsumableCards(int count)
         {
-            // Per §3.5 — consumables are NOT expendable. Available pool is
-            // (Inventory - UsedThisCombat). Drawn cards are references, NOT
-            // consumed from inventory yet.
-            List<ConsumableSO> available = new();
-            for (int i = 0; i < State.ConsumableInventory.Count; i++)
-            {
-                ConsumableSO c = State.ConsumableInventory[i];
-                if (!State.UsedThisCombat.Contains(c)) available.Add(c);
-            }
-            for (int i = 0; i < count && available.Count > 0; i++)
-            {
-                int idx = State.Rng.Range(0, available.Count);
-                State.ConsumableHand.Add(available[idx]);
-                available.RemoveAt(idx);
-            }
+            // Per §3.5 — consumables are NOT expendable. ConsumablePile.DrawHand
+            // returns a fresh roll skipping anything in UsedThisCombat.
+            List<ConsumableSO> drawn = State.Consumables.DrawHand(count, State.Rng);
+            for (int i = 0; i < drawn.Count; i++) State.ConsumableHand.Add(drawn[i]);
         }
 
         // ── Phase 2: Intent (Task 4.1.4) ─────────────────────────────────────
@@ -336,7 +336,8 @@ namespace ProjectAscendant.Combat
         private bool TryPlaySkillCard(int handIndex, int enemySlot)
         {
             if (handIndex < 0 || handIndex >= State.SkillHand.Count) return true;
-            CardEntry card = State.SkillHand[handIndex];
+            MoveCardInstance card = State.SkillHand[handIndex];
+            if (card == null) return true;
             MoveSO move = card.Move;
             if (move == null) return true;
 
@@ -350,9 +351,9 @@ namespace ProjectAscendant.Combat
             if (apCost > State.CurrentAP) return true;
             State.CurrentAP -= apCost;
             // Card consumed: hand → discard. Faint purge can still find it
-            // (the card retains its Owner reference inside the CardEntry).
+            // (the card retains its Owner reference inside the instance).
             State.SkillHand.RemoveAt(handIndex);
-            State.Discard.Add(card);
+            State.Deck.Discard(card);
 
             // Target — for the VS skeleton: skill cards target a single enemy
             // slot (or the move's chosen target). Cleave/Backstrike on the
@@ -374,7 +375,7 @@ namespace ProjectAscendant.Combat
             // wired this becomes: if (c.APCost > State.CurrentAP) return true;
             // TODO Epic 12: full ConsumableEffectSO dispatch chain.
             State.ConsumableHand.RemoveAt(handIndex);
-            if (!State.UsedThisCombat.Contains(c)) State.UsedThisCombat.Add(c);
+            State.Consumables.MarkUsed(c);
             return true;
         }
 
@@ -542,12 +543,19 @@ namespace ProjectAscendant.Combat
                 if (p == null) continue;
                 if (p.CurrentHP > 0) continue;
                 // Per §4.8.4 — purge fainted Pokémon's cards from deck +
-                // discard. Also sweep the active hand: a fainted Pokémon's
-                // cards become unplayable, so they leave play entirely.
-                FaintResolver.PurgeCards(p, State.SkillDeck, State.Discard);
+                // discard via SkillDeck.PurgeOwner (handles factory release).
+                // Also sweep the active hand: a fainted Pokémon's cards
+                // become unplayable, so they leave play entirely.
+                State.Deck.PurgeOwner(p);
                 for (int h = State.SkillHand.Count - 1; h >= 0; h--)
-                    if (ReferenceEquals(State.SkillHand[h].Owner, p))
+                {
+                    MoveCardInstance hc = State.SkillHand[h];
+                    if (hc != null && ReferenceEquals(hc.Owner, p))
+                    {
+                        _cardFactory.Release(hc);
                         State.SkillHand.RemoveAt(h);
+                    }
+                }
                 // Per §4.8.5 — +1 Trauma stack at moment of faint.
                 FaintResolver.ApplyTraumaOnFaint(p);
             }
@@ -588,7 +596,7 @@ namespace ProjectAscendant.Combat
             // Unplayed cards in the hand → discard pile so they can be
             // reshuffled into the deck on the next turn when needed.
             for (int i = 0; i < State.SkillHand.Count; i++)
-                State.Discard.Add(State.SkillHand[i]);
+                State.Deck.Discard(State.SkillHand[i]);
             State.SkillHand.Clear();
             // Consumable cards in hand return implicitly — they were never
             // removed from the inventory (drawing was a read; only the
@@ -616,11 +624,16 @@ namespace ProjectAscendant.Combat
             // Per §4.2.6 — reset stat stages on every Pokémon.
             ResetAllStatStages(State.PlayerTeam);
             ResetAllStatStages(State.EnemyTeam);
-            // Per §3.5 — consumables are NOT expendable; clear the
-            // UsedThisCombat list so the full inventory is available again
-            // outside combat. (Bestiary / XP / OnCombatEnded event are
+            // Per §3.5 — consumables are NOT expendable; ConsumablePile.RestoreAll
+            // clears the UsedThisCombat list so the full inventory is available
+            // again outside combat. (Bestiary / XP / OnCombatEnded event are
             // downstream — see Epic 10 / 11.)
-            State.UsedThisCombat.Clear();
+            State.Consumables.RestoreAll();
+            // Release any leftover hand cards back through the factory before
+            // dropping references. The Deck.Clear() call below handles the
+            // rest of the deck + discard lifetimes.
+            for (int i = 0; i < State.SkillHand.Count; i++)
+                _cardFactory.Release(State.SkillHand[i]);
             State.SkillHand.Clear();
             State.ConsumableHand.Clear();
         }
@@ -655,23 +668,7 @@ namespace ProjectAscendant.Combat
             return State.EnemyTeam[slot];
         }
 
-        // Per §3.2 Task 4.1.2 — build the shared 12-card skill deck
-        // (3 active × 4 moves) plus +1 per Pokémon with a Mastery Move.
-        // CardEntry pairs each move with its owner so faint purge can
-        // remove the owner's cards (§4.8.4).
-        private void BuildSkillDeck()
-        {
-            State.SkillDeck.Clear();
-            for (int i = 0; i < State.PlayerTeam.Count; i++)
-            {
-                PokemonInstance p = State.PlayerTeam[i];
-                if (p == null) continue;
-                for (int m = 0; m < p.CurrentMoves.Count; m++)
-                    if (p.CurrentMoves[m] != null)
-                        State.SkillDeck.Add(new CardEntry(p.CurrentMoves[m], p));
-                if (p.MasteryMove != null)
-                    State.SkillDeck.Add(new CardEntry(p.MasteryMove, p));
-            }
-        }
+        // Per Epic 5 Task 5.1.1 — deck construction now lives on SkillDeck.Build.
+        // CombatController.Start() invokes it via State.Deck.Build(State.PlayerTeam).
     }
 }

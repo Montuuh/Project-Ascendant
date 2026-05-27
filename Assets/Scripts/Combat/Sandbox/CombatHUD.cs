@@ -182,7 +182,8 @@ namespace ProjectAscendant.Combat.Sandbox
 
             for (int i = 0; i < s.SkillHand.Count; i++)
             {
-                CardEntry card = s.SkillHand[i];
+                MoveCardInstance card = s.SkillHand[i];
+                if (card == null) continue;
                 MoveSO move = card.Move;
                 if (move == null) continue;
                 PokemonInstance owner = card.Owner;

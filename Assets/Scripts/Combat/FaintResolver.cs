@@ -49,9 +49,16 @@ namespace ProjectAscendant.Combat
         // Per §4.8.4 — purge every card whose Owner == fainted from both lists.
         // Iterates from the back to keep indices stable during removal.
         // Returns the total number of cards removed across both piles.
+        //
+        // Per Epic 5 Task 5.1 — operates on MoveCardInstance (was CardEntry).
+        // Card instances are NOT released here; the caller (or SkillDeck.PurgeOwner
+        // when going through the encapsulated API) owns lifecycle. This static
+        // surface is retained for tests + low-level access; production code paths
+        // through SkillDeck.PurgeOwner additionally release purged cards via
+        // MoveCardInstanceFactory.Release (no-op for VS per §9.17).
         public static int PurgeCards(PokemonInstance fainted,
-                                     IList<CardEntry> skillDeck,
-                                     IList<CardEntry> discardPile)
+                                     IList<MoveCardInstance> skillDeck,
+                                     IList<MoveCardInstance> discardPile)
         {
             if (fainted == null) return 0;
             int removed = 0;
@@ -59,7 +66,8 @@ namespace ProjectAscendant.Combat
             {
                 for (int i = skillDeck.Count - 1; i >= 0; i--)
                 {
-                    if (ReferenceEquals(skillDeck[i].Owner, fainted))
+                    MoveCardInstance c = skillDeck[i];
+                    if (c != null && ReferenceEquals(c.Owner, fainted))
                     {
                         skillDeck.RemoveAt(i);
                         removed++;
@@ -70,7 +78,8 @@ namespace ProjectAscendant.Combat
             {
                 for (int i = discardPile.Count - 1; i >= 0; i--)
                 {
-                    if (ReferenceEquals(discardPile[i].Owner, fainted))
+                    MoveCardInstance c = discardPile[i];
+                    if (c != null && ReferenceEquals(c.Owner, fainted))
                     {
                         discardPile.RemoveAt(i);
                         removed++;
