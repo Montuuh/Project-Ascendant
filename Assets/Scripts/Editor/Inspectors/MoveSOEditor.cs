@@ -54,14 +54,19 @@ namespace ProjectAscendant.Editor
                 allClean = false;
             }
 
-            // Per §3.3.2 / §3.3.3 — StepForward / StepBackward only valid on Melee.
-            if (move.Range == MoveRange.Ranged &&
-                move.Modifier != PositionalModifier.None)
+            // Per §3.3.2 / §3.3.3 / §3.3.4 + Epic 6 Task 6.4 — delegate
+            // structural rules to MoveValidator so editor + tests share one
+            // source of truth. The inspector renders Errors as ERROR boxes
+            // and clears `allClean` if any surface; Warnings are surfaced
+            // separately below to preserve the existing button affordances
+            // (Fix: Set to 0.75 / 1.0) which are inspector-only.
+            System.Collections.Generic.List<MoveValidator.Issue> validatorIssues =
+                MoveValidator.Validate(move);
+            for (int i = 0; i < validatorIssues.Count; i++)
             {
-                EditorGUILayout.HelpBox(
-                    $"ERROR — {move.Modifier} is only valid on Melee moves. " +
-                    "Ranged moves cannot use positional modifiers. (Per §3.3.2/§3.3.3)",
-                    MessageType.Error);
+                MoveValidator.Issue iss = validatorIssues[i];
+                if (iss.Level != MoveValidator.Severity.Error) continue;
+                EditorGUILayout.HelpBox("ERROR — " + iss.Message, MessageType.Error);
                 allClean = false;
             }
 
