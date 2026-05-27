@@ -109,6 +109,7 @@ namespace ProjectAscendant.Combat
         public CombatState State { get; }
         private readonly IPlayerAgent _agent;
         private readonly MoveCardInstanceFactory _cardFactory;
+        private readonly CardPlayService _playService;
 
         // ── Constructor + lifecycle ──────────────────────────────────────────
 
@@ -138,6 +139,10 @@ namespace ProjectAscendant.Combat
                 Consumables = new ConsumablePile(),
             };
             State.Consumables.Build(State.ConsumableInventory);
+            // Per Epic 5 Task 5.4.1 — extracted play pipeline. Wired with a
+            // ResolveDamage callback so the service can resolve a strike
+            // without the controller owning the play logic.
+            _playService = new CardPlayService(State, _agent, _cardFactory, ResolveDamage);
         }
 
         // Per Epic 4 Task 4.1.2 — initial encounter setup.
@@ -340,60 +345,11 @@ namespace ProjectAscendant.Combat
             }
         }
 
-        private bool TryPlaySkillCard(int handIndex, int enemySlot)
-        {
-            if (handIndex < 0 || handIndex >= State.SkillHand.Count) return true;
-            MoveCardInstance card = State.SkillHand[handIndex];
-            if (card == null) return true;
-            MoveSO move = card.Move;
-            if (move == null) return true;
-
-            // Per §3.3 + §3.6 + Task 5.6.1 — taxonomy-driven play eligibility.
-            // Rejects Melee cards from bench (unless SF), null/absent/fainted
-            // owners. Replaces the old "attacker = Lead" assumption — SF cards
-            // legitimately play from the bench. (5.4 layers the SF/SB
-            // position-change side effects; this branch only validates.)
-            CardPlayValidator.PlayResult vr = CardPlayValidator.Validate(
-                card, State.PlayerTeam, State.LeadIndex);
-            if (vr != CardPlayValidator.PlayResult.Playable) return true;
-
-            // Attacker is the card's owner — for non-SF cards the owner is
-            // already Lead (validator enforced); for SF cards the owner may
-            // be on the bench (Task 5.4 promotes them to Lead before the
-            // effect resolves). For 5.6 we use the owner-as-attacker.
-            PokemonInstance attacker = card.Owner;
-
-            // Per §4.2.2.4/5 — Sleep/Freeze block playing.
-            if (!StatusModifiers.AreCardsPlayable(attacker.PrimaryStatus)) return true;
-
-            // Per §3.3.1 + Task 5.6.2 — defensive-swap discount applies to the
-            // FIRST Defensive card after a manual swap. Status modifiers
-            // (Paralysis +1) apply on top of the base cost; the discount
-            // applies to the final cost (so a Paralyzed Defensive card after
-            // swap = baseCost + 1 - 1 = baseCost).
-            int apCost = StatusModifiers.GetEffectiveAPCost(move, attacker, State.Config);
-            apCost = CardPlayValidator.ApplyDefensiveDiscount(
-                apCost, move, State.DefensiveSwapDiscountAvailable);
-            if (apCost > State.CurrentAP) return true;
-            if (CardPlayValidator.ShouldConsumeDefensiveDiscount(
-                    move, State.DefensiveSwapDiscountAvailable))
-            {
-                State.DefensiveSwapDiscountAvailable = false;
-            }
-            State.CurrentAP -= apCost;
-            // Card consumed: hand → discard. Faint purge can still find it
-            // (the card retains its Owner reference inside the instance).
-            State.SkillHand.RemoveAt(handIndex);
-            State.Deck.Discard(card);
-
-            // Target — for the VS skeleton: skill cards target a single enemy
-            // slot (or the move's chosen target). Cleave/Backstrike on the
-            // PLAYER side ship with move-level metadata in Epic 7 follow-up.
-            PokemonInstance target = ResolveEnemySlot(enemySlot);
-            if (target != null) ResolveDamage(attacker, target, move);
-
-            return true;
-        }
+        // Per Epic 5 Task 5.4.1 — delegated to CardPlayService. The service
+        // owns validation, AP spend, discount apply/consume, SF/SB position
+        // changes, and the post-play combat-end short-circuit (§3.2.4).
+        private bool TryPlaySkillCard(int handIndex, int enemySlot) =>
+            _playService.Play(handIndex, enemySlot);
 
         private bool TryPlayConsumable(int handIndex)
         {
