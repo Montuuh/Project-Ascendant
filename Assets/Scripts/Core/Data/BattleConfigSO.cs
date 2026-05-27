@@ -130,5 +130,26 @@ namespace ProjectAscendant.Core
         [Tooltip("Score penalty applied to the top intent when Boss Counter-Intel is " +
                  "active (full intent pool revealed). Per §4.3.5 + Epic 4.7.7.")]
         public float BossCounterIntelTopPenalty = 0.7f;
+
+        // ── Field Effects — §4.3.8 + Epic 4 Task 4.9 ──────────────────────────
+        // Weather and Terrain are independent (§4.8.2). Multipliers stack
+        // multiplicatively across categories.
+        [Header("Field Effects — §4.3.8")]
+
+        [Tooltip("Sunny Day Fire-damage multiplier. Per §4.3.8.1.")]
+        public float SunnyDayFireMultiplier = 1.5f;
+
+        [Tooltip("Sunny Day Water-damage multiplier. Per §4.3.8.1.")]
+        public float SunnyDayWaterMultiplier = 0.5f;
+
+        [Tooltip("Rain Dance Water-damage multiplier. Per §4.3.8.2.")]
+        public float RainDanceWaterMultiplier = 1.5f;
+
+        [Tooltip("Rain Dance Fire-damage multiplier. Per §4.3.8.2.")]
+        public float RainDanceFireMultiplier = 0.5f;
+
+        [Tooltip("Electric Terrain Electric-damage multiplier on grounded targets. " +
+                 "Per §4.3.8.3.")]
+        public float ElectricTerrainElectricMultiplier = 1.3f;
     }
 }
