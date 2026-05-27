@@ -71,10 +71,16 @@ namespace ProjectAscendant.Combat
             public List<PokemonInstance> EnemyTeam;
 
             // Per Epic 5 Task 5.1.1 — proper SkillDeck class owns deck+discard.
-            // Hand stays a flat List<MoveCardInstance> (controller-owned;
-            // promoted to a Hand class in Task 5.2).
             public SkillDeck Deck;
-            public List<MoveCardInstance> SkillHand = new();
+            // Per Epic 5 Task 5.2.1 — Hand class bundles the two compartments.
+            // SkillHand / ConsumableHand below are backwards-compat forwarders
+            // returning the underlying mutable lists (List<T>) so existing
+            // callers' Add / RemoveAt / Clear / indexer usage keeps working
+            // without per-call-site churn.
+            public Hand Hand = new();
+            public List<MoveCardInstance> SkillHand => Hand.Skill;
+            public List<ConsumableSO> ConsumableHand => Hand.Consumables;
+
             // Snapshot read accessors so tests / UI can inspect deck + discard
             // without knowing the SkillDeck class. Forwarded to Deck.
             public IReadOnlyList<MoveCardInstance> SkillDeckView =>
@@ -84,8 +90,15 @@ namespace ProjectAscendant.Combat
 
             // Per Epic 5 Task 5.1.2 — ConsumablePile owns inventory ref + UsedThisCombat.
             public List<ConsumableSO> ConsumableInventory = new();  // persistent
-            public List<ConsumableSO> ConsumableHand = new();       // drawn this turn
             public ConsumablePile Consumables;
+
+            // Per Epic 5 Task 5.2.3 — additive hand-size modifiers from relics
+            // / Badges / Region Modifiers. Wired through the EventContext
+            // DrawCardHook surface in Epic 12; this field is the accumulator
+            // the controller reads at DrawPhase time. Resets at combat end
+            // (per-combat span); a per-turn dispatch would refresh it pre-draw.
+            public int SkillHandSizeBonus;
+            public int ConsumableHandSizeBonus;
 
             public int CurrentAP;
             public int SwapCounter;                       // per-turn (§3.3.1)
@@ -187,8 +200,13 @@ namespace ProjectAscendant.Combat
             State.SkillHand.Clear();
             State.ConsumableHand.Clear();
 
-            DrawSkillCards(State.Config.BaseSkillCardsPerTurn);
-            DrawConsumableCards(State.Config.BaseConsumableCardsPerTurn);
+            // Per §3.7 + Task 5.2.3 — effective hand sizes are base + bonus.
+            int skillTarget = HandSizeCalculator.EffectiveSkillCount(
+                State.Config, State.SkillHandSizeBonus);
+            int consumableTarget = HandSizeCalculator.EffectiveConsumableCount(
+                State.Config, State.ConsumableHandSizeBonus);
+            DrawSkillCards(skillTarget);
+            DrawConsumableCards(consumableTarget);
 
             // Per §4.2.3.1 — Confusion: each Confused active Pokémon discards
             // one random skill card from the hand. Consumables immune.
