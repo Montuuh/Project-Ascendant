@@ -384,29 +384,13 @@ namespace ProjectAscendant.Combat
             return true;
         }
 
+        // Per §3.3.1 + Epic 6 Task 6.1 — delegated to SwapManager. The action
+        // loop convention is to return true even on rejection so the player
+        // can try a different action; SwapManager's bool result is purely an
+        // observability signal here.
         private bool TryManualSwap(int benchSlot)
         {
-            // Per §3.3.1 — 1st=1AP, 2nd=2AP, 3rd=3AP. SF/SB do NOT increment.
-            // Full implementation is Epic 6 Task 6.x; here we provide the
-            // counter-mutation contract so tests can validate it independently.
-            int cost = State.SwapCounter + 1;
-            if (cost > State.CurrentAP) return true;
-            // Per §3.3.5.1 — Frozen Lead cannot swap unless fainted.
-            PokemonInstance lead = ResolveLead();
-            if (FaintResolver.IsSlotLockedForSwap(lead)) return true;
-            if (benchSlot < 0 || benchSlot >= State.PlayerTeam.Count) return true;
-            if (benchSlot == State.LeadIndex) return true;
-            PokemonInstance target = State.PlayerTeam[benchSlot];
-            if (target == null || target.CurrentHP <= 0) return true;
-
-            State.CurrentAP -= cost;
-            State.SwapCounter += 1;
-            State.LeadIndex = benchSlot;
-            // Per §3.3.1 + Task 5.6.2 — a manual swap grants the defensive
-            // discount. SF/SB position changes do NOT call TryManualSwap, so
-            // they correctly don't trigger this. The flag is sticky until
-            // consumed by a Defensive card play OR TurnEnd resets it.
-            State.DefensiveSwapDiscountAvailable = true;
+            SwapManager.TryManualSwap(State, benchSlot);
             return true;
         }
 
