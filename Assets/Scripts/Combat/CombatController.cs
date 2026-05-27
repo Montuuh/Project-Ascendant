@@ -298,6 +298,22 @@ namespace ProjectAscendant.Combat
             }
         }
 
+        // Per Epic 4 Task 4.1.9 — single-action API for Play Mode / UI drivers.
+        // The IMGUI sandbox + the production UI step one action per user input
+        // event instead of looping inside ActionPhase. Returns true if the
+        // controller is still in the player's turn after the action; false on
+        // EndTurn / invalid / AP-exhausted (caller should advance to Resolution).
+        public bool ExecuteAction(PlayerAction action)
+        {
+            // Make sure we are in (or entering) ActionPhase. Calling this in
+            // any other phase is a programming error.
+            if (State.CurrentPhase != Phase.ActionPhase)
+                State.CurrentPhase = Phase.ActionPhase;
+            bool kept = ExecutePlayerAction(action);
+            if (!kept) return false;
+            return State.CurrentAP > 0;
+        }
+
         // Returns true if the action was processed and the loop should continue;
         // false to break out (EndTurn or unrecoverable invalid input).
         private bool ExecutePlayerAction(PlayerAction action)
