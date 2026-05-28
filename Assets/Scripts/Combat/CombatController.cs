@@ -415,6 +415,11 @@ namespace ProjectAscendant.Combat
             // Status DoT + duration ticks for every Pokémon on both sides.
             TickStatusForAll(State.PlayerTeam);
             TickStatusForAll(State.EnemyTeam);
+            // Per §4.3.3 — cooldown decrement end-of-turn, both sides.
+            // Player-side is symmetric for future use (no VS card sets
+            // CooldownTurns yet); enemy-side is the active gate for AI.
+            TickCooldownsForAll(State.PlayerTeam);
+            TickCooldownsForAll(State.EnemyTeam);
             // DoT can cause faints — check.
             HandleAnyFaints();
         }
@@ -479,6 +484,12 @@ namespace ProjectAscendant.Combat
                     // are revealed by Witnessed at minimum during Resolution.
                     break;
             }
+
+            // Per §4.3.3 — after a Move-bearing intent resolves, lock the
+            // attacker's cooldown if the move authors one. Set unconditionally
+            // (success/fizzle is irrelevant — the AI committed the choice).
+            if (intent.Move != null && intent.Move.CooldownTurns > 0)
+                enemy.SetMoveCooldown(intent.Move, intent.Move.CooldownTurns);
         }
 
         // Per §4.1.1 — central damage application. Composes:
@@ -530,6 +541,20 @@ namespace ProjectAscendant.Combat
                 int dot = StatusEffectManager.ComputeDoTDamage(p, State.Config);
                 if (dot > 0) p.CurrentHP = Mathf.Max(0, p.CurrentHP - dot);
                 StatusEffectManager.TickAtEndOfTurn(p);
+            }
+        }
+
+        // Per §4.3.3 — decrement every active move cooldown by 1; entries that
+        // hit 0 are removed by TickMoveCooldowns. Fainted slots skip (cooldown
+        // map is per-instance; faint clears via Reset on box return).
+        private void TickCooldownsForAll(IList<PokemonInstance> team)
+        {
+            if (team == null) return;
+            for (int i = 0; i < team.Count; i++)
+            {
+                PokemonInstance p = team[i];
+                if (p == null || p.CurrentHP <= 0) continue;
+                p.TickMoveCooldowns();
             }
         }
 

@@ -26,6 +26,12 @@ namespace ProjectAscendant.Core
         [Range(0, 4)]
         public int APCost;
 
+        // Per §4.3.3 — turns the move is locked after use (enemy AI gate).
+        // 0 = no cooldown (default). Authored on signature/ultimate moves to
+        // pace boss/elite intents. Player-side cooldown UX is post-VS.
+        [Min(0)]
+        public int CooldownTurns;
+
         // Per §9.3.2.2 — 0.75 for Ranged, 1.0 for Melee. Set via inspector; not hardcoded.
         public float RangeModifierMultiplier = 1f;
 

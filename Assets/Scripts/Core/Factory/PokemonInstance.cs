@@ -25,6 +25,13 @@ namespace ProjectAscendant.Core
         public int PrimaryStatusTurnsRemaining;
         public int SecondaryStatusTurnsRemaining;
 
+        // Per §4.3.3 — per-encounter cooldown tracking for AI intent gating.
+        // Key = MoveSO ref; value = remaining turn count (>0 = on cooldown).
+        // Populated by CombatController after a Move-bearing intent resolves
+        // for moves whose CooldownTurns > 0. Decremented end-of-turn via
+        // TickMoveCooldowns. Cleared in Reset() so each combat starts fresh.
+        public readonly Dictionary<MoveSO, int> MoveCooldowns = new();
+
         public EvolutionStage CurrentStage;
         // Per §5.3.3 — SO reference to the chosen branch; null until first evolution.
         public EvolutionBranchSO SelectedBranch;
@@ -47,8 +54,41 @@ namespace ProjectAscendant.Core
             SecondaryStatus = StatusCondition.None;
             PrimaryStatusTurnsRemaining = 0;
             SecondaryStatusTurnsRemaining = 0;
+            MoveCooldowns.Clear();
             CurrentStage = EvolutionStage.Basic;
             SelectedBranch = default;
+        }
+
+        // Per §4.3.3 — set/check/tick helpers for AI cooldown gate.
+        // Set: only called for moves whose MoveSO.CooldownTurns > 0.
+        // IsOnCooldown: false if move is null, missing, or count <= 0.
+        // Tick: decrement every tracked move by 1; remove entries that hit 0
+        // so the dictionary stays bounded by the active cooldown set.
+        public void SetMoveCooldown(MoveSO move, int turns)
+        {
+            if (move == null || turns <= 0) return;
+            MoveCooldowns[move] = turns;
+        }
+
+        public bool IsMoveOnCooldown(MoveSO move)
+        {
+            if (move == null) return false;
+            return MoveCooldowns.TryGetValue(move, out int remaining) && remaining > 0;
+        }
+
+        public void TickMoveCooldowns()
+        {
+            if (MoveCooldowns.Count == 0) return;
+            // Iterate via a temp key list to avoid mutate-during-enumeration.
+            // Allocation is small (active cooldown count is bounded by hand size).
+            List<MoveSO> keys = new(MoveCooldowns.Keys);
+            for (int i = 0; i < keys.Count; i++)
+            {
+                MoveSO k = keys[i];
+                int next = MoveCooldowns[k] - 1;
+                if (next <= 0) MoveCooldowns.Remove(k);
+                else MoveCooldowns[k] = next;
+            }
         }
     }
 }

@@ -549,5 +549,105 @@ namespace ProjectAscendant.Tests
             IntentScorer.Context ctx = new() { Config = null };
             Assert.That(IntentScorer.Score(intent, ctx), Is.EqualTo(0f));
         }
+
+        // ── Bucket 10: Cooldown gate (§4.3.3) — Epic 8 Task 8.0 closure ──────
+
+        [Test]
+        public void Score_MoveOnCooldown_ReturnsZero()
+        {
+            // Per §4.3.3 — CooldownGate ×0 short-circuits the score.
+            MoveSO sig = MakeMove(PokemonType.Normal, 80);
+            sig.CooldownTurns = 3;
+            PokemonInstance enemy = MakeInstance(_normalSpecies);
+            PokemonInstance lead = MakeInstance(_normalSpecies);
+            enemy.SetMoveCooldown(sig, 2);
+
+            Intent intent = new() { Kind = IntentKind.Attack, Move = sig, TargetSlot = 0 };
+            IntentScorer.Context ctx = new() { Attacker = enemy, PlayerTeam = new[] { lead }, Config = _config };
+            Assert.That(IntentScorer.Score(intent, ctx), Is.EqualTo(0f));
+            Object.DestroyImmediate(sig);
+        }
+
+        [Test]
+        public void Score_AfterCooldownTickedToZero_ReturnsNonZero()
+        {
+            // Per §4.3.3 — TickMoveCooldowns reduces by 1; entries hitting 0
+            // are removed so IsMoveOnCooldown reads false and gate returns 1.
+            MoveSO sig = MakeMove(PokemonType.Normal, 80);
+            sig.CooldownTurns = 1;
+            PokemonInstance enemy = MakeInstance(_normalSpecies);
+            PokemonInstance lead = MakeInstance(_normalSpecies);
+            enemy.SetMoveCooldown(sig, 1);
+
+            Intent intent = new() { Kind = IntentKind.Attack, Move = sig, TargetSlot = 0 };
+            IntentScorer.Context ctx = new() { Attacker = enemy, PlayerTeam = new[] { lead }, Config = _config };
+            // On cooldown → 0
+            Assert.That(IntentScorer.Score(intent, ctx), Is.EqualTo(0f));
+            // Tick once → cooldown clears
+            enemy.TickMoveCooldowns();
+            Assert.That(enemy.IsMoveOnCooldown(sig), Is.False);
+            Assert.That(IntentScorer.Score(intent, ctx), Is.EqualTo(80f).Within(0.001f));
+            Object.DestroyImmediate(sig);
+        }
+
+        [Test]
+        public void TickMoveCooldowns_DecrementsAllEntries_RemovesAtZero()
+        {
+            MoveSO a = MakeMove(PokemonType.Normal, 60); a.CooldownTurns = 1;
+            MoveSO b = MakeMove(PokemonType.Normal, 60); b.CooldownTurns = 3;
+            PokemonInstance enemy = MakeInstance(_normalSpecies);
+            enemy.SetMoveCooldown(a, 1);
+            enemy.SetMoveCooldown(b, 3);
+
+            enemy.TickMoveCooldowns();
+            // a hit 0 → removed; b decremented to 2
+            Assert.That(enemy.IsMoveOnCooldown(a), Is.False);
+            Assert.That(enemy.MoveCooldowns.ContainsKey(a), Is.False);
+            Assert.That(enemy.IsMoveOnCooldown(b), Is.True);
+            Assert.That(enemy.MoveCooldowns[b], Is.EqualTo(2));
+
+            // Two more ticks → b removed.
+            enemy.TickMoveCooldowns();
+            enemy.TickMoveCooldowns();
+            Assert.That(enemy.IsMoveOnCooldown(b), Is.False);
+            Assert.That(enemy.MoveCooldowns.Count, Is.EqualTo(0));
+
+            Object.DestroyImmediate(a);
+            Object.DestroyImmediate(b);
+        }
+
+        [Test]
+        public void SetMoveCooldown_NullOrZero_NoOp()
+        {
+            // Guard: null move or non-positive turns must not add an entry.
+            MoveSO m = MakeMove(PokemonType.Normal, 60);
+            PokemonInstance enemy = MakeInstance(_normalSpecies);
+            enemy.SetMoveCooldown(null, 5);
+            enemy.SetMoveCooldown(m, 0);
+            enemy.SetMoveCooldown(m, -1);
+            Assert.That(enemy.MoveCooldowns.Count, Is.EqualTo(0));
+            Object.DestroyImmediate(m);
+        }
+
+        [Test]
+        public void IsMoveOnCooldown_NullMove_ReturnsFalse()
+        {
+            // Defensive: IntentScorer can call with null Move on utility intents.
+            PokemonInstance enemy = MakeInstance(_normalSpecies);
+            Assert.That(enemy.IsMoveOnCooldown(null), Is.False);
+        }
+
+        [Test]
+        public void PokemonInstance_Reset_ClearsCooldowns()
+        {
+            // Per §9.6.1 — factory pool reuse must not leak cooldown state.
+            MoveSO m = MakeMove(PokemonType.Normal, 60); m.CooldownTurns = 2;
+            PokemonInstance enemy = MakeInstance(_normalSpecies);
+            enemy.SetMoveCooldown(m, 2);
+            Assert.That(enemy.MoveCooldowns.Count, Is.EqualTo(1));
+            enemy.Reset();
+            Assert.That(enemy.MoveCooldowns.Count, Is.EqualTo(0));
+            Object.DestroyImmediate(m);
+        }
     }
 }

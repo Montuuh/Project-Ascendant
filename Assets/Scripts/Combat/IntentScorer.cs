@@ -19,8 +19,10 @@ namespace ProjectAscendant.Combat
     //                        target HP < 30%  → ×2.0 for Attack/Backstrike
     //                        self   HP < 40%  → ×1.5 for any offensive intent
     //                        self   HP > 70%  → ×1.5 for Buff/Stall
-    //   • CooldownGate   — 1.0 by default in VS (cooldowns are not authored
-    //                      yet on MoveSO; TODO Task 4.7.B+later epic).
+    //   • CooldownGate   — 0 if the attacker has the move on cooldown
+    //                      (Move.CooldownTurns > 0 + set on use by
+    //                      CombatController). 1 otherwise. Authored on
+    //                      signature/ultimate boss/elite moves per §4.3.3.
     //
     // Selection (§4.3.3 randomness floor):
     //   PickIntent runs all candidate scores → ranks descending → with
@@ -60,7 +62,8 @@ namespace ProjectAscendant.Combat
             if (statusState == 0f) return 0f;     // redundant primary → skip
 
             float hpState = HPStateMultiplier(intent, ctx);
-            float cooldownGate = CooldownGate(intent);
+            float cooldownGate = CooldownGate(intent, ctx.Attacker);
+            if (cooldownGate == 0f) return 0f;
 
             return baseWeight * typeEff * statusState * hpState * cooldownGate;
         }
@@ -195,10 +198,14 @@ namespace ProjectAscendant.Combat
             return mod;
         }
 
-        // Per §4.3.3 — 0 if on cooldown, 1 otherwise. Cooldowns aren't authored
-        // on MoveSO in VS scope — TODO Epic 4.7.B follow-up: add CooldownTurns
-        // to MoveSO + per-encounter cooldown tracking on PokemonInstance.
-        private static float CooldownGate(Intent intent) => 1f;
+        // Per §4.3.3 — 0 if the attacker has this move on cooldown, 1 otherwise.
+        // Cooldown set/tick happens in CombatController; this scorer is pure
+        // over (intent, attacker) and never mutates state.
+        private static float CooldownGate(Intent intent, PokemonInstance attacker)
+        {
+            if (attacker == null || intent.Move == null) return 1f;
+            return attacker.IsMoveOnCooldown(intent.Move) ? 0f : 1f;
+        }
 
         // Attacker MaxHP estimate. Without a CurrentMaxHP field on
         // PokemonInstance we use Species.BaseHP + growth curve, matching
