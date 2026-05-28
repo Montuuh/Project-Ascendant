@@ -22,6 +22,7 @@ MonoBehaviour:
   - OldMove: {fileID: 11400000, guid: 5e6a05289e17de64e9417eac498b099b, type: 2}
     NewMove: {fileID: 11400000, guid: c0362a0708fe7d64a84d44efea664e1c, type: 2}
   NewMoves: []
-  GrantedAbility: {fileID: 0}
+  GrantedAbility: {fileID: 11400000, guid: 512195af6d5615d478873ef3b1578af6, type: 2}
+  CritChanceBonus: 0.1
   SubBranches: []
   GDDReference: "\xA75.6"
