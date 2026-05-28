@@ -21,7 +21,7 @@ MonoBehaviour:
   - Species: {fileID: 11400000, guid: efc5571bf4edfc34eac2d4473360a590, type: 2}
     Level: 7
   TacticalIdentity: Disrupts with Growl + Feather Dance to shred Attack stages. Then
-    Vine Whip + Gust for chip. Roost to stall. Targets highest-ATK slot to neutralise
+    Gust + Tackle for chip. Roost to stall. Targets highest-ATK slot to neutralise
     threats.
   RelicLootTable: []
   ConsumableLootTable:
