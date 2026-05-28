@@ -59,6 +59,11 @@ namespace ProjectAscendant.Combat
             public FieldState InitialField;
             public BattleConfigSO Config;
             public GameRNG Rng;
+            // Per §7.4 + Epic 8 Task 8.2 — optional. When the enemy team
+            // wipes, the controller consults this provider; a non-empty
+            // return replaces the EnemyTeam contents and Outcome stays
+            // InProgress (sequential trainer / boss-phase spawns).
+            public IEnemyReinforcementProvider Reinforcements;
         }
 
         // Runtime state — fully describes the encounter. Public mutable for
@@ -123,6 +128,7 @@ namespace ProjectAscendant.Combat
         private readonly IPlayerAgent _agent;
         private readonly MoveCardInstanceFactory _cardFactory;
         private readonly CardPlayService _playService;
+        private readonly IEnemyReinforcementProvider _reinforcements;
 
         // ── Constructor + lifecycle ──────────────────────────────────────────
 
@@ -137,6 +143,7 @@ namespace ProjectAscendant.Combat
         {
             _agent = agent;
             _cardFactory = cardFactory ?? new MoveCardInstanceFactory();
+            _reinforcements = setup.Reinforcements;
             State = new CombatState
             {
                 PlayerTeam = setup.PlayerTeam ?? new List<PokemonInstance>(),
@@ -601,9 +608,33 @@ namespace ProjectAscendant.Combat
             }
             // Per §3.3.6 — All-Faint defeat.
             if (FaintResolver.IsAllFainted(State.PlayerTeam))
+            {
                 State.Outcome = CombatOutcome.Defeat;
+            }
             else if (FaintResolver.IsAllFainted(State.EnemyTeam))
+            {
+                // Per §7.4 + Epic 8 Task 8.2.3 — sequential trainer/boss spawn.
+                // If a provider supplies reinforcements, swap them into the
+                // EnemyTeam in-place and keep the combat live. New entrants
+                // do not act this turn — IntentPhase rebuilds intents fresh
+                // on the next loop iteration.
+                if (TryInjectReinforcements()) return;
                 State.Outcome = CombatOutcome.Victory;
+            }
+        }
+
+        // Per Epic 8 Task 8.2 — returns true if reinforcements landed (so the
+        // caller knows to skip the Outcome.Victory branch). Replaces team
+        // contents in-place rather than swapping the list reference so any
+        // downstream code holding the IList<PokemonInstance> stays valid.
+        private bool TryInjectReinforcements()
+        {
+            if (_reinforcements == null) return false;
+            List<PokemonInstance> next = _reinforcements.RequestReinforcements(State);
+            if (next == null || next.Count == 0) return false;
+            State.EnemyTeam.Clear();
+            for (int i = 0; i < next.Count; i++) State.EnemyTeam.Add(next[i]);
+            return true;
         }
 
         // ── Phase 5: TurnEnd (Task 4.1.7) ────────────────────────────────────
@@ -641,9 +672,17 @@ namespace ProjectAscendant.Combat
         {
             if (State.Outcome != CombatOutcome.InProgress) return;
             if (FaintResolver.IsAllFainted(State.PlayerTeam))
+            {
                 State.Outcome = CombatOutcome.Defeat;
+            }
             else if (FaintResolver.IsAllFainted(State.EnemyTeam))
+            {
+                // Mirror HandleAnyFaints — consult reinforcements once more
+                // in case a status DoT (Burn/Poison) fainted the last enemy
+                // on a turn where the provider hasn't been asked yet.
+                if (TryInjectReinforcements()) return;
                 State.Outcome = CombatOutcome.Victory;
+            }
         }
 
         // ── Combat End (Task 4.1.8) ──────────────────────────────────────────
