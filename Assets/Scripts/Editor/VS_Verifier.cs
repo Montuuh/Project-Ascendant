@@ -21,9 +21,9 @@ namespace ProjectAscendant.Editor
             string root = "Assets/ScriptableObjects/VS";
 
             // ── Species wiring ───────────────────────────────────────────────
-            var squirtle   = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Squirtle.asset");
-            var wartortle  = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Wartortle_Vanguard.asset");
-            var branch     = AssetDatabase.LoadAssetAtPath<EvolutionBranchSO>($"{root}/Branches/squirtle_vanguard.asset");
+            var squirtle   = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Squirtle/Squirtle.asset");
+            var wartortle  = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Squirtle/Wartortle_Vanguard.asset");
+            var branch     = AssetDatabase.LoadAssetAtPath<EvolutionBranchSO>($"{root}/Branches/squirtle/squirtle_vanguard.asset");
 
             Check(squirtle   != null, "Squirtle.asset exists");
             Check(wartortle  != null, "Wartortle_Vanguard.asset exists");
@@ -36,12 +36,12 @@ namespace ProjectAscendant.Editor
             Check(wartortle  != null && wartortle.Branches.Count == 2, "Wartortle_Vanguard has 2 sub-branches (VA1, VA2)");
 
             // ── Bulbasaur learnset ───────────────────────────────────────────
-            var bulbasaur = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Bulbasaur.asset");
+            var bulbasaur = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Bulbasaur/Bulbasaur.asset");
             Check(bulbasaur  != null && bulbasaur.BaseLearnset.Count == 4, "Bulbasaur has 4 base moves");
             Check(bulbasaur  != null && bulbasaur.MasteryMove != null,  "Bulbasaur has a Mastery Move");
             Check(bulbasaur  != null && bulbasaur.PrimaryAbility == null,   "Bulbasaur has no pre-evo ability (§5.5.1)");
 
-            var ivysaur = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Ivysaur_Vanguard.asset");
+            var ivysaur = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Bulbasaur/Ivysaur_Vanguard.asset");
             Check(ivysaur    != null && ivysaur.PrimaryAbility != null,     "Ivysaur gains primary ability (Overgrow)");
             Check(ivysaur    != null && ivysaur.PrimaryAbility?.AbilityId == "overgrow", "Ivysaur ability == overgrow");
 
@@ -62,11 +62,11 @@ namespace ProjectAscendant.Editor
             Check(geodudeCrv != null && geodudeCrv.AttackGrowthPerLevel[0] == 3,      "Geodude Atk growth == 3/level");
 
             // ── Abilities ────────────────────────────────────────────────────
-            var sturdy = AssetDatabase.LoadAssetAtPath<AbilitySO>($"{root}/Abilities/sturdy.asset");
+            var sturdy = AssetDatabase.LoadAssetAtPath<AbilitySO>($"{root}/Abilities/Geodude/sturdy.asset");
             Check(sturdy     != null && sturdy.Category == AbilityCategory.Survival, "Sturdy category == Survival");
 
             // ── Wild species biomes ──────────────────────────────────────────
-            var caterpie = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Wild/Caterpie.asset");
+            var caterpie = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Wild/Caterpie/Caterpie.asset");
             Check(caterpie   != null && caterpie.SpawnBiomes.Count > 0, "Caterpie has spawn biomes");
 
             // ── 3.3.C — Consumables ──────────────────────────────────────────
