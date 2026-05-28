@@ -18,7 +18,7 @@ MonoBehaviour:
   Role: 0
   Range: 0
   Modifier: 0
-  BasePower: 45
+  BasePower: 65
   APCost: 1
   RangeModifierMultiplier: 1
   AlwaysCrit: 0
