@@ -35,5 +35,5 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 0
   SpawnBiomes: 02000000
-  Portrait: {fileID: 0}
+  Portrait: {fileID: 21300000, guid: 173ae52ca1e32a2439aa3aee9df80cdf, type: 3}
   GDDReference: "\xA75.3"
