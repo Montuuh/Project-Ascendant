@@ -120,6 +120,12 @@ namespace ProjectAscendant.Combat
             public Phase CurrentPhase = Phase.PreStart;
             public BattleConfigSO Config;
             public GameRNG Rng;
+
+            // Per §7.3.4 + Epic 8 Task 8.1 — non-null iff a wild Pokémon was
+            // caught this combat via a CatchConsumableEffectSO. Read by
+            // WildEncounterController.ResolveOutcome to disambiguate
+            // "Victory by catch" from "Victory by KO". Cleared at CombatEnd.
+            public PokemonInstance CaughtTarget;
         }
 
         // ── State ────────────────────────────────────────────────────────────
@@ -385,10 +391,40 @@ namespace ProjectAscendant.Combat
             // Per §3.5 — consumable AP cost is typically 0; tracked on the SO.
             // We don't read it here yet (ConsumableSO authoring varies); when
             // wired this becomes: if (c.APCost > State.CurrentAP) return true;
-            // TODO Epic 12: full ConsumableEffectSO dispatch chain.
+            // TODO Epic 12: full ConsumableEffectSO dispatch chain — only the
+            // Catch effect is dispatched below; Heal/Cure/AP/StatBoost still
+            // fall through to the generic MarkUsed path.
+            DispatchConsumableEffect(c);
+
             State.ConsumableHand.RemoveAt(handIndex);
             State.Consumables.MarkUsed(c);
             return true;
+        }
+
+        // Per Epic 8 Task 8.1.4 — only CatchConsumableEffectSO is wired here.
+        // The wild Pokémon occupies enemy slot 0 in §7.3.4 encounters; on
+        // successful catch we set CaughtTarget and clear EnemyTeam so the
+        // existing CheckOutcome path flips Outcome → Victory naturally.
+        // Failed catches (HP too high / fainted) consume the ball with no
+        // state change beyond MarkUsed (handled by caller).
+        private void DispatchConsumableEffect(ConsumableSO consumable)
+        {
+            if (consumable == null) return;
+            if (consumable.Effect is not CatchConsumableEffectSO catchEffect) return;
+
+            // Wild encounters always occupy slot 0; in trainer/boss fights
+            // a Pokéball throw would target slot 0 too and either fail (no
+            // catchable wild) or fizzle harmlessly (no-op below).
+            PokemonInstance wild = ResolveEnemySlot(0);
+            if (wild == null) return;
+
+            if (!WildCatchResolver.IsCatchable(wild, catchEffect)) return;
+
+            State.CaughtTarget = wild;
+            // Per §7.3.4.1 step 6 — combat ends; clear the enemy team so the
+            // existing IsAllFainted-driven Victory path fires on the next
+            // CheckOutcome / HandleAnyFaints invocation.
+            State.EnemyTeam.Clear();
         }
 
         // Per §3.3.1 + Epic 6 Task 6.1 — delegated to SwapManager. The action

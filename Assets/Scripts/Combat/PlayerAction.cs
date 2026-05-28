@@ -28,6 +28,11 @@ namespace ProjectAscendant.Combat
             CardIndex = handIndex,
             TargetEnemySlot = enemySlot,
         };
+        public static PlayerAction PlayConsumable(int handIndex) => new()
+        {
+            Kind = PlayerActionKind.PlayConsumable,
+            CardIndex = handIndex,
+        };
     }
 
     // Per Epic 4 Task 4.1.5 — injection point for player decisions. Tests
