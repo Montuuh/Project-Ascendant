@@ -2,7 +2,9 @@
     "name": "ProjectAscendant.Editor",
     "rootNamespace": "ProjectAscendant.Editor",
     "references": [
-        "ProjectAscendant.Core"
+        "ProjectAscendant.Core",
+        "ProjectAscendant.Combat",
+        "ProjectAscendant.Map"
     ],
     "includePlatforms": [
         "Editor"
