@@ -22,3 +22,4 @@ MonoBehaviour:
   TraumaStackCap: 5
   TraumaStacksPerFaint: 1
   BoxCapacity: 6
+  TherapyBaseCost: 100

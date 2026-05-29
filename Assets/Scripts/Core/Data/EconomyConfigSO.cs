@@ -41,5 +41,10 @@ namespace ProjectAscendant.Core
         // Per §2.3 — Box default capacity = 6, upgradable to 8 via relic/meta-unlock.
         [Tooltip("Base Box capacity. Per §2.3 — 6 by default; relic/meta raise it to 8 at runtime.")]
         public int BoxCapacity = 6;
+
+        [Header("Pokémon Center — §7.6.1 / §6.2.4")]
+        // Per §6.2.4 — Therapy removes 1 Trauma stack for TherapyBaseCost × (1 + stack count).
+        [Tooltip("Base Trauma-therapy cost. Total = this × (1 + current stacks). Per §6.2.4 — 100.")]
+        public int TherapyBaseCost = 100;
     }
 }
