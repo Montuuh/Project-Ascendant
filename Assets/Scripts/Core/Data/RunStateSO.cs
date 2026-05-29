@@ -30,6 +30,12 @@ namespace ProjectAscendant.Core
         public int PokeDollars;
         public List<BadgeSO> EarnedBadges;
 
+        // Per §7.7.1 + Epic 9 Task 9.6 — Region Shop "special slot" purchases. Held Items are
+        // equipped to Pokémon from Map View (§8.4, Loadout/Epic 13); TMs are applied once the
+        // §5.10 move pool lands (gap #36). Owned + saved here in the meantime.
+        public List<HeldItemSO> OwnedHeldItems;
+        public List<TMSO> OwnedTMs;
+
         [Header("Active Modifiers")]
         public List<RegionModifierSO> ActiveRegionModifiers;
         public LeagueBoonSO ActiveBoon;

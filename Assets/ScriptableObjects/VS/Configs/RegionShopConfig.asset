@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03a79e4624a52484eb2772b8cc761e7a, type: 3}
+  m_Name: RegionShopConfig
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.RegionShopConfigSO
+  ConsumableSlots: 3
+  ConsumablePriceMin: 30
+  ConsumablePriceMax: 100
+  CommonRelicPrice: 150
+  UncommonRelicPrice: 300
+  PokeballPrice: 50
+  HeldItemPriceMin: 250
+  HeldItemPriceMax: 500
+  RerollCosts: 190000003200000064000000
