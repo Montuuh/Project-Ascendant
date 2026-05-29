@@ -21,4 +21,4 @@ MonoBehaviour:
   TraumaStackPenaltyPercent: 5
   TraumaStackCap: 5
   TraumaStacksPerFaint: 1
-  BoxCapacity: 18
+  BoxCapacity: 6

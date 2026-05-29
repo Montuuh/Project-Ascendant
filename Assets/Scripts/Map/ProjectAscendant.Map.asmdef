@@ -2,7 +2,8 @@
     "name": "ProjectAscendant.Map",
     "rootNamespace": "ProjectAscendant.Map",
     "references": [
-        "ProjectAscendant.Core"
+        "ProjectAscendant.Core",
+        "ProjectAscendant.Combat"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

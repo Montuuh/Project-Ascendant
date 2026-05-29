@@ -38,7 +38,8 @@ namespace ProjectAscendant.Core
         public int TraumaStacksPerFaint = 1;
 
         [Header("Box Capacity")]
-        [Tooltip("Maximum Pokémon in the Box. Per §2.X.")]
-        public int BoxCapacity = 18;
+        // Per §2.3 — Box default capacity = 6, upgradable to 8 via relic/meta-unlock.
+        [Tooltip("Base Box capacity. Per §2.3 — 6 by default; relic/meta raise it to 8 at runtime.")]
+        public int BoxCapacity = 6;
     }
 }

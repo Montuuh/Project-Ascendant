@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ProjectAscendant.Core
 {
     // Per §9.4.1.1 + Task 2.2.5 — Event payload value types.
@@ -113,6 +115,23 @@ namespace ProjectAscendant.Core
             Layer    = layer;
             Lane     = lane;
             Outcome  = outcome;
+        }
+    }
+
+    // Fired when a Wild Area node offers its species choices (Epic 9 Task 9.3.2). The Map View /
+    // encounter UI renders Choices (2 Common + 1 Uncommon, or a Rare swap per §7.3.2). Pillar 1:
+    // choices are visible up-front. Published by WildAreaNodeController on entry.
+    public readonly struct WildSpeciesOfferedContext
+    {
+        public readonly int Layer;
+        public readonly int Lane;
+        public readonly IReadOnlyList<PokemonSpeciesSO> Choices;
+
+        public WildSpeciesOfferedContext(int layer, int lane, IReadOnlyList<PokemonSpeciesSO> choices)
+        {
+            Layer   = layer;
+            Lane    = lane;
+            Choices = choices;
         }
     }
 
