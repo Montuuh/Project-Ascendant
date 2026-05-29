@@ -44,6 +44,13 @@ namespace ProjectAscendant.Core
     // the serialized int values of Wild..Gym (0..5) stable for existing assets.
     public enum NodeType { Wild, Trainer, Center, Shop, Mystery, Gym, Elite }
 
+    // Per §7.2 / §9.5 + Epic 9 Task 9.2 — terminal result of a resolved map node.
+    // Maps to the HSM transition the driving NodeState issues:
+    //   Cleared    → NodeComplete (→ MapView)
+    //   RunEnded   → RunEnded     (→ RunEndState; Gym victory ends the VS run)
+    //   PlayerWiped→ GameOver     (→ GameOverState; §3.3.6 run-failure)
+    public enum NodeOutcome { Cleared, PlayerWiped, RunEnded }
+
     // Per §4.1.1 — simplified stat block: HP, Attack, Defense, Speed only.
     [Serializable]
     public struct BaseStats

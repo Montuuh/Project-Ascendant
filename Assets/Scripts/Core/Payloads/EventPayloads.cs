@@ -82,17 +82,37 @@ namespace ProjectAscendant.Core
         }
     }
 
-    // Fired when the player enters a map node.
-    // TODO: Epic 8 — replace NodeType int with NodeType enum.
+    // Fired when the player enters a map node (Epic 9 Task 9.2). Published by NodeController.Enter
+    // AFTER the save-on-entry write (§9.8.1), so subscribers see committed run state.
     public readonly struct NodeEnteredContext
     {
-        public readonly int NodeType;
-        public readonly int NodeIndex;
+        public readonly NodeType NodeType;
+        public readonly int Layer;
+        public readonly int Lane;
 
-        public NodeEnteredContext(int nodeType, int nodeIndex)
+        public NodeEnteredContext(NodeType nodeType, int layer, int lane)
         {
-            NodeType  = nodeType;
-            NodeIndex = nodeIndex;
+            NodeType = nodeType;
+            Layer    = layer;
+            Lane     = lane;
+        }
+    }
+
+    // Fired when a map node finishes resolving (Epic 9 Task 9.2). Published by NodeController.Complete.
+    // The driving NodeState reads Outcome to choose the HSM transition (see NodeOutcome).
+    public readonly struct NodeCompletedContext
+    {
+        public readonly NodeType NodeType;
+        public readonly int Layer;
+        public readonly int Lane;
+        public readonly NodeOutcome Outcome;
+
+        public NodeCompletedContext(NodeType nodeType, int layer, int lane, NodeOutcome outcome)
+        {
+            NodeType = nodeType;
+            Layer    = layer;
+            Lane     = lane;
+            Outcome  = outcome;
         }
     }
 
