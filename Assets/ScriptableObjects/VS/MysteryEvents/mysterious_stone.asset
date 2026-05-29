@@ -15,6 +15,7 @@ MonoBehaviour:
   EventId: mysterious_stone
   DisplayName: Mysterious Stone
   Icon: {fileID: 0}
+  RiskProfile: 1
   NarrativeText: A strangely glowing stone sits at the side of the path. It pulses
     with faint energy.
   Choices:

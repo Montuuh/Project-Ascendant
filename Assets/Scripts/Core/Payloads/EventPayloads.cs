@@ -135,6 +135,24 @@ namespace ProjectAscendant.Core
         }
     }
 
+    // Fired when a Mystery Event node presents its event (Epic 9 Task 9.7.2/9.7.5). The UI renders
+    // the event + its risk badge (§7.9.3). Published by MysteryEventNodeController on entry.
+    public readonly struct MysteryEventOfferedContext
+    {
+        public readonly int Layer;
+        public readonly int Lane;
+        public readonly string EventId;
+        public readonly MysteryRiskProfile RiskProfile;
+
+        public MysteryEventOfferedContext(int layer, int lane, string eventId, MysteryRiskProfile risk)
+        {
+            Layer       = layer;
+            Lane        = lane;
+            EventId     = eventId;
+            RiskProfile = risk;
+        }
+    }
+
     // Placeholder — §9.4.1.1 specifies GameEventSO<RelicSO>.
     // TODO: Epic 3 — replace with RelicSO reference once RelicSO is defined.
     public readonly struct RelicAcquiredContext

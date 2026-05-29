@@ -44,6 +44,9 @@ namespace ProjectAscendant.Core
     // the serialized int values of Wild..Gym (0..5) stable for existing assets.
     public enum NodeType { Wild, Trainer, Center, Shop, Mystery, Gym, Elite }
 
+    // Per §7.9.3 + Epic 9 Task 9.7.5 — Mystery Event risk badge (🟢 Safe / 🟡 Tradeoff / 🔴 Gamble).
+    public enum MysteryRiskProfile { Safe, Tradeoff, Gamble }
+
     // Per §7.2 / §9.5 + Epic 9 Task 9.2 — terminal result of a resolved map node.
     // Maps to the HSM transition the driving NodeState issues:
     //   Cleared    → NodeComplete (→ MapView)

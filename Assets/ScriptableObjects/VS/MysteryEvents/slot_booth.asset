@@ -15,6 +15,7 @@ MonoBehaviour:
   EventId: slot_booth
   DisplayName: Slot Booth
   Icon: {fileID: 0}
+  RiskProfile: 2
   NarrativeText: An ancient mechanical booth blocks the mountain path. Its lever
     looks well-worn.
   Choices:

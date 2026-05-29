@@ -15,6 +15,9 @@ namespace ProjectAscendant.Core
         public string DisplayName;
         public Sprite Icon;
 
+        // Per §7.9.3 / Task 9.7.5 — risk badge surfaced on the node (Safe / Tradeoff / Gamble).
+        public MysteryRiskProfile RiskProfile;
+
         [Header("Narrative")]
         [TextArea(3, 6)]
         public string NarrativeText;
