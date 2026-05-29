@@ -44,6 +44,24 @@ namespace ProjectAscendant.Core
         // CurrentHP via BossPhaseTracker — there is no stored "current phase".
         public int PhaseCount = 1;
 
+        // ── Boss-encounter runtime (Gym ace, §4.4.3 / §4.4.4.3, Task 8.5) ─────
+        // All inert for ordinary Pokémon (PhaseCount 1). Driven by
+        // CombatController's phase-transition director + ResolveDamage.
+
+        // Highest phase this Pokémon has reached this combat. Used for one-shot
+        // phase-transition detection (evolution @ Phase 2, last-stand @ Phase 3).
+        public int LastObservedPhase = 1;
+
+        // Per §4.4.3 Phase 3 — Sturdy: the ace survives the first otherwise-
+        // lethal hit at 1 HP. HasSturdy authored on the ace; consumed once.
+        public bool HasSturdy;
+        public bool SturdyConsumed;
+
+        // Per §4.4.4.3 — mid-fight evolution: the ace evolves into this species
+        // on entering Phase 2 (HP <= 50%). Null = no mid-fight evolution.
+        public PokemonSpeciesSO MidFightEvolutionTarget;
+        public bool HasEvolvedMidFight;
+
         // Called by PokemonInstanceFactory.Release() before returning to pool.
         // Clears collections in-place to avoid re-allocating them on reuse.
         public void Reset()
@@ -66,6 +84,11 @@ namespace ProjectAscendant.Core
             CurrentStage = EvolutionStage.Basic;
             SelectedBranch = default;
             PhaseCount = 1; // §4.4.3 — pooled instances default back to no-phase
+            LastObservedPhase = 1;
+            HasSturdy = false;
+            SturdyConsumed = false;
+            MidFightEvolutionTarget = null;
+            HasEvolvedMidFight = false;
         }
 
         // Per §4.3.3 — set/check/tick helpers for AI cooldown gate.

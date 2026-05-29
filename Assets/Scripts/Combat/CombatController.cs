@@ -64,6 +64,12 @@ namespace ProjectAscendant.Combat
             // return replaces the EnemyTeam contents and Outcome stays
             // InProgress (sequential trainer / boss-phase spawns).
             public IEnemyReinforcementProvider Reinforcements;
+
+            // Per §4.4.5 + Epic 8 Task 8.5.7 — run-wide Badges active this
+            // combat (sourced from RunStateSO.EarnedBadges by the run layer).
+            // Optional; null/empty = no badges. Currently consumed for the
+            // Boulder Badge's Lead incoming-damage reduction (§4.4.5.1).
+            public List<BadgeSO> ActiveBadges;
         }
 
         // Runtime state — fully describes the encounter. Public mutable for
@@ -126,6 +132,10 @@ namespace ProjectAscendant.Combat
             // WildEncounterController.ResolveOutcome to disambiguate
             // "Victory by catch" from "Victory by KO". Cleared at CombatEnd.
             public PokemonInstance CaughtTarget;
+
+            // Per §4.4.5 + Task 8.5.7 — run-wide Badges active this combat.
+            // Never null after construction.
+            public List<BadgeSO> ActiveBadges = new();
         }
 
         // ── State ────────────────────────────────────────────────────────────
@@ -163,6 +173,9 @@ namespace ProjectAscendant.Combat
                 Rng = setup.Rng,
                 Deck = new SkillDeck(_cardFactory),
                 Consumables = new ConsumablePile(),
+                ActiveBadges = setup.ActiveBadges != null
+                    ? new List<BadgeSO>(setup.ActiveBadges)
+                    : new List<BadgeSO>(),
             };
             State.Consumables.Build(State.ConsumableInventory);
             // Per Epic 5 Task 5.4.1 — extracted play pipeline. Wired with a
@@ -268,6 +281,11 @@ namespace ProjectAscendant.Combat
         public void IntentPhase()
         {
             State.CurrentPhase = Phase.IntentPhase;
+            // Per §4.4.3 / §4.4.4.3 + Task 8.5 — fire boss phase transitions
+            // (mid-fight evolution @ Phase 2, last-stand cooldown reset @
+            // Phase 3) BEFORE the boss declares intents, so the escalated form
+            // acts this turn. No-op for non-boss enemies (PhaseCount 1).
+            ProcessBossPhaseTransitions();
             State.EnemyIntents.Clear();
             for (int i = 0; i < State.EnemyTeam.Count; i++)
             {
@@ -576,9 +594,106 @@ namespace ProjectAscendant.Combat
 
             int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul);
             if (final <= 0) final = (dmg.TypeEffectiveness == 0.0) ? 0 : 1; // immune stays 0
-            target.CurrentHP = Mathf.Max(0, target.CurrentHP - final);
+
+            // Per §4.4.5.1 — Boulder Badge: flat reduction on damage INCOMING
+            // to the player's Lead (minimum 0). Applied AFTER the non-immune
+            // floor so a 1-damage hit can be reduced to 0 ("reduces all
+            // incoming damage by 1, minimum 0"). Non-Lead targets unaffected.
+            if (final > 0 && IsPlayerLead(target))
+            {
+                int reduction = SumLeadIncomingDamageReduction();
+                if (reduction > 0) final = Mathf.Max(0, final - reduction);
+            }
+
+            // Per §4.4.3 Phase 3 — Sturdy: an ace with HasSturdy survives the
+            // first otherwise-lethal hit at 1 HP, once per combat (last-stand).
+            // Robust to one-shots: does not require having "entered" Phase 3 on
+            // a prior turn. A boss already at 1 HP is not protected.
+            if (final >= target.CurrentHP && target.CurrentHP > 1
+                && target.HasSturdy && !target.SturdyConsumed)
+            {
+                target.SturdyConsumed = true;
+                target.CurrentHP = 1;
+            }
+            else
+            {
+                target.CurrentHP = Mathf.Max(0, target.CurrentHP - final);
+            }
             // Faint resolution happens after each strike chain — see HandleAnyFaints.
             HandleAnyFaints();
+        }
+
+        // Per §4.4.5.1 — true iff this instance is the player's current Lead.
+        private bool IsPlayerLead(PokemonInstance p) => p != null && p == ResolveLead();
+
+        // Per §4.4.5.1 — sum the Lead incoming-damage reduction across every
+        // active Badge (data-driven; Boulder contributes 1). 0 if none.
+        private int SumLeadIncomingDamageReduction()
+        {
+            if (State.ActiveBadges == null) return 0;
+            int sum = 0;
+            for (int i = 0; i < State.ActiveBadges.Count; i++)
+            {
+                BadgeSO b = State.ActiveBadges[i];
+                if (b != null && b.LeadIncomingDamageReduction > 0)
+                    sum += b.LeadIncomingDamageReduction;
+            }
+            return sum;
+        }
+
+        // Per §4.4.3 / §4.4.4.3 + Task 8.5 — boss phase-transition director.
+        // Runs at IntentPhase start: detects upward phase crossings (vs the
+        // instance's LastObservedPhase) and fires the one-shot transition
+        // effects. No-op for ordinary enemies (PhaseCount 1).
+        private void ProcessBossPhaseTransitions()
+        {
+            if (State.EnemyTeam == null) return;
+            for (int i = 0; i < State.EnemyTeam.Count; i++)
+            {
+                PokemonInstance e = State.EnemyTeam[i];
+                if (e == null || e.CurrentHP <= 0 || e.PhaseCount <= 1) continue;
+
+                int phase = BossPhaseTracker.CurrentPhase(e, State.Config);
+                if (phase <= e.LastObservedPhase) continue; // escalate forward only
+
+                // Entering Phase 2 (HP ≤ 50%) → mid-fight evolution (ace, once).
+                if (phase >= 2 && e.MidFightEvolutionTarget != null && !e.HasEvolvedMidFight)
+                    EvolveMidFight(e);
+
+                // Entering Phase 3 (HP ≤ 20%) → last-stand: reset cooldowns so
+                // the signature move fires without cooldown (§4.4.3).
+                if (phase >= 3)
+                    e.MoveCooldowns.Clear();
+
+                e.LastObservedPhase = phase;
+            }
+        }
+
+        // Per §4.4.4.3 — mid-fight evolution. Swaps the ace to its evolved
+        // species and preserves the HP FRACTION across the stat jump, so the
+        // evolution is a power spike (bigger effective max HP + Atk/Def) rather
+        // than an instant phase shift. Stats recompute downstream from the new
+        // Species.BaseStats; moves are unchanged in the VS.
+        private void EvolveMidFight(PokemonInstance e)
+        {
+            PokemonSpeciesSO target = e.MidFightEvolutionTarget;
+            if (target == null) return;
+            float frac = (float)e.CurrentHP / Mathf.Max(1, EffectiveMaxHP(e));
+            e.Species = target;
+            e.HasEvolvedMidFight = true;
+            int newMax = EffectiveMaxHP(e);
+            e.CurrentHP = Mathf.Clamp(Mathf.RoundToInt(newMax * frac), 1, newMax);
+        }
+
+        // MaxHP = Species.BaseStats.BaseHP + GrowthCurve.GetHPAt(Level).
+        // Mirrors IntentScorer/BossPhaseTracker; see the shared-helper TODO.
+        private static int EffectiveMaxHP(PokemonInstance p)
+        {
+            if (p == null || p.Species == null) return 1;
+            int max = p.Species.BaseStats.BaseHP;
+            if (p.Species.GrowthCurve != null)
+                max += p.Species.GrowthCurve.GetHPAt(p.Level);
+            return max <= 0 ? 1 : max;
         }
 
         private void TickStatusForAll(IList<PokemonInstance> team)

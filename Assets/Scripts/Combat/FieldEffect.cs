@@ -1,3 +1,5 @@
+using ProjectAscendant.Core;
+
 namespace ProjectAscendant.Combat
 {
     // Per §4.3.8 + Epic 4 Task 4.9 — field effect kinds. Two categories
@@ -28,10 +30,22 @@ namespace ProjectAscendant.Combat
         public FieldEffectKind Weather;
         public FieldEffectKind Terrain;
 
+        // Per §4.4.4.3 + Task 8.5.5 — a Gym Leader sets a field effect matching
+        // its type at encounter start; it persists the whole fight. The VS
+        // ships this as a PLACEHOLDER marker only: it is set, persists, and is
+        // cleared at combat end, but applies no damage multiplier yet — the
+        // mechanical effect of a type field (e.g. Rock) is unspecified in the
+        // GDD. See the ⚠ OPEN flag on §4.4.4.3 / BACKLOG gap #33.
+        // PokemonType has no "None" member, so HasGymField gates GymTypeField.
+        public bool HasGymField;
+        public PokemonType GymTypeField;
+
         public static FieldState Empty => new()
         {
             Weather = FieldEffectKind.None,
             Terrain = FieldEffectKind.None,
+            HasGymField = false,
+            GymTypeField = default,
         };
     }
 }

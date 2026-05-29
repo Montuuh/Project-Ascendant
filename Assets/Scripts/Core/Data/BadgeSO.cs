@@ -18,8 +18,17 @@ namespace ProjectAscendant.Core
         public Sprite Icon;
 
         [Header("Effect")]
-        // Per §4.4.5 — persistent run-wide effect wired via HookSubscriber in Epic 4.
+        // Per §4.4.5 — persistent run-wide effect wired via HookSubscriber.
+        // Most badge effects (Cascade draw-on-swap, Hive cycle, etc.) flow
+        // through this hook channel — the general fan-out lands with relic
+        // integration (Epic 12).
         public ScriptableHook GrantedHook;
+
+        // Per §4.4.5.1 (Boulder Badge) — flat reduction applied to all damage
+        // INCOMING to the player's Lead, minimum 0 (Boulder = 1; 0 = none).
+        // Consumed directly by CombatController.ResolveDamage in the VS rather
+        // than via the hook channel — a simple, data-driven numeric effect.
+        public int LeadIncomingDamageReduction;
 
         [TextArea(1, 3)]
         [Tooltip("Human-readable effect summary shown in the Badge case UI.")]

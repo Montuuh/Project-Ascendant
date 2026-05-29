@@ -23,12 +23,17 @@ namespace ProjectAscendant.Combat
         public List<RelicSO> RelicDrops;
         public List<ConsumableSO> ConsumableDrops;
 
+        // Per §4.4.5 / §7.12 + Task 8.5.6 — Gym Leaders award a Badge. Empty
+        // for standard trainers / Elites (only Gym victories populate it).
+        public List<BadgeSO> BadgeAwards;
+
         public static TrainerRewardBundle Empty => new()
         {
             TrainerXP = 0,
             PokeDollars = 0,
             RelicDrops = new List<RelicSO>(),
             ConsumableDrops = new List<ConsumableSO>(),
+            BadgeAwards = new List<BadgeSO>(),
         };
     }
 }
