@@ -7,7 +7,8 @@
         "ProjectAscendant.Core",
         "ProjectAscendant.Combat",
         "ProjectAscendant.Deck",
-        "ProjectAscendant.Progression"
+        "ProjectAscendant.Progression",
+        "ProjectAscendant.Map"
     ],
     "includePlatforms": [
         "Editor"

@@ -40,7 +40,9 @@ namespace ProjectAscendant.Core
     public enum AbilityCategory { Combat, Vision, Positional, Type, Survival, Aura, Support }
 
     // Per §3.1.20 / §9.5 — node types for map generation weights.
-    public enum NodeType { Wild, Trainer, Center, Shop, Mystery, Gym }
+    // Per §7.2.1 — Elite is a distinct map node (always Layer 3). Appended last to keep
+    // the serialized int values of Wild..Gym (0..5) stable for existing assets.
+    public enum NodeType { Wild, Trainer, Center, Shop, Mystery, Gym, Elite }
 
     // Per §4.1.1 — simplified stat block: HP, Attack, Defense, Speed only.
     [Serializable]
