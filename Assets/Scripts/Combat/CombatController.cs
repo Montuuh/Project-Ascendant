@@ -468,17 +468,19 @@ namespace ProjectAscendant.Combat
         {
             State.CurrentPhase = Phase.ResolutionPhase;
 
-            // Per §4.3.6 — execute enemy intents in declared order.
-            // Supports-first ordering is implicit: tests / encounter setup
-            // determine the EnemyTeam order, and intents resolve in that
-            // order. Multi-enemy regional tuning lands in Epic 8.
-            for (int i = 0; i < State.EnemyIntents.Count && i < State.EnemyTeam.Count; i++)
-            {
-                PokemonInstance enemy = State.EnemyTeam[i];
-                if (enemy == null || enemy.CurrentHP <= 0) continue;
-                ExecuteEnemyIntent(enemy, State.EnemyIntents[i]);
-                if (State.Outcome != CombatOutcome.InProgress) return;
-            }
+            // Per §4.3.6 + Epic 8 Task 8.6 — multi-enemy resolution order:
+            // SUPPORTS first (slots 1..N, in slot order), then the LEAD enemy
+            // (slot 0) LAST. Convention: enemy slot 0 is the Lead enemy; higher
+            // slots are supports (Healer/Buffer/Debuffer/Attacker — full
+            // support AI is a Region-3 accent, so the VS only proves the
+            // ordering + per-enemy targeting architecture). Single-enemy
+            // encounters (wild/trainer/Elite/Gym) have only slot 0, so this is
+            // identical to the old list-order resolution for them.
+            int n = State.EnemyIntents.Count < State.EnemyTeam.Count
+                ? State.EnemyIntents.Count : State.EnemyTeam.Count;
+            for (int i = 1; i < n; i++)
+                if (!ResolveEnemyIntentAt(i)) return; // a support changed outcome
+            if (n > 0 && !ResolveEnemyIntentAt(0)) return; // Lead enemy last
 
             // Status DoT + duration ticks for every Pokémon on both sides.
             TickStatusForAll(State.PlayerTeam);
@@ -490,6 +492,17 @@ namespace ProjectAscendant.Combat
             TickCooldownsForAll(State.EnemyTeam);
             // DoT can cause faints — check.
             HandleAnyFaints();
+        }
+
+        // Per §4.3.6 + Task 8.6 — resolve one enemy's intent by slot index.
+        // Returns true to continue the resolution sequence, false if combat
+        // ended (caller stops). A fainted/empty slot is skipped (returns true).
+        private bool ResolveEnemyIntentAt(int i)
+        {
+            PokemonInstance enemy = State.EnemyTeam[i];
+            if (enemy == null || enemy.CurrentHP <= 0) return true;
+            ExecuteEnemyIntent(enemy, State.EnemyIntents[i]);
+            return State.Outcome == CombatOutcome.InProgress;
         }
 
         private void ExecuteEnemyIntent(PokemonInstance enemy, Intent intent)
