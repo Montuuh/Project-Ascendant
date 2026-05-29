@@ -131,6 +131,28 @@ namespace ProjectAscendant.Core
                  "active (full intent pool revealed). Per §4.3.5 + Epic 4.7.7.")]
         public float BossCounterIntelTopPenalty = 0.7f;
 
+        // ── Boss / Elite Phase Structure — §4.4.3 + Epic 8 Tasks 8.4 / 8.5 ────
+        // HP-fraction thresholds at which a multi-phase boss escalates. These
+        // are universal across all boss-tier Pokémon (§4.4.3 standard template);
+        // a Pokémon participates only if its PokemonInstance.PhaseCount > 1.
+        [Header("Boss Phase Structure — §4.4.3")]
+
+        [Range(0f, 1f)]
+        [Tooltip("HP fraction at/under which a 2+ phase boss enters Phase 2 " +
+                 "(aggressive). Per §4.4.3 standard two-phase template.")]
+        public float BossPhase2HPThreshold = 0.5f;
+
+        [Range(0f, 1f)]
+        [Tooltip("HP fraction at/under which a 3-phase ace enters Phase 3 " +
+                 "(last-stand). Per §4.4.3 three-phase template. Consumed by " +
+                 "the Gym ace in Task 8.5; harmless for 2-phase Elites.")]
+        public float BossPhase3HPThreshold = 0.2f;
+
+        [Tooltip("Score multiplier applied to a boss's offensive intents while " +
+                 "in an aggressive phase (Phase 2+). Per §4.4.3 — 'plays " +
+                 "urgently and aggressively.' Mirrors AggressiveSelfMultiplier.")]
+        public float BossPhaseAggressionMultiplier = 1.5f;
+
         // ── Field Effects — §4.3.8 + Epic 4 Task 4.9 ──────────────────────────
         // Weather and Terrain are independent (§4.8.2). Multipliers stack
         // multiplicatively across categories.

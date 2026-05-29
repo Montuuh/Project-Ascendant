@@ -36,6 +36,14 @@ namespace ProjectAscendant.Core
         // Per §5.3.3 — SO reference to the chosen branch; null until first evolution.
         public EvolutionBranchSO SelectedBranch;
 
+        // Per §4.4.3 — boss/Elite multi-phase depth. 1 (default) = no phase
+        // behaviour: ordinary wild/trainer Pokémon never escalate. 2 = the
+        // standard two-phase template (Elite Trainers, §7.5.1). 3 = ace
+        // three-phase template (Gym aces, Epic 8 Task 8.5). Set at materialise
+        // time by the encounter controller; phases themselves are derived from
+        // CurrentHP via BossPhaseTracker — there is no stored "current phase".
+        public int PhaseCount = 1;
+
         // Called by PokemonInstanceFactory.Release() before returning to pool.
         // Clears collections in-place to avoid re-allocating them on reuse.
         public void Reset()
@@ -57,6 +65,7 @@ namespace ProjectAscendant.Core
             MoveCooldowns.Clear();
             CurrentStage = EvolutionStage.Basic;
             SelectedBranch = default;
+            PhaseCount = 1; // §4.4.3 — pooled instances default back to no-phase
         }
 
         // Per §4.3.3 — set/check/tick helpers for AI cooldown gate.

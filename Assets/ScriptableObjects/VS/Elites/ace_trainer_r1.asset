@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55982a9421b56f848849c8aa798bdfca, type: 3}
+  m_Name: ace_trainer_r1
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EliteTrainerSO
+  EliteId: ace_trainer_r1
+  DisplayName: Ace Trainer
+  TrainerSprite: {fileID: 0}
+  TacticalIdentity: "No type lock \u2014 fields evolved Pok\xE9mon of mixed types.
+    Pidgeotto opens with tempo chip and Feather Dance to shred Attack; Ivysaur sets
+    up with Leech Seed / status, then escalates. At or below 50% HP each Pok\xE9mon
+    abandons setup and presses for damage (Phase 2)."
+  Composition:
+  - Species: {fileID: 11400000, guid: 262430a8c293ae84298046d92ee493aa, type: 2}
+    Level: 12
+    PhaseCount: 2
+  - Species: {fileID: 11400000, guid: cd2d3cba28dcbb34f9d34f259b0e42a0, type: 2}
+    Level: 13
+    PhaseCount: 2
+  GuaranteedRelic: {fileID: 11400000, guid: 210755303810de84d84a200e72b9fb0f, type: 2}
+  TrainerXPReward: 25
+  PokeDollarReward: 300
+  GDDReference: "\xA77.5.1 | R1 Elite \u2014 bespoke Ace Trainer, no type lock, 2\xD72-phase.
+    See \u26A0 OPEN gap #31 (Ace Trainer pool R3-only)."

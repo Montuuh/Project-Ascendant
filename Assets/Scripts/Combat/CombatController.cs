@@ -315,12 +315,19 @@ namespace ProjectAscendant.Combat
             if (candidates.Count == 0)
                 return new Intent { Kind = IntentKind.Stall, Reveal = IntentReveal.Witnessed };
 
+            // Per §4.4.3 + Epic 8 Task 8.4 — a multi-phase enemy (PhaseCount > 1)
+            // becomes aggressive once its HP crosses BossPhase2HPThreshold.
+            // BossPhaseTracker returns Phase 1 for ordinary Pokémon, so this is
+            // a no-op for wild/standard-trainer encounters.
+            bool phaseAggressive = BossPhaseTracker.IsAggressivePhase(enemy, State.Config);
+
             IntentScorer.Context ctx = new()
             {
                 Attacker = enemy,
                 PlayerTeam = State.PlayerTeam,
                 Config = State.Config,
-                BossCounterIntelActive = false, // Epic 8 will wire boss state
+                BossCounterIntelActive = false, // counter-intel wired with Gym boss (Task 8.5)
+                PhaseAggressive = phaseAggressive,
             };
             return IntentScorer.PickIntent(candidates, ctx, State.Rng);
         }

@@ -23,13 +23,20 @@ namespace ProjectAscendant.Combat
     //                      (Move.CooldownTurns > 0 + set on use by
     //                      CombatController). 1 otherwise. Authored on
     //                      signature/ultimate boss/elite moves per §4.3.3.
+    //   • PhaseAggression— ×Config.BossPhaseAggressionMultiplier on offensive
+    //                      intents when ctx.PhaseAggressive (boss/Elite in
+    //                      Phase 2+, §4.4.3 — "plays urgently and aggressively").
+    //                      1.0 otherwise. Default off → ordinary encounters
+    //                      score exactly as before.
     //
     // Selection (§4.3.3 randomness floor):
     //   PickIntent runs all candidate scores → ranks descending → with
     //   Config.RandomnessFloorChance probability picks a weighted-random
     //   non-top intent instead. Disabled when BossCounterIntelActive is true
     //   (in that mode the top score is reduced by BossCounterIntelTopPenalty
-    //   first, then the top is selected deterministically).
+    //   first, then the top is selected deterministically). Also disabled when
+    //   PhaseAggressive is true — an aggressive-phase boss commits to its top
+    //   pick rather than hedging (§4.4.3 — "plays urgently").
     //
     // RNG: PickIntent takes a GameRNG (CombatRNG stream per §9.7.2). Score
     // alone is RNG-free.
@@ -41,6 +48,7 @@ namespace ProjectAscendant.Combat
             public IReadOnlyList<PokemonInstance> PlayerTeam; // [0]=Lead, [1..]=Bench
             public BattleConfigSO Config;
             public bool BossCounterIntelActive;               // §4.3.5
+            public bool PhaseAggressive;                      // §4.4.3 Phase 2+
         }
 
         // Per §4.3.3 — full scoring formula. Returns 0 for malformed inputs
@@ -65,7 +73,10 @@ namespace ProjectAscendant.Combat
             float cooldownGate = CooldownGate(intent, ctx.Attacker);
             if (cooldownGate == 0f) return 0f;
 
-            return baseWeight * typeEff * statusState * hpState * cooldownGate;
+            float phaseAggression = PhaseAggressionMultiplier(intent, ctx);
+
+            return baseWeight * typeEff * statusState * hpState * cooldownGate
+                 * phaseAggression;
         }
 
         // Per §4.3.3 — selection function. Pure given (candidates, ctx, rng).
@@ -101,8 +112,10 @@ namespace ProjectAscendant.Combat
 
             // Per §4.3.3 — randomness floor: with RandomnessFloorChance, pick
             // a weighted-random NON-TOP candidate. Requires >= 2 candidates with
-            // > 0 non-top score.
-            float floorChance = ctx.Config != null ? ctx.Config.RandomnessFloorChance : 0f;
+            // > 0 non-top score. Per §4.4.3 — an aggressive-phase boss does not
+            // hedge: it commits to the top pick, so the floor is suppressed.
+            float floorChance = (ctx.Config != null && !ctx.PhaseAggressive)
+                ? ctx.Config.RandomnessFloorChance : 0f;
             if (rng != null && floorChance > 0f && candidates.Count >= 2)
             {
                 if (rng.Range01() < floorChance)
@@ -196,6 +209,20 @@ namespace ProjectAscendant.Combat
                 mod *= cfg.SetupSelfMultiplier;
 
             return mod;
+        }
+
+        // Per §4.4.3 — Phase 2+ aggression bias. An aggressive-phase boss
+        // weights its OFFENSIVE intents up by BossPhaseAggressionMultiplier so
+        // it favours pressing damage over setup/utility ("plays urgently and
+        // aggressively"). 1.0 when not aggressive or for non-offensive intents
+        // — so ordinary encounters (PhaseAggressive == false) are unaffected.
+        private static float PhaseAggressionMultiplier(Intent intent, in Context ctx)
+        {
+            if (!ctx.PhaseAggressive || ctx.Config == null) return 1f;
+            bool isOffensive = intent.Kind == IntentKind.Attack
+                            || intent.Kind == IntentKind.Cleave
+                            || intent.Kind == IntentKind.Backstrike;
+            return isOffensive ? ctx.Config.BossPhaseAggressionMultiplier : 1f;
         }
 
         // Per §4.3.3 — 0 if the attacker has this move on cooldown, 1 otherwise.
