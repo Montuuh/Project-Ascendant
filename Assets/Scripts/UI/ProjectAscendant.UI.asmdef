@@ -2,7 +2,11 @@
     "name": "ProjectAscendant.UI",
     "rootNamespace": "ProjectAscendant.UI",
     "references": [
-        "ProjectAscendant.Core"
+        "ProjectAscendant.Core",
+        "ProjectAscendant.Map",
+        "ProjectAscendant.Combat",
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

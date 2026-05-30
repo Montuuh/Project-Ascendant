@@ -181,7 +181,7 @@ MonoBehaviour:
   _runSeed: 20260529
   _starterIndex: 2
   _starterLevel: 5
-  _devAutoRunOnBoot: 1
+  _devAutoRunOnBoot: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

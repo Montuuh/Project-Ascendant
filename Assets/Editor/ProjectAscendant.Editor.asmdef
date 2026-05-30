@@ -4,7 +4,8 @@
     "references": [
         "ProjectAscendant.Core",
         "ProjectAscendant.Combat",
-        "ProjectAscendant.Map"
+        "ProjectAscendant.Map",
+        "ProjectAscendant.UI"
     ],
     "includePlatforms": [
         "Editor"
