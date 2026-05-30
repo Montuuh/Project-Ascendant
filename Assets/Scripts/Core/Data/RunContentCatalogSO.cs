@@ -17,6 +17,7 @@ namespace ProjectAscendant.Core
         public WildEncounterConfigSO WildConfig;
         public RegionShopConfigSO ShopConfig;
         public MysteryConfigSO MysteryConfig;
+        public BattleConfigSO BattleConfig;
 
         [Header("Key Consumables")]
         public ConsumableSO Pokeball;

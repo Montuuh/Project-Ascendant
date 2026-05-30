@@ -20,6 +20,7 @@ namespace ProjectAscendant.Map
         // ── Global config ────────────────────────────────────────────────────
         public EconomyConfigSO Economy;
         public MapGenerationConfigSO MapConfig;
+        public BattleConfigSO BattleConfig; // combat tuning (used when launching real fights)
 
         // ── Wild (9.3) ───────────────────────────────────────────────────────
         public WildEncounterConfigSO WildConfig;

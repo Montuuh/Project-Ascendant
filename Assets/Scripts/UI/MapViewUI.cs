@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using ProjectAscendant.Core;
 using ProjectAscendant.Map;
+using ProjectAscendant.Combat;
 
 namespace ProjectAscendant.UI
 {
@@ -20,6 +21,8 @@ namespace ProjectAscendant.UI
     {
         private RunController _run;
         private RunStateSO _state;
+        private RunContext _ctx;
+        private CombatScreenUI _combat;
 
         private Text _header;
         private Text _log;
@@ -37,6 +40,11 @@ namespace ProjectAscendant.UI
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             _run = Services.Has<RunController>() ? Services.Get<RunController>() : null;
             _state = Services.Has<RunStateSO>() ? Services.Get<RunStateSO>() : null;
+            _ctx = Services.Has<RunContext>() ? Services.Get<RunContext>() : null;
+
+            _combat = new GameObject("CombatScreen").AddComponent<CombatScreenUI>();
+            _combat.transform.SetParent(transform, false);
+
             BuildChrome();
             Refresh();
         }
@@ -150,12 +158,80 @@ namespace ProjectAscendant.UI
         private void OnNodeClicked(MapNode node)
         {
             _run.EnterNode(node);
-            string detail = RunAutoPilot.Detail(_run.ActiveNode);
-            string outcome = RunAutoPilot.ResolveActive(_run);
+            NodeController active = _run.ActiveNode;
+
+            // Combat node → open the interactive combat screen; utility node → auto-resolve.
+            CombatController cc = TryBuildCombat(active);
+            if (cc != null && _combat != null)
+            {
+                AppendLog($"L{node.Layer} {node.NodeType} — combat begins…");
+                _combat.Begin(cc, outcome => OnCombatComplete(node, active, cc, outcome));
+                return;
+            }
+
+            string detail = RunAutoPilot.Detail(active);
+            string res = RunAutoPilot.ResolveActive(_run);
             _run.CompleteActiveNode();
             _visited.Add(node);
-            AppendLog($"L{node.Layer} {node.NodeType}: {detail}  →  {outcome}");
+            AppendLog($"L{node.Layer} {node.NodeType}: {detail}  →  {res}");
             Refresh();
+        }
+
+        private void OnCombatComplete(MapNode node, NodeController active, CombatController cc, CombatController.CombatOutcome outcome)
+        {
+            ResolveCombatNode(active, cc.State.CaughtTarget, outcome);
+            _run.CompleteActiveNode();
+            _visited.Add(node);
+            AppendLog($"L{node.Layer} {node.NodeType}: combat {outcome}");
+            Refresh();
+        }
+
+        // Builds an interactive CombatController for a combat node, or null for utility nodes / no team.
+        private CombatController TryBuildCombat(NodeController active)
+        {
+            if (_ctx == null || _ctx.BattleConfig == null) return null;
+            List<PokemonInstance> team = BuildPlayerTeam(out int leadIndex);
+            if (team.Count == 0) return null;
+
+            List<ConsumableSO> inv = _state != null && _state.Inventory != null ? _state.Inventory : new List<ConsumableSO>();
+            BattleConfigSO cfg = _ctx.BattleConfig;
+            GameRNG rng = _ctx.Streams.CombatRNG;
+
+            CombatController.CombatSetup setup;
+            switch (active)
+            {
+                case TrainerBattleNodeController t: setup = t.BuildCombat(team, leadIndex, inv, FieldState.Empty, cfg, rng); break;
+                case EliteNodeController e:         setup = e.BuildCombat(team, leadIndex, inv, FieldState.Empty, cfg, rng); break;
+                case GymNodeController g:           setup = g.BuildCombat(team, leadIndex, inv, cfg, rng); break;
+                case WildAreaNodeController w:      setup = w.SelectSpecies(0, team, leadIndex, inv, FieldState.Empty, cfg, rng); break;
+                default: return null; // Center / Shop / Mystery
+            }
+            if (setup.EnemyTeam == null || setup.EnemyTeam.Count == 0) return null;
+            return new CombatController(setup, new UIPlayerAgent());
+        }
+
+        private void ResolveCombatNode(NodeController active, PokemonInstance caught, CombatController.CombatOutcome outcome)
+        {
+            switch (active)
+            {
+                case WildAreaNodeController w:      w.ResolveCombat(outcome, caught); break;
+                case TrainerBattleNodeController t: t.ResolveCombat(outcome); break;
+                case EliteNodeController e:         e.ResolveCombat(outcome); break;
+                case GymNodeController g:           g.ResolveCombat(outcome); break;
+            }
+        }
+
+        private List<PokemonInstance> BuildPlayerTeam(out int leadIndex)
+        {
+            List<PokemonInstance> team = new();
+            leadIndex = 0;
+            if (_ctx?.Box == null) return team;
+            if (_state?.ActiveTeamIndices != null)
+                foreach (int idx in _state.ActiveTeamIndices)
+                    if (idx >= 0 && idx < _ctx.Box.Members.Count) team.Add(_ctx.Box.Members[idx]);
+            if (team.Count == 0 && _ctx.Box.Members.Count > 0) team.Add(_ctx.Box.Members[0]);
+            if (_state != null) leadIndex = Mathf.Clamp(_state.LeadIndex, 0, Mathf.Max(0, team.Count - 1));
+            return team;
         }
 
         private void UpdateHeader()

@@ -25,6 +25,7 @@ namespace ProjectAscendant.EditorSetup
             catalog.WildConfig = First<WildEncounterConfigSO>();
             catalog.ShopConfig = First<RegionShopConfigSO>();
             catalog.MysteryConfig = First<MysteryConfigSO>();
+            catalog.BattleConfig = First<BattleConfigSO>();
             catalog.Pokeball = ByName<ConsumableSO>("pokeball");
             catalog.Potion = ByName<ConsumableSO>("potion");
             catalog.Archetypes = All<TrainerArchetypeSO>();

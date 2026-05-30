@@ -31,11 +31,21 @@ namespace ProjectAscendant.Map
         }
 
         // Seeds the Box with one starter and commits it as the Active Team (so a real team exists
-        // before the first node). Returns the created instance.
+        // before the first node). Copies the species learnset into CurrentMoves (the factory does
+        // not auto-fill them) so the starter has cards to play in real combat. Returns the instance.
         public static PokemonInstance SeedStarter(RunContext context, PokemonSpeciesSO starter, int level)
         {
             if (context == null || starter == null) return null;
             PokemonInstance inst = context.PokemonFactory.Create(starter, level);
+
+            // Per §3.7 — active 4 moves. Mirror the encounter controllers: copy BaseLearnset (cap 4).
+            if (starter.BaseLearnset != null)
+            {
+                int max = starter.BaseLearnset.Count < 4 ? starter.BaseLearnset.Count : 4;
+                for (int i = 0; i < max; i++)
+                    if (starter.BaseLearnset[i] != null) inst.CurrentMoves.Add(starter.BaseLearnset[i]);
+            }
+
             context.Box.Members.Add(inst);
             context.Loadout.Confirm(new List<int> { 0 }, 0);
             return inst;
@@ -56,6 +66,7 @@ namespace ProjectAscendant.Map
                 Streams = streams,
                 Economy = catalog.Economy,
                 MapConfig = catalog.MapConfig,
+                BattleConfig = catalog.BattleConfig,
                 WildConfig = catalog.WildConfig,
                 Pokeball = catalog.Pokeball,
                 BoxOverflow = new AutoSkipBoxOverflowHandler(),
