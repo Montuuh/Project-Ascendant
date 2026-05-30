@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afe1a743e72efdf43ab28d891b6ad637, type: 3}
+  m_Name: RunContentCatalog
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.RunContentCatalogSO
+  MapConfig: {fileID: 11400000, guid: 8d7ec97330c4d8f43852e2e81390f0a1, type: 2}
+  Economy: {fileID: 11400000, guid: edee54393c19c184fb4f9c28f58c7fb5, type: 2}
+  WildConfig: {fileID: 11400000, guid: 49535f3a53031804ca12d324bf71d7e8, type: 2}
+  ShopConfig: {fileID: 11400000, guid: 2c8f871743602d148b9bb5e495eb505c, type: 2}
+  MysteryConfig: {fileID: 11400000, guid: 262d4651d7ebd9f47b19164cb75ee364, type: 2}
+  Pokeball: {fileID: 11400000, guid: ac33e7b6df06bd148a5d09b787aa0d25, type: 2}
+  Potion: {fileID: 11400000, guid: 783619d0328dc384badc1785f81c1663, type: 2}
+  Archetypes:
+  - {fileID: 11400000, guid: 8a56790082037ce43b59430f15b5dc79, type: 2}
+  - {fileID: 11400000, guid: 358ba6f9525862b429866be04f57b1dd, type: 2}
+  - {fileID: 11400000, guid: 968089b2d9e448d49815fd53ae06372d, type: 2}
+  - {fileID: 11400000, guid: 39dd3126e7666294e9f1f73824273091, type: 2}
+  Elite: {fileID: 11400000, guid: 5b65b62b9f18fc048a43a335c91f8989, type: 2}
+  Gym: {fileID: 11400000, guid: b72354f1957721b4194cc3695f812086, type: 2}
+  MysteryEvents:
+  - {fileID: 11400000, guid: f6373771effc199479fd7fee70a86beb, type: 2}
+  - {fileID: 11400000, guid: 48f594a316f5c5049b69115d3273a52e, type: 2}
+  - {fileID: 11400000, guid: 01bfc595eedef7a4fae396036f74d9df, type: 2}
+  - {fileID: 11400000, guid: d9cc4ebb04d0e48479679fc02a26bc0f, type: 2}
+  Relics:
+  - {fileID: 11400000, guid: e0ea5e854f7558747a69dbff6508455a, type: 2}
+  - {fileID: 11400000, guid: 05b6611d5daa1744dbe47e0a9033a24b, type: 2}
+  - {fileID: 11400000, guid: 668fac1e80ffca845be73f102f3c8121, type: 2}
+  - {fileID: 11400000, guid: fe730114033a9304db3bfdf5ef4d2d1d, type: 2}
+  - {fileID: 11400000, guid: 244257f4fa0c9204ea40cd8507e785fa, type: 2}
+  - {fileID: 11400000, guid: 547e66e28e15fdc40ae98c362d8e69e6, type: 2}
+  - {fileID: 11400000, guid: 0a223d2a98548804a9f6776c821308cb, type: 2}
+  - {fileID: 11400000, guid: 6ba271f8359227144980cf6c9e593142, type: 2}
+  - {fileID: 11400000, guid: aacfd411e8f698448bd13624089e23da, type: 2}
+  - {fileID: 11400000, guid: f93ca118023868f46957a019725c3c01, type: 2}
+  - {fileID: 11400000, guid: ec7c5f08efc08e047a1b1971f967b2e5, type: 2}
+  - {fileID: 11400000, guid: ffeab1a8df615da4ea4468fb4b26507a, type: 2}
+  - {fileID: 11400000, guid: 5131035613d00a445b7d3ca655ef46e5, type: 2}
+  - {fileID: 11400000, guid: d07ddd3f841096c47a8f1cf07c4aa980, type: 2}
+  - {fileID: 11400000, guid: 210755303810de84d84a200e72b9fb0f, type: 2}
+  - {fileID: 11400000, guid: eae67cd03b96de74a8d8021c16fdbfb0, type: 2}
+  Consumables:
+  - {fileID: 11400000, guid: a267882c346dc7441904e22909bf894d, type: 2}
+  - {fileID: 11400000, guid: 18131bb88fadc814b8c9e4bda900bb7c, type: 2}
+  - {fileID: 11400000, guid: 38c47ce11320cc74c858cae149fa708a, type: 2}
+  - {fileID: 11400000, guid: ae69b7dc45f538d448e59b68026e4f96, type: 2}
+  - {fileID: 11400000, guid: 5f4e7d4f0bb8a54489fd40531165739d, type: 2}
+  - {fileID: 11400000, guid: 6b0bc37052451a64394e50736786d58b, type: 2}
+  - {fileID: 11400000, guid: ac33e7b6df06bd148a5d09b787aa0d25, type: 2}
+  - {fileID: 11400000, guid: 783619d0328dc384badc1785f81c1663, type: 2}
+  - {fileID: 11400000, guid: 4310b7e494db6e34d90b0aa8b98582e8, type: 2}
+  - {fileID: 11400000, guid: 323d72106c41880489eaeae819c0039b, type: 2}
+  HeldItems:
+  - {fileID: 11400000, guid: dddb4f55e9bfb4c4995f9cdfe8f7402d, type: 2}
+  - {fileID: 11400000, guid: 33640aebfe4413d4da2dc41b02df6bfe, type: 2}
+  - {fileID: 11400000, guid: 2c74a757f70f0f143816cec748bda7ae, type: 2}
+  - {fileID: 11400000, guid: 288f1dc1655021a46b04102888d5105c, type: 2}
+  - {fileID: 11400000, guid: 2246837e5c87c9648ad545aedb22b95f, type: 2}
+  TMs:
+  - {fileID: 11400000, guid: 7b19fcebc3d6d9e438cc325f4c6b756c, type: 2}
+  - {fileID: 11400000, guid: c70b5acbd2c90894f9e2437285b23770, type: 2}
+  - {fileID: 11400000, guid: 7be2d37705f40994980c0c1ec912baa9, type: 2}
+  Starters:
+  - {fileID: 11400000, guid: b42f51e93511fce49a83cba53bb9a950, type: 2}
+  - {fileID: 11400000, guid: d927744b0275cfa4fa5bd7fb5c930741, type: 2}
+  - {fileID: 11400000, guid: a5daa42abd8de2f48b990e62883762fa, type: 2}

@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1531235010}
   - component: {fileID: 1531235009}
+  - component: {fileID: 1531235011}
   m_Layer: 0
   m_Name: Bootstrap
   m_TagString: Untagged
@@ -164,6 +165,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1531235011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1531235008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc4434901c61eee4faa7b4408c790372, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectAscendant.Map::ProjectAscendant.Map.RunLauncher
+  _catalog: {fileID: 11400000, guid: 16eb59bc5d6fb7746a0a7016fcf5b4f3, type: 2}
+  _runSeed: 20260529
+  _starterIndex: 2
+  _starterLevel: 5
+  _devAutoRunOnBoot: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
