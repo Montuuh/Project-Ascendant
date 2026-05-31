@@ -23,9 +23,9 @@ namespace ProjectAscendant.UI
         private Font _font;
         private GameObject _root;
 
-        private Text _header, _playerInfo, _enemyInfo, _enemyIntent, _banner;
-        private Image _playerHp, _enemyHp;
-        private RectTransform _hand, _consumables;
+        private Text _header, _enemyInfo, _enemyIntent, _banner;
+        private Image _enemyHp;
+        private RectTransform _hand, _consumables, _playerTeam;
         private GameObject _endTurn, _continue;
 
         public void Begin(CombatController cc, Action<CombatController.CombatOutcome> onComplete)
@@ -93,10 +93,11 @@ namespace ProjectAscendant.UI
 
             _header = Txt(_root.transform, "", 26, Color.white, Top(), new Vector2(0, -36), new Vector2(1500, 40));
 
-            // Player panel (left).
-            Img(_root.transform, new Color(0.13f, 0.18f, 0.16f, 1f)).rectTransform.also(rt => Place(rt, Mid(), new Vector2(-430, 230), new Vector2(620, 230)));
-            _playerInfo = Txt(_root.transform, "", 24, new Color(0.85f, 0.95f, 0.85f), Mid(), new Vector2(-430, 300), new Vector2(580, 90));
-            _playerHp = HpBar(_root.transform, new Vector2(-430, 215), new Vector2(560, 30));
+            // Player team column (left) — Lead + bench rows, rebuilt each Refresh.
+            GameObject ptGO = new("PlayerTeam", typeof(RectTransform));
+            ptGO.transform.SetParent(_root.transform, false);
+            _playerTeam = (RectTransform)ptGO.transform;
+            Place(_playerTeam, Mid(), new Vector2(-430, 150), new Vector2(660, 440));
 
             // Enemy panel (right).
             Img(_root.transform, new Color(0.20f, 0.13f, 0.14f, 1f)).rectTransform.also(rt => Place(rt, Mid(), new Vector2(430, 230), new Vector2(620, 230)));
@@ -134,9 +135,8 @@ namespace ProjectAscendant.UI
 
             _header.text = $"Turn {s.TurnNumber}      AP {s.CurrentAP}/{s.Config.MaxAPPerTurn}      Phase {s.CurrentPhase}";
 
-            PokemonInstance lead = s.PlayerTeam.Count > 0 ? s.PlayerTeam[Mathf.Clamp(s.LeadIndex, 0, s.PlayerTeam.Count - 1)] : null;
             PokemonInstance enemy = s.EnemyTeam.Count > 0 ? s.EnemyTeam[0] : null;
-            SetMon(_playerInfo, _playerHp, "YOU", lead, false);
+            BuildPlayerPanel(s, over);
             SetMon(_enemyInfo, _enemyHp, "ENEMY", enemy, true);
 
             // Enemy intent (telegraphed).
@@ -173,6 +173,76 @@ namespace ProjectAscendant.UI
             info.text = $"{who}:  {p.Species.DisplayName ?? p.Species.name}   Lv{p.Level}\nHP {p.CurrentHP} / {max}{status}";
         }
 
+        // Per §3.3 + Epic 6 — the active team (Lead + bench). Pillar 2 ("every swap is a
+        // decision"): bench Pokémon show a ⇄ SWAP button with the live AP cost ladder
+        // (1st=1, 2nd=2, 3rd=3 AP per §3.3.1), gated by SwapManager (Frozen-lock + AP).
+        private void BuildPlayerPanel(CombatController.CombatState s, bool over)
+        {
+            for (int i = _playerTeam.childCount - 1; i >= 0; i--) Destroy(_playerTeam.GetChild(i).gameObject);
+
+            int n = s.PlayerTeam.Count;
+            if (n == 0) return;
+            int lead = Mathf.Clamp(s.LeadIndex, 0, n - 1);
+            int swapCost = SwapManager.NextSwapCost(s.SwapCounter);
+
+            // Lead first, then the bench in slot order.
+            List<int> order = new() { lead };
+            for (int i = 0; i < n; i++) if (i != lead) order.Add(i);
+
+            const float rowH = 112f, gap = 14f;
+            float y = 200f; // top of the column, relative to the container centre
+            foreach (int slot in order)
+            {
+                BuildMonRow(s.PlayerTeam[slot], slot, slot == lead, s, over, swapCost, new Vector2(0, y));
+                y -= rowH + gap;
+            }
+        }
+
+        private void BuildMonRow(PokemonInstance p, int slot, bool isLead, CombatController.CombatState s,
+                                 bool over, int swapCost, Vector2 pos)
+        {
+            bool fainted = p != null && p.CurrentHP == 0;
+            Color bg = isLead ? new Color(0.16f, 0.26f, 0.19f, 1f)
+                     : fainted ? new Color(0.18f, 0.13f, 0.14f, 1f)
+                               : new Color(0.13f, 0.16f, 0.18f, 1f);
+            Image panel = Img(_playerTeam, bg);
+            Place(panel.rectTransform, Mid(), pos, new Vector2(640, 104));
+            if (isLead) Border(panel.gameObject, new Color(0.35f, 0.95f, 0.5f));
+
+            string name = p?.Species != null ? (p.Species.DisplayName ?? p.Species.name) : "—";
+            int max = p != null ? PokemonVitals.MaxHP(p) : 0;
+            int hp = p?.CurrentHP ?? 0;
+            string st = p != null && p.PrimaryStatus != StatusCondition.None ? $"  [{p.PrimaryStatus}]" : "";
+            string tag = isLead ? "▶ LEAD" : fainted ? "✖ FAINTED" : "BENCH";
+            Color nameCol = fainted ? new Color(0.62f, 0.5f, 0.5f) : new Color(0.92f, 0.97f, 0.92f);
+
+            Txt(panel.transform, $"{tag}   {name}  Lv{p?.Level ?? 0}{st}", 20, nameCol, Mid(), new Vector2(-40, 28), new Vector2(440, 28));
+            Txt(panel.transform, $"HP {hp} / {max}", 17, Color.white, Mid(), new Vector2(-180, 1), new Vector2(200, 24));
+            Image hb = HpBar(panel.transform, new Vector2(-20, -28), new Vector2(420, 18));
+            SetFill(hb, max > 0 ? Mathf.Clamp01((float)hp / max) : 0f);
+
+            if (!isLead && !over)
+            {
+                bool can = s.CurrentPhase == CombatController.Phase.ActionPhase
+                           && SwapManager.CanManualSwap(s.LeadIndex, slot, s.PlayerTeam, s.CurrentAP, s.SwapCounter);
+                Btn(panel.transform, Mid(), new Vector2(258, 0), new Vector2(120, 88),
+                    $"⇄ SWAP\n{swapCost} AP", new Color(0.30f, 0.42f, 0.58f), can, () => SwapTo(slot));
+            }
+        }
+
+        private void SwapTo(int benchSlot)
+        {
+            if (_cc.State.Outcome != CombatController.CombatOutcome.InProgress) return;
+            _cc.ExecuteAction(PlayerAction.ManualSwap(benchSlot));
+            Refresh(); // Lead changed → card eligibility + swap costs refresh
+        }
+
+        private static void Border(GameObject go, Color c)
+        {
+            Outline o = go.AddComponent<Outline>();
+            o.effectColor = c; o.effectDistance = new Vector2(3, 3);
+        }
+
         private void BuildHand(CombatController.CombatState s, bool over)
         {
             for (int i = _hand.childCount - 1; i >= 0; i--) Destroy(_hand.GetChild(i).gameObject);
@@ -189,13 +259,29 @@ namespace ProjectAscendant.UI
             for (int slot = 0; slot < idxs.Count; slot++)
             {
                 int i = idxs[slot];
-                MoveSO m = s.SkillHand[i].Move;
-                int cost = StatusModifiers.GetEffectiveAPCost(m, s.SkillHand[i].Owner, s.Config);
-                bool playable = cost <= s.CurrentAP && s.CurrentPhase == CombatController.Phase.ActionPhase;
+                MoveCardInstance card = s.SkillHand[i];
+                MoveSO m = card.Move;
+                PokemonInstance owner = card.Owner;
+                bool ownerIsLead = s.PlayerTeam.IndexOf(owner) == s.LeadIndex;
+                int cost = StatusModifiers.GetEffectiveAPCost(m, owner, s.Config);
+
+                // Per §3.3 — a card is only playable if its owner is in the right position
+                // (Ranged from anywhere; Melee only from Lead, unless Step-Forward). Greyed,
+                // never hidden (ui.md), so the shared-hand swap tension is legible (Pillar 2).
+                bool eligible = CardPlayValidator.Validate(card, s.PlayerTeam, s.LeadIndex)
+                                == CardPlayValidator.PlayResult.Playable;
+                bool playable = eligible && cost <= s.CurrentAP
+                                && s.CurrentPhase == CombatController.Phase.ActionPhase;
+
+                string ownerName = owner?.Species != null ? (owner.Species.DisplayName ?? owner.Species.name) : "?";
+                string rangeTag = m.Range == MoveRange.Melee ? "Melee" : "Ranged";
+                string lockHint = !eligible && m.Range == MoveRange.Melee && !ownerIsLead ? "\n(swap in to use)" : "";
+                Color col = ownerIsLead ? new Color(0.22f, 0.28f, 0.42f) : new Color(0.32f, 0.25f, 0.44f);
+
                 float x = startX + slot * (cardW + spacing);
                 Btn(_hand, Mid(), new Vector2(x, 0), new Vector2(cardW, cardH),
-                    $"{m.DisplayName ?? m.name}\n{m.Type}  Pwr {m.BasePower}\nAP {cost}",
-                    new Color(0.22f, 0.28f, 0.42f), playable, () => PlayCard(i));
+                    $"{ownerName}\n{m.DisplayName ?? m.name}\n{m.Type} · {rangeTag} · Pwr {m.BasePower}\nAP {cost}{lockHint}",
+                    col, playable, () => PlayCard(i));
             }
         }
 

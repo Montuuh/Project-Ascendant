@@ -33,6 +33,13 @@ namespace ProjectAscendant.Combat
             Kind = PlayerActionKind.PlayConsumable,
             CardIndex = handIndex,
         };
+        // Per §3.3.1 + Epic 6 — promote the bench Pokémon at PlayerTeam[benchSlot]
+        // to Lead. Cost ladder (1/2/3 AP) + counter discipline live in SwapManager.
+        public static PlayerAction ManualSwap(int benchSlot) => new()
+        {
+            Kind = PlayerActionKind.ManualSwap,
+            SwapToBenchSlot = benchSlot,
+        };
     }
 
     // Per Epic 4 Task 4.1.5 — injection point for player decisions. Tests
