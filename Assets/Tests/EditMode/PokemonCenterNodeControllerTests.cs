@@ -169,6 +169,25 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        // §5.7.1 / Task 10.8 — TutorLearnset is stage-aware: evolving (Species swap) recomputes the
+        // offer. A Wartortle-stage species offers a broader pool than the Squirtle-stage one.
+        public void Tutor_Offer_RecomputesOnEvolution()
+        {
+            MoveSO a = MakeMove("a"), b = MakeMove("b"), c = MakeMove("c"), d = MakeMove("d");
+            PokemonSpeciesSO squirtleStage = MakeSpecies(100, a, b);       // narrow base pool
+            PokemonSpeciesSO wartortleStage = MakeSpecies(120, a, b, c, d); // broader evolved pool
+            PokemonInstance p = MakeInstance(squirtleStage, hp: 50);
+            PokemonCenterNodeController ctrl = Make(new Box(6), MakeEconomy(), MakeRun());
+
+            Assert.That(ctrl.OfferTutorMoves(p), Has.Count.EqualTo(2));
+
+            p.Species = wartortleStage; // EvolutionExecutor swaps Species in-run
+            List<MoveSO> after = ctrl.OfferTutorMoves(p);
+            Assert.That(after, Has.Count.EqualTo(3), "Offer caps at MOVE_TUTOR_OFFER but is now larger.");
+            Assert.That(after, Has.Member(c), "An evolved-stage tutor move is now offered.");
+        }
+
+        [Test]
         public void Tutor_LearnMove_InvalidSlot_False()
         {
             PokemonInstance p = MakeInstance(MakeSpecies(100), hp: 100);

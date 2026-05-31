@@ -17,7 +17,8 @@ namespace ProjectAscendant.EditorSetup
         [MenuItem("Project Ascendant/Seed Run Content Catalog")]
         public static void Seed()
         {
-            SeedEvolveLevels(); // §5.2.2 / §5.3.1 — interim per-species thresholds (gap #41)
+            SeedEvolveLevels();     // §5.2.2 / §5.3.1 — interim per-species thresholds (gap #41)
+            SeedTutorLearnsets();   // §5.4.2 / §5.7.1 — stage-aware tutor pools (minimal authored set)
             RunContentCatalogSO catalog = AssetDatabase.LoadAssetAtPath<RunContentCatalogSO>(ASSET_PATH);
             bool isNew = catalog == null;
             if (isNew) catalog = ScriptableObject.CreateInstance<RunContentCatalogSO>();
@@ -100,6 +101,31 @@ namespace ProjectAscendant.EditorSetup
             PokemonSpeciesSO sp = ByName<PokemonSpeciesSO>(speciesName);
             if (sp == null || sp.EvolveLevel == level) return;
             sp.EvolveLevel = level;
+            EditorUtility.SetDirty(sp);
+        }
+
+        // §5.4.2 / §5.7.1 — stage-aware Move-Tutor pools. Minimal authored set so the Center tutor is
+        // functional + the offer broadens on evolution; the full balanced per-species pass is deferred
+        // (content-designer). Evolved-stage species offer more / stronger moves than their base form.
+        private static void SeedTutorLearnsets()
+        {
+            SetTutorLearnset("Squirtle", "headbutt", "foresight");
+            SetTutorLearnset("Wartortle_Vanguard", "headbutt", "foresight", "aqua_jet", "surf");
+            SetTutorLearnset("Bulbasaur", "headbutt", "sweet_scent");
+            SetTutorLearnset("Charmander", "headbutt", "smokescreen");
+        }
+
+        private static void SetTutorLearnset(string speciesName, params string[] moveNames)
+        {
+            PokemonSpeciesSO sp = ByName<PokemonSpeciesSO>(speciesName);
+            if (sp == null) return;
+            List<MoveSO> moves = new();
+            foreach (string n in moveNames)
+            {
+                MoveSO m = ByName<MoveSO>(n);
+                if (m != null) moves.Add(m);
+            }
+            sp.TutorLearnset = moves;
             EditorUtility.SetDirty(sp);
         }
 
