@@ -218,11 +218,28 @@ namespace ProjectAscendant.UI
 
         private void OnCombatComplete(MapNode node, NodeController active, CombatController cc, CombatController.CombatOutcome outcome)
         {
-            ResolveCombatNode(active, cc.State.CaughtTarget, outcome);
+            PokemonInstance caught = cc.State.CaughtTarget;
+            ResolveCombatNode(active, caught, outcome);
             _run.CompleteActiveNode();
             _visited.Add(node);
-            AppendLog($"L{node.Layer} {node.NodeType}: combat {outcome}");
+            if (!_run.RunOver) AutoFillTeam(); // a recruited Pokémon joins the active team (up to 3)
+            AppendLog($"L{node.Layer} {node.NodeType}: combat {outcome}" +
+                      (caught != null ? $" — recruited {caught.Species?.DisplayName ?? caught.Species?.name}!" : ""));
             Refresh();
+        }
+
+        // Per §2.3 / Pillar — the party IS the deck. Fills the Active Team with the first (up to 3)
+        // non-fainted Box Pokémon so a freshly recruited one is immediately playable. (A full
+        // Map-View loadout/Box-reorder screen is a later milestone.)
+        private void AutoFillTeam()
+        {
+            if (_ctx?.Box == null || _ctx.Loadout == null) return;
+            List<int> idx = new();
+            for (int i = 0; i < _ctx.Box.Members.Count && idx.Count < 3; i++)
+                if (_ctx.Box.Members[i] != null && _ctx.Box.Members[i].CurrentHP > 0) idx.Add(i);
+            if (idx.Count == 0) return;
+            int lead = _state != null ? Mathf.Clamp(_state.LeadIndex, 0, idx.Count - 1) : 0;
+            _ctx.Loadout.Confirm(idx, lead);
         }
 
         // Builds an interactive CombatController for a combat node, or null for utility nodes / no team.
@@ -278,9 +295,11 @@ namespace ProjectAscendant.UI
             int d = _state != null ? _state.PokeDollars : 0;
             int b = _state?.EarnedBadges?.Count ?? 0;
             int r = _state?.HeldRelics?.Count ?? 0;
+            int team = _state?.ActiveTeamIndices?.Count ?? 0;
+            int box = _ctx?.Box?.Members.Count ?? 0;
             string where = _run.Map == null ? "press Start" : _run.RunOver ? "run complete"
                 : _run.CurrentNode == null ? "choose your first node" : $"Layer {_run.CurrentNode.Layer} — choose your route";
-            _header.text = $"₽ {d}     Badges {b}     Relics {r}        {where}";
+            _header.text = $"₽ {d}    Team {team}/3    Box {box}    Badges {b}    Relics {r}     {where}";
         }
 
         private void AppendLog(string line)

@@ -25,7 +25,7 @@ namespace ProjectAscendant.UI
 
         private Text _header, _playerInfo, _enemyInfo, _enemyIntent, _banner;
         private Image _playerHp, _enemyHp;
-        private RectTransform _hand;
+        private RectTransform _hand, _consumables;
         private GameObject _endTurn, _continue;
 
         public void Begin(CombatController cc, Action<CombatController.CombatOutcome> onComplete)
@@ -110,6 +110,11 @@ namespace ProjectAscendant.UI
             _hand = (RectTransform)handGO.transform;
             Place(_hand, Bottom(), new Vector2(0, 190), new Vector2(1700, 170));
 
+            GameObject consGO = new("Consumables", typeof(RectTransform));
+            consGO.transform.SetParent(_root.transform, false);
+            _consumables = (RectTransform)consGO.transform;
+            Place(_consumables, Bottom(), new Vector2(0, 400), new Vector2(1700, 130));
+
             // End Turn + outcome.
             _endTurn = Btn(_root.transform, Bottom(), new Vector2(760, 80), new Vector2(220, 64), "END TURN",
                 new Color(0.55f, 0.45f, 0.2f), true, EndTurn).gameObject;
@@ -145,6 +150,7 @@ namespace ProjectAscendant.UI
             }
 
             BuildHand(s, over);
+            BuildConsumables(s, over);
 
             _endTurn.SetActive(!over);
             _banner.gameObject.SetActive(over);
@@ -191,6 +197,48 @@ namespace ProjectAscendant.UI
                     $"{m.DisplayName ?? m.name}\n{m.Type}  Pwr {m.BasePower}\nAP {cost}",
                     new Color(0.22f, 0.28f, 0.42f), playable, () => PlayCard(i));
             }
+        }
+
+        // Consumable hand (Pokéball etc.). Catching: throw the ball below 50% HP (or with a status,
+        // §7.3.4.1) to recruit the wild — telegraphed on the card (Pillar 1).
+        private void BuildConsumables(CombatController.CombatState s, bool over)
+        {
+            for (int i = _consumables.childCount - 1; i >= 0; i--) Destroy(_consumables.GetChild(i).gameObject);
+            if (over || s.ConsumableHand == null) return;
+
+            List<int> idxs = new();
+            for (int i = 0; i < s.ConsumableHand.Count; i++)
+                if (s.ConsumableHand[i] != null) idxs.Add(i);
+            if (idxs.Count == 0) return;
+
+            const float cw = 250f, ch = 110f, spacing = 18f;
+            float startX = -(idxs.Count * cw + (idxs.Count - 1) * spacing) / 2f + cw / 2f;
+            for (int slot = 0; slot < idxs.Count; slot++)
+            {
+                int i = idxs[slot];
+                ConsumableSO c = s.ConsumableHand[i];
+                bool isBall = c.Effect is CatchConsumableEffectSO;
+                bool playable = c.APCost <= s.CurrentAP && s.CurrentPhase == CombatController.Phase.ActionPhase;
+                string label = isBall
+                    ? $"⊙ {c.DisplayName ?? c.name}\nCATCH if HP < 50%\n(or any status)   AP {c.APCost}"
+                    : $"{c.DisplayName ?? c.name}\nAP {c.APCost}";
+                Color col = isBall ? new Color(0.62f, 0.26f, 0.30f) : new Color(0.30f, 0.42f, 0.32f);
+                float x = startX + slot * (cw + spacing);
+                Btn(_consumables, Mid(), new Vector2(x, 0), new Vector2(cw, ch), label, col, playable, () => PlayConsumable(i));
+            }
+        }
+
+        private void PlayConsumable(int handIndex)
+        {
+            if (_cc.State.Outcome != CombatController.CombatOutcome.InProgress) return;
+            _cc.ExecuteAction(PlayerAction.PlayConsumable(handIndex));
+
+            // A successful catch clears the enemy team immediately; finalize the combat now
+            // (the Outcome→Victory check otherwise waits for a Resolution/TurnEnd).
+            if (_cc.State.CaughtTarget != null && _cc.State.Outcome == CombatController.CombatOutcome.InProgress)
+                EndTurn();
+            else
+                Refresh();
         }
 
         // ── uGUI primitives ───────────────────────────────────────────────────
