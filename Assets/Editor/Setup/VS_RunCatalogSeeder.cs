@@ -12,10 +12,12 @@ namespace ProjectAscendant.EditorSetup
     public static class VS_RunCatalogSeeder
     {
         private const string ASSET_PATH = "Assets/ScriptableObjects/VS/Configs/RunContentCatalog.asset";
+        private const string PROGRESSION_PATH = "Assets/ScriptableObjects/VS/Configs/ProgressionConfig.asset";
 
         [MenuItem("Project Ascendant/Seed Run Content Catalog")]
         public static void Seed()
         {
+            SeedEvolveLevels(); // §5.2.2 / §5.3.1 — interim per-species thresholds (gap #41)
             RunContentCatalogSO catalog = AssetDatabase.LoadAssetAtPath<RunContentCatalogSO>(ASSET_PATH);
             bool isNew = catalog == null;
             if (isNew) catalog = ScriptableObject.CreateInstance<RunContentCatalogSO>();
@@ -26,6 +28,7 @@ namespace ProjectAscendant.EditorSetup
             catalog.ShopConfig = First<RegionShopConfigSO>();
             catalog.MysteryConfig = First<MysteryConfigSO>();
             catalog.BattleConfig = First<BattleConfigSO>();
+            catalog.ProgressionConfig = EnsureProgressionConfig();
             catalog.Pokeball = ByName<ConsumableSO>("pokeball");
             catalog.Potion = ByName<ConsumableSO>("potion");
             catalog.Archetypes = All<TrainerArchetypeSO>();
@@ -67,6 +70,37 @@ namespace ProjectAscendant.EditorSetup
         {
             string[] g = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
             return g.Length == 0 ? null : AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(g[0]));
+        }
+
+        // §5.2 — create the ProgressionConfig asset (interim values = SO field defaults) if missing.
+        private static ProgressionConfigSO EnsureProgressionConfig()
+        {
+            ProgressionConfigSO cfg = AssetDatabase.LoadAssetAtPath<ProgressionConfigSO>(PROGRESSION_PATH);
+            if (cfg != null) return cfg;
+            cfg = ScriptableObject.CreateInstance<ProgressionConfigSO>(); // defaults are the interim values
+            Directory.CreateDirectory(Path.GetDirectoryName(PROGRESSION_PATH)!);
+            AssetDatabase.CreateAsset(cfg, PROGRESSION_PATH);
+            Debug.Log($"[RunCatalog] Created {PROGRESSION_PATH} (interim XP/level values — gap #41).");
+            return cfg;
+        }
+
+        // §5.2.2 / §5.3.1 — interim per-species evolution thresholds on the 6 VS base forms (gap #41).
+        private static void SeedEvolveLevels()
+        {
+            SetEvolveLevel("Bulbasaur", 12);
+            SetEvolveLevel("Charmander", 12);
+            SetEvolveLevel("Squirtle", 12);
+            SetEvolveLevel("Caterpie", 7);
+            SetEvolveLevel("Pidgey", 9);
+            SetEvolveLevel("Geodude", 12);
+        }
+
+        private static void SetEvolveLevel(string speciesName, int level)
+        {
+            PokemonSpeciesSO sp = ByName<PokemonSpeciesSO>(speciesName);
+            if (sp == null || sp.EvolveLevel == level) return;
+            sp.EvolveLevel = level;
+            EditorUtility.SetDirty(sp);
         }
 
         private static List<T> All<T>() where T : Object =>

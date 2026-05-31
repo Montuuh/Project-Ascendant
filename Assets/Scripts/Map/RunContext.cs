@@ -21,6 +21,7 @@ namespace ProjectAscendant.Map
         public EconomyConfigSO Economy;
         public MapGenerationConfigSO MapConfig;
         public BattleConfigSO BattleConfig; // combat tuning (used when launching real fights)
+        public ProgressionConfigSO ProgressionConfig; // §5.2 — per-Pokémon XP + leveling
 
         // ── Wild (9.3) ───────────────────────────────────────────────────────
         public WildEncounterConfigSO WildConfig;

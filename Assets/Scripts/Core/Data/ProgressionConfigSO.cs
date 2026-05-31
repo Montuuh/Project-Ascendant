@@ -12,14 +12,14 @@ namespace ProjectAscendant.Core
     public sealed class ProgressionConfigSO : ScriptableObject
     {
         [Header("§5.2.1 — XP per defeated-encounter tier (awarded to the whole Active Team)")]
-        public int WildXP = 8;
-        public int TrainerXP = 14;
-        public int EliteXP = 30;
-        public int GymXP = 60;
+        public int WildXP = 30;
+        public int TrainerXP = 45;
+        public int EliteXP = 80;
+        public int GymXP = 140;
 
         [Header("§5.2.2 — XP cost to advance FROM `level` to `level+1` = Base + (level-1)·Slope")]
-        public int LevelUpBaseXP = 18;
-        public int LevelUpSlopeXP = 6;
+        public int LevelUpBaseXP = 12;
+        public int LevelUpSlopeXP = 4;
 
         [Header("§5.2.4 — single-stage species growth bonus (post-VS; no single-stage species in the VS roster)")]
         public int SingleStageGrowthBonusPercent = 25;

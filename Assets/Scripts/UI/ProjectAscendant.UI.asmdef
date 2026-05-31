@@ -6,6 +6,7 @@
         "ProjectAscendant.Map",
         "ProjectAscendant.Combat",
         "ProjectAscendant.Deck",
+        "ProjectAscendant.Progression",
         "UnityEngine.UI",
         "Unity.InputSystem"
     ],

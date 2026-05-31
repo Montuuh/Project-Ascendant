@@ -67,6 +67,7 @@ namespace ProjectAscendant.Map
                 Economy = catalog.Economy,
                 MapConfig = catalog.MapConfig,
                 BattleConfig = catalog.BattleConfig,
+                ProgressionConfig = catalog.ProgressionConfig,
                 WildConfig = catalog.WildConfig,
                 Pokeball = catalog.Pokeball,
                 BoxOverflow = new AutoSkipBoxOverflowHandler(),

@@ -18,6 +18,7 @@ namespace ProjectAscendant.Core
         public RegionShopConfigSO ShopConfig;
         public MysteryConfigSO MysteryConfig;
         public BattleConfigSO BattleConfig;
+        public ProgressionConfigSO ProgressionConfig; // §5.2 — per-Pokémon XP + leveling
 
         [Header("Key Consumables")]
         public ConsumableSO Pokeball;

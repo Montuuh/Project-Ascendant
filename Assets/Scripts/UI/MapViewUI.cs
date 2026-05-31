@@ -7,6 +7,7 @@ using UnityEngine.InputSystem.UI;
 using ProjectAscendant.Core;
 using ProjectAscendant.Map;
 using ProjectAscendant.Combat;
+using ProjectAscendant.Progression;
 
 namespace ProjectAscendant.UI
 {
@@ -267,12 +268,41 @@ namespace ProjectAscendant.UI
         {
             PokemonInstance caught = cc.State.CaughtTarget;
             ResolveCombatNode(active, caught, outcome);
+
+            // §5.2 — on a win, the team that fought earns node-tier XP, then level-ups are processed
+            // between nodes (before the run advances + before a freshly-caught mon joins). Defeat: none.
+            string levelLog = outcome == CombatController.CombatOutcome.Victory
+                ? AwardXpAndLevelUp(node.NodeType) : "";
+
             _run.CompleteActiveNode();
             _visited.Add(node);
             if (!_run.RunOver) AutoFillTeam(); // a recruited Pokémon joins the active team (up to 3)
             AppendLog($"L{node.Layer} {node.NodeType}: combat {outcome}" +
-                      (caught != null ? $" — recruited {caught.Species?.DisplayName ?? caught.Species?.name}!" : ""));
+                      (caught != null ? $" — recruited {caught.Species?.DisplayName ?? caught.Species?.name}!" : "") +
+                      levelLog);
             Refresh();
+        }
+
+        // §5.2.1 / §5.2.2 — award the cleared node's tier XP to the Active Team that fought, then
+        // process between-node level-ups. Returns a log fragment ("+N XP  ▲ Name → LvX ...").
+        private string AwardXpAndLevelUp(NodeType nodeType)
+        {
+            if (_ctx?.ProgressionConfig == null) return "";
+            List<PokemonInstance> team = BuildPlayerTeam(out _);
+            int xp = _ctx.ProgressionConfig.XPForNode(nodeType);
+            if (xp <= 0 || team.Count == 0) return "";
+            XPAwarder.Award(team, xp);
+
+            StringBuilder sb = new();
+            for (int i = 0; i < team.Count; i++)
+            {
+                LevelUpResolver.Result r = LevelUpResolver.Process(team[i], _ctx.ProgressionConfig);
+                if (r.LevelsGained <= 0) continue;
+                string name = team[i].Species != null ? (team[i].Species.DisplayName ?? team[i].Species.name) : "?";
+                sb.Append($"   ▲ {name} → Lv{r.NewLevel}");
+                if (r.EvolutionUnlocked) sb.Append(" (ready to evolve!)");
+            }
+            return $"   +{xp} XP{sb}";
         }
 
         // Per §2.3 / Pillar — the party IS the deck. Fills the Active Team with the first (up to 3)
