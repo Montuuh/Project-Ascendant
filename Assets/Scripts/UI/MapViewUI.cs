@@ -29,10 +29,12 @@ namespace ProjectAscendant.UI
         private CheatConsole _cheats;
         private TeamPanelUI _teamPanel;
         private EvolutionPanelUI _evolutionPanel;
+        private TMPanelUI _tmPanel;
 
         private Text _header;
         private Text _log;
         private GameObject _teamButton;
+        private GameObject _tmButton;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
 
@@ -61,6 +63,9 @@ namespace ProjectAscendant.UI
 
             _evolutionPanel = new GameObject("EvolutionPanel").AddComponent<EvolutionPanelUI>();
             _evolutionPanel.transform.SetParent(transform, false);
+
+            _tmPanel = new GameObject("TMPanel").AddComponent<TMPanelUI>();
+            _tmPanel.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -101,6 +106,11 @@ namespace ProjectAscendant.UI
                 new Color(0.30f, 0.42f, 0.58f), true, OpenTeamPanel).gameObject;
             _teamButton.SetActive(false);
 
+            // §5.4.1 — TM application entry point (Task 10.6.1). Toggled with the run like TEAM.
+            _tmButton = MakeButton(canvas.transform, new Vector2(575, 470), new Vector2(200, 56), "🎒  TMs",
+                new Color(0.40f, 0.36f, 0.24f), true, OpenTMPanel).gameObject;
+            _tmButton.SetActive(false);
+
             GameObject g = new("Graph", typeof(RectTransform));
             g.transform.SetParent(canvas.transform, false);
             _graph = (RectTransform)g.transform;
@@ -119,7 +129,9 @@ namespace ProjectAscendant.UI
 
             if (_run == null) { _header.text = "<no RunController wired — is RunLauncher in the Boot scene?>"; return; }
             UpdateHeader();
-            if (_teamButton != null) _teamButton.SetActive(_run.Map != null && !_run.RunOver);
+            bool inRun = _run.Map != null && !_run.RunOver;
+            if (_teamButton != null) _teamButton.SetActive(inRun);
+            if (_tmButton != null) _tmButton.SetActive(inRun);
 
             if (_run.Map == null)
             {
@@ -329,6 +341,14 @@ namespace ProjectAscendant.UI
             if (_teamPanel == null || _ctx?.Box == null || _ctx.Loadout == null) return;
             if (_run == null || _run.Map == null || _run.RunOver) return;
             _teamPanel.Open(_ctx.Box, _state, _ctx.Loadout, Refresh, OnEvolveRequested);
+        }
+
+        // §5.4.1 / Task 10.6 — open the TM application flow (only between nodes).
+        private void OpenTMPanel()
+        {
+            if (_tmPanel == null || _ctx?.Box == null || _state == null) return;
+            if (_run == null || _run.Map == null || _run.RunOver) return;
+            _tmPanel.Open(_ctx.Box, _state, Refresh);
         }
 
         // §5.3.1 — the player chose to evolve an eligible Pokémon from the Team panel.
