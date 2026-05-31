@@ -28,6 +28,7 @@ namespace ProjectAscendant.UI
         private NodePanelUI _nodePanel;
         private CheatConsole _cheats;
         private TeamPanelUI _teamPanel;
+        private EvolutionPanelUI _evolutionPanel;
 
         private Text _header;
         private Text _log;
@@ -57,6 +58,9 @@ namespace ProjectAscendant.UI
 
             _teamPanel = new GameObject("TeamPanel").AddComponent<TeamPanelUI>();
             _teamPanel.transform.SetParent(transform, false);
+
+            _evolutionPanel = new GameObject("EvolutionPanel").AddComponent<EvolutionPanelUI>();
+            _evolutionPanel.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -324,7 +328,18 @@ namespace ProjectAscendant.UI
         {
             if (_teamPanel == null || _ctx?.Box == null || _ctx.Loadout == null) return;
             if (_run == null || _run.Map == null || _run.RunOver) return;
-            _teamPanel.Open(_ctx.Box, _state, _ctx.Loadout, Refresh);
+            _teamPanel.Open(_ctx.Box, _state, _ctx.Loadout, Refresh, OnEvolveRequested);
+        }
+
+        // §5.3.1 — the player chose to evolve an eligible Pokémon from the Team panel.
+        private void OnEvolveRequested(PokemonInstance mon)
+        {
+            if (_evolutionPanel == null || mon == null) return;
+            _evolutionPanel.Open(mon, () =>
+            {
+                if (!_run.RunOver) AutoFillTeam(); // species/stat changes — re-confirm the active team
+                Refresh();
+            });
         }
 
         // ── Cheat hooks (DEV-ONLY — driven by CheatConsole) ───────────────────

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ProjectAscendant.Core;
 using ProjectAscendant.Map;
+using ProjectAscendant.Progression;
 
 namespace ProjectAscendant.UI
 {
@@ -19,6 +20,7 @@ namespace ProjectAscendant.UI
         private RunStateSO _state;
         private LoadoutManager _loadout;
         private Action _onClosed;
+        private Action<PokemonInstance> _onEvolve; // §5.3.1 — request the Branch-Selection modal
         private Font _font;
         private GameObject _root;
         private RectTransform _body;
@@ -29,9 +31,10 @@ namespace ProjectAscendant.UI
 
         public bool IsOpen => _root != null;
 
-        public void Open(Box box, RunStateSO state, LoadoutManager loadout, Action onClosed)
+        public void Open(Box box, RunStateSO state, LoadoutManager loadout, Action onClosed,
+                         Action<PokemonInstance> onEvolve = null)
         {
-            _box = box; _state = state; _loadout = loadout; _onClosed = onClosed;
+            _box = box; _state = state; _loadout = loadout; _onClosed = onClosed; _onEvolve = onEvolve;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
             // Seed the working selection from the current Active Team.
@@ -146,7 +149,7 @@ namespace ProjectAscendant.UI
             string role = isLead ? "★ LEAD   " : inTeam ? $"slot {_selected.IndexOf(boxIdx) + 1}   " : "";
             Color nameCol = fainted ? new Color(0.62f, 0.5f, 0.5f) : new Color(0.92f, 0.97f, 0.92f);
             Txt(row.transform, $"{role}{name}  Lv{p?.Level ?? 0}    HP {hp}/{max}{st}", 22, nameCol,
-                Mid(), new Vector2(-300, 0), new Vector2(800, 50));
+                Mid(), new Vector2(-360, 0), new Vector2(680, 50));
 
             // ADD / REMOVE toggle (fainted is locked out of the team — §2.4.1).
             bool full = _selected.Count >= LoadoutManager.MAX_ACTIVE_TEAM;
@@ -159,6 +162,14 @@ namespace ProjectAscendant.UI
             if (inTeam && !isLead)
                 Btn(_body, Mid(), new Vector2(530, y), new Vector2(120, 56), "★ LEAD",
                     new Color(0.40f, 0.40f, 0.24f), true, () => SetLead(boxIdx));
+
+            // §5.3.1 — evolution-eligible (reached EvolveLevel with a branch) → open Branch Selection.
+            if (!fainted && p != null && _onEvolve != null && LevelUpResolver.IsEvolutionEligible(p))
+            {
+                PokemonInstance mon = p;
+                Btn(_body, Mid(), new Vector2(150, y), new Vector2(170, 56), "✦ EVOLVE",
+                    new Color(0.58f, 0.42f, 0.22f), true, () => { _onEvolve(mon); Close(); });
+            }
         }
 
         // ── uGUI primitives ───────────────────────────────────────────────────
