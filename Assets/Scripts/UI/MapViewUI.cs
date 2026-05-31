@@ -24,6 +24,7 @@ namespace ProjectAscendant.UI
         private RunContext _ctx;
         private RunContentCatalogSO _catalog;
         private CombatScreenUI _combat;
+        private NodePanelUI _nodePanel;
 
         private Text _header;
         private Text _log;
@@ -46,6 +47,9 @@ namespace ProjectAscendant.UI
 
             _combat = new GameObject("CombatScreen").AddComponent<CombatScreenUI>();
             _combat.transform.SetParent(transform, false);
+
+            _nodePanel = new GameObject("NodePanel").AddComponent<NodePanelUI>();
+            _nodePanel.transform.SetParent(transform, false);
 
             BuildChrome();
             Refresh();
@@ -208,11 +212,30 @@ namespace ProjectAscendant.UI
                 return;
             }
 
+            // Interactive utility panel (Shop / Center / Mystery) → drives the live controller.
+            if (_nodePanel != null && _nodePanel.TryBegin(active, _ctx, _state, () => OnUtilityComplete(node, active)))
+            {
+                AppendLog($"L{node.Layer} {node.NodeType} — {RunAutoPilot.Detail(active)}");
+                return;
+            }
+
+            // Fallback: anything without a panel auto-resolves (defensive — all VS utility nodes have panels).
             string detail = RunAutoPilot.Detail(active);
             string res = RunAutoPilot.ResolveActive(_run);
             _run.CompleteActiveNode();
             _visited.Add(node);
             AppendLog($"L{node.Layer} {node.NodeType}: {detail}  →  {res}");
+            Refresh();
+        }
+
+        // The player closed an interactive utility panel (Shop/Center/Mystery). The controller already
+        // committed its mutations + called Complete; advance the run and refresh the map.
+        private void OnUtilityComplete(MapNode node, NodeController active)
+        {
+            _run.CompleteActiveNode();
+            _visited.Add(node);
+            if (!_run.RunOver) AutoFillTeam(); // a Center/Berry heal can revive a fainted active member
+            AppendLog($"L{node.Layer} {node.NodeType}: resolved   (₽ {(_state != null ? _state.PokeDollars : 0)})");
             Refresh();
         }
 
