@@ -26,9 +26,11 @@ namespace ProjectAscendant.UI
         private CombatScreenUI _combat;
         private NodePanelUI _nodePanel;
         private CheatConsole _cheats;
+        private TeamPanelUI _teamPanel;
 
         private Text _header;
         private Text _log;
+        private GameObject _teamButton;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
 
@@ -51,6 +53,9 @@ namespace ProjectAscendant.UI
 
             _nodePanel = new GameObject("NodePanel").AddComponent<NodePanelUI>();
             _nodePanel.transform.SetParent(transform, false);
+
+            _teamPanel = new GameObject("TeamPanel").AddComponent<TeamPanelUI>();
+            _teamPanel.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -85,6 +90,12 @@ namespace ProjectAscendant.UI
             _header = MakeText(canvas.transform, "", 26, Color.white);
             Anchor(_header.rectTransform, Top(), Top(), new Vector2(0, -96), new Vector2(1500, 38));
 
+            // Per §2.3 — open the Active-Team loadout manager (between nodes; hidden on starter-select
+            // and at run end). Visibility is toggled in Refresh.
+            _teamButton = MakeButton(canvas.transform, new Vector2(800, 470), new Vector2(200, 56), "⛉  TEAM",
+                new Color(0.30f, 0.42f, 0.58f), true, OpenTeamPanel).gameObject;
+            _teamButton.SetActive(false);
+
             GameObject g = new("Graph", typeof(RectTransform));
             g.transform.SetParent(canvas.transform, false);
             _graph = (RectTransform)g.transform;
@@ -103,6 +114,7 @@ namespace ProjectAscendant.UI
 
             if (_run == null) { _header.text = "<no RunController wired — is RunLauncher in the Boot scene?>"; return; }
             UpdateHeader();
+            if (_teamButton != null) _teamButton.SetActive(_run.Map != null && !_run.RunOver);
 
             if (_run.Map == null)
             {
@@ -275,6 +287,14 @@ namespace ProjectAscendant.UI
             if (idx.Count == 0) return;
             int lead = _state != null ? Mathf.Clamp(_state.LeadIndex, 0, idx.Count - 1) : 0;
             _ctx.Loadout.Confirm(idx, lead);
+        }
+
+        // Per §2.3 / Task 9.10 — open the Active-Team loadout manager (only between nodes).
+        private void OpenTeamPanel()
+        {
+            if (_teamPanel == null || _ctx?.Box == null || _ctx.Loadout == null) return;
+            if (_run == null || _run.Map == null || _run.RunOver) return;
+            _teamPanel.Open(_ctx.Box, _state, _ctx.Loadout, Refresh);
         }
 
         // ── Cheat hooks (DEV-ONLY — driven by CheatConsole) ───────────────────

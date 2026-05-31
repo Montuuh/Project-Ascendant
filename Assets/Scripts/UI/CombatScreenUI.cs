@@ -186,7 +186,7 @@ namespace ProjectAscendant.UI
             {
                 Intent it = s.EnemyIntents[0];
                 _enemyIntent.text = it.Move != null && it.Kind == IntentKind.Attack
-                    ? $"⚔ Intent: {it.Move.DisplayName ?? it.Move.name} → slot {it.TargetSlot}"
+                    ? $"⚔ Intent: {it.Move.DisplayName ?? it.Move.name}  →  {SlotLabel(it.TargetSlot, s)}"
                     : $"Intent: {it.Kind}";
             }
 
@@ -212,6 +212,27 @@ namespace ProjectAscendant.UI
             SetFill(hpFill, pct);
             string status = p.PrimaryStatus != StatusCondition.None ? $"   [{p.PrimaryStatus}]" : "";
             info.text = $"{who}:  {p.Species.DisplayName ?? p.Species.name}   Lv{p.Level}\nHP {p.CurrentHP} / {max}{status}";
+        }
+
+        // Per §4.3.2 — intents target POSITIONS (slots), not Pokémon. Translate a raw slot index to
+        // its role relative to the current Lead: the Lead slot → "LEAD", the rest → "BENCH n" (1-based
+        // by slot order). Keeps the telegraph readable as the Lead floats across swaps.
+        private static string SlotRole(int slot, CombatController.CombatState s)
+        {
+            int lead = Mathf.Clamp(s.LeadIndex, 0, Mathf.Max(0, s.PlayerTeam.Count - 1));
+            if (slot == lead) return "LEAD";
+            int rank = 0;
+            for (int i = 0; i < s.PlayerTeam.Count && i <= slot; i++)
+                if (i != lead) rank++;
+            return $"BENCH {rank}";
+        }
+
+        // Full intent target: "Slot LEAD (Bulbasaur)" / "Slot BENCH 1 (Geodude)" / "Slot BENCH 2 (empty)".
+        private static string SlotLabel(int slot, CombatController.CombatState s)
+        {
+            PokemonInstance occ = slot >= 0 && slot < s.PlayerTeam.Count ? s.PlayerTeam[slot] : null;
+            string name = occ?.Species != null ? (occ.Species.DisplayName ?? occ.Species.name) : "empty";
+            return $"Slot {SlotRole(slot, s)} ({name})";
         }
 
         // Per §3.3 + Epic 6 — the active team (Lead + bench). Pillar 2 ("every swap is a
@@ -254,7 +275,7 @@ namespace ProjectAscendant.UI
             int max = p != null ? PokemonVitals.MaxHP(p) : 0;
             int hp = p?.CurrentHP ?? 0;
             string st = p != null && p.PrimaryStatus != StatusCondition.None ? $"  [{p.PrimaryStatus}]" : "";
-            string tag = isLead ? "▶ LEAD" : fainted ? "✖ FAINTED" : "BENCH";
+            string tag = (isLead ? "▶ LEAD" : SlotRole(slot, s)) + (fainted ? "  ✖ FAINTED" : "");
             Color nameCol = fainted ? new Color(0.62f, 0.5f, 0.5f) : new Color(0.92f, 0.97f, 0.92f);
 
             Txt(panel.transform, $"{tag}   {name}  Lv{p?.Level ?? 0}{st}", 20, nameCol, Mid(), new Vector2(-40, 28), new Vector2(440, 28));
