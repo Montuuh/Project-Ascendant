@@ -24,6 +24,11 @@ namespace ProjectAscendant.Core
         // Per §5.3.3 — 2-4 branches (empty list if this is a final-form SO).
         public List<EvolutionBranchSO> Branches;
 
+        // Per §5.2.2 / §5.3.1 — the level at which this species becomes evolution-eligible. 0 = no
+        // level-gated evolution (final form, or single-stage). INTERIM per-species values seeded
+        // pending systems-designer calibration (BACKLOG gap #41).
+        public int EvolveLevel;
+
         [Header("Learnset")]
         // Per §9.3.2.1 — 4 moves available at base level.
         public List<MoveSO> BaseLearnset;
