@@ -18,7 +18,6 @@ MonoBehaviour:
   PaletteTint: {r: 1, g: 1, b: 1, a: 1}
   BackgroundSprite: {fileID: 0}
   SpeciesPool:
-  - {fileID: 11400000, guid: b42f51e93511fce49a83cba53bb9a950, type: 2}
   - {fileID: 11400000, guid: e1818986f07427b4890c7e6ff67d2e95, type: 2}
   - {fileID: 11400000, guid: efc5571bf4edfc34eac2d4473360a590, type: 2}
   GDDReference: "\xA73.1.13 | Open grass area. Starter region for Run start."

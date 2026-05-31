@@ -22,6 +22,7 @@ namespace ProjectAscendant.UI
         private RunController _run;
         private RunStateSO _state;
         private RunContext _ctx;
+        private RunContentCatalogSO _catalog;
         private CombatScreenUI _combat;
 
         private Text _header;
@@ -41,6 +42,7 @@ namespace ProjectAscendant.UI
             _run = Services.Has<RunController>() ? Services.Get<RunController>() : null;
             _state = Services.Has<RunStateSO>() ? Services.Get<RunStateSO>() : null;
             _ctx = Services.Has<RunContext>() ? Services.Get<RunContext>() : null;
+            _catalog = Services.Has<RunContentCatalogSO>() ? Services.Get<RunContentCatalogSO>() : null;
 
             _combat = new GameObject("CombatScreen").AddComponent<CombatScreenUI>();
             _combat.transform.SetParent(transform, false);
@@ -93,8 +95,7 @@ namespace ProjectAscendant.UI
 
             if (_run.Map == null)
             {
-                MakeButton(_graph, Vector2.zero, new Vector2(440, 70), "▶  START RUN",
-                    new Color(0.2f, 0.6f, 0.3f), true, () => { _run.StartRun(); AppendLog("Run started — choose your route."); Refresh(); });
+                RenderStarterSelect();
                 return;
             }
 
@@ -153,6 +154,44 @@ namespace ProjectAscendant.UI
                     pos[nodes[i]] = new Vector2(x, (i - (n - 1) * 0.5f) * rowStep);
             }
             return pos;
+        }
+
+        // Per §2.1.1 — pick a starter before the run begins.
+        private void RenderStarterSelect()
+        {
+            Text prompt = MakeText(_graph, "Choose your starter", 34, new Color(0.85f, 0.95f, 0.7f));
+            Anchor(prompt.rectTransform, Mid(), Mid(), new Vector2(0, 140), new Vector2(900, 50));
+
+            List<PokemonSpeciesSO> starters = _catalog != null ? _catalog.Starters : null;
+            if (starters == null || starters.Count == 0)
+            {
+                MakeButton(_graph, Vector2.zero, new Vector2(440, 70), "▶  START RUN",
+                    new Color(0.2f, 0.6f, 0.3f), true, () => { _run.StartRun(); AppendLog("Run started."); Refresh(); });
+                return;
+            }
+
+            int n = starters.Count;
+            const float bw = 320f, bh = 90f, spacing = 40f;
+            float startX = -(n * bw + (n - 1) * spacing) / 2f + bw / 2f;
+            Color[] cols = { new Color(0.30f, 0.55f, 0.32f), new Color(0.70f, 0.40f, 0.25f), new Color(0.30f, 0.45f, 0.65f) };
+
+            for (int i = 0; i < n; i++)
+            {
+                PokemonSpeciesSO sp = starters[i];
+                if (sp == null) continue;
+                string type = sp.Types != null && sp.Types.Count > 0 ? sp.Types[0].ToString() : "";
+                float x = startX + i * (bw + spacing);
+                MakeButton(_graph, new Vector2(x, 0), new Vector2(bw, bh),
+                    $"{sp.DisplayName ?? sp.name}\n{type}", cols[i % cols.Length], true, () => OnStarterChosen(sp));
+            }
+        }
+
+        private void OnStarterChosen(PokemonSpeciesSO starter)
+        {
+            if (_ctx != null) RunBootstrapper.SeedStarter(_ctx, starter, 5);
+            _run.StartRun();
+            AppendLog($"Chose {starter.DisplayName ?? starter.name}. Run started — choose your route.");
+            Refresh();
         }
 
         private void OnNodeClicked(MapNode node)

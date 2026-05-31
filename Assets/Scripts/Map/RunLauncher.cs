@@ -59,18 +59,18 @@ namespace ProjectAscendant.Map
             Context = ctx;
             Services.Register(Run);
             Services.Register(ctx);
+            Services.Register(_catalog); // so the Map View can offer the starter choices
 
-            PokemonSpeciesSO starter =
-                (_catalog.Starters != null && _starterIndex >= 0 && _starterIndex < _catalog.Starters.Count)
-                    ? _catalog.Starters[_starterIndex] : null;
-            if (starter != null) RunBootstrapper.SeedStarter(ctx, starter, _starterLevel);
-
-            Debug.Log($"[RunLauncher] Run wired (seed {_runSeed}, starter {(starter ? starter.DisplayName : "none")}). " +
-                      "RunController registered in Services; awaiting StartRun() (UI trigger = Epic 13).");
+            // Starter is NOT seeded here — the player picks one on the starter-select screen
+            // (MapViewUI), which calls RunBootstrapper.SeedStarter then Run.StartRun().
+            Debug.Log($"[RunLauncher] Run wired (seed {_runSeed}). RunController + Catalog registered; " +
+                      "awaiting starter selection + StartRun (UI).");
 
             if (_devAutoRunOnBoot)
             {
-                Debug.Log("[RunLauncher] DEV auto-run ON — walking a full run:");
+                Debug.Log("[RunLauncher] DEV auto-run ON — seeding starter[0] + walking a full run:");
+                if (_catalog.Starters != null && _catalog.Starters.Count > 0)
+                    RunBootstrapper.SeedStarter(ctx, _catalog.Starters[Mathf.Clamp(_starterIndex, 0, _catalog.Starters.Count - 1)], _starterLevel);
                 Run.StartRun();
                 int steps = RunAutoPilot.WalkToEnd(Run, s => Debug.Log("[RunLauncher] " + s));
                 Debug.Log($"[RunLauncher] DEV run finished — over={Run.RunOver}, nodes={steps}, " +

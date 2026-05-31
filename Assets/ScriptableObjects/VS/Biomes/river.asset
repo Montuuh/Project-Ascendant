@@ -18,5 +18,6 @@ MonoBehaviour:
   PaletteTint: {r: 1, g: 1, b: 1, a: 1}
   BackgroundSprite: {fileID: 0}
   SpeciesPool:
-  - {fileID: 11400000, guid: a5daa42abd8de2f48b990e62883762fa, type: 2}
+  - {fileID: 11400000, guid: efc5571bf4edfc34eac2d4473360a590, type: 2}
+  - {fileID: 11400000, guid: 16b27e1761236c042b771d6692178e0a, type: 2}
   GDDReference: "\xA73.1.13 | Flowing water route. Water types common."

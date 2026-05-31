@@ -52,18 +52,17 @@ namespace ProjectAscendant.Tests
             RunContentCatalogSO cat = Make<RunContentCatalogSO>();
 
             MapGenerationConfigSO map = Make<MapGenerationConfigSO>();
-            map.LayerCount = 8; map.BranchLayerIndex = 4; map.LaneCountAfterBranch = 2;
-            map.DefaultMaxBranches = 3; map.ConstraintRetryCap = 8;
+            map.LayerCount = 8; map.DefaultMaxBranches = 2; map.ConstraintRetryCap = 8;
             map.Layers = new List<MapLayerSpec>
             {
-                new() { Layer = 0, WidthPerLane = 1, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Wild },
-                new() { Layer = 1, WidthPerLane = 3, ForceMode = LayerForceMode.None },
-                new() { Layer = 2, WidthPerLane = 3, ForceMode = LayerForceMode.None },
-                new() { Layer = 3, WidthPerLane = 3, ForceMode = LayerForceMode.OneNodeInLayer, ForcedType = NodeType.Elite },
-                new() { Layer = 4, WidthPerLane = 1, ForceMode = LayerForceMode.None },
-                new() { Layer = 5, WidthPerLane = 2, ForceMode = LayerForceMode.None },
-                new() { Layer = 6, WidthPerLane = 2, ForceMode = LayerForceMode.OneNodePerLane, ForcedType = NodeType.Center },
-                new() { Layer = 7, WidthPerLane = 1, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Gym },
+                new() { Layer = 0, NodesInLayer = 1, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Wild },
+                new() { Layer = 1, NodesInLayer = 3, ForceMode = LayerForceMode.None },
+                new() { Layer = 2, NodesInLayer = 5, ForceMode = LayerForceMode.None },
+                new() { Layer = 3, NodesInLayer = 3, ForceMode = LayerForceMode.OneNodeInLayer, ForcedType = NodeType.Elite },
+                new() { Layer = 4, NodesInLayer = 2, ForceMode = LayerForceMode.None },
+                new() { Layer = 5, NodesInLayer = 1, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Center },
+                new() { Layer = 6, NodesInLayer = 2, ForceMode = LayerForceMode.None },
+                new() { Layer = 7, NodesInLayer = 1, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Gym },
             };
             map.LayerWeights = new List<NodeLayerWeights>
             {

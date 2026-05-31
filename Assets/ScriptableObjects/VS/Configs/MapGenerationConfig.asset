@@ -13,41 +13,39 @@ MonoBehaviour:
   m_Name: MapGenerationConfig
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.MapGenerationConfigSO
   LayerCount: 8
-  BranchLayerIndex: 4
-  LaneCountAfterBranch: 2
-  DefaultMaxBranches: 3
+  DefaultMaxBranches: 2
   ConstraintRetryCap: 8
   Layers:
   - Layer: 0
-    WidthPerLane: 1
+    NodesInLayer: 1
     ForceMode: 1
     ForcedType: 0
   - Layer: 1
-    WidthPerLane: 3
+    NodesInLayer: 3
     ForceMode: 0
     ForcedType: 0
   - Layer: 2
-    WidthPerLane: 3
+    NodesInLayer: 5
     ForceMode: 0
     ForcedType: 0
   - Layer: 3
-    WidthPerLane: 3
+    NodesInLayer: 3
     ForceMode: 2
     ForcedType: 6
   - Layer: 4
-    WidthPerLane: 1
+    NodesInLayer: 2
     ForceMode: 0
     ForcedType: 0
   - Layer: 5
-    WidthPerLane: 2
+    NodesInLayer: 1
+    ForceMode: 1
+    ForcedType: 2
+  - Layer: 6
+    NodesInLayer: 2
     ForceMode: 0
     ForcedType: 0
-  - Layer: 6
-    WidthPerLane: 2
-    ForceMode: 3
-    ForcedType: 2
   - Layer: 7
-    WidthPerLane: 1
+    NodesInLayer: 1
     ForceMode: 1
     ForcedType: 5
   LayerWeights:
@@ -59,22 +57,22 @@ MonoBehaviour:
     MysteryWeight: 0
     GymWeight: 0
   - Layer: 1
-    WildWeight: 2
-    TrainerWeight: 3
+    WildWeight: 1
+    TrainerWeight: 2
     CenterWeight: 0
-    ShopWeight: 0
+    ShopWeight: 1
     MysteryWeight: 1
     GymWeight: 0
   - Layer: 2
     WildWeight: 1
-    TrainerWeight: 3
-    CenterWeight: 0
+    TrainerWeight: 2
+    CenterWeight: 1
     ShopWeight: 1
     MysteryWeight: 1
     GymWeight: 0
   - Layer: 3
     WildWeight: 1
-    TrainerWeight: 3
+    TrainerWeight: 2
     CenterWeight: 0
     ShopWeight: 0
     MysteryWeight: 1
@@ -83,21 +81,21 @@ MonoBehaviour:
     WildWeight: 1
     TrainerWeight: 2
     CenterWeight: 0
-    ShopWeight: 0
-    MysteryWeight: 2
-    GymWeight: 0
-  - Layer: 5
-    WildWeight: 1
-    TrainerWeight: 3
-    CenterWeight: 0
     ShopWeight: 1
     MysteryWeight: 1
+    GymWeight: 0
+  - Layer: 5
+    WildWeight: 0
+    TrainerWeight: 0
+    CenterWeight: 1
+    ShopWeight: 0
+    MysteryWeight: 0
     GymWeight: 0
   - Layer: 6
     WildWeight: 1
     TrainerWeight: 2
     CenterWeight: 0
-    ShopWeight: 0
+    ShopWeight: 1
     MysteryWeight: 1
     GymWeight: 0
   - Layer: 7
