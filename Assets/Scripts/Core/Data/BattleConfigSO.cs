@@ -182,5 +182,14 @@ namespace ProjectAscendant.Core
                  "Ability + Held Item both granting Fire aura → +0.10). " +
                  "Per §5.5.4 + Epic 6 Task 6.6.")]
         public float LeadAuraMatchingTypeBonus = 0.05f;
+
+        // Per §5.5.3.4 / §5.8 — Overgrow / Blaze / Torrent: while this Pokémon's HP is below the
+        // threshold, its matching-type moves deal ×Multiplier damage.
+        public float AbilityLowHpBoostMultiplier = 1.2f;   // +20%
+        public float AbilityLowHpThreshold = 0.30f;        // when HP < 30%
+
+        // Per §5.5.3 / §5.8 — Shell Armor: flat incoming-damage reduction while this Pokémon is Lead
+        // (stacks with the Boulder Badge reduction, §4.4.5.1).
+        public int ShellArmorFlatReduction = 2;
     }
 }

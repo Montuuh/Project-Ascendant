@@ -277,8 +277,12 @@ namespace ProjectAscendant.UI
             string st = p != null && p.PrimaryStatus != StatusCondition.None ? $"  [{p.PrimaryStatus}]" : "";
             string tag = (isLead ? "▶ LEAD" : SlotRole(slot, s)) + (fainted ? "  ✖ FAINTED" : "");
             Color nameCol = fainted ? new Color(0.62f, 0.5f, 0.5f) : new Color(0.92f, 0.97f, 0.92f);
+            // §5.5 — show the passive ability (low-HP type-boosters glow when armed).
+            string ab = p?.Ability != null ? $"   ✦ {p.Ability.DisplayName ?? p.Ability.AbilityId}" : "";
 
             Txt(panel.transform, $"{tag}   {name}  Lv{p?.Level ?? 0}{st}", 20, nameCol, Mid(), new Vector2(-40, 28), new Vector2(440, 28));
+            if (ab.Length > 0)
+                Txt(panel.transform, ab, 16, new Color(0.72f, 0.85f, 0.95f), Mid(), new Vector2(150, 28), new Vector2(320, 24));
             Txt(panel.transform, $"HP {hp} / {max}", 17, Color.white, Mid(), new Vector2(-180, 1), new Vector2(200, 24));
             Image hb = HpBar(panel.transform, new Vector2(-20, -28), new Vector2(420, 18));
             SetFill(hb, max > 0 ? Mathf.Clamp01((float)hp / max) : 0f);

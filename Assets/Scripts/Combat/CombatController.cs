@@ -610,8 +610,15 @@ namespace ProjectAscendant.Combat
             float playerAuraMul = LeadAuraResolver.GetDamageMultiplier(
                 attacker, move, ResolveLead(), State.PlayerTeam, State.Config);
 
-            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul);
+            // Per §5.5.3.4 — Overgrow/Blaze/Torrent: the attacker's matching-type moves deal +X%
+            // while its HP is below the threshold (1.0 for everyone else).
+            float abilityOutMul = AbilityResolver.OutgoingDamageMultiplier(attacker, move, State.Config);
+
+            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul);
             if (final <= 0) final = (dmg.TypeEffectiveness == 0.0) ? 0 : 1; // immune stays 0
+
+            // Per §5.5.3.3 — Levitate: Ground-type moves do nothing to a Levitate target.
+            if (AbilityResolver.IsImmuneTo(target, move)) final = 0;
 
             // Per §4.4.5.1 — Boulder Badge: flat reduction on damage INCOMING
             // to the player's Lead (minimum 0). Applied AFTER the non-immune
@@ -619,7 +626,9 @@ namespace ProjectAscendant.Combat
             // incoming damage by 1, minimum 0"). Non-Lead targets unaffected.
             if (final > 0 && IsPlayerLead(target))
             {
-                int reduction = SumLeadIncomingDamageReduction();
+                // Per §5.8 — Shell Armor stacks additively with the Boulder Badge reduction.
+                int reduction = SumLeadIncomingDamageReduction()
+                              + AbilityResolver.IncomingFlatReduction(target, State.Config);
                 if (reduction > 0) final = Mathf.Max(0, final - reduction);
             }
 
@@ -628,7 +637,7 @@ namespace ProjectAscendant.Combat
             // Robust to one-shots: does not require having "entered" Phase 3 on
             // a prior turn. A boss already at 1 HP is not protected.
             if (final >= target.CurrentHP && target.CurrentHP > 1
-                && target.HasSturdy && !target.SturdyConsumed)
+                && AbilityResolver.HasSturdy(target) && !target.SturdyConsumed)
             {
                 target.SturdyConsumed = true;
                 target.CurrentHP = 1;
