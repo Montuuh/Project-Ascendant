@@ -278,10 +278,26 @@ namespace ProjectAscendant.Tests
 
             Assert.That(rc.RunOver, Is.True, "Walking the map must reach a run-ending node.");
             Assert.That(_events[_events.Count - 1], Is.EqualTo(GameEventType.RunEnded), "Gym victory ends the run.");
+            Assert.That(rc.Outcome, Is.EqualTo(RunOutcome.Victory), "Gym victory records a Victory outcome (§7.13).");
             Assert.That(rc.CurrentNode.NodeType, Is.EqualTo(NodeType.Gym));
             // Gym reward applied to the run (§7.12).
             Assert.That(run.EarnedBadges, Is.Not.Null.And.Count.GreaterThanOrEqualTo(1));
             Assert.That(run.PokeDollars, Is.GreaterThanOrEqualTo(500));
+        }
+
+        [Test]
+        public void PlayerWipe_EndsRun_RecordsDefeatOutcome()
+        {
+            // Per §3.3.6 — a combat loss wipes the team and ends the run as a Defeat (GameOver).
+            RunController rc = MakeRunController(123u, out _, out _);
+            rc.StartRun();
+            rc.EnterNode(rc.Map.Entry); // forced Wild at Layer 0
+            ((WildAreaNodeController)rc.ActiveNode).ResolveCombat(CombatController.CombatOutcome.Defeat, null);
+            rc.CompleteActiveNode();
+
+            Assert.That(rc.RunOver, Is.True, "A player wipe ends the run.");
+            Assert.That(rc.Outcome, Is.EqualTo(RunOutcome.Defeat), "A wipe records a Defeat outcome (§3.3.6).");
+            Assert.That(_events[_events.Count - 1], Is.EqualTo(GameEventType.GameOver));
         }
 
         [Test]

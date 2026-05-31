@@ -29,6 +29,9 @@ namespace ProjectAscendant.Map
         public MapNode CurrentNode { get; private set; }
         public NodeController ActiveNode { get; private set; }
         public bool RunOver { get; private set; }
+        // Per §7.13 / §3.3.6 — set once RunOver becomes true: Victory on a Gym win (RunEnded),
+        // Defeat on a player wipe (GameOver). Null while the run is still in progress.
+        public RunOutcome? Outcome { get; private set; }
 
         public RunController(RunContext context, NodeControllerFactory factory, Action<GameEvent> dispatch)
         {
@@ -45,6 +48,7 @@ namespace ProjectAscendant.Map
             CurrentNode = null;
             ActiveNode = null;
             RunOver = false;
+            Outcome = null;
             _dispatch(new GameEvent(GameEventType.StartNewRun));
         }
 
@@ -89,7 +93,11 @@ namespace ProjectAscendant.Map
 
             GameEventType evt = ActiveNode.ToGameEventType();
             if (evt == GameEventType.RunEnded || evt == GameEventType.GameOver)
+            {
                 RunOver = true;
+                // §7.13 Gym victory (RunEnded) = Victory; §3.3.6 player wipe (GameOver) = Defeat.
+                Outcome = evt == GameEventType.RunEnded ? RunOutcome.Victory : RunOutcome.Defeat;
+            }
             else
                 _ctx.Loadout?.Unlock();
 

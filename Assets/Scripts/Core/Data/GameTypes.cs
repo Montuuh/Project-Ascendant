@@ -54,6 +54,11 @@ namespace ProjectAscendant.Core
     //   PlayerWiped→ GameOver     (→ GameOverState; §3.3.6 run-failure)
     public enum NodeOutcome { Cleared, PlayerWiped, RunEnded }
 
+    // Per §7.13 / §3.3.6 — how a whole run terminated, for the run-end screen.
+    //   Victory → Gym Leader defeated, Region cleared (NodeOutcome.RunEnded).
+    //   Defeat  → player team wiped at any combat node (NodeOutcome.PlayerWiped).
+    public enum RunOutcome { Victory, Defeat }
+
     // Per §4.1.1 — simplified stat block: HP, Attack, Defense, Speed only.
     [Serializable]
     public struct BaseStats

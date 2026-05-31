@@ -107,7 +107,12 @@ namespace ProjectAscendant.UI
 
             if (_run.RunOver)
             {
-                Text done = MakeText(_graph, "★  RUN COMPLETE  ★", 40, new Color(1f, 0.85f, 0.3f));
+                // §7.13 Gym victory vs §3.3.6 player wipe — distinct banner per outcome (defeat
+                // falls back to a neutral close if no outcome was recorded).
+                bool defeat = _run.Outcome == RunOutcome.Defeat;
+                string label = defeat ? "✖  DEFEATED  ✖" : "★  VICTORY — REGION CLEARED  ★";
+                Color color = defeat ? new Color(0.9f, 0.25f, 0.25f) : new Color(0.3f, 0.9f, 0.4f);
+                Text done = MakeText(_graph, label, 40, color);
                 Anchor(done.rectTransform, Mid(), Mid(), new Vector2(0, GraphH * 0.5f - 4), new Vector2(700, 60));
             }
         }
