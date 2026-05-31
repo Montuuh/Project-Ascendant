@@ -151,5 +151,62 @@ namespace ProjectAscendant.Tests
             PokemonInstance p = Mon(Species(40, 4, evolveLevel: 1, hasBranch: false), 20);
             Assert.That(LevelUpResolver.IsEvolutionEligible(p), Is.False);
         }
+
+        // ── EvolutionExecutor (Task 10.4, §5.3.5) ─────────────────────────────
+
+        [Test]
+        // §5.3.5 / §5.10.3 / §4.3.9.2 / §6.2.3 — evolving upgrades active moves in place, advances the
+        // species + stage, grants the branch ability, upgrades Mastery, and carries Trauma.
+        public void Evolve_UpgradesMoves_AdvancesStage_GrantsAbility_CarriesTrauma()
+        {
+            MoveSO tackle = Make<MoveSO>();
+            MoveSO skullBash = Make<MoveSO>();
+            MoveSO waterGun = Make<MoveSO>();
+            MoveSO evolvedMastery = Make<MoveSO>();
+            AbilitySO torrent = Make<AbilitySO>();
+
+            PokemonSpeciesSO evolved = Species(60, 4, 0, false); // Wartortle-ish, no further branch
+            evolved.MasteryMove = evolvedMastery;
+
+            EvolutionBranchSO branch = Make<EvolutionBranchSO>();
+            branch.EvolvedSpecies = evolved;
+            branch.MoveUpgrades = new List<MoveUpgradePair> { new() { OldMove = tackle, NewMove = skullBash } };
+            branch.NewMoves = new List<MoveSO>();
+            branch.GrantedAbility = torrent;
+
+            PokemonInstance p = new()
+            {
+                Species = Species(40, 4, 12, true),
+                Level = 12,
+                CurrentHP = 30,
+                CurrentStage = EvolutionStage.Basic,
+                TraumaStacks = 2,
+            };
+            p.CurrentMoves.Add(tackle);
+            p.CurrentMoves.Add(waterGun);
+
+            EvolutionExecutor.Result r = EvolutionExecutor.Evolve(p, branch);
+
+            Assert.That(r.Evolved, Is.True);
+            Assert.That(p.Species, Is.SameAs(evolved));
+            Assert.That(p.CurrentStage, Is.EqualTo(EvolutionStage.Stage1));
+            Assert.That(p.CurrentMoves, Has.Member(skullBash), "Active Tackle upgrades in place.");
+            Assert.That(p.CurrentMoves, Has.No.Member(tackle));
+            Assert.That(p.CurrentMoves, Has.Member(waterGun), "Unaffected moves are retained.");
+            Assert.That(p.Ability, Is.SameAs(torrent), "Branch ability granted (§5.5.1).");
+            Assert.That(p.MasteryMove, Is.SameAs(evolvedMastery), "Mastery upgrades to evolved stage (§4.3.9.2).");
+            Assert.That(p.SelectedBranch, Is.SameAs(branch), "Archetype path locked (§5.3.5).");
+            Assert.That(p.TraumaStacks, Is.EqualTo(2), "Trauma carries through (§6.2.3).");
+        }
+
+        [Test]
+        public void Evolve_NullBranchOrSpecies_NoChange()
+        {
+            PokemonInstance p = new() { Species = Species(40, 4, 12, true), Level = 12 };
+            PokemonSpeciesSO before = p.Species;
+            Assert.That(EvolutionExecutor.Evolve(p, null).Evolved, Is.False);
+            Assert.That(EvolutionExecutor.Evolve(null, Make<EvolutionBranchSO>()).Evolved, Is.False);
+            Assert.That(p.Species, Is.SameAs(before));
+        }
     }
 }
