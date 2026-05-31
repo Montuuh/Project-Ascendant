@@ -191,5 +191,11 @@ namespace ProjectAscendant.Core
         // Per §5.5.3 / §5.8 — Shell Armor: flat incoming-damage reduction while this Pokémon is Lead
         // (stacks with the Boulder Badge reduction, §4.4.5.1).
         public int ShellArmorFlatReduction = 2;
+
+        // Per §5.8 — Static: chance to Paralyse the target when dealing damage with an Electric move.
+        public int StaticParalysisChancePercent = 25;
+
+        // Per §5.5.3 / §5.8 — Swift Swim: extra skill cards drawn on turn 1 of a Rain-active combat.
+        public int SwiftSwimDrawBonus = 1;
     }
 }

@@ -193,6 +193,7 @@ namespace ProjectAscendant.Combat
             State.Deck.Build(State.PlayerTeam);
             State.Consumables.Build(State.ConsumableInventory);
             State.TurnNumber = 0;
+            AbilityResolver.ApplyLeadEntryEffects(State); // §5.5.3.5 Intimidate — initial Lead enters
         }
 
         // Per §3.2 + Task 4.1.7 — composition of all phases until outcome.
@@ -231,6 +232,9 @@ namespace ProjectAscendant.Combat
                 State.Config, State.SkillHandSizeBonus);
             int consumableTarget = HandSizeCalculator.EffectiveConsumableCount(
                 State.Config, State.ConsumableHandSizeBonus);
+            // Per §5.5.3 — Swift Swim: +1 skill draw on turn 1 of a Rain combat.
+            skillTarget += AbilityResolver.SwiftSwimDrawBonus(
+                State.PlayerTeam, State.Field, State.TurnNumber, State.Config);
             DrawSkillCards(skillTarget);
             DrawConsumableCards(consumableTarget);
 
@@ -297,6 +301,19 @@ namespace ProjectAscendant.Combat
                 }
                 State.EnemyIntents.Add(BuildIntentForEnemy(enemy));
             }
+
+            // Per §5.5.3.1 — Keen Eye: a team holding it reveals any Hidden intents (latent while VS
+            // intents are all Witnessed; active once Hidden/counter-intel content exists).
+            if (AbilityResolver.TeamRevealsIntents(State.PlayerTeam))
+                for (int i = 0; i < State.EnemyIntents.Count; i++)
+                {
+                    Intent it = State.EnemyIntents[i];
+                    if (it.Reveal == IntentReveal.Hidden)
+                    {
+                        it.Reveal = IntentReveal.Witnessed;
+                        State.EnemyIntents[i] = it;
+                    }
+                }
         }
 
         // Builds the candidate intents this enemy could declare this turn,
@@ -646,6 +663,11 @@ namespace ProjectAscendant.Combat
             {
                 target.CurrentHP = Mathf.Max(0, target.CurrentHP - final);
             }
+            // Per §5.5.3 — Static: a surviving target hit by an Electric move may be Paralysed.
+            if (target.CurrentHP > 0
+                && AbilityResolver.RollStaticParalysis(attacker, move, State.Config, State.Rng))
+                StatusEffectManager.TryApply(target, StatusCondition.Paralysis, State.Config);
+
             // Faint resolution happens after each strike chain — see HandleAnyFaints.
             HandleAnyFaints();
         }
@@ -788,6 +810,7 @@ namespace ProjectAscendant.Combat
                         && State.PlayerTeam[newIdx].CurrentHP > 0)
                     {
                         State.LeadIndex = newIdx;
+                        AbilityResolver.ApplyLeadEntryEffects(State); // §5.5.3.5 Intimidate
                     }
                 }
             }

@@ -120,6 +120,7 @@ namespace ProjectAscendant.Combat
             if (idx < 0) return;
             if (idx == _state.LeadIndex) return; // already lead — no-op
             _state.LeadIndex = idx;
+            AbilityResolver.ApplyLeadEntryEffects(_state); // §5.5.3.5 Intimidate
         }
 
         private void ApplyStepBackward()
@@ -137,6 +138,7 @@ namespace ProjectAscendant.Combat
             if (target.CurrentHP == 0) return;
             if (target.PrimaryStatus == StatusCondition.Freeze) return;
             _state.LeadIndex = chosen;
+            AbilityResolver.ApplyLeadEntryEffects(_state); // §5.5.3.5 Intimidate
         }
 
         // Per §3.3.3 — Step-Backward eligibility differs from Lead-faint

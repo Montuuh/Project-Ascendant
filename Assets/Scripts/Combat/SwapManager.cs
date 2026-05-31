@@ -89,6 +89,7 @@ namespace ProjectAscendant.Combat
             // the first Defensive card played this turn. SF/SB do NOT call
             // this method, so they correctly don't set this flag.
             state.DefensiveSwapDiscountAvailable = true;
+            AbilityResolver.ApplyLeadEntryEffects(state); // §5.5.3.5 Intimidate
             return true;
         }
     }

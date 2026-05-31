@@ -121,5 +121,73 @@ namespace ProjectAscendant.Tests
             Assert.That(AbilityResolver.HasSturdy(flagged), Is.True);
             Assert.That(AbilityResolver.HasSturdy(Mon(null, 100)), Is.False);
         }
+
+        // ── Non-damage hooks (§5.5.3) ─────────────────────────────────────────
+
+        [Test]
+        public void KeenEye_TeamRevealDetection()
+        {
+            var team = new List<PokemonInstance> { Mon(Ability("overgrow"), 100), Mon(Ability("keen_eye"), 100) };
+            Assert.That(AbilityResolver.TeamRevealsIntents(team), Is.True);
+            Assert.That(AbilityResolver.TeamRevealsIntents(new List<PokemonInstance> { Mon(Ability("overgrow"), 100) }), Is.False);
+        }
+
+        [Test]
+        // §5.5.3 Static — gated to (ability == static) AND (move type == Electric); chance via config.
+        public void Static_GatedByAbilityAndType()
+        {
+            BattleConfigSO always = Cfg(); always.StaticParalysisChancePercent = 100;
+            BattleConfigSO never = Cfg(); never.StaticParalysisChancePercent = 0;
+            GameRNG rng = new(1u);
+
+            PokemonInstance stat = Mon(Ability("static"), 100);
+            Assert.That(AbilityResolver.RollStaticParalysis(stat, Move(PokemonType.Electric), always, rng), Is.True);
+            Assert.That(AbilityResolver.RollStaticParalysis(stat, Move(PokemonType.Electric), never, rng), Is.False);
+            Assert.That(AbilityResolver.RollStaticParalysis(stat, Move(PokemonType.Water), always, rng), Is.False);
+            Assert.That(AbilityResolver.RollStaticParalysis(Mon(Ability("overgrow"), 100), Move(PokemonType.Electric), always, rng), Is.False);
+        }
+
+        [Test]
+        // §5.5.3 Swift Swim — turn-1 Rain only.
+        public void SwiftSwim_Turn1RainOnly()
+        {
+            BattleConfigSO cfg = Cfg(); cfg.SwiftSwimDrawBonus = 1;
+            var team = new List<PokemonInstance> { Mon(Ability("swift_swim"), 100) };
+            FieldState rain = new() { Weather = FieldEffectKind.RainDance };
+            FieldState clear = FieldState.Empty;
+
+            Assert.That(AbilityResolver.SwiftSwimDrawBonus(team, rain, 1, cfg), Is.EqualTo(1));
+            Assert.That(AbilityResolver.SwiftSwimDrawBonus(team, rain, 2, cfg), Is.EqualTo(0), "Only turn 1.");
+            Assert.That(AbilityResolver.SwiftSwimDrawBonus(team, clear, 1, cfg), Is.EqualTo(0), "Only in Rain.");
+            var noSwim = new List<PokemonInstance> { Mon(Ability("overgrow"), 100) };
+            Assert.That(AbilityResolver.SwiftSwimDrawBonus(noSwim, rain, 1, cfg), Is.EqualTo(0));
+        }
+
+        [Test]
+        // §5.5.3.5 Intimidate — entering Lead lowers every live enemy's Attack one stage.
+        public void Intimidate_LowersEnemyAttackOnLeadEntry()
+        {
+            PokemonInstance e1 = Mon(null, 50), e2 = Mon(null, 50);
+            var state = new CombatController.CombatState
+            {
+                PlayerTeam = new List<PokemonInstance> { Mon(Ability("intimidate"), 100) },
+                LeadIndex = 0,
+                EnemyTeam = new List<PokemonInstance> { e1, e2 },
+            };
+            AbilityResolver.ApplyLeadEntryEffects(state);
+            Assert.That(StatStageManager.GetStage(e1, Stat.Attack), Is.EqualTo(-1));
+            Assert.That(StatStageManager.GetStage(e2, Stat.Attack), Is.EqualTo(-1));
+
+            // A non-Intimidate lead does nothing.
+            PokemonInstance e3 = Mon(null, 50);
+            var state2 = new CombatController.CombatState
+            {
+                PlayerTeam = new List<PokemonInstance> { Mon(Ability("overgrow"), 100) },
+                LeadIndex = 0,
+                EnemyTeam = new List<PokemonInstance> { e3 },
+            };
+            AbilityResolver.ApplyLeadEntryEffects(state2);
+            Assert.That(StatStageManager.GetStage(e3, Stat.Attack), Is.EqualTo(0));
+        }
     }
 }
