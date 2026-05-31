@@ -78,6 +78,12 @@ namespace ProjectAscendant.UI
             _onComplete?.Invoke();
         }
 
+        // DEV-ONLY — rebuild the open panel so a cheat (e.g. +₽) re-evaluates affordability live.
+        public void CheatRefreshIfActive()
+        {
+            if (_root != null) RefreshBody();
+        }
+
         // ── Shop (§7.7) ───────────────────────────────────────────────────────
 
         private void RenderShop(RegionShopNodeController shop)

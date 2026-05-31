@@ -75,6 +75,47 @@ namespace ProjectAscendant.UI
             _onComplete?.Invoke(outcome);
         }
 
+        // ── Cheat hooks (DEV-ONLY — driven by CheatConsole) ───────────────────
+        // True while a combat overlay is on screen (used to route F-key cheats to combat vs map).
+        public bool IsActive => _root != null;
+
+        // F2 — instantly KO every enemy, then run the normal end-of-turn resolution so the
+        // Victory path + banner fire through the real flow (not a fake state poke).
+        public void CheatWinCombat()
+        {
+            if (_cc == null || _cc.State.Outcome != CombatController.CombatOutcome.InProgress) return;
+            foreach (PokemonInstance e in _cc.State.EnemyTeam) if (e != null) e.CurrentHP = 0;
+            EndTurn();
+        }
+
+        // F3 — force-catch enemy slot 0 (bypasses the §7.3.4.1 HP/status gate). On a wild this
+        // recruits via MapViewUI.OnCombatComplete; on a trainer it just clears the fight (dev aid).
+        public void CheatCaptureEnemy()
+        {
+            if (_cc == null || _cc.State.Outcome != CombatController.CombatOutcome.InProgress) return;
+            if (_cc.State.EnemyTeam.Count == 0 || _cc.State.EnemyTeam[0] == null) return;
+            _cc.State.CaughtTarget = _cc.State.EnemyTeam[0];
+            _cc.State.EnemyTeam.Clear();
+            EndTurn();
+        }
+
+        // F4 — full-heal the whole active team (Lead + bench).
+        public void CheatHealTeam()
+        {
+            if (_cc == null) return;
+            foreach (PokemonInstance p in _cc.State.PlayerTeam)
+                if (p != null) p.CurrentHP = PokemonVitals.MaxHP(p);
+            Refresh();
+        }
+
+        // F5 — refill AP to the per-turn max.
+        public void CheatRefillAP()
+        {
+            if (_cc == null || _cc.State.Config == null) return;
+            _cc.State.CurrentAP = _cc.State.Config.MaxAPPerTurn;
+            Refresh();
+        }
+
         // ── Build (once) ──────────────────────────────────────────────────────
 
         private void Build()

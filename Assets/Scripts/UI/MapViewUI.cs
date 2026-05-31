@@ -25,6 +25,7 @@ namespace ProjectAscendant.UI
         private RunContentCatalogSO _catalog;
         private CombatScreenUI _combat;
         private NodePanelUI _nodePanel;
+        private CheatConsole _cheats;
 
         private Text _header;
         private Text _log;
@@ -50,6 +51,12 @@ namespace ProjectAscendant.UI
 
             _nodePanel = new GameObject("NodePanel").AddComponent<NodePanelUI>();
             _nodePanel.transform.SetParent(transform, false);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
+            _cheats.transform.SetParent(transform, false);
+            _cheats.Init(this, _combat);
+#endif
 
             BuildChrome();
             Refresh();
@@ -268,6 +275,72 @@ namespace ProjectAscendant.UI
             if (idx.Count == 0) return;
             int lead = _state != null ? Mathf.Clamp(_state.LeadIndex, 0, idx.Count - 1) : 0;
             _ctx.Loadout.Confirm(idx, lead);
+        }
+
+        // ── Cheat hooks (DEV-ONLY — driven by CheatConsole) ───────────────────
+
+        public bool CombatActive => _combat != null && _combat.IsActive;
+
+        // F6 — grant Poké Dollars (live-refreshes an open Shop so BUY/RE-ROLL re-evaluate).
+        public void CheatGiveMoney(int amount)
+        {
+            if (_state == null) return;
+            _state.PokeDollars += amount;
+            _nodePanel?.CheatRefreshIfActive();
+            AppendLog($"CHEAT: +{amount} ₽  (now {_state.PokeDollars}).");
+            Refresh();
+        }
+
+        // F4 (map context) — full-heal + revive every Box Pokémon.
+        public void CheatHealBox()
+        {
+            if (_ctx?.Box == null) return;
+            foreach (PokemonInstance p in _ctx.Box.Members)
+                if (p != null) p.CurrentHP = PokemonVitals.MaxHP(p);
+            AppendLog("CHEAT: healed the whole Box.");
+            Refresh();
+        }
+
+        // F8 — grant test loot: a relic + 3 Pokéballs + 3 Potions.
+        public void CheatGrantLoot()
+        {
+            if (_state == null || _catalog == null) return;
+            if (_catalog.Relics != null && _catalog.Relics.Count > 0)
+                (_state.HeldRelics ??= new List<RelicSO>()).Add(_catalog.Relics[0]);
+            _state.Inventory ??= new List<ConsumableSO>();
+            if (_catalog.Pokeball != null) for (int i = 0; i < 3; i++) _state.Inventory.Add(_catalog.Pokeball);
+            if (_catalog.Potion != null) for (int i = 0; i < 3; i++) _state.Inventory.Add(_catalog.Potion);
+            _nodePanel?.CheatRefreshIfActive();
+            AppendLog("CHEAT: +1 relic, +3 Pokéballs, +3 Potions.");
+            Refresh();
+        }
+
+        // F7 — auto-resolve nodes along the first-reachable path until the Gym is selectable, then
+        // stop so the player can fight the boss for real. Combats are headless-won (no player damage).
+        public void CheatSkipToGym()
+        {
+            if (_run == null || _run.RunOver || _run.Map == null) return;
+            int guard = 0;
+            while (!_run.RunOver && guard++ < 40)
+            {
+                IReadOnlyList<MapNode> sel = _run.SelectableNodes();
+                if (sel == null || sel.Count == 0) break;
+                MapNode next = null;
+                bool gymReachable = false;
+                for (int i = 0; i < sel.Count; i++)
+                {
+                    if (sel[i].NodeType == NodeType.Gym) { gymReachable = true; break; }
+                    if (next == null) next = sel[i];
+                }
+                if (gymReachable || next == null) break;
+                _run.EnterNode(next);
+                RunAutoPilot.ResolveActive(_run);
+                _run.CompleteActiveNode();
+                _visited.Add(next);
+            }
+            AutoFillTeam();
+            AppendLog("CHEAT: skipped ahead — the Gym is now reachable.");
+            Refresh();
         }
 
         // Builds an interactive CombatController for a combat node, or null for utility nodes / no team.
