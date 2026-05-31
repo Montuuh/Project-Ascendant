@@ -356,5 +356,84 @@ namespace ProjectAscendant.Tests
             Assert.That(StatStageManager.GetStage(player, Stat.Attack), Is.EqualTo(0),
                 "Stat stages reset on combat end (§4.2.6).");
         }
+
+        // ── Bucket 8: Lead-targeted intents track swaps (§4.3.2 / Pillar 2) ──
+
+        [Test]
+        // Per §4.3.2 / Pillar 2 — an enemy attack telegraphed at the Lead must hit whoever is the
+        // Lead at RESOLUTION (after a manual swap), not the Pokémon that was Lead when it declared.
+        public void EnemyLeadAttack_AfterManualSwap_HitsNewLead_NotOldLead()
+        {
+            PokemonSpeciesSO sp = MakeSpecies(120, 50, 50, PokemonType.Normal);
+            MoveSO filler = MakeMove(PokemonType.Normal, 40);
+            PokemonInstance oldLead = MakeMon(sp, filler);   // slot 0 — Lead at declaration
+            PokemonInstance benchTank = MakeMon(sp, filler); // slot 1 — swapped in to eat the hit
+
+            PokemonInstance enemy = MakeMon(sp, MakeMove(PokemonType.Normal, 100));
+
+            CombatController c = new(new CombatController.CombatSetup
+            {
+                PlayerTeam = new List<PokemonInstance> { oldLead, benchTank },
+                InitialLeadIndex = 0,
+                EnemyTeam = new List<PokemonInstance> { enemy },
+                ConsumableInventory = new List<ConsumableSO>(),
+                InitialField = FieldState.Empty,
+                Config = _config,
+                Rng = new GameRNG(1u),
+            }, new PassiveAgent());
+
+            c.Start();
+            c.DrawPhase();
+            c.IntentPhase();
+            c.State.CurrentPhase = CombatController.Phase.ActionPhase;
+
+            Assert.That(c.State.EnemyIntents[0].Kind, Is.EqualTo(IntentKind.Attack));
+            Assert.That(c.State.EnemyIntents[0].TargetsLead, Is.True,
+                "A VS enemy attack targets the Lead role, not a frozen slot.");
+
+            int oldLeadHp = oldLead.CurrentHP;
+            int benchHp = benchTank.CurrentHP;
+
+            c.ExecuteAction(PlayerAction.ManualSwap(1));
+            Assert.That(c.State.LeadIndex, Is.EqualTo(1), "Swap promotes bench slot 1 to Lead.");
+
+            c.ResolutionPhase();
+
+            Assert.That(benchTank.CurrentHP, Is.LessThan(benchHp),
+                "The NEW Lead (slot 1) takes the telegraphed hit.");
+            Assert.That(oldLead.CurrentHP, Is.EqualTo(oldLeadHp),
+                "The OLD Lead (slot 0, now bench) is untouched — the attack followed the Lead role.");
+        }
+
+        [Test]
+        // Per §4.3.2 — with no swap, the Lead attack still lands on the original Lead (no regression).
+        public void EnemyLeadAttack_NoSwap_HitsLead()
+        {
+            PokemonSpeciesSO sp = MakeSpecies(120, 50, 50, PokemonType.Normal);
+            MoveSO filler = MakeMove(PokemonType.Normal, 40);
+            PokemonInstance lead = MakeMon(sp, filler);
+            PokemonInstance bench = MakeMon(sp, filler);
+            PokemonInstance enemy = MakeMon(sp, MakeMove(PokemonType.Normal, 100));
+
+            CombatController c = new(new CombatController.CombatSetup
+            {
+                PlayerTeam = new List<PokemonInstance> { lead, bench },
+                InitialLeadIndex = 0,
+                EnemyTeam = new List<PokemonInstance> { enemy },
+                ConsumableInventory = new List<ConsumableSO>(),
+                InitialField = FieldState.Empty,
+                Config = _config,
+                Rng = new GameRNG(1u),
+            }, new PassiveAgent());
+
+            c.Start();
+            c.DrawPhase();
+            c.IntentPhase();
+            int benchHp = bench.CurrentHP;
+            c.ResolutionPhase();
+
+            Assert.That(lead.CurrentHP, Is.LessThan(120), "The Lead takes the hit.");
+            Assert.That(bench.CurrentHP, Is.EqualTo(benchHp), "The bench is untouched.");
+        }
     }
 }

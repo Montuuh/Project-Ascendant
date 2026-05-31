@@ -6,8 +6,10 @@ namespace ProjectAscendant.Combat
     // Per §4.3.4 + Epic 4 Task 4.7.C — pure target-resolution helpers for
     // intents that resolve against the player's team layout.
     //
-    // Convention: PlayerTeam is indexed [0]=Lead, [1]=Bench1, [2]=Bench2.
-    // null entries are empty slots. Fainted entries have CurrentHP == 0.
+    // PlayerTeam holds the active Pokémon by stable identity slot; the Lead is whichever slot
+    // State.LeadIndex points at (it floats as the player swaps — see SwapManager). A "Lead-targeted"
+    // intent re-resolves through Intent.EffectiveTargetSlot(LeadIndex), so callers pass the CURRENT
+    // lead slot here. null entries are empty slots; fainted entries have CurrentHP == 0.
     //
     // Resolution semantics (the load-bearing rules):
     //   • Cleave NEVER fizzles. Hits every occupied non-fainted slot.

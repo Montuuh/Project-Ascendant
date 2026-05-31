@@ -37,6 +37,18 @@ namespace ProjectAscendant.Combat
         public StatusCondition AppliedStatus; // only meaningful when Kind == Status
         public IntentReveal Reveal;
 
+        // Per §4.3.2 + Pillar 2 — the Lead is a POSITION, not a fixed Pokémon. An intent
+        // telegraphed at the Lead must re-resolve to WHOEVER is the Lead at Resolution time, so a
+        // manual swap (or SF/SB) can pull a tank into the hit — that's the whole point of "every
+        // swap is a decision". Backstrike / fixed-bench intents leave this false (they target a
+        // specific position). TargetSlot still holds the Lead's slot at declaration time for AI
+        // scoring; EffectiveTargetSlot is the source of truth for resolution + display.
+        public bool TargetsLead;
+
+        // The slot this intent actually hits given the current Lead.
+        public int EffectiveTargetSlot(int currentLeadIndex) =>
+            TargetsLead ? currentLeadIndex : TargetSlot;
+
         // Per §4.3.2 — display label component. The slot index is the source
         // of truth; the occupant lookup happens at render time.
         public bool TargetsSlot =>

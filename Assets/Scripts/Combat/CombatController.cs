@@ -316,6 +316,7 @@ namespace ProjectAscendant.Combat
                     Kind = IntentKind.Attack,
                     Move = m,
                     TargetSlot = State.LeadIndex,
+                    TargetsLead = true, // re-resolves to the current Lead at resolution (§4.3.2 / Pillar 2)
                     Reveal = IntentReveal.Witnessed,
                 });
             }
@@ -326,6 +327,7 @@ namespace ProjectAscendant.Combat
                     Kind = IntentKind.Attack,
                     Move = enemy.MasteryMove,
                     TargetSlot = State.LeadIndex,
+                    TargetsLead = true,
                     Reveal = IntentReveal.Witnessed,
                 });
             }
@@ -511,8 +513,11 @@ namespace ProjectAscendant.Combat
             {
                 case IntentKind.Attack:
                 {
+                    // Per §4.3.2 / Pillar 2 — a Lead-targeted attack hits whoever is the Lead NOW
+                    // (after any manual swap / SF / SB this turn), not the Pokémon that was Lead when
+                    // the intent was declared. Fixed-slot intents use TargetSlot unchanged.
                     PokemonInstance target = IntentTargeting.ResolveSlotOccupant(
-                        intent.TargetSlot, State.PlayerTeam);
+                        intent.EffectiveTargetSlot(State.LeadIndex), State.PlayerTeam);
                     if (target != null && intent.Move != null)
                         ResolveDamage(enemy, target, intent.Move);
                     break;
@@ -544,7 +549,7 @@ namespace ProjectAscendant.Combat
                 case IntentKind.Status:
                 {
                     PokemonInstance occ = IntentTargeting.ResolveSlotOccupant(
-                        intent.TargetSlot, State.PlayerTeam);
+                        intent.EffectiveTargetSlot(State.LeadIndex), State.PlayerTeam);
                     if (occ != null && FieldEffectResolver.CanApplyParalysis(State.Field, occ)
                                     || intent.AppliedStatus != StatusCondition.Paralysis)
                     {

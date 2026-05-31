@@ -186,7 +186,7 @@ namespace ProjectAscendant.UI
             {
                 Intent it = s.EnemyIntents[0];
                 _enemyIntent.text = it.Move != null && it.Kind == IntentKind.Attack
-                    ? $"⚔ Intent: {it.Move.DisplayName ?? it.Move.name}  →  {SlotLabel(it.TargetSlot, s)}"
+                    ? $"⚔ Intent: {it.Move.DisplayName ?? it.Move.name}  →  {SlotLabel(it.EffectiveTargetSlot(s.LeadIndex), s)}"
                     : $"Intent: {it.Kind}";
             }
 
