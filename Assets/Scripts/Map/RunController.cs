@@ -113,7 +113,7 @@ namespace ProjectAscendant.Map
                 // §2.1.7 / Task 11.4 — commit meta progression + build the run summary.
                 int layersCleared = CurrentNode != null ? CurrentNode.Layer : 0;
                 LastSummary = RunEndService.Finalize(
-                    _ctx.Run, _ctx.Box, _ctx.Meta, _ctx.MetaConfig, Outcome.Value, layersCleared);
+                    _ctx.Run, _ctx.Box, _ctx.Meta, _ctx.MetaConfig, Outcome.Value, layersCleared, _ctx.Bestiary);
             }
             else
                 _ctx.Loadout?.Unlock();

@@ -75,6 +75,7 @@ namespace ProjectAscendant.Map
                 MetaConfig = catalog.MetaProgressionConfig != null
                     ? catalog.MetaProgressionConfig
                     : ScriptableObject.CreateInstance<MetaProgressionConfigSO>(),
+                Bestiary = SaveSystem.LoadBestiary() ?? ScriptableObject.CreateInstance<BestiaryProgressSO>(),
                 DifficultyChoices = BuildDifficultyChoices(),
                 WildConfig = catalog.WildConfig,
                 Pokeball = catalog.Pokeball,

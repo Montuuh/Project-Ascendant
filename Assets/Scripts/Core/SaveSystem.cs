@@ -18,10 +18,12 @@ namespace ProjectAscendant.Core
         private static string Dir => SaveDirectoryOverride
             ?? Path.Combine(Application.persistentDataPath, "ProjectAscendant");
 
-        private static string MetaPath     => Path.Combine(Dir, "meta.dat");
-        private static string MetaBakPath  => Path.Combine(Dir, "meta.dat.bak");
-        private static string RunPath      => Path.Combine(Dir, "run-current.dat");
-        private static string SettingsPath => Path.Combine(Dir, "settings.json");
+        private static string MetaPath      => Path.Combine(Dir, "meta.dat");
+        private static string MetaBakPath   => Path.Combine(Dir, "meta.dat.bak");
+        private static string BestiaryPath  => Path.Combine(Dir, "bestiary.dat");
+        private static string BestiaryBak   => Path.Combine(Dir, "bestiary.dat.bak");
+        private static string RunPath       => Path.Combine(Dir, "run-current.dat");
+        private static string SettingsPath  => Path.Combine(Dir, "settings.json");
 
         // Per §9.8.1 — save MetaProgressionSO. Triggered after run end + Pokémart purchase.
         public static void SaveMeta(MetaProgressionSO meta)
@@ -38,6 +40,24 @@ namespace ProjectAscendant.Core
             MetaProgressionSO meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
             JsonUtility.FromJsonOverwrite(dataJson, meta);
             return meta;
+        }
+
+        // Per §6.9 / §9.8.1 — persist BestiaryProgressSO (per-species kill counts + tiers). Saved at
+        // run-end alongside meta; last-known-good backup retained like meta.
+        public static void SaveBestiary(BestiaryProgressSO bestiary)
+        {
+            AtomicWrite(BestiaryPath, BestiaryBak, JsonUtility.ToJson(bestiary));
+        }
+
+        // Per §6.9 — load BestiaryProgressSO; falls back to backup on corruption, null if absent.
+        public static BestiaryProgressSO LoadBestiary()
+        {
+            string dataJson = AtomicRead(BestiaryPath, BestiaryBak);
+            if (dataJson == null) return null;
+
+            BestiaryProgressSO bestiary = ScriptableObject.CreateInstance<BestiaryProgressSO>();
+            JsonUtility.FromJsonOverwrite(dataJson, bestiary);
+            return bestiary;
         }
 
         // Per §9.8.1 — save RunStateSO after every Node entry.

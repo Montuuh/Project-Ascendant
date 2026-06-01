@@ -97,6 +97,29 @@ namespace ProjectAscendant.Tests
             Assert.That(result, Is.Null);
         }
 
+        // Per §6.9 + Task 11.8.1 — Bestiary persists round-trip with kill counts.
+        [Test]
+        public void SaveSystem_BestiaryRoundTrip_PreservesKillCounts()
+        {
+            BestiaryProgressSO b = ScriptableObject.CreateInstance<BestiaryProgressSO>();
+            b.RecordKill("pidgey", RarityTier.Common);
+            b.RecordKill("pidgey", RarityTier.Common);
+            SaveSystem.SaveBestiary(b);
+
+            BestiaryProgressSO loaded = SaveSystem.LoadBestiary();
+            Assert.That(loaded, Is.Not.Null);
+            Assert.That(loaded.GetOrCreate("pidgey").TimesDefeated, Is.EqualTo(2));
+
+            Object.DestroyImmediate(b);
+            Object.DestroyImmediate(loaded);
+        }
+
+        [Test]
+        public void SaveSystem_MissingBestiary_ReturnsNull()
+        {
+            Assert.That(SaveSystem.LoadBestiary(), Is.Null);
+        }
+
         // ── Run save / load ──────────────────────────────────────────────────────
 
         [Test]

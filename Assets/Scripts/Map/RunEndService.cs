@@ -25,7 +25,8 @@ namespace ProjectAscendant.Map
         }
 
         public static RunSummary Finalize(RunStateSO run, Box box, MetaProgressionSO meta,
-                                          MetaProgressionConfigSO cfg, RunOutcome outcome, int layersCleared)
+                                          MetaProgressionConfigSO cfg, RunOutcome outcome, int layersCleared,
+                                          BestiaryProgressSO bestiary = null)
         {
             RunSummary s = default;
             if (run == null) return s;
@@ -69,6 +70,9 @@ namespace ProjectAscendant.Map
 
                 SaveSystem.SaveMeta(meta);
             }
+
+            // §6.9 / Task 11.8.1 — persist the Bestiary alongside meta at run-end.
+            if (bestiary != null) SaveSystem.SaveBestiary(bestiary);
             return s;
         }
 

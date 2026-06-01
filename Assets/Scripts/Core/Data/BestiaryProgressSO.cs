@@ -28,6 +28,7 @@ namespace ProjectAscendant.Core
 
         public BestiaryEntry GetOrCreate(string speciesId)
         {
+            Entries ??= new List<BestiaryEntry>(); // robust for a fresh / JSON-empty instance
             foreach (BestiaryEntry entry in Entries)
                 if (entry.SpeciesId == speciesId)
                     return entry;
