@@ -41,14 +41,19 @@ namespace ProjectAscendant.Tests
         [Test]
         public void SaveSystem_MetaRoundTrip_PreservesData()
         {
-            // Per §9.8 — LoadMeta after SaveMeta must return identical data.
+            // Per §9.8 + §6.3 (Task 11.7.5) — LoadMeta after SaveMeta must round-trip the Trainer
+            // progression fields (Level/XP/Tokens) committed by the run-end flow.
             MetaProgressionSO original = ScriptableObject.CreateInstance<MetaProgressionSO>();
             original.TrainerLevel = 42;
+            original.TrainerXP = 117151;
+            original.TrainerTokens = 33;
             SaveSystem.SaveMeta(original);
 
             MetaProgressionSO loaded = SaveSystem.LoadMeta();
             Assert.That(loaded, Is.Not.Null);
             Assert.That(loaded.TrainerLevel, Is.EqualTo(42));
+            Assert.That(loaded.TrainerXP, Is.EqualTo(117151));
+            Assert.That(loaded.TrainerTokens, Is.EqualTo(33));
 
             Object.DestroyImmediate(original);
             Object.DestroyImmediate(loaded);
