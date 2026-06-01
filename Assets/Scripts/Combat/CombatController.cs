@@ -120,6 +120,7 @@ namespace ProjectAscendant.Combat
 
             public int CurrentAP;
             public int SwapCounter;                       // per-turn (§3.3.1)
+            public int ManualSwapsThisCombat;             // §8.3.4 — for Tactician's Coin / Defense Curl Charm
             // Per §3.3.1 + Epic 5 Task 5.6.2 — a manual Lead swap grants a
             // 1-AP discount to the FIRST Defensive-tagged card played after
             // the swap, that turn. SF/SB swaps do NOT set this. Reset to false

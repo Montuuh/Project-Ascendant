@@ -97,6 +97,36 @@ namespace ProjectAscendant.Tests
             Assert.That(s.DefensiveSwapDiscountAvailable, Is.True);
         }
 
+        // ── Relic interactions (Epic 12 §8.3.4 / §8.3.3) ─────────────────────
+
+        private RelicSO Relic(string id)
+        {
+            RelicSO r = ScriptableObject.CreateInstance<RelicSO>(); r.Id = id; _disposables.Add(r); return r;
+        }
+
+        [Test]
+        public void TryManualSwap_TacticiansCoin_FirstSwapFree()
+        {
+            CombatController.CombatState s = MakeState(initialAP: 6);
+            s.ActiveRelics.Add(Relic("tacticians_coin"));
+            SwapManager.TryManualSwap(s, benchSlot: 1);
+            Assert.That(s.CurrentAP, Is.EqualTo(6), "§8.3.4 — first swap free.");
+            Assert.That(s.ManualSwapsThisCombat, Is.EqualTo(1));
+            SwapManager.TryManualSwap(s, benchSlot: 0); // second swap pays NextSwapCost(1)=2
+            Assert.That(s.CurrentAP, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void TryManualSwap_DefenseCurl_BuffsNewLeadEveryThirdSwap()
+        {
+            CombatController.CombatState s = MakeState(initialAP: 6);
+            s.ActiveRelics.Add(Relic("defense_curl_charm"));
+            SwapManager.TryManualSwap(s, benchSlot: 1); // 1
+            SwapManager.TryManualSwap(s, benchSlot: 2); // 2
+            SwapManager.TryManualSwap(s, benchSlot: 0); // 3 → +1 Def on the new Lead (slot 0)
+            Assert.That(StatStageManager.GetStage(s.PlayerTeam[0], Stat.Defense), Is.EqualTo(1));
+        }
+
         [Test]
         public void TryManualSwap_SecondSwap_Costs2AP()
         {

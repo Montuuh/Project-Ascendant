@@ -81,14 +81,25 @@ namespace ProjectAscendant.Combat
                 return false;
 
             int cost = NextSwapCost(state.SwapCounter);
+            // §8.3.4 Tactician's Coin — the first manual swap each combat costs 0 AP.
+            if (state.ManualSwapsThisCombat == 0 && RelicResolver.Holds(state.ActiveRelics, "tacticians_coin"))
+                cost = 0;
             state.CurrentAP -= cost;
             state.SwapCounter += 1;
+            state.ManualSwapsThisCombat += 1;
             state.LeadIndex = benchSlot;
 
             // Per §3.3.1 — manual swap arms the defensive-swap discount for
             // the first Defensive card played this turn. SF/SB do NOT call
             // this method, so they correctly don't set this flag.
             state.DefensiveSwapDiscountAvailable = true;
+
+            // §8.3.3 Defense Curl Charm — every 3rd manual swap, +1 Defense on the new Lead.
+            if (RelicResolver.Holds(state.ActiveRelics, "defense_curl_charm")
+                && state.ManualSwapsThisCombat % 3 == 0
+                && benchSlot >= 0 && benchSlot < state.PlayerTeam.Count)
+                StatStageManager.Modify(state.PlayerTeam[benchSlot], Stat.Defense, 1);
+
             AbilityResolver.ApplyLeadEntryEffects(state); // §5.5.3.5 Intimidate
             return true;
         }
