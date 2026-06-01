@@ -1,3 +1,4 @@
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using ProjectAscendant.Core;
@@ -13,9 +14,15 @@ namespace ProjectAscendant.Tests
         private MetaProgressionSO _meta;
         private MetaProgressionConfigSO _cfg;
 
+        private string _saveDir;
+
         [SetUp]
         public void SetUp()
         {
+            // Finalize calls SaveSystem.SaveMeta — redirect to a temp dir so tests never touch the real save.
+            _saveDir = Path.Combine(Path.GetTempPath(), "PA_RunEndTests_" + System.Guid.NewGuid().ToString("N"));
+            SaveSystem.SaveDirectoryOverride = _saveDir;
+
             _run = ScriptableObject.CreateInstance<RunStateSO>();
             _meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
             _meta.TrainerLevel = 1;
@@ -29,6 +36,8 @@ namespace ProjectAscendant.Tests
         public void TearDown()
         {
             Object.DestroyImmediate(_run); Object.DestroyImmediate(_meta); Object.DestroyImmediate(_cfg);
+            SaveSystem.SaveDirectoryOverride = null;
+            if (_saveDir != null && Directory.Exists(_saveDir)) Directory.Delete(_saveDir, true);
         }
 
         // §6.7 — pre-complete every achievement so run-end awards don't perturb commit-XP assertions.

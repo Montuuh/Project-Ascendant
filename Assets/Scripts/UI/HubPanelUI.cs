@@ -22,6 +22,7 @@ namespace ProjectAscendant.UI
         private DifficultyModifierSO _selected; // §6.8.1 — VS 1-slot (null = baseline)
         private Action<DifficultyModifierSO> _onStartRun;
         private Action _onClosed;
+        private bool _showAchievements; // §6.7.2 — PC Terminal achievement list view
         private Font _font;
         private GameObject _root;
         private RectTransform _body;
@@ -32,7 +33,7 @@ namespace ProjectAscendant.UI
                          IReadOnlyList<DifficultyModifierSO> choices,
                          Action<DifficultyModifierSO> onStartRun, Action onClosed)
         {
-            _meta = meta; _cfg = cfg; _choices = choices; _selected = null;
+            _meta = meta; _cfg = cfg; _choices = choices; _selected = null; _showAchievements = false;
             _onStartRun = onStartRun; _onClosed = onClosed;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Build();
@@ -70,6 +71,8 @@ namespace ProjectAscendant.UI
         {
             for (int i = _body.childCount - 1; i >= 0; i--) Destroy(_body.GetChild(i).gameObject);
 
+            if (_showAchievements) { RenderAchievements(); return; }
+
             Txt(_body, "TRAINER HUB", 40, new Color(0.85f, 0.95f, 0.7f), Mid(), new Vector2(0, 430), new Vector2(1300, 56));
 
             // ── Trainer Card kiosk (§6.4.3) ────────────────────────────────────
@@ -94,8 +97,11 @@ namespace ProjectAscendant.UI
             Image pc = Img(_body, new Color(0.13f, 0.18f, 0.23f, 1f));
             Place(pc.rectTransform, Mid(), new Vector2(360, 230), new Vector2(740, 300));
             Txt(pc.transform, "PC TERMINAL", 24, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(0, 120), new Vector2(700, 32));
-            Txt(pc.transform, "Bestiary  ·  Achievements  ·  Run History", 20, new Color(0.8f, 0.85f, 0.9f), Mid(), new Vector2(0, 60), new Vector2(700, 28));
-            Txt(pc.transform, "(populated by Bestiary 11.8 + Achievements 11.5)", 17, new Color(0.6f, 0.65f, 0.72f), Mid(), new Vector2(0, 18), new Vector2(700, 24));
+            int doneCount = CompletedCount();
+            Txt(pc.transform, $"Achievements  {doneCount} / {AchievementCatalog.All.Count}", 20, new Color(0.85f, 0.9f, 0.95f), Mid(), new Vector2(0, 64), new Vector2(700, 28));
+            Btn(_body, Mid(), new Vector2(360, 188), new Vector2(360, 52), "🏆  VIEW ACHIEVEMENTS",
+                new Color(0.34f, 0.40f, 0.30f), true, () => { _showAchievements = true; RefreshBody(); });
+            Txt(pc.transform, "Bestiary  ·  Run History  (11.8 / Epic 13)", 17, new Color(0.6f, 0.65f, 0.72f), Mid(), new Vector2(0, -88), new Vector2(700, 24));
 
             // ── Post-launch kiosks — greyed (§6.4.1) ───────────────────────────
             Btn(_body, Mid(), new Vector2(-360, 20), new Vector2(380, 56), "Daycare Lady  (Post-launch)", new Color(0.3f, 0.3f, 0.34f), false, null);
@@ -128,6 +134,48 @@ namespace ProjectAscendant.UI
             Btn(_body, Mid(), new Vector2(0, -200), new Vector2(460, 78), "▶  START RUN", new Color(0.26f, 0.52f, 0.34f), true,
                 () => { Action<DifficultyModifierSO> go = _onStartRun; DifficultyModifierSO sel = _selected; Close(); go?.Invoke(sel); });
             Btn(_body, Mid(), new Vector2(0, -290), new Vector2(300, 54), "CLOSE  ✕", new Color(0.42f, 0.34f, 0.36f), true, Close);
+        }
+
+        private int CompletedCount()
+        {
+            int c = 0;
+            foreach (AchievementSO a in AchievementCatalog.All)
+                if (AchievementService.IsCompleted(_meta, a.AchievementId)) c++;
+            return c;
+        }
+
+        // §6.7.2 — the PC Terminal achievement list: name (or ??? for hidden+incomplete, §6.7.3),
+        // description, and status (✓ +XP / counter progress / locked).
+        private void RenderAchievements()
+        {
+            Txt(_body, "ACHIEVEMENTS", 40, new Color(0.95f, 0.85f, 0.45f), Mid(), new Vector2(0, 440), new Vector2(1300, 56));
+            Txt(_body, $"{CompletedCount()} / {AchievementCatalog.All.Count} unlocked", 22, new Color(0.8f, 0.85f, 0.9f), Mid(), new Vector2(0, 398), new Vector2(1000, 30));
+
+            IReadOnlyList<AchievementSO> all = AchievementCatalog.All;
+            float y = 340f;
+            for (int i = 0; i < all.Count; i++)
+            {
+                AchievementSO a = all[i];
+                bool done = AchievementService.IsCompleted(_meta, a.AchievementId);
+                bool hideName = a.Hidden && !done;
+                string name = hideName ? "??? (hidden)" : (a.DisplayName ?? a.AchievementId);
+                string desc = hideName ? "Complete to reveal." : a.Description;
+                int prog = AchievementService.GetProgress(_meta, a.AchievementId);
+                string status = done ? $"✓  +{a.TrainerXPReward} XP"
+                              : a.TargetCount > 1 ? $"{prog} / {a.TargetCount}"
+                              : "locked";
+
+                Image row = Img(_body, done ? new Color(0.16f, 0.24f, 0.18f, 1f) : new Color(0.14f, 0.15f, 0.18f, 1f));
+                Place(row.rectTransform, Mid(), new Vector2(0, y), new Vector2(1300, 56));
+                Txt(row.transform, $"{(done ? "🏆" : "•")}  {name}", 22,
+                    done ? new Color(0.92f, 0.97f, 0.8f) : new Color(0.85f, 0.87f, 0.9f), Mid(), new Vector2(-450, 0), new Vector2(400, 30));
+                Txt(row.transform, desc, 17, new Color(0.7f, 0.75f, 0.8f), Mid(), new Vector2(110, 0), new Vector2(640, 28));
+                Txt(row.transform, status, 19, done ? new Color(0.6f, 0.95f, 0.6f) : new Color(0.8f, 0.8f, 0.5f), Mid(), new Vector2(560, 0), new Vector2(180, 28));
+                y -= 64f;
+            }
+
+            Btn(_body, Mid(), new Vector2(0, y - 14f), new Vector2(300, 54), "◀ BACK",
+                new Color(0.42f, 0.34f, 0.36f), true, () => { _showAchievements = false; RefreshBody(); });
         }
 
         // ── uGUI primitives ───────────────────────────────────────────────────
