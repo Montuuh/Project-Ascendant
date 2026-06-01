@@ -374,7 +374,17 @@ namespace ProjectAscendant.UI
         {
             if (_hubPanel == null || _ctx == null) return;
             if (_run != null && _run.Map != null && !_run.RunOver) return; // not during a run
-            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, Refresh, Refresh);
+            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, _ctx.DifficultyChoices, OnHubStartRun, Refresh);
+        }
+
+        // §6.8 / Task 11.6 — apply the Hub's difficulty pick to the run before the player starts it.
+        private void OnHubStartRun(DifficultyModifierSO selected)
+        {
+            if (_state != null)
+                _state.ActiveDifficultyModifiers = selected != null
+                    ? new System.Collections.Generic.List<DifficultyModifierSO> { selected }
+                    : null;
+            Refresh();
         }
 
         // §5.4.1 / Task 10.6 — open the TM application flow (only between nodes).

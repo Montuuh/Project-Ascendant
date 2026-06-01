@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using ProjectAscendant.Core;
@@ -17,7 +18,9 @@ namespace ProjectAscendant.UI
     {
         private MetaProgressionSO _meta;
         private MetaProgressionConfigSO _cfg;
-        private Action _onStartRun;
+        private IReadOnlyList<DifficultyModifierSO> _choices;
+        private DifficultyModifierSO _selected; // §6.8.1 — VS 1-slot (null = baseline)
+        private Action<DifficultyModifierSO> _onStartRun;
         private Action _onClosed;
         private Font _font;
         private GameObject _root;
@@ -25,9 +28,12 @@ namespace ProjectAscendant.UI
 
         public bool IsOpen => _root != null;
 
-        public void Open(MetaProgressionSO meta, MetaProgressionConfigSO cfg, Action onStartRun, Action onClosed)
+        public void Open(MetaProgressionSO meta, MetaProgressionConfigSO cfg,
+                         IReadOnlyList<DifficultyModifierSO> choices,
+                         Action<DifficultyModifierSO> onStartRun, Action onClosed)
         {
-            _meta = meta; _cfg = cfg; _onStartRun = onStartRun; _onClosed = onClosed;
+            _meta = meta; _cfg = cfg; _choices = choices; _selected = null;
+            _onStartRun = onStartRun; _onClosed = onClosed;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Build();
             RefreshBody();
@@ -95,10 +101,33 @@ namespace ProjectAscendant.UI
             Btn(_body, Mid(), new Vector2(-360, 20), new Vector2(380, 56), "Daycare Lady  (Post-launch)", new Color(0.3f, 0.3f, 0.34f), false, null);
             Btn(_body, Mid(), new Vector2(360, 20), new Vector2(380, 56), "Mystery Door  (Post-launch)", new Color(0.3f, 0.3f, 0.34f), false, null);
 
+            // ── Difficulty select (§6.8.1 — VS 1 slot, optional; boosts Trainer XP) ───
+            Txt(_body, "DIFFICULTY  (optional — boosts Trainer XP)", 20, new Color(0.85f, 0.8f, 0.6f), Mid(), new Vector2(0, -70), new Vector2(1100, 28));
+            int n = (_choices?.Count ?? 0) + 1; // + None
+            float bw = 270f, gap = 16f;
+            float x = -((n * bw + (n - 1) * gap) - bw) / 2f;
+            bool noneSel = _selected == null;
+            Btn(_body, Mid(), new Vector2(x, -118), new Vector2(bw, 56), "None  (×1.0)",
+                noneSel ? new Color(0.30f, 0.46f, 0.34f) : new Color(0.24f, 0.27f, 0.31f), true,
+                () => { _selected = null; RefreshBody(); });
+            x += bw + gap;
+            if (_choices != null)
+                foreach (DifficultyModifierSO d in _choices)
+                {
+                    if (d == null) continue;
+                    DifficultyModifierSO choice = d;
+                    bool sel = _selected == d;
+                    string label = $"{(d.DisplayName ?? d.ModifierId)}\n×{d.TrainerXPMultiplier:0.00} XP";
+                    Btn(_body, Mid(), new Vector2(x, -118), new Vector2(bw, 56), label,
+                        sel ? new Color(0.30f, 0.46f, 0.34f) : new Color(0.30f, 0.30f, 0.40f), true,
+                        () => { _selected = choice; RefreshBody(); });
+                    x += bw + gap;
+                }
+
             // ── Actions ────────────────────────────────────────────────────────
-            Btn(_body, Mid(), new Vector2(0, -120), new Vector2(460, 80), "▶  START RUN", new Color(0.26f, 0.52f, 0.34f), true,
-                () => { Action go = _onStartRun; Close(); go?.Invoke(); });
-            Btn(_body, Mid(), new Vector2(0, -220), new Vector2(300, 56), "CLOSE  ✕", new Color(0.42f, 0.34f, 0.36f), true, Close);
+            Btn(_body, Mid(), new Vector2(0, -200), new Vector2(460, 78), "▶  START RUN", new Color(0.26f, 0.52f, 0.34f), true,
+                () => { Action<DifficultyModifierSO> go = _onStartRun; DifficultyModifierSO sel = _selected; Close(); go?.Invoke(sel); });
+            Btn(_body, Mid(), new Vector2(0, -290), new Vector2(300, 54), "CLOSE  ✕", new Color(0.42f, 0.34f, 0.36f), true, Close);
         }
 
         // ── uGUI primitives ───────────────────────────────────────────────────

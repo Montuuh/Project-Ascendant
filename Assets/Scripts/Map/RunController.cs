@@ -61,6 +61,15 @@ namespace ProjectAscendant.Map
         {
             if (RunOver || Map == null) return Array.Empty<MapNode>();
             if (CurrentNode == null) return new List<MapNode> { Map.Entry };
+
+            // §6.8.2 One Path — difficulty can cap the route branches shown at each junction (Task 11.6).
+            int cap = DifficultyModifiers.MaxRouteBranches(_ctx.Run.ActiveDifficultyModifiers);
+            if (cap < CurrentNode.Next.Count)
+            {
+                List<MapNode> trimmed = new(cap);
+                for (int i = 0; i < cap; i++) trimmed.Add(CurrentNode.Next[i]);
+                return trimmed;
+            }
             return CurrentNode.Next;
         }
 

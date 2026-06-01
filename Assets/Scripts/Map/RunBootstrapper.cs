@@ -75,6 +75,7 @@ namespace ProjectAscendant.Map
                 MetaConfig = catalog.MetaProgressionConfig != null
                     ? catalog.MetaProgressionConfig
                     : ScriptableObject.CreateInstance<MetaProgressionConfigSO>(),
+                DifficultyChoices = BuildDifficultyChoices(),
                 WildConfig = catalog.WildConfig,
                 Pokeball = catalog.Pokeball,
                 BoxOverflow = new AutoSkipBoxOverflowHandler(),
@@ -108,6 +109,30 @@ namespace ProjectAscendant.Map
             for (int i = 0; i < relics.Count; i++)
                 if (relics[i] != null && relics[i].Rarity == rarity) result.Add(relics[i]);
             return result;
+        }
+
+        // Per §6.8.2 / Task 11.6 — the 3 VS difficulty modifiers, built as runtime instances (the
+        // authored assets aren't catalog-wired yet; same default-instance pattern as MetaConfig).
+        // XP multipliers per §6.8.2. Mechanical effects: One Path (routes) is live; Dense Fog (hide
+        // intents) + Iron Will (enemy HP) are flagged for the combat-threading follow-up (gap #44).
+        private static List<DifficultyModifierSO> BuildDifficultyChoices()
+        {
+            return new List<DifficultyModifierSO>
+            {
+                Dm("iron_will", "Iron Will", "Enemies have +20% Max HP.", xp: 1.15f, enemy: 1.20f, hide: false, routes: 3),
+                Dm("dense_fog", "Dense Fog", "Enemy intents start hidden.", xp: 1.15f, enemy: 1f, hide: true, routes: 3),
+                Dm("one_path", "One Path", "Only one route forward at each junction.", xp: 1.10f, enemy: 1f, hide: false, routes: 1),
+            };
+        }
+
+        private static DifficultyModifierSO Dm(string id, string name, string desc,
+                                               float xp, float enemy, bool hide, int routes)
+        {
+            DifficultyModifierSO m = ScriptableObject.CreateInstance<DifficultyModifierSO>();
+            m.ModifierId = id; m.DisplayName = name; m.Description = desc;
+            m.TrainerXPMultiplier = xp; m.EnemyStatMultiplier = enemy;
+            m.HideAllEnemyIntents = hide; m.MaxRouteBranchChoices = routes;
+            return m;
         }
     }
 }
