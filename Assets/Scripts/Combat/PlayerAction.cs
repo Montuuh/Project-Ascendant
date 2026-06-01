@@ -20,6 +20,9 @@ namespace ProjectAscendant.Combat
         public int CardIndex;           // hand index for PlaySkill/PlayConsumable
         public int TargetEnemySlot;     // 0..n for damage moves (skill cards)
         public int SwapToBenchSlot;     // for ManualSwap (Epic 6 — stubbed in 4.1)
+        // Per §8.2 + Epic 12 Task 12.1 — player-side target slot for targeted consumables
+        // (Potion/X Attack/cures). -1 = default to the current Lead. Ignored by global consumables (Ether).
+        public int TargetPlayerSlot;
 
         public static PlayerAction End() => new() { Kind = PlayerActionKind.EndTurn };
         public static PlayerAction PlaySkill(int handIndex, int enemySlot = 0) => new()
@@ -28,10 +31,11 @@ namespace ProjectAscendant.Combat
             CardIndex = handIndex,
             TargetEnemySlot = enemySlot,
         };
-        public static PlayerAction PlayConsumable(int handIndex) => new()
+        public static PlayerAction PlayConsumable(int handIndex, int targetPlayerSlot = -1) => new()
         {
             Kind = PlayerActionKind.PlayConsumable,
             CardIndex = handIndex,
+            TargetPlayerSlot = targetPlayerSlot,
         };
         // Per §3.3.1 + Epic 6 — promote the bench Pokémon at PlayerTeam[benchSlot]
         // to Lead. Cost ladder (1/2/3 AP) + counter discipline live in SwapManager.

@@ -426,7 +426,7 @@ namespace ProjectAscendant.Combat
                 case PlayerActionKind.PlaySkill:
                     return TryPlaySkillCard(action.CardIndex, action.TargetEnemySlot);
                 case PlayerActionKind.PlayConsumable:
-                    return TryPlayConsumable(action.CardIndex);
+                    return TryPlayConsumable(action.CardIndex, action.TargetPlayerSlot);
                 case PlayerActionKind.ManualSwap:
                     return TryManualSwap(action.SwapToBenchSlot);
                 default:
@@ -440,48 +440,87 @@ namespace ProjectAscendant.Combat
         private bool TryPlaySkillCard(int handIndex, int enemySlot) =>
             _playService.Play(handIndex, enemySlot);
 
-        private bool TryPlayConsumable(int handIndex)
+        private bool TryPlayConsumable(int handIndex, int targetPlayerSlot)
         {
             if (handIndex < 0 || handIndex >= State.ConsumableHand.Count) return true;
             ConsumableSO c = State.ConsumableHand[handIndex];
             if (c == null) return true;
 
-            // Per §3.5 — consumable AP cost is typically 0; tracked on the SO.
-            // We don't read it here yet (ConsumableSO authoring varies); when
-            // wired this becomes: if (c.APCost > State.CurrentAP) return true;
-            // TODO Epic 12: full ConsumableEffectSO dispatch chain — only the
-            // Catch effect is dispatched below; Heal/Cure/AP/StatBoost still
-            // fall through to the generic MarkUsed path.
-            DispatchConsumableEffect(c);
+            // Per §3.5 — reject if unaffordable; no state change (player can pick another action).
+            if (c.APCost > State.CurrentAP) return true;
+
+            DispatchConsumableEffect(c, targetPlayerSlot);
+            State.CurrentAP -= c.APCost; // §3.5 — AP consumed on play
 
             State.ConsumableHand.RemoveAt(handIndex);
-            State.Consumables.MarkUsed(c);
+            State.Consumables.MarkUsed(c); // §8.2.1 — restored to inventory at combat end
             return true;
         }
 
-        // Per Epic 8 Task 8.1.4 — only CatchConsumableEffectSO is wired here.
-        // The wild Pokémon occupies enemy slot 0 in §7.3.4 encounters; on
-        // successful catch we set CaughtTarget and clear EnemyTeam so the
-        // existing CheckOutcome path flips Outcome → Victory naturally.
-        // Failed catches (HP too high / fainted) consume the ball with no
-        // state change beyond MarkUsed (handled by caller).
-        private void DispatchConsumableEffect(ConsumableSO consumable)
+        // Per §8.2 + Epic 12 Task 12.1 — full VS consumable dispatch. Targeted effects (Heal/Cure/
+        // StatBoost) resolve a player Pokémon (TargetPlayerSlot, else the Lead); Ether grants AP this
+        // turn; Pokéball targets the wild in slot 0. Revive/CritBoost/IntentReveal are post-VS (§8.8).
+        private void DispatchConsumableEffect(ConsumableSO consumable, int targetPlayerSlot)
         {
-            if (consumable == null) return;
-            if (consumable.Effect is not CatchConsumableEffectSO catchEffect) return;
+            if (consumable?.Effect == null) return;
+            switch (consumable.Effect)
+            {
+                case CatchConsumableEffectSO catchEffect:
+                    DispatchCatch(catchEffect);
+                    break;
 
-            // Wild encounters always occupy slot 0; in trainer/boss fights
-            // a Pokéball throw would target slot 0 too and either fail (no
-            // catchable wild) or fizzle harmlessly (no-op below).
+                case HealConsumableEffectSO heal:
+                {
+                    PokemonInstance t = ResolveConsumableTarget(targetPlayerSlot);
+                    if (t == null || t.CurrentHP <= 0) return; // §2.4.3 — Potions never revive
+                    int effMax = EffectiveMaxHpFor(t);
+                    int healAmount = heal.RestoreToFull ? effMax : heal.FlatHealAmount;
+                    t.CurrentHP = Mathf.Min(effMax, t.CurrentHP + healAmount);
+                    break;
+                }
+
+                case StatusCureConsumableEffectSO cure:
+                {
+                    PokemonInstance t = ResolveConsumableTarget(targetPlayerSlot);
+                    if (t == null) return;
+                    if (cure.CureAll) StatusEffectManager.CureAll(t);
+                    else StatusEffectManager.Cure(t, cure.CuresStatus);
+                    break;
+                }
+
+                case StatBoostConsumableEffectSO boost:
+                {
+                    PokemonInstance t = ResolveConsumableTarget(targetPlayerSlot);
+                    if (t == null) return;
+                    StatStageManager.Modify(t, boost.TargetStat, boost.StageChange);
+                    break;
+                }
+
+                case APGrantConsumableEffectSO ap:
+                    State.CurrentAP += ap.APGranted; // §8.2.4 Ether — this turn
+                    break;
+            }
+        }
+
+        // §8.2 — resolve the player Pokémon a targeted consumable affects (explicit slot, else Lead).
+        private PokemonInstance ResolveConsumableTarget(int slot)
+        {
+            if (slot >= 0 && slot < State.PlayerTeam.Count && State.PlayerTeam[slot] != null)
+                return State.PlayerTeam[slot];
+            return ResolveLead();
+        }
+
+        // §6.2 — Trauma-aware heal ceiling (raw MaxHP when no economy, e.g. tests).
+        private int EffectiveMaxHpFor(PokemonInstance p) =>
+            State.Economy != null ? PokemonVitals.EffectiveMaxHP(p, State.Economy) : PokemonVitals.MaxHP(p);
+
+        // Per Epic 8 Task 8.1.4 — Pokéball: the wild occupies enemy slot 0; on a successful catch set
+        // CaughtTarget + clear EnemyTeam so the IsAllFainted Victory path fires. Failed/non-wild = no-op.
+        private void DispatchCatch(CatchConsumableEffectSO catchEffect)
+        {
             PokemonInstance wild = ResolveEnemySlot(0);
-            if (wild == null) return;
-
-            if (!WildCatchResolver.IsCatchable(wild, catchEffect)) return;
-
+            if (wild == null || !WildCatchResolver.IsCatchable(wild, catchEffect)) return;
             State.CaughtTarget = wild;
-            // Per §7.3.4.1 step 6 — combat ends; clear the enemy team so the
-            // existing IsAllFainted-driven Victory path fires on the next
-            // CheckOutcome / HandleAnyFaints invocation.
             State.EnemyTeam.Clear();
         }
 

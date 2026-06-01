@@ -308,6 +308,80 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(bestiary);
         }
 
+        // ── Bucket 4b: Consumable dispatch (Epic 12 Task 12.1) ───────────────
+
+        // Plays ConsumableHand[0] (targeting Lead) once, then ends.
+        private sealed class PlayConsumableAgent : IPlayerAgent
+        {
+            private bool _done;
+            public int PickLeadReplacement(CombatController.CombatState s, IReadOnlyList<PokemonInstance> c) => -1;
+            public PlayerAction DecideAction(CombatController.CombatState s)
+            {
+                if (!_done && s.ConsumableHand.Count > 0) { _done = true; return PlayerAction.PlayConsumable(0, 0); }
+                return PlayerAction.End();
+            }
+        }
+
+        private ConsumableSO MakeConsumable(ConsumableEffectSO effect, int apCost)
+        {
+            ConsumableSO c = ScriptableObject.CreateInstance<ConsumableSO>();
+            c.Effect = effect; c.APCost = apCost;
+            _disposables.Add(c); _disposables.Add(effect);
+            return c;
+        }
+
+        private CombatController BuildConsumableCombat(PokemonInstance player, ConsumableSO consumable)
+        {
+            PokemonInstance enemy = MakeMon(MakeSpecies(50, 10, 50, PokemonType.Normal), MakeMove(PokemonType.Normal, 5));
+            CombatController.CombatSetup setup = BuildSetup(player, enemy, 7u);
+            setup.ConsumableInventory = new List<ConsumableSO> { consumable };
+            CombatController c = new(setup, new PlayConsumableAgent());
+            c.Start(); c.DrawPhase(); c.ActionPhase(); // play the consumable mid-combat
+            return c;
+        }
+
+        [Test]
+        public void Consumable_Potion_HealsLead_CappedAtMax()
+        {
+            // §8.2.2 — Potion restores FlatHealAmount, capped at (Effective) Max HP.
+            PokemonInstance player = MakeMon(MakeSpecies(100, 50, 50, PokemonType.Normal), MakeMove(PokemonType.Normal, 40));
+            player.CurrentHP = 40;
+            HealConsumableEffectSO heal = ScriptableObject.CreateInstance<HealConsumableEffectSO>();
+            heal.FlatHealAmount = 30;
+
+            BuildConsumableCombat(player, MakeConsumable(heal, apCost: 1));
+
+            Assert.That(player.CurrentHP, Is.EqualTo(70), "40 + 30 (cap 100).");
+        }
+
+        [Test]
+        public void Consumable_BurnHeal_CuresStatus()
+        {
+            // §8.2.3 — status-cure consumable clears the matching primary status.
+            PokemonInstance player = MakeMon(MakeSpecies(100, 50, 50, PokemonType.Normal), MakeMove(PokemonType.Normal, 40));
+            player.PrimaryStatus = StatusCondition.Burn;
+            player.PrimaryStatusTurnsRemaining = 99;
+            StatusCureConsumableEffectSO cure = ScriptableObject.CreateInstance<StatusCureConsumableEffectSO>();
+            cure.CuresStatus = StatusCondition.Burn;
+
+            BuildConsumableCombat(player, MakeConsumable(cure, apCost: 0));
+
+            Assert.That(player.PrimaryStatus, Is.EqualTo(StatusCondition.None));
+        }
+
+        [Test]
+        public void Consumable_Ether_GrantsAP_NetOfCost()
+        {
+            // §8.2.4 — Ether grants +2 AP this turn (net of its own 1 AP cost): 3 − 1 + 2 = 4.
+            PokemonInstance player = MakeMon(MakeSpecies(100, 50, 50, PokemonType.Normal), MakeMove(PokemonType.Normal, 40));
+            APGrantConsumableEffectSO ap = ScriptableObject.CreateInstance<APGrantConsumableEffectSO>();
+            ap.APGranted = 2;
+
+            CombatController c = BuildConsumableCombat(player, MakeConsumable(ap, apCost: 1));
+
+            Assert.That(c.State.CurrentAP, Is.EqualTo(4));
+        }
+
         // ── Bucket 5: Full round-trip — Defeat (Task 4.1.9) ──────────────────
 
         [Test]
