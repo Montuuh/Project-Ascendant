@@ -120,11 +120,31 @@ namespace ProjectAscendant.Combat
             bundle.TrainerXP = DEFAULT_TRAINER_XP;
             bundle.PokeDollars = _archetype.BasePokeDollarReward;
 
-            RelicSO relic = PickOneUniform(_archetype.RelicLootTable, _lootRng);
-            if (relic != null) bundle.RelicDrops.Add(relic);
-
-            ConsumableSO consumable = PickOneUniform(_archetype.ConsumableLootTable, _lootRng);
-            if (consumable != null) bundle.ConsumableDrops.Add(consumable);
+            // Per §7.4.2 + Task 12.10.1 — ONE weighted drop: 50% Common consumable / 30% Common relic /
+            // 20% Uncommon relic (weights authored on the archetype).
+            int wC = _archetype.CommonConsumableWeight;
+            int wR = _archetype.CommonRelicWeight;
+            int wU = _archetype.UncommonRelicWeight;
+            int total = wC + wR + wU;
+            if (total > 0 && _lootRng != null)
+            {
+                int roll = _lootRng.Range(0, total);
+                if (roll < wC)
+                {
+                    ConsumableSO c = PickOneUniform(_archetype.ConsumableLootTable, _lootRng);
+                    if (c != null) bundle.ConsumableDrops.Add(c);
+                }
+                else if (roll < wC + wR)
+                {
+                    RelicSO r = PickOneUniform(FilterByRarity(_archetype.RelicLootTable, RarityTier.Common), _lootRng);
+                    if (r != null) bundle.RelicDrops.Add(r);
+                }
+                else
+                {
+                    RelicSO r = PickOneUniform(FilterByRarity(_archetype.RelicLootTable, RarityTier.Uncommon), _lootRng);
+                    if (r != null) bundle.RelicDrops.Add(r);
+                }
+            }
 
             return bundle;
         }
@@ -155,6 +175,16 @@ namespace ProjectAscendant.Combat
             }
             SpawnsExecuted++;
             return inst;
+        }
+
+        // §7.4.2 — relics of a given rarity from the loot table.
+        private static List<RelicSO> FilterByRarity(List<RelicSO> table, RarityTier rarity)
+        {
+            List<RelicSO> result = new();
+            if (table != null)
+                for (int i = 0; i < table.Count; i++)
+                    if (table[i] != null && table[i].Rarity == rarity) result.Add(table[i]);
+            return result;
         }
 
         private static T PickOneUniform<T>(List<T> table, GameRNG rng) where T : class

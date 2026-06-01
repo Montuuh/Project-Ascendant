@@ -29,6 +29,13 @@ namespace ProjectAscendant.Core
         public List<ConsumableSO> ConsumableLootTable;
         public int BasePokeDollarReward;
 
+        // Per §7.4.2 + Epic 12 Task 12.10.1 — single weighted drop: Common consumable / Common relic /
+        // Uncommon relic. Defaults 50 / 30 / 20.
+        [Header("Drop weights (§7.4.2)")]
+        public int CommonConsumableWeight = 50;
+        public int CommonRelicWeight = 30;
+        public int UncommonRelicWeight = 20;
+
         [Tooltip("GDD section for this archetype. Per §9.15.")]
         public string GDDReference;
     }

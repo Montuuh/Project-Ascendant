@@ -259,6 +259,31 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void ResolveReward_WeightedDrop_ForcedCategory_GivesRightType()
+        {
+            // §7.4.2 / Task 12.10.1 — a single weighted drop. Force each category via the weights.
+            PokemonSpeciesSO sp = MakeSpecies(20, 30, 30, PokemonType.Normal);
+            TrainerPokemonSlot[] slots = { new() { Species = sp, Level = 5 } };
+            RelicSO common = ScriptableObject.CreateInstance<RelicSO>(); common.Rarity = RarityTier.Common; _disposables.Add(common);
+            RelicSO uncommon = ScriptableObject.CreateInstance<RelicSO>(); uncommon.Rarity = RarityTier.Uncommon; _disposables.Add(uncommon);
+            ConsumableSO potion = ScriptableObject.CreateInstance<ConsumableSO>(); _disposables.Add(potion);
+            TrainerArchetypeSO arch = MakeArchetype("loot", 100, slots, new[] { common, uncommon }, new[] { potion });
+
+            arch.CommonConsumableWeight = 100; arch.CommonRelicWeight = 0; arch.UncommonRelicWeight = 0;
+            TrainerRewardBundle b1 = new TrainerBattleController(arch, new PokemonInstanceFactory(), new GameRNG(1u))
+                .ResolveReward(CombatController.CombatOutcome.Victory);
+            Assert.That(b1.ConsumableDrops, Has.Count.EqualTo(1), "100% consumable.");
+            Assert.That(b1.RelicDrops, Is.Empty);
+
+            arch.CommonConsumableWeight = 0; arch.CommonRelicWeight = 0; arch.UncommonRelicWeight = 100;
+            TrainerRewardBundle b2 = new TrainerBattleController(arch, new PokemonInstanceFactory(), new GameRNG(1u))
+                .ResolveReward(CombatController.CombatOutcome.Victory);
+            Assert.That(b2.RelicDrops, Has.Count.EqualTo(1), "100% uncommon relic.");
+            Assert.That(b2.RelicDrops[0].Rarity, Is.EqualTo(RarityTier.Uncommon));
+            Assert.That(b2.ConsumableDrops, Is.Empty);
+        }
+
+        [Test]
         public void ResolveReward_OnDefeat_ReturnsEmpty()
         {
             PokemonSpeciesSO sp = MakeSpecies(20, 30, 30, PokemonType.Normal);
@@ -316,8 +341,8 @@ namespace ProjectAscendant.Tests
 
             Assert.That(ba.RelicDrops, Is.EqualTo(bb.RelicDrops));
             Assert.That(ba.ConsumableDrops, Is.EqualTo(bb.ConsumableDrops));
-            Assert.That(ba.RelicDrops.Count, Is.EqualTo(1));
-            Assert.That(ba.ConsumableDrops.Count, Is.EqualTo(1));
+            // §7.4.2 / Task 12.10.1 — a single weighted drop (≤ 1 total), deterministic per seed.
+            Assert.That(ba.RelicDrops.Count + ba.ConsumableDrops.Count, Is.LessThanOrEqualTo(1));
         }
 
         // ── Bucket 5: Integration — CombatController reinforcement flow ──────

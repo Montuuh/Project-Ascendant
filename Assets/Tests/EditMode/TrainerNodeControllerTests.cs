@@ -149,10 +149,13 @@ namespace ProjectAscendant.Tests
         [Test]
         public void Trainer_ResolveCombat_Victory_AppliesReward_Cleared()
         {
-            RelicSO relic = Make<RelicSO>();
+            RelicSO relic = Make<RelicSO>(); // §7.4.2 — Common rarity by default
             ConsumableSO cons = Make<ConsumableSO>();
             RunStateSO run = MakeRun();
-            List<TrainerArchetypeSO> pool = new() { MakeArchetype("a", 120, relic, cons) };
+            TrainerArchetypeSO arch = MakeArchetype("a", 120, relic, cons);
+            // §7.4.2 / Task 12.10.1 — single weighted drop. Force the Common-relic category for determinism.
+            arch.CommonConsumableWeight = 0; arch.CommonRelicWeight = 100; arch.UncommonRelicWeight = 0;
+            List<TrainerArchetypeSO> pool = new() { arch };
 
             TrainerBattleNodeController c = new(TrainerNode(), run, pool, new PokemonInstanceFactory(), new GameRNG(1u), new GameRNG(1u));
             c.Enter();
@@ -161,8 +164,7 @@ namespace ProjectAscendant.Tests
 
             Assert.That(bundle.PokeDollars, Is.EqualTo(120));
             Assert.That(run.PokeDollars, Is.EqualTo(120));
-            Assert.That(run.HeldRelics, Has.Member(relic));
-            Assert.That(run.Inventory, Has.Member(cons));
+            Assert.That(run.HeldRelics, Has.Member(relic), "the forced single drop is applied to the run.");
             Assert.That(c.Outcome, Is.EqualTo(NodeOutcome.Cleared));
         }
 
