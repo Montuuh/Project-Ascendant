@@ -124,6 +124,31 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(so);
         }
 
+        // ── Task 11.8.3 — Familiar-tier reveal + TierFor query ──────────────
+
+        [Test]
+        public void RecordKill_FamiliarTier_RevealsTypeChart()
+        {
+            // §4.3.9.1 / Task 11.8.3 — the species' type-chart entry reveals at Familiar tier.
+            BestiaryProgressSO so = MakeSO();
+            so.RecordKill("geodude", RarityTier.Common); // 1 defeat → None
+            Assert.That(so.GetOrCreate("geodude").TypeChartRevealed, Is.False);
+
+            for (int i = 0; i < 9; i++) so.RecordKill("geodude", RarityTier.Common); // total 10 → Familiar
+            Assert.That(so.GetOrCreate("geodude").TypeChartRevealed, Is.True);
+            Object.DestroyImmediate(so);
+        }
+
+        [Test]
+        public void TierFor_ReturnsEntryTierOrNoneWhenUnseen()
+        {
+            BestiaryProgressSO so = MakeSO();
+            Assert.That(so.TierFor("mewtwo"), Is.EqualTo(BestiaryMasteryTier.None));
+            for (int i = 0; i < 10; i++) so.RecordKill("pidgey", RarityTier.Common);
+            Assert.That(so.TierFor("pidgey"), Is.EqualTo(BestiaryMasteryTier.Familiar));
+            Object.DestroyImmediate(so);
+        }
+
         // ── 7.9.1 — Wild species registered in BestiaryProgressSO ───────────
 
         [Test]

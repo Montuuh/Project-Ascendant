@@ -47,6 +47,19 @@ namespace ProjectAscendant.Core
             BestiaryEntry entry = GetOrCreate(speciesId);
             entry.TimesDefeated++;
             entry.MasteryTier = EvaluateTier(entry.TimesDefeated, rarity);
+            // Per §4.3.9.1 / §6.9 + Task 11.8.3 — reaching Familiar reveals the species' type-chart entry
+            // in the Bestiary. (The §4.3.9 in-combat intent reveal-by-tier is post-VS: the VS shows all
+            // intents per the Telegraphed-Tactics pillar, so the VS-active reveal is this Bestiary unlock.)
+            if (entry.MasteryTier >= BestiaryMasteryTier.Familiar) entry.TypeChartRevealed = true;
+        }
+
+        // Per §4.3.9.1 / Task 11.8.3 — the current Bestiary tier for a species (None if unseen).
+        public BestiaryMasteryTier TierFor(string speciesId)
+        {
+            if (Entries == null) return BestiaryMasteryTier.None;
+            foreach (BestiaryEntry e in Entries)
+                if (e.SpeciesId == speciesId) return e.MasteryTier;
+            return BestiaryMasteryTier.None;
         }
 
         // Per §4.3.9.1 — pure function so it can be unit-tested without state.
