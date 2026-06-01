@@ -50,26 +50,19 @@ async function exportTopic(topic) {
   const outPath = path.join(OUT_DIR, filename);
 
   try {
-    // Fetch page metadata to get the real last-edit time from Notion.
-    // Using this (not new Date()) means the header only changes when
-    // someone actually edited the page — unchanged files stay identical
-    // in git across consecutive export runs.
-    const pageMeta = await notion.pages.retrieve({ page_id: topic.id });
-    const lastEdited = pageMeta.last_edited_time; // ISO-8601 from Notion
-
     const mdBlocks = await n2m.pageToMarkdown(topic.id);
     const mdString = n2m.toMarkdownString(mdBlocks);
 
-    // Two-line header only — no run-time timestamp.
-    // Files will only diff in git when Notion content actually changed.
     const header = [
       `<!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->`,
-      `<!-- Last updated from Notion: ${lastEdited} -->`,
+      `<!-- Source: https://www.notion.so/${topic.id} -->`,
+      `<!-- Exported: ${new Date().toISOString()} -->`,
+      `<!-- To update: run \`node docs/scripts/export-gdd.js\` and commit -->`,
       ``,
     ].join("\n");
 
     fs.writeFileSync(outPath, header + mdString.parent, "utf8");
-    console.log(`✅  Exported: ${filename}  (Notion last edited: ${lastEdited})`);
+    console.log(`✅  Exported: ${filename}`);
   } catch (err) {
     console.error(`❌  Failed to export topic ${topic.n} (${topic.slug}):`, err.message);
   }
@@ -86,21 +79,6 @@ async function main() {
   for (const topic of TOPICS) {
     await exportTopic(topic);
   }
-
-  const exportRunAt = new Date().toISOString();
-  const exportCalendarDate = (() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  })();
-
-  const status = {
-    exportRunAt,
-    exportCalendarDate,
-    topicCount: TOPICS.length,
-    topics: TOPICS.map((t) => ({ n: t.n, slug: t.slug, file: `topic-${t.n}-${t.slug}.md` })),
-  };
-  fs.writeFileSync(path.join(OUT_DIR, "snapshot-status.json"), JSON.stringify(status, null, 2) + "\n", "utf8");
-  console.log(`\n📋  Wrote snapshot-status.json (exportCalendarDate: ${exportCalendarDate})`);
 
   console.log(`\nDone. Commit with:`);
   console.log(`  git add docs/gdd && git commit -m "docs: snapshot GDD — <describe what changed>"`);

@@ -4,6 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
+        "ProjectAscendant.Editor",
         "ProjectAscendant.Core",
         "ProjectAscendant.Combat",
         "ProjectAscendant.Deck",

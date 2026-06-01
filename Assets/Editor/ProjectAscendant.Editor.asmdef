@@ -2,6 +2,7 @@
     "name": "ProjectAscendant.Editor",
     "rootNamespace": "ProjectAscendant.Editor",
     "references": [
+        "UnityEditor.TestRunner",
         "ProjectAscendant.Core",
         "ProjectAscendant.Combat",
         "ProjectAscendant.Map",

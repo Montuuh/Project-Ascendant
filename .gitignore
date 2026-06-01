@@ -10,12 +10,24 @@ Analysis/**/obj/
 node_modules/
 .vscode/
 
-# AI tooling (local only — not for public repo)
-.antigravitycli/
-.antigravity-rules.md
-.claude/
-CLAUDE.md
+# AI tooling
 .cursor/
+CLAUDE.md
+# Machine-local Claude Code settings (secrets / permissions)
+.claude/settings.json
+.claude/settings.local.json
+# Shareable agent layer — agents, skills, hooks, docs, rules ARE committed
+.claude/*
+!.claude/agents/
+!.claude/agents/**
+!.claude/skills/
+!.claude/skills/**
+!.claude/hooks/
+!.claude/hooks/**
+!.claude/docs/
+!.claude/docs/**
+!.claude/rules/
+!.claude/rules/**
 
 # Dev workflow (internal)
 .editorconfig

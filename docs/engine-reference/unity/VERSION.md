@@ -69,11 +69,17 @@ to run tests manually. Load the tools you need via
 
 ### Running the EditMode test suite
 
-There is a pre-existing helper at
-[Assets/Editor/Setup/RunEditModeTests.cs](../../../Assets/Editor/Setup/RunEditModeTests.cs)
-exposing `RunEditModeTests.Execute()`. It filters to assembly
-`ProjectAscendant.Tests.EditMode` and logs results with the prefix
-`[TestRunner]`.
+Helper: [Assets/Editor/Setup/RunEditModeTests.cs](../../../Assets/Editor/Setup/RunEditModeTests.cs) → `RunEditModeTests.Execute()`.
+
+**Scene save dialog:** Unity Test Framework runs `SaveModifiedSceneTask` and
+`RestoreSceneSetupTask`, which call `SaveCurrentModifiedScenesIfUserWantsTo()` when the
+bootstrap **Untitled** scene is dirty — Coplay cannot click that dialog.
+
+Fix (`TestFrameworkSceneBypass` patches the test job task list via reflection):
+
+1. `TestFrameworkSceneBypass.InstallOn(api)` — replaces `SaveModifiedSceneTask` / `RestoreSceneSetupTask` delegates to clear dirtiness (`EditorSceneDiscardUtility`) and proceed without prompting.
+2. `TestRunSceneGuard.Prepare()` / `Cleanup()` — capture and restore pre-run scene setup.
+3. `runSynchronously = true` on `ExecutionSettings` so Coplay `execute_script` waits for completion.
 
 ```
 execute_script({ filePath: "Assets/Editor/Setup/RunEditModeTests.cs",

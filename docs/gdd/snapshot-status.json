@@ -1,0 +1,57 @@
+{
+  "exportRunAt": "2026-06-01T23:06:22.453Z",
+  "exportCalendarDate": "2026-06-02",
+  "topicCount": 10,
+  "topics": [
+    {
+      "n": 1,
+      "slug": "game-overview",
+      "file": "topic-1-game-overview.md"
+    },
+    {
+      "n": 2,
+      "slug": "core-gameplay-loop",
+      "file": "topic-2-core-gameplay-loop.md"
+    },
+    {
+      "n": 3,
+      "slug": "micro-loop",
+      "file": "topic-3-micro-loop.md"
+    },
+    {
+      "n": 4,
+      "slug": "combat-system",
+      "file": "topic-4-combat-system.md"
+    },
+    {
+      "n": 5,
+      "slug": "progression",
+      "file": "topic-5-progression.md"
+    },
+    {
+      "n": 6,
+      "slug": "roguelike-progression",
+      "file": "topic-6-roguelike-progression.md"
+    },
+    {
+      "n": 7,
+      "slug": "scenario-nodes",
+      "file": "topic-7-scenario-nodes.md"
+    },
+    {
+      "n": 8,
+      "slug": "items-relics",
+      "file": "topic-8-items-relics.md"
+    },
+    {
+      "n": 9,
+      "slug": "technical-architecture",
+      "file": "topic-9-technical-architecture.md"
+    },
+    {
+      "n": 10,
+      "slug": "art-ui-audio",
+      "file": "topic-10-art-ui-audio.md"
+    }
+  ]
+}

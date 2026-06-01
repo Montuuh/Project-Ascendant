@@ -1,0 +1,38 @@
+---
+description: Project Ascendant — VS scope, local GDD reads, orchestration
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Project Ascendant (Cursor)
+
+Unity roguelike deckbuilder — party IS the deck. **Vertical Slice** is the active build target.
+
+## Before implementing
+
+1. **`gdd-read` skill** — `npm run gdd:ensure` then read `docs/gdd/topic-N-*.md` ([policy](../../gdd/README.md))
+2. **Scope:** `.claude/docs/vertical-slice.md`
+3. **Session:** `production/session-state/active.md`
+
+Notion MCP is for **editing** GDD and BACKLOG — not for reading spec.
+
+## Collaboration
+
+Question → Options → Decision → Draft → **User approval** → commit.
+
+## Engineering (codebase-wide)
+
+- ScriptableObject-driven balance data
+- Seeded `GameRNG` — no `UnityEngine.Random` in gameplay
+- Event Bus; views do not own game state
+
+Details: `docs/gdd/topic-9-technical-architecture.md`
+
+## After C# changes
+
+**unity-verify** via Coplay — do not claim tests pass without log evidence.
+
+## Docs
+
+`docs/ai/README.md` · `project-ascendant-gdd` skill · `orchestrate` skill

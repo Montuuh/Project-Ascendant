@@ -8,7 +8,11 @@ public class RunEditModeTests : ICallbacks
 
     public static void Execute()
     {
+        TestRunSceneGuard.Prepare();
+
         var api = ScriptableObject.CreateInstance<TestRunnerApi>();
+        TestFrameworkSceneBypass.InstallOn(api);
+
         _instance = new RunEditModeTests();
         api.RegisterCallbacks(_instance);
 
@@ -18,14 +22,18 @@ public class RunEditModeTests : ICallbacks
             assemblyNames = new[] { "ProjectAscendant.Tests.EditMode" }
         };
 
-        api.Execute(new ExecutionSettings(filter));
+        api.Execute(new ExecutionSettings(filter) { runSynchronously = true });
     }
 
     public void RunStarted(ITestAdaptor testsToRun) =>
         Debug.Log($"[TestRunner] Started: {testsToRun.Name}");
 
-    public void RunFinished(ITestResultAdaptor result) =>
+    public void RunFinished(ITestResultAdaptor result)
+    {
         Debug.Log($"[TestRunner] Finished — Pass: {result.PassCount}, Fail: {result.FailCount}, Skip: {result.SkipCount}");
+        // Defer until after Unity Test Framework finishes temporary scene teardown (Untitled).
+        EditorApplication.delayCall += TestRunSceneGuard.Cleanup;
+    }
 
     public void TestStarted(ITestAdaptor test) { }
 
