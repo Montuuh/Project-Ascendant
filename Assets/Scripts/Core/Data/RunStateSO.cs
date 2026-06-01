@@ -35,6 +35,8 @@ namespace ProjectAscendant.Core
         // §5.10 move pool lands (gap #36). Owned + saved here in the meantime.
         public List<HeldItemSO> OwnedHeldItems;
         public List<TMSO> OwnedTMs;
+        // Per §5.3.2 / Task 10.5 — Evolution Items that unlock item-gated branches. None ship in the VS.
+        public List<EvolutionItemSO> OwnedEvolutionItems;
 
         [Header("Active Modifiers")]
         public List<RegionModifierSO> ActiveRegionModifiers;

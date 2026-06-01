@@ -355,7 +355,7 @@ namespace ProjectAscendant.UI
         private void OnEvolveRequested(PokemonInstance mon)
         {
             if (_evolutionPanel == null || mon == null) return;
-            _evolutionPanel.Open(mon, () =>
+            _evolutionPanel.Open(mon, _state, () =>
             {
                 if (!_run.RunOver) AutoFillTeam(); // species/stat changes — re-confirm the active team
                 Refresh();

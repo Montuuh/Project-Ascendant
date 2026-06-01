@@ -18,17 +18,19 @@ namespace ProjectAscendant.UI
     public sealed class EvolutionPanelUI : MonoBehaviour
     {
         private PokemonInstance _mon;
+        private RunStateSO _run;
         private Action _onClosed;
         private Font _font;
         private GameObject _root;
         private RectTransform _body;
         private EvolutionBranchSO _pending; // armed branch awaiting "cannot be undone" confirm
+        private EvolutionItemSO _pendingItem; // gating item to consume if the armed branch is item-gated (10.5.3)
 
         public bool IsOpen => _root != null;
 
-        public void Open(PokemonInstance mon, Action onClosed)
+        public void Open(PokemonInstance mon, RunStateSO run, Action onClosed)
         {
-            _mon = mon; _onClosed = onClosed; _pending = null;
+            _mon = mon; _run = run; _onClosed = onClosed; _pending = null; _pendingItem = null;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Build();
             RefreshBody();
@@ -43,7 +45,12 @@ namespace ProjectAscendant.UI
 
         private void Confirm()
         {
-            if (_pending != null) EvolutionExecutor.Evolve(_mon, _pending);
+            if (_pending != null)
+            {
+                EvolutionExecutor.Evolve(_mon, _pending);
+                // Task 10.5.3 — an item-gated branch consumes its Evolution Item on use.
+                if (_pendingItem != null) EvolutionOptions.ConsumeItem(_run, _pendingItem);
+            }
             Close();
         }
 
@@ -80,11 +87,11 @@ namespace ProjectAscendant.UI
 
             if (_pending != null) { RenderConfirm(); return; }
 
-            List<EvolutionBranchSO> branches = _mon?.Species != null ? _mon.Species.Branches : null;
+            // Task 10.5 — level-only branches PLUS any item-gated branch unlocked by an owned Evolution
+            // Item (none in the VS, so this equals the species' level branches).
+            List<EvolutionOptions.Option> options = EvolutionOptions.For(_mon, _run?.OwnedEvolutionItems);
             float y = 300f;
-            if (branches != null)
-                for (int i = 0; i < branches.Count; i++)
-                    if (branches[i] != null) { RenderBranchCard(branches[i], y); y -= 240f; }
+            for (int i = 0; i < options.Count; i++) { RenderBranchCard(options[i], y); y -= 240f; }
 
             // §10.3.6 — Specialist/Support present but greyed "Coming Soon" in the VS.
             RenderLockedCard("SPECIALIST", y); y -= 96f;
@@ -94,15 +101,19 @@ namespace ProjectAscendant.UI
                 new Color(0.42f, 0.34f, 0.36f), true, Close);
         }
 
-        private void RenderBranchCard(EvolutionBranchSO branch, float y)
+        private void RenderBranchCard(EvolutionOptions.Option option, float y)
         {
+            EvolutionBranchSO branch = option.Branch;
             string evolved = branch.EvolvedSpecies != null
                 ? (branch.EvolvedSpecies.DisplayName ?? branch.EvolvedSpecies.name) : "?";
             Image card = Img(_body, new Color(0.16f, 0.24f, 0.19f, 1f));
             Place(card.rectTransform, Mid(), new Vector2(-200, y), new Vector2(900, 220));
 
             string label = !string.IsNullOrEmpty(branch.DisplayName) ? branch.DisplayName : branch.Archetype.ToString();
-            Txt(card.transform, $"▶ {branch.Archetype}  —  {label}   →   {evolved}", 24,
+            // §5.3.2 — flag an item-gated path so the player knows the item will be consumed.
+            string gate = option.IsItemGated
+                ? $"   ⟡ via {(option.SourceItem.DisplayName ?? option.SourceItem.name)}" : "";
+            Txt(card.transform, $"▶ {branch.Archetype}  —  {label}   →   {evolved}{gate}", 24,
                 new Color(0.9f, 0.97f, 0.9f), Mid(), new Vector2(0, 78), new Vector2(840, 32));
             Txt(card.transform, MoveDiff(branch), 19, new Color(0.82f, 0.9f, 0.82f), Mid(), new Vector2(0, 6), new Vector2(840, 110));
 
@@ -110,8 +121,9 @@ namespace ProjectAscendant.UI
             Txt(card.transform, $"Ability: {ab}", 19, new Color(0.75f, 0.85f, 0.95f), Mid(), new Vector2(0, -70), new Vector2(840, 28));
 
             EvolutionBranchSO b = branch;
+            EvolutionItemSO src = option.SourceItem;
             Btn(_body, Mid(), new Vector2(420, y), new Vector2(240, 90), "CHOOSE\nTHIS PATH",
-                new Color(0.28f, 0.5f, 0.34f), true, () => { _pending = b; RefreshBody(); });
+                new Color(0.28f, 0.5f, 0.34f), true, () => { _pending = b; _pendingItem = src; RefreshBody(); });
         }
 
         private string MoveDiff(EvolutionBranchSO branch)

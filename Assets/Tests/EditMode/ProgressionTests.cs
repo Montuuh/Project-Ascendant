@@ -199,6 +199,70 @@ namespace ProjectAscendant.Tests
             Assert.That(p.TraumaStacks, Is.EqualTo(2), "Trauma carries through (§6.2.3).");
         }
 
+        // Task 10.4.5 — evolving broadcasts EvolutionTriggeredContext on the EventBus.
+        [Test]
+        public void Evolve_PublishesEvolutionTriggeredEvent()
+        {
+            EventBus.Clear();
+            EvolutionTriggeredContext got = default;
+            int fired = 0;
+            void Handler(EvolutionTriggeredContext c) { got = c; fired++; }
+            EventBus.Subscribe<EvolutionTriggeredContext>(Handler);
+
+            PokemonSpeciesSO from = Species(40, 4, 12, true);
+            PokemonSpeciesSO to = Species(60, 4, 0, false);
+            EvolutionBranchSO branch = Make<EvolutionBranchSO>();
+            branch.EvolvedSpecies = to;
+            branch.MoveUpgrades = new List<MoveUpgradePair>();
+            branch.NewMoves = new List<MoveSO>();
+            PokemonInstance p = new() { Species = from, Level = 12, CurrentHP = 20, CurrentStage = EvolutionStage.Basic };
+
+            EvolutionExecutor.Evolve(p, branch);
+            EventBus.Unsubscribe<EvolutionTriggeredContext>(Handler);
+
+            Assert.That(fired, Is.EqualTo(1), "Event fired exactly once.");
+            Assert.That(got.From, Is.SameAs(from));
+            Assert.That(got.To, Is.SameAs(to));
+            Assert.That(got.Branch, Is.SameAs(branch));
+            Assert.That(got.Pokemon, Is.SameAs(p));
+        }
+
+        // Task 10.5 — Evolution Items add item-gated branches; none ship in the VS (empty inventory).
+        [Test]
+        public void EvolutionOptions_LevelOnly_WhenNoItems()
+        {
+            PokemonSpeciesSO sp = Species(40, 4, 12, true); // one level branch
+            PokemonInstance p = new() { Species = sp, Level = 12 };
+
+            List<EvolutionOptions.Option> opts = EvolutionOptions.For(p, null);
+
+            Assert.That(opts.Count, Is.EqualTo(1));
+            Assert.That(opts[0].IsItemGated, Is.False, "Level branch is not item-gated.");
+            Assert.That(opts[0].Branch, Is.SameAs(sp.Branches[0]));
+        }
+
+        [Test]
+        public void EvolutionOptions_ItemGated_AddsBranch_AndConsumes()
+        {
+            PokemonSpeciesSO sp = Species(40, 4, 12, true); // one level branch
+            EvolutionBranchSO itemBranch = Make<EvolutionBranchSO>();
+            EvolutionItemSO item = Make<EvolutionItemSO>();
+            item.EnabledBranch = itemBranch;
+            RunStateSO run = Make<RunStateSO>();
+            run.OwnedEvolutionItems = new List<EvolutionItemSO> { item };
+            PokemonInstance p = new() { Species = sp, Level = 12 };
+
+            List<EvolutionOptions.Option> opts = EvolutionOptions.For(p, run.OwnedEvolutionItems);
+
+            Assert.That(opts.Count, Is.EqualTo(2), "Level branch + item-gated branch.");
+            EvolutionOptions.Option gated = opts.Find(o => o.IsItemGated);
+            Assert.That(gated.Branch, Is.SameAs(itemBranch));
+            Assert.That(gated.SourceItem, Is.SameAs(item));
+
+            EvolutionOptions.ConsumeItem(run, item);
+            Assert.That(run.OwnedEvolutionItems, Has.No.Member(item), "Item consumed on use (10.5.3).");
+        }
+
         [Test]
         public void Evolve_NullBranchOrSpecies_NoChange()
         {
