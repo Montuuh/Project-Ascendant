@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Map
@@ -68,6 +69,12 @@ namespace ProjectAscendant.Map
                 MapConfig = catalog.MapConfig,
                 BattleConfig = catalog.BattleConfig,
                 ProgressionConfig = catalog.ProgressionConfig,
+                // §6.10 — persistent meta loaded from disk (fresh instance if none); §6.3 config from the
+                // catalog, falling back to a spec-default instance so run-end commit works pre-authoring.
+                Meta = SaveSystem.LoadMeta(),
+                MetaConfig = catalog.MetaProgressionConfig != null
+                    ? catalog.MetaProgressionConfig
+                    : ScriptableObject.CreateInstance<MetaProgressionConfigSO>(),
                 WildConfig = catalog.WildConfig,
                 Pokeball = catalog.Pokeball,
                 BoxOverflow = new AutoSkipBoxOverflowHandler(),

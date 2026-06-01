@@ -50,6 +50,7 @@ namespace ProjectAscendant.UI
                 EvolutionExecutor.Evolve(_mon, _pending);
                 // Task 10.5.3 — an item-gated branch consumes its Evolution Item on use.
                 if (_pendingItem != null) EvolutionOptions.ConsumeItem(_run, _pendingItem);
+                if (_run != null) _run.EvolutionsThisRun++; // §2.1.7 / 11.4 — run-summary tally
             }
             Close();
         }

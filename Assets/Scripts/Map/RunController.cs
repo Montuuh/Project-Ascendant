@@ -32,6 +32,9 @@ namespace ProjectAscendant.Map
         // Per §7.13 / §3.3.6 — set once RunOver becomes true: Victory on a Gym win (RunEnded),
         // Defeat on a player wipe (GameOver). Null while the run is still in progress.
         public RunOutcome? Outcome { get; private set; }
+        // Per §2.1.7 / Task 11.4 — the run-summary produced at run-end (meta XP/Tokens/Level + tallies).
+        // Null until RunOver. Read by the result screen.
+        public RunEndService.RunSummary? LastSummary { get; private set; }
 
         public RunController(RunContext context, NodeControllerFactory factory, Action<GameEvent> dispatch)
         {
@@ -97,6 +100,11 @@ namespace ProjectAscendant.Map
                 RunOver = true;
                 // §7.13 Gym victory (RunEnded) = Victory; §3.3.6 player wipe (GameOver) = Defeat.
                 Outcome = evt == GameEventType.RunEnded ? RunOutcome.Victory : RunOutcome.Defeat;
+
+                // §2.1.7 / Task 11.4 — commit meta progression + build the run summary.
+                int layersCleared = CurrentNode != null ? CurrentNode.Layer : 0;
+                LastSummary = RunEndService.Finalize(
+                    _ctx.Run, _ctx.Box, _ctx.Meta, _ctx.MetaConfig, Outcome.Value, layersCleared);
             }
             else
                 _ctx.Loadout?.Unlock();

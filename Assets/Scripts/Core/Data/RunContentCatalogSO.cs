@@ -19,6 +19,7 @@ namespace ProjectAscendant.Core
         public MysteryConfigSO MysteryConfig;
         public BattleConfigSO BattleConfig;
         public ProgressionConfigSO ProgressionConfig; // §5.2 — per-Pokémon XP + leveling
+        public MetaProgressionConfigSO MetaProgressionConfig; // §6.3 — Trainer XP/Level/Token tuning
 
         [Header("Key Consumables")]
         public ConsumableSO Pokeball;

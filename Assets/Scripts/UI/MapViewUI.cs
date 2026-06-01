@@ -150,6 +150,20 @@ namespace ProjectAscendant.UI
                 Color color = defeat ? new Color(0.9f, 0.25f, 0.25f) : new Color(0.3f, 0.9f, 0.4f);
                 Text done = MakeText(_graph, label, 40, color);
                 Anchor(done.rectTransform, Mid(), Mid(), new Vector2(0, GraphH * 0.5f - 4), new Vector2(700, 60));
+
+                // §2.1.7 / Task 11.4 — run summary + the meta progression banked this run.
+                if (_run.LastSummary.HasValue)
+                {
+                    RunEndService.RunSummary sm = _run.LastSummary.Value;
+                    string l1 = $"Combats {sm.CombatsCleared}   ·   Evolutions {sm.Evolutions}   ·   Max Trauma ⚠{sm.MaxTrauma}   ·   Layers {sm.LayersCleared}";
+                    string l2 = sm.LeveledUp
+                        ? $"+{sm.RunXpEarned} Trainer XP   ·   +{sm.TokensGained} Tokens   ·   Trainer Lv {sm.OldLevel} → {sm.NewLevel}  ↑"
+                        : $"+{sm.RunXpEarned} Trainer XP   ·   +{sm.TokensGained} Tokens   ·   Trainer Lv {sm.NewLevel}";
+                    Text t1 = MakeText(_graph, l1, 22, new Color(0.82f, 0.88f, 0.95f));
+                    Anchor(t1.rectTransform, Mid(), Mid(), new Vector2(0, GraphH * 0.5f - 56), new Vector2(1200, 32));
+                    Text t2 = MakeText(_graph, l2, 24, new Color(0.95f, 0.9f, 0.55f));
+                    Anchor(t2.rectTransform, Mid(), Mid(), new Vector2(0, GraphH * 0.5f - 92), new Vector2(1200, 34));
+                }
             }
         }
 

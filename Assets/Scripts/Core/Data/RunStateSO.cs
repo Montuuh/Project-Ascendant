@@ -41,6 +41,9 @@ namespace ProjectAscendant.Core
         // Per §6.3.2 / Task 11.3 — Trainer (meta) XP accrued THIS run; committed to MetaProgressionSO at
         // run-end (§6.3.4), then discarded with the run. Distinct from per-Pokémon in-run XP (§5.2).
         public int TrainerXPEarnedThisRun;
+        // Per §2.1.7 / Task 11.4 — run-summary tallies (combats cleared, evolutions triggered this run).
+        public int CombatsClearedThisRun;
+        public int EvolutionsThisRun;
 
         [Header("Active Modifiers")]
         public List<RegionModifierSO> ActiveRegionModifiers;

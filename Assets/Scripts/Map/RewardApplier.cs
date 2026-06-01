@@ -7,9 +7,10 @@ namespace ProjectAscendant.Map
     // Per §7.12 + Epic 9 — applies a TrainerRewardBundle into the run state. Shared by the
     // Trainer (9.4), Elite (9.4), and Gym (9.8) node controllers so reward plumbing lives once.
     //
-    // TrainerXP is intentionally NOT applied here: it is meta-progression, credited at run end
-    // by Epic 10/11 (RunStateSO has no per-run XP field). The bundle still carries it for that
-    // downstream consumer.
+    // Per §6.3.2 / Task 11.4 — TrainerXP (meta) is ACCRUED here into RunStateSO.TrainerXPEarnedThisRun
+    // each cleared combat, and COMMITTED to MetaProgressionSO at run-end (RunEndService, §6.3.4).
+    // ⚠ Per-encounter bundle.TrainerXP values trace to §7.12 seeding; §6.3.2 lists a slightly different
+    // flat table (Elite 5 vs §7.12 25). Using the node-authored bundle value; flagged for systems-designer.
     public static class RewardApplier
     {
         public static void Apply(RunStateSO run, TrainerRewardBundle bundle)
@@ -17,6 +18,8 @@ namespace ProjectAscendant.Map
             if (run == null) return;
 
             run.PokeDollars += bundle.PokeDollars;
+            run.TrainerXPEarnedThisRun += bundle.TrainerXP; // §6.3.2 — meta XP accrual (committed at run-end)
+            run.CombatsClearedThisRun += 1;                 // §2.1.7 — run-summary tally
 
             if (bundle.RelicDrops != null && bundle.RelicDrops.Count > 0)
                 (run.HeldRelics ??= new List<RelicSO>()).AddRange(bundle.RelicDrops);

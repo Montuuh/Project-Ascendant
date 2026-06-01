@@ -22,6 +22,8 @@ namespace ProjectAscendant.Map
         public MapGenerationConfigSO MapConfig;
         public BattleConfigSO BattleConfig; // combat tuning (used when launching real fights)
         public ProgressionConfigSO ProgressionConfig; // §5.2 — per-Pokémon XP + leveling
+        public MetaProgressionSO Meta;             // §6.10 — persistent cross-run state (run-end commit target)
+        public MetaProgressionConfigSO MetaConfig; // §6.3 — Trainer XP/Level/Token tuning
 
         // ── Wild (9.3) ───────────────────────────────────────────────────────
         public WildEncounterConfigSO WildConfig;
