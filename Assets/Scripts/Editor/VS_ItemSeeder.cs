@@ -252,14 +252,14 @@ namespace ProjectAscendant.Editor
 
             // Type-boosting plates — Lead Aura gives bench allies of that type +5%.
             // Per §5.5.4, the wearer's type-move power is also boosted while Lead.
-            Hi(p,"charcoal",     "Charcoal",     grantsAura:true,  PokemonType.Fire,     "§8.4 | Effect: Fire-type moves +10% power while wearer is Lead.");
-            Hi(p,"mystic_water", "Mystic Water", grantsAura:true,  PokemonType.Water,    "§8.4 | Effect: Water-type moves +10% power while wearer is Lead.");
-            Hi(p,"magnet",       "Magnet",       grantsAura:true,  PokemonType.Electric, "§8.4 | Effect: Electric-type moves +10% power while wearer is Lead.");
-            Hi(p,"miracle_seed", "Miracle Seed", grantsAura:true,  PokemonType.Grass,    "§8.4 | Effect: Grass-type moves +10% power while wearer is Lead.");
+            Hi(p,"charcoal",     "Charcoal",     PokemonType.Fire,     1.20f, 0, "§8.4.2 | Wearer's Fire-type moves +20% damage.");
+            Hi(p,"mystic_water", "Mystic Water", PokemonType.Water,    1.20f, 0, "§8.4.2 | Wearer's Water-type moves +20% damage.");
+            Hi(p,"magnet",       "Magnet",       PokemonType.Electric, 1.20f, 0, "§8.4.2 | Wearer's Electric-type moves +20% damage.");
+            Hi(p,"miracle_seed", "Miracle Seed", PokemonType.Grass,    1.20f, 0, "§8.4.2 | Wearer's Grass-type moves +20% damage.");
 
             // Leftovers — hook-driven per-turn regen: floor(EffectiveMaxHP / 16).
             // EventHook wired to TurnEnd channel in Epic 4.
-            Hi(p,"leftovers",    "Leftovers",    grantsAura:false, PokemonType.Normal,   "§8.4 | Effect: At turn end, restore floor(MaxHP/16) HP to the wearer.");
+            Hi(p,"leftovers",    "Leftovers",    PokemonType.Normal,   1f, 16, "§8.4.4 | At end of Resolution, restore floor(EffectiveMaxHP/16) HP to the wearer.");
         }
 
         // ══════════════════════════════════════════════════════════════════════
@@ -784,16 +784,20 @@ namespace ProjectAscendant.Editor
 
         // ── Held Item factory ─────────────────────────────────────────────────
 
+        // §8.4.2/§8.4.4 — VS Held Items are WEARER type-boost (+20%) or Leftovers regen, NOT Lead Aura
+        // (that's §8.4.3 Type Plates, post-VS). GrantsLeadAura stays false for the VS 5.
         static HeldItemSO Hi(string folder, string id, string displayName,
-            bool grantsAura, PokemonType auraType, string gdd)
+            PokemonType boostsType, float wearerMult, int leftoversDivisor, string gdd)
         {
             var h = CreateSO<HeldItemSO>($"{folder}/{id}.asset");
-            h.Id            = id;
-            h.DisplayName   = displayName;
-            h.GrantsLeadAura= grantsAura;
-            h.LeadAuraType  = auraType;
-            h.EventHooks    = new List<HookBinding>();
-            h.GDDReference  = gdd;
+            h.Id                    = id;
+            h.DisplayName           = displayName;
+            h.BoostsType            = boostsType;
+            h.WearerDamageMultiplier= wearerMult;
+            h.LeftoversRegenDivisor = leftoversDivisor;
+            h.GrantsLeadAura        = false;
+            h.EventHooks            = new List<HookBinding>();
+            h.GDDReference          = gdd;
             EditorUtility.SetDirty(h);
             return h;
         }

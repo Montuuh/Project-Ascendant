@@ -14,8 +14,20 @@ namespace ProjectAscendant.Core
         public string DisplayName;
         public Sprite Icon;
 
-        [Header("Lead Aura — §5.5.4")]
-        // Per §5.5.4 — if true, bench moves of LeadAuraType gain +5% while wearer is Lead.
+        [Header("Type-boost (wearer) — §8.4.2")]
+        // Per §8.4.2 + Epic 12 Task 12.6 — the WEARER's moves of BoostsType deal ×WearerDamageMultiplier
+        // (Charcoal/Mystic Water/Magnet/Miracle Seed = +20%). Multiplier 1.0 = no type boost.
+        public PokemonType BoostsType;
+        public float WearerDamageMultiplier = 1f;
+
+        [Header("Sustain — §8.4.4")]
+        // Per §8.4.4 Leftovers — at end of Resolution, restore floor(EffectiveMaxHP / Divisor) (min 1).
+        // 0 = no regen.
+        public int LeftoversRegenDivisor;
+
+        [Header("Lead Aura — §5.5.4 / §8.4.3 (Type Plates, post-VS)")]
+        // Per §5.5.4 — if true, bench moves of LeadAuraType gain +5% while wearer is Lead. The VS 5 items
+        // (§8.4.2) use the wearer type-boost above; Lead Aura belongs to the §8.4.3 Type Plates (post-VS).
         public bool GrantsLeadAura;
         public PokemonType LeadAuraType;
 

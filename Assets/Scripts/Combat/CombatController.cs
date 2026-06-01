@@ -699,7 +699,10 @@ namespace ProjectAscendant.Combat
             float relicOutMul = State.PlayerTeam.Contains(attacker)
                 ? RelicResolver.OutgoingDamageMultiplier(attacker, State.ActiveRelics, State.Config) : 1f;
 
-            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul);
+            // Per §8.4.2 + Task 12.6 — the wearer's Held Item type-boost (Charcoal/Mystic Water/etc.).
+            float heldItemMul = HeldItemResolver.OutgoingDamageMultiplier(attacker, move);
+
+            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul * heldItemMul);
             if (final <= 0) final = (dmg.TypeEffectiveness == 0.0) ? 0 : 1; // immune stays 0
 
             // Per §5.5.3.3 — Levitate: Ground-type moves do nothing to a Levitate target.
@@ -822,6 +825,9 @@ namespace ProjectAscendant.Combat
                 if (p == null || p.CurrentHP <= 0) continue;
                 int dot = StatusEffectManager.ComputeDoTDamage(p, State.Config, State.Economy);
                 if (dot > 0) p.CurrentHP = Mathf.Max(0, p.CurrentHP - dot);
+                // §8.4.4 Leftovers — end-of-Resolution regen (after DoT; never revives a fainted wearer).
+                int regen = HeldItemResolver.LeftoversRegen(p, State.Economy);
+                if (regen > 0) p.CurrentHP = Mathf.Min(EffectiveMaxHpFor(p), p.CurrentHP + regen);
                 StatusEffectManager.TickAtEndOfTurn(p);
             }
         }
