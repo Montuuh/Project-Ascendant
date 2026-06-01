@@ -38,6 +38,7 @@ namespace ProjectAscendant.UI
         private GameObject _hubButton;
         private GameObject _bagButton;
         private InventoryPanelUI _inventoryPanel;
+        private StartingRelicPanelUI _startingRelicPanel;
         private HubPanelUI _hubPanel;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
@@ -76,6 +77,9 @@ namespace ProjectAscendant.UI
 
             _inventoryPanel = new GameObject("InventoryPanel").AddComponent<InventoryPanelUI>();
             _inventoryPanel.transform.SetParent(transform, false);
+
+            _startingRelicPanel = new GameObject("StartingRelicPanel").AddComponent<StartingRelicPanelUI>();
+            _startingRelicPanel.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -272,8 +276,30 @@ namespace ProjectAscendant.UI
         {
             if (_ctx != null) RunBootstrapper.SeedStarter(_ctx, starter, 5);
             _run.StartRun();
-            AppendLog($"Chose {starter.DisplayName ?? starter.name}. Run started — choose your route.");
+            AppendLog($"Chose {starter.DisplayName ?? starter.name}. Run started.");
+            OfferStartingRelic();
             Refresh();
+        }
+
+        // §6.6.3 / Task 12.11 — offer 1 of 3 Starting Relics (Common/Uncommon, never Rare) at run start.
+        private void OfferStartingRelic()
+        {
+            if (_startingRelicPanel == null || _ctx?.ShopPools == null || _state == null) return;
+            List<RelicSO> pool = new();
+            if (_ctx.ShopPools.CommonRelics != null) pool.AddRange(_ctx.ShopPools.CommonRelics);
+            if (_ctx.ShopPools.UncommonRelics != null) pool.AddRange(_ctx.ShopPools.UncommonRelics);
+            List<RelicSO> offer = StartingRelicService.Offer(pool, _ctx.Streams?.LootRNG, 3);
+            if (offer.Count == 0) return;
+            _startingRelicPanel.Open(offer, picked =>
+            {
+                if (picked != null)
+                {
+                    (_state.HeldRelics ??= new List<RelicSO>()).Add(picked); // §8.7 acquisition
+                    EventBus.Publish(new RelicAcquiredContext(picked));       // §8.7 OnRelicAcquired (12.11.3)
+                    AppendLog($"Starting Relic: {picked.DisplayName ?? picked.Id}.");
+                }
+                Refresh();
+            });
         }
 
         private void OnNodeClicked(MapNode node)

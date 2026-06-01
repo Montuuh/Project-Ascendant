@@ -153,12 +153,12 @@ namespace ProjectAscendant.Core
         }
     }
 
-    // Placeholder — §9.4.1.1 specifies GameEventSO<RelicSO>.
-    // TODO: Epic 3 — replace with RelicSO reference once RelicSO is defined.
+    // Per §9.4.1.1 + Epic 12 Task 12.3.1/12.11.3 — published on EventBus when a relic is acquired
+    // (Starting Relic pick, drop, shop buy). Resolved from the Epic-3 int placeholder to the RelicSO ref.
     public readonly struct RelicAcquiredContext
     {
-        public readonly int RelicId;
-        public RelicAcquiredContext(int relicId) { RelicId = relicId; }
+        public readonly RelicSO Relic;
+        public RelicAcquiredContext(RelicSO relic) { Relic = relic; }
     }
 
     // Fired when a run ends (victory or defeat).
