@@ -18,16 +18,19 @@ namespace ProjectAscendant.Map
     {
         private readonly GymLeaderSO _gymSO;
         private readonly PokemonInstanceFactory _factory;
+        private readonly EconomyConfigSO _economy; // §8.3.3 — Coin Pouch
 
         private GymLeaderController _gym;
 
         public GymLeaderSO GymSO => _gymSO;
 
-        public GymNodeController(MapNode node, RunStateSO runState, GymLeaderSO gymSO, PokemonInstanceFactory factory)
+        public GymNodeController(MapNode node, RunStateSO runState, GymLeaderSO gymSO, PokemonInstanceFactory factory,
+            EconomyConfigSO economy = null)
             : base(node, runState)
         {
             _gymSO   = gymSO ?? throw new ArgumentNullException(nameof(gymSO));
             _factory = factory;
+            _economy = economy;
         }
 
         protected override void OnEnter()
@@ -54,7 +57,7 @@ namespace ProjectAscendant.Map
 
             if (outcome == CombatController.CombatOutcome.Victory)
             {
-                RewardApplier.Apply(RunState, bundle); // Badge → EarnedBadges, Rare relic → HeldRelics
+                RewardApplier.Apply(RunState, bundle, _economy); // Badge → EarnedBadges, Rare relic → HeldRelics
                 Complete(NodeOutcome.RunEnded);         // §7.13 — VS ends at Gym 1 → run-end (8.5.9)
             }
             else

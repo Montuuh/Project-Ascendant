@@ -123,6 +123,7 @@ namespace ProjectAscendant.Combat
             public int ManualSwapsThisCombat;             // §8.3.4 — for Tactician's Coin / Defense Curl Charm
             public int RangedMovesPlayedThisTurn;         // §8.3.4 — Choice Specs
             public int MeleeMovesPlayedThisTurn;          // §8.3.4 — Choice Band
+            public bool SmokeBallTriggeredThisCombat;     // §8.3.3 — Smoke Ball (first enemy attack)
             // Per §3.3.1 + Epic 5 Task 5.6.2 — a manual Lead swap grants a
             // 1-AP discount to the FIRST Defensive-tagged card played after
             // the swap, that turn. SF/SB swaps do NOT set this. Reset to false
@@ -714,6 +715,16 @@ namespace ProjectAscendant.Combat
 
             // Per §5.5.3.3 — Levitate: Ground-type moves do nothing to a Levitate target.
             if (AbilityResolver.IsImmuneTo(target, move)) final = 0;
+
+            // §8.3.3 Smoke Ball — the FIRST enemy attack each combat deals −20% (player run-state relic).
+            // VS simplification: per-combat (GDD §8.3.3 says first combat per Region) — flagged.
+            if (final > 0 && !State.SmokeBallTriggeredThisCombat
+                && State.PlayerTeam.Contains(target) && !State.PlayerTeam.Contains(attacker)
+                && RelicResolver.Holds(State.ActiveRelics, "smoke_ball"))
+            {
+                final = Mathf.FloorToInt(final * State.Config.SmokeBallDamageMultiplier);
+                State.SmokeBallTriggeredThisCombat = true;
+            }
 
             // Per §4.4.5.1 — Boulder Badge: flat reduction on damage INCOMING
             // to the player's Lead (minimum 0). Applied AFTER the non-immune

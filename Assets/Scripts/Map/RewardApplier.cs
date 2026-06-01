@@ -13,11 +13,15 @@ namespace ProjectAscendant.Map
     // flat table (Elite 5 vs §7.12 25). Using the node-authored bundle value; flagged for systems-designer.
     public static class RewardApplier
     {
-        public static void Apply(RunStateSO run, TrainerRewardBundle bundle)
+        public static void Apply(RunStateSO run, TrainerRewardBundle bundle, EconomyConfigSO economy = null)
         {
             if (run == null) return;
 
-            run.PokeDollars += bundle.PokeDollars;
+            // §8.3.3 Coin Pouch — all ₽ drops ×multiplier.
+            int pokeDollars = bundle.PokeDollars;
+            if (economy != null && ProjectAscendant.Combat.RelicResolver.Holds(run.HeldRelics, "coin_pouch"))
+                pokeDollars = UnityEngine.Mathf.FloorToInt(pokeDollars * economy.CoinPouchPokeDollarMultiplier);
+            run.PokeDollars += pokeDollars;
             run.TrainerXPEarnedThisRun += bundle.TrainerXP; // §6.3.2 — meta XP accrual (committed at run-end)
             run.CombatsClearedThisRun += 1;                 // §2.1.7 — run-summary tally
 

@@ -56,10 +56,10 @@ namespace ProjectAscendant.Map
                 node, run, WildConfig, PokemonFactory, Pokeball, Streams.EncounterRNG, Box, BoxOverflow));
 
             factory.Register(NodeType.Trainer, (node, run) => new TrainerBattleNodeController(
-                node, run, ArchetypePool, PokemonFactory, Streams.LootRNG, Streams.LootRNG));
+                node, run, ArchetypePool, PokemonFactory, Streams.LootRNG, Streams.LootRNG, Economy));
 
             factory.Register(NodeType.Elite, (node, run) => new EliteNodeController(
-                node, run, EliteSO, PokemonFactory));
+                node, run, EliteSO, PokemonFactory, Economy));
 
             factory.Register(NodeType.Center, (node, run) => new PokemonCenterNodeController(
                 node, run, Box, Economy));
@@ -71,7 +71,7 @@ namespace ProjectAscendant.Map
                 node, run, MysteryPool, MysteryConfig, Streams.MysteryRNG, MysteryItems, Box, Economy));
 
             factory.Register(NodeType.Gym, (node, run) => new GymNodeController(
-                node, run, GymSO, PokemonFactory));
+                node, run, GymSO, PokemonFactory, Economy));
         }
     }
 }

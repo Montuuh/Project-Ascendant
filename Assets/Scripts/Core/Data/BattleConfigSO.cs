@@ -192,6 +192,7 @@ namespace ProjectAscendant.Core
         public float BraveCharmDamageMultiplier = 1.10f;   // Brave Charm — HP < 50% → +10% damage
         public float SootheBellDamageMultiplier = 1.05f;   // Soothe Bell — at full HP → +5% damage
         public float BerryPouchHealMultiplier = 1.20f;     // Berry Pouch — healing consumables +20%
+        public float SmokeBallDamageMultiplier = 0.80f;    // Smoke Ball — first enemy attack −20% (VS: per-combat)
 
         // Per §5.5.3 / §5.8 — Shell Armor: flat incoming-damage reduction while this Pokémon is Lead
         // (stacks with the Boulder Badge reduction, §4.4.5.1).

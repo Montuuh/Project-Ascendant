@@ -18,6 +18,7 @@ namespace ProjectAscendant.Map
     {
         private readonly EliteTrainerSO _eliteSO;
         private readonly PokemonInstanceFactory _factory;
+        private readonly EconomyConfigSO _economy; // §8.3.3 — Coin Pouch
 
         private EliteTrainerController _elite;
 
@@ -27,11 +28,13 @@ namespace ProjectAscendant.Map
             MapNode node,
             RunStateSO runState,
             EliteTrainerSO eliteSO,
-            PokemonInstanceFactory factory)
+            PokemonInstanceFactory factory,
+            EconomyConfigSO economy = null)
             : base(node, runState)
         {
             _eliteSO = eliteSO ?? throw new ArgumentNullException(nameof(eliteSO));
             _factory = factory;
+            _economy = economy;
         }
 
         protected override void OnEnter()
@@ -57,7 +60,7 @@ namespace ProjectAscendant.Map
         {
             TrainerRewardBundle bundle = _elite.ResolveReward(outcome);
             if (outcome == CombatController.CombatOutcome.Victory)
-                RewardApplier.Apply(RunState, bundle);
+                RewardApplier.Apply(RunState, bundle, _economy);
 
             Complete(outcome == CombatController.CombatOutcome.Defeat
                 ? NodeOutcome.PlayerWiped

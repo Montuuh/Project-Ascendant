@@ -26,6 +26,8 @@ namespace ProjectAscendant.Core
         [Header("Poké Dollars")]
         [Tooltip("Token cost per XP unit at the Trainer Hub shop. Post-VS.")]
         public float TokenPerXP = 1.0f;
+        [Tooltip("§8.3.3 Coin Pouch relic — all Poké Dollar drops ×this multiplier.")]
+        public float CoinPouchPokeDollarMultiplier = 1.25f;
 
         [Header("Trauma System — §6.2")]
         [Tooltip("Percentage damage penalty per Trauma stack. E.g. 5 = -5% per stack.")]

@@ -19,6 +19,7 @@ namespace ProjectAscendant.Map
         private readonly PokemonInstanceFactory _factory;
         private readonly GameRNG _selectionRng; // archetype pick (map-content stream)
         private readonly GameRNG _lootRng;      // reward rolls (LootRNG, §9.7.2)
+        private readonly EconomyConfigSO _economy; // §8.3.3 — Coin Pouch ₽ multiplier
 
         private TrainerBattleController _battle;
 
@@ -30,13 +31,15 @@ namespace ProjectAscendant.Map
             IReadOnlyList<TrainerArchetypeSO> archetypePool,
             PokemonInstanceFactory factory,
             GameRNG selectionRng,
-            GameRNG lootRng)
+            GameRNG lootRng,
+            EconomyConfigSO economy = null)
             : base(node, runState)
         {
             _pool         = archetypePool ?? throw new ArgumentNullException(nameof(archetypePool));
             _factory      = factory;
             _selectionRng = selectionRng ?? throw new ArgumentNullException(nameof(selectionRng));
             _lootRng      = lootRng;
+            _economy      = economy;
         }
 
         protected override void OnEnter()
@@ -65,7 +68,7 @@ namespace ProjectAscendant.Map
         {
             TrainerRewardBundle bundle = _battle.ResolveReward(outcome);
             if (outcome == CombatController.CombatOutcome.Victory)
-                RewardApplier.Apply(RunState, bundle);
+                RewardApplier.Apply(RunState, bundle, _economy);
 
             Complete(outcome == CombatController.CombatOutcome.Defeat
                 ? NodeOutcome.PlayerWiped
