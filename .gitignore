@@ -15,6 +15,7 @@ node_modules/
 .antigravity-rules.md
 .claude/
 CLAUDE.md
+.cursor/
 
 # Dev workflow (internal)
 .editorconfig
