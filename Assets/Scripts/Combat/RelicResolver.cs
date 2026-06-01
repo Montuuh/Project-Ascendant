@@ -54,5 +54,9 @@ namespace ProjectAscendant.Combat
                 return Mathf.FloorToInt(baseXp * cfg.LuckyEggXPMultiplier);
             return baseXp;
         }
+
+        // §8.3.3 Quick Draw — +1 skill card on the FIRST turn of each combat.
+        public static int QuickDrawBonus(IReadOnlyList<RelicSO> relics, int turnNumber)
+            => (turnNumber == 1 && Holds(relics, "quick_draw")) ? 1 : 0;
     }
 }

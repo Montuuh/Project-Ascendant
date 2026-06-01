@@ -257,6 +257,8 @@ namespace ProjectAscendant.Combat
             // Per §5.5.3 — Swift Swim: +1 skill draw on turn 1 of a Rain combat.
             skillTarget += AbilityResolver.SwiftSwimDrawBonus(
                 State.PlayerTeam, State.Field, State.TurnNumber, State.Config);
+            // §8.3.3 Quick Draw relic — +1 skill draw on turn 1.
+            skillTarget += RelicResolver.QuickDrawBonus(State.ActiveRelics, State.TurnNumber);
             DrawSkillCards(skillTarget);
             DrawConsumableCards(consumableTarget);
 

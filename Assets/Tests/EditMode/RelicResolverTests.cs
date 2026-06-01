@@ -85,6 +85,15 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void QuickDraw_OnlyTurnOne()
+        {
+            List<RelicSO> r = new() { Relic("quick_draw") };
+            Assert.That(RelicResolver.QuickDrawBonus(r, 1), Is.EqualTo(1));
+            Assert.That(RelicResolver.QuickDrawBonus(r, 2), Is.EqualTo(0), "only turn 1.");
+            Assert.That(RelicResolver.QuickDrawBonus(new List<RelicSO>(), 1), Is.EqualTo(0));
+        }
+
+        [Test]
         public void LuckyEgg_BoostsXp()
         {
             ProgressionConfigSO pc = ScriptableObject.CreateInstance<ProgressionConfigSO>();
