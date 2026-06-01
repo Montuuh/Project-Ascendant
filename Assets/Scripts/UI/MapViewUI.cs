@@ -449,6 +449,7 @@ namespace ProjectAscendant.UI
                 default: return null; // Center / Shop / Mystery
             }
             if (setup.EnemyTeam == null || setup.EnemyTeam.Count == 0) return null;
+            setup.Economy = _ctx.Economy; // §6.2 / 11.1.8 — Trauma-aware EffectiveMaxHP for DoT + HP-bar max
             return new CombatController(setup, new UIPlayerAgent());
         }
 

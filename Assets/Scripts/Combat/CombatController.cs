@@ -58,6 +58,9 @@ namespace ProjectAscendant.Combat
             public List<ConsumableSO> ConsumableInventory;
             public FieldState InitialField;
             public BattleConfigSO Config;
+            // Per §6.2 + Epic 11 Task 11.1.8 — Trauma params source for EffectiveMaxHP (DoT, HP-bar max).
+            // Optional: when null, combat falls back to raw MaxHP (e.g. unit tests that don't model Trauma).
+            public EconomyConfigSO Economy;
             public GameRNG Rng;
             // Per §7.4 + Epic 8 Task 8.2 — optional. When the enemy team
             // wipes, the controller consults this provider; a non-empty
@@ -125,6 +128,8 @@ namespace ProjectAscendant.Combat
             public CombatOutcome Outcome = CombatOutcome.InProgress;
             public Phase CurrentPhase = Phase.PreStart;
             public BattleConfigSO Config;
+            // Per §6.2 / Task 11.1.8 — Trauma-aware EffectiveMaxHP source (nullable; null → raw MaxHP).
+            public EconomyConfigSO Economy;
             public GameRNG Rng;
 
             // Per §7.3.4 + Epic 8 Task 8.1 — non-null iff a wild Pokémon was
@@ -170,6 +175,7 @@ namespace ProjectAscendant.Combat
                     : new List<ConsumableSO>(),
                 Field = setup.InitialField,
                 Config = setup.Config,
+                Economy = setup.Economy,
                 Rng = setup.Rng,
                 Deck = new SkillDeck(_cardFactory),
                 Consumables = new ConsumablePile(),
@@ -752,7 +758,7 @@ namespace ProjectAscendant.Combat
             {
                 PokemonInstance p = team[i];
                 if (p == null || p.CurrentHP <= 0) continue;
-                int dot = StatusEffectManager.ComputeDoTDamage(p, State.Config);
+                int dot = StatusEffectManager.ComputeDoTDamage(p, State.Config, State.Economy);
                 if (dot > 0) p.CurrentHP = Mathf.Max(0, p.CurrentHP - dot);
                 StatusEffectManager.TickAtEndOfTurn(p);
             }

@@ -289,6 +289,26 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void ComputeDoT_Burn_ScalesToEffectiveMaxHp_WhenTraumaPresent()
+        {
+            // Per §6.2 + Epic 11 Task 11.1.8 — with economy supplied, DoT scales to Trauma-adjusted
+            // EffectiveMaxHP so "Burn = 1/16 of the HP bar" reads true (§6.2.5). Null economy → raw.
+            EconomyConfigSO econ = ScriptableObject.CreateInstance<EconomyConfigSO>();
+            econ.TraumaStackCap = 5;
+            econ.TraumaStackPenaltyPercent = 5;
+            PokemonSpeciesSO sp = MakeSpecies(100, PokemonType.Water);
+            PokemonInstance pi = MakeInstance(sp);
+            pi.TraumaStacks = 2; // EffectiveMaxHP = floor(100 × (1 − 0.05×2)) = 90
+            StatusEffectManager.TryApply(pi, StatusCondition.Burn, _config);
+
+            Assert.That(StatusEffectManager.ComputeDoTDamage(pi, _config, econ), Is.EqualTo(5), "floor(90/16).");
+            Assert.That(StatusEffectManager.ComputeDoTDamage(pi, _config), Is.EqualTo(6), "Null economy → raw floor(100/16).");
+
+            Object.DestroyImmediate(econ);
+            Object.DestroyImmediate(sp);
+        }
+
+        [Test]
         public void ComputeDoT_NonDoTStatus_ReturnsZero()
         {
             PokemonSpeciesSO sp = MakeSpecies(64, PokemonType.Normal);

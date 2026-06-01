@@ -123,7 +123,13 @@ namespace ProjectAscendant.Combat
         // Per §4.2.2.1/2 — DoT damage from Burn (Atk-debuffing) or Poison
         // (Def-debuffing). Returns the damage value; caller (combat loop)
         // subtracts from CurrentHP. Min 1 per spec; 0 if no DoT status.
-        public static int ComputeDoTDamage(PokemonInstance target, BattleConfigSO config)
+        //
+        // Per §6.2 + Epic 11 Task 11.1.8 — DoT scales to EffectiveMaxHP (Trauma-adjusted), so
+        // "Burn = 1/N of your HP bar" reads true (the bar caps at EffectiveMaxHP, §6.2.5). When
+        // economy is null (tests / Trauma-agnostic callers) it falls back to raw MaxHP. Routes
+        // MaxHP through PokemonVitals (retires the inline duplicate per the shared-helper TODO).
+        public static int ComputeDoTDamage(PokemonInstance target, BattleConfigSO config,
+                                           EconomyConfigSO economy = null)
         {
             if (target?.Species == null || config == null) return 0;
 
@@ -136,9 +142,9 @@ namespace ProjectAscendant.Combat
             }
             if (divisor <= 0) return 0;
 
-            int maxHP = target.Species.BaseStats.BaseHP;
-            if (target.Species.GrowthCurve != null)
-                maxHP += target.Species.GrowthCurve.GetHPAt(target.Level);
+            int maxHP = economy != null
+                ? PokemonVitals.EffectiveMaxHP(target, economy)
+                : PokemonVitals.MaxHP(target);
 
             int dot = maxHP / divisor;
             return Mathf.Max(1, dot);
