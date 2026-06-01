@@ -31,9 +31,17 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(_run); Object.DestroyImmediate(_meta); Object.DestroyImmediate(_cfg);
         }
 
+        // §6.7 — pre-complete every achievement so run-end awards don't perturb commit-XP assertions.
+        private void SuppressAchievements()
+        {
+            _meta.CompletedAchievementIds = new System.Collections.Generic.List<string>();
+            foreach (AchievementSO a in AchievementCatalog.All) _meta.CompletedAchievementIds.Add(a.AchievementId);
+        }
+
         [Test]
         public void Finalize_Victory_CommitsXp_AwardsTokens_CountsCompleted()
         {
+            SuppressAchievements();
             _run.TrainerXPEarnedThisRun = 550;
             _run.CombatsClearedThisRun = 6;
             _run.EvolutionsThisRun = 2;
@@ -78,6 +86,7 @@ namespace ProjectAscendant.Tests
         public void Finalize_AppliesDifficultyXpMultiplier_BeforeCommit()
         {
             // §6.8.1 — a ×1.20 modifier boosts the whole run haul before banking.
+            SuppressAchievements();
             _run.TrainerXPEarnedThisRun = 500;
             DifficultyModifierSO hard = ScriptableObject.CreateInstance<DifficultyModifierSO>();
             hard.TrainerXPMultiplier = 1.20f;
@@ -101,6 +110,31 @@ namespace ProjectAscendant.Tests
 
             Assert.That(s.MaxTrauma, Is.EqualTo(4));
             foreach (PokemonInstance p in box.Members) Object.DestroyImmediate(p.Species);
+        }
+
+        [Test]
+        public void Finalize_UnlocksRunDataAchievements()
+        {
+            // §6.7 — a won run with combats + an evolution + a recruit + a 5-Trauma Pokémon unlocks
+            // First Steps + Evolver + Recruiter + Boulder Breaker + Trauma Survivor.
+            PokemonSpeciesSO spA = ScriptableObject.CreateInstance<PokemonSpeciesSO>();
+            PokemonSpeciesSO spB = ScriptableObject.CreateInstance<PokemonSpeciesSO>();
+            Box box = new(6);
+            box.TryAdd(new PokemonInstance { Species = spA, CurrentHP = 10, TraumaStacks = 5 });
+            box.TryAdd(new PokemonInstance { Species = spB, CurrentHP = 10, TraumaStacks = 0 });
+            _run.CombatsClearedThisRun = 3;
+            _run.EvolutionsThisRun = 1;
+
+            RunEndService.RunSummary s = RunEndService.Finalize(_run, box, _meta, _cfg, RunOutcome.Victory, 7);
+
+            Assert.That(AchievementService.IsCompleted(_meta, "first_steps"), Is.True, "first_steps");
+            Assert.That(AchievementService.IsCompleted(_meta, "evolver"), Is.True, "evolver");
+            Assert.That(AchievementService.IsCompleted(_meta, "recruiter"), Is.True, "recruiter");
+            Assert.That(AchievementService.IsCompleted(_meta, "boulder_breaker"), Is.True, "boulder_breaker");
+            Assert.That(AchievementService.IsCompleted(_meta, "trauma_survivor"), Is.True, "trauma_survivor");
+            Assert.That(s.AchievementsUnlocked, Is.EqualTo(5), "unlocked count");
+
+            Object.DestroyImmediate(spA); Object.DestroyImmediate(spB);
         }
 
         [Test]

@@ -21,6 +21,7 @@ namespace ProjectAscendant.Map
             public int OldLevel;
             public int NewLevel;
             public bool LeveledUp;
+            public int AchievementsUnlocked; // §6.7 — newly-completed this run-end
         }
 
         public static RunSummary Finalize(RunStateSO run, Box box, MetaProgressionSO meta,
@@ -62,9 +63,36 @@ namespace ProjectAscendant.Map
                 meta.TotalRunsAttempted += 1;
                 if (outcome == RunOutcome.Victory) meta.TotalRunsCompleted += 1;
 
+                // §6.7 / Task 11.5.3 — fire the run-data-evaluable achievements, then persist their
+                // completions in the same save.
+                s.AchievementsUnlocked = ReportRunAchievements(run, box, s, meta, cfg, outcome);
+
                 SaveSystem.SaveMeta(meta);
             }
             return s;
+        }
+
+        // §6.7 — achievements decidable from run/box/outcome at run-end. The combat-context ones
+        // (Status Sniper / Tankmaster / Lead Specialist) and run-flag ones (No-Repeat / Speed Demon)
+        // need their own in-combat / run-timer hooks — tracked as a follow-up (see Epic 11.5 notes).
+        private static int ReportRunAchievements(RunStateSO run, Box box, RunSummary s,
+            MetaProgressionSO meta, MetaProgressionConfigSO cfg, RunOutcome outcome)
+        {
+            System.Collections.Generic.IReadOnlyList<AchievementSO> reg = AchievementCatalog.All;
+            int count = 0;
+            int Fire(AchievementTrigger t) => AchievementService.Report(t, 1, reg, meta, cfg).Count;
+
+            if (run.CombatsClearedThisRun >= 1) count += Fire(AchievementTrigger.WinCombat);  // First Steps
+            if (run.EvolutionsThisRun >= 1)     count += Fire(AchievementTrigger.Evolve);      // Evolver
+            // Heuristic: the Box grew past the lone starter ⇒ at least one recruit.
+            if (box != null && box.Members != null && box.Members.Count > 1)
+                count += Fire(AchievementTrigger.RecruitWild);                                  // Recruiter
+            if (outcome == RunOutcome.Victory)
+            {
+                count += Fire(AchievementTrigger.DefeatGym);                                    // Boulder Breaker
+                if (s.MaxTrauma >= 5) count += Fire(AchievementTrigger.WinRunHighTrauma);       // Trauma Survivor
+            }
+            return count;
         }
 
         private static int MaxTrauma(Box box)

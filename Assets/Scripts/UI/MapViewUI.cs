@@ -166,7 +166,8 @@ namespace ProjectAscendant.UI
                 if (_run.LastSummary.HasValue)
                 {
                     RunEndService.RunSummary sm = _run.LastSummary.Value;
-                    string l1 = $"Combats {sm.CombatsCleared}   ·   Evolutions {sm.Evolutions}   ·   Max Trauma ⚠{sm.MaxTrauma}   ·   Layers {sm.LayersCleared}";
+                    string l1 = $"Combats {sm.CombatsCleared}   ·   Evolutions {sm.Evolutions}   ·   Max Trauma ⚠{sm.MaxTrauma}   ·   Layers {sm.LayersCleared}"
+                              + (sm.AchievementsUnlocked > 0 ? $"   ·   🏆 +{sm.AchievementsUnlocked}" : "");
                     string l2 = sm.LeveledUp
                         ? $"+{sm.RunXpEarned} Trainer XP   ·   +{sm.TokensGained} Tokens   ·   Trainer Lv {sm.OldLevel} → {sm.NewLevel}  ↑"
                         : $"+{sm.RunXpEarned} Trainer XP   ·   +{sm.TokensGained} Tokens   ·   Trainer Lv {sm.NewLevel}";
