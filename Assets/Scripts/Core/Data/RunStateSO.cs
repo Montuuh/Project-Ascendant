@@ -38,6 +38,10 @@ namespace ProjectAscendant.Core
         // Per §5.3.2 / Task 10.5 — Evolution Items that unlock item-gated branches. None ship in the VS.
         public List<EvolutionItemSO> OwnedEvolutionItems;
 
+        // Per §6.3.2 / Task 11.3 — Trainer (meta) XP accrued THIS run; committed to MetaProgressionSO at
+        // run-end (§6.3.4), then discarded with the run. Distinct from per-Pokémon in-run XP (§5.2).
+        public int TrainerXPEarnedThisRun;
+
         [Header("Active Modifiers")]
         public List<RegionModifierSO> ActiveRegionModifiers;
         public LeagueBoonSO ActiveBoon;
