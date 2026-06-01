@@ -35,6 +35,8 @@ namespace ProjectAscendant.UI
         private Text _log;
         private GameObject _teamButton;
         private GameObject _tmButton;
+        private GameObject _hubButton;
+        private HubPanelUI _hubPanel;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
 
@@ -66,6 +68,9 @@ namespace ProjectAscendant.UI
 
             _tmPanel = new GameObject("TMPanel").AddComponent<TMPanelUI>();
             _tmPanel.transform.SetParent(transform, false);
+
+            _hubPanel = new GameObject("HubPanel").AddComponent<HubPanelUI>();
+            _hubPanel.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -111,6 +116,11 @@ namespace ProjectAscendant.UI
                 new Color(0.40f, 0.36f, 0.24f), true, OpenTMPanel).gameObject;
             _tmButton.SetActive(false);
 
+            // §6.4 — Trainer Hub entry (Task 11.2). Shown only OUTSIDE an active run (pre/post-run).
+            _hubButton = MakeButton(canvas.transform, new Vector2(575, 470), new Vector2(200, 56), "🏛  HUB",
+                new Color(0.30f, 0.34f, 0.52f), true, OpenHubPanel).gameObject;
+            _hubButton.SetActive(false);
+
             GameObject g = new("Graph", typeof(RectTransform));
             g.transform.SetParent(canvas.transform, false);
             _graph = (RectTransform)g.transform;
@@ -132,6 +142,7 @@ namespace ProjectAscendant.UI
             bool inRun = _run.Map != null && !_run.RunOver;
             if (_teamButton != null) _teamButton.SetActive(inRun);
             if (_tmButton != null) _tmButton.SetActive(inRun);
+            if (_hubButton != null) _hubButton.SetActive(!inRun); // §6.4 — Hub is a pre/post-run space
 
             if (_run.Map == null)
             {
@@ -355,6 +366,15 @@ namespace ProjectAscendant.UI
             if (_teamPanel == null || _ctx?.Box == null || _ctx.Loadout == null) return;
             if (_run == null || _run.Map == null || _run.RunOver) return;
             _teamPanel.Open(_ctx.Box, _state, _ctx.Loadout, Refresh, OnEvolveRequested, _ctx.Economy);
+        }
+
+        // §6.4 / Task 11.2 — open the Trainer Hub (only outside an active run). Start Run closes the
+        // Hub → reveals starter-select (the pre-run screen); the player then picks a starter + StartRun.
+        private void OpenHubPanel()
+        {
+            if (_hubPanel == null || _ctx == null) return;
+            if (_run != null && _run.Map != null && !_run.RunOver) return; // not during a run
+            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, Refresh, Refresh);
         }
 
         // §5.4.1 / Task 10.6 — open the TM application flow (only between nodes).
