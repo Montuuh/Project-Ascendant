@@ -32,8 +32,11 @@ namespace ProjectAscendant.Core
         public int HighScore;
 
         [Header("Achievements")]
-        // Per §6.X — achievement completion flags by achievement ID.
+        // Per §6.7 — achievement completion flags by achievement ID (one-shot record).
         public List<string> CompletedAchievementIds;
+        // Per §6.7 — in-progress counters for multi-step achievements (Key = AchievementId, Value = count).
+        // Unity can't serialize Dictionary, so a flat pair list (mirrors HubUpgrades).
+        public List<StringIntPair> AchievementProgress;
 
         [Header("Currency")]
         // Per §6.3 — Trainer Tokens spent at Hub kiosks.
