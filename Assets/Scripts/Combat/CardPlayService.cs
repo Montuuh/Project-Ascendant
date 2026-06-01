@@ -77,6 +77,8 @@ namespace ProjectAscendant.Combat
             // §8.3.4 Choice Specs / Choice Band — first Ranged/Melee move each turn 0 AP, subsequent +1.
             apCost = RelicResolver.ApplyChoiceCost(apCost, move, _state.ActiveRelics,
                 _state.RangedMovesPlayedThisTurn, _state.MeleeMovesPlayedThisTurn);
+            // §8.3.3 Quick Claw Charm — a replayed copy is free.
+            if (card.FreePlay) apCost = 0;
             if (apCost > _state.CurrentAP) return true;
 
             bool consumeDiscount = CardPlayValidator.ShouldConsumeDefensiveDiscount(
@@ -100,6 +102,18 @@ namespace ProjectAscendant.Combat
             {
                 _state.PendingBonusAPNextTurn += _state.Config.MoveEchoBonusAP;
                 _state.MoveEchoGrantedThisTurn = true;
+            }
+
+            // §8.3.3 Quick Claw Charm — once per combat, the played skill card is re-added as a free copy
+            // (VS auto-interpretation of "replay the last skill card you played, free"). The copy itself
+            // never re-triggers (used flag + FreePlay guard).
+            if (!card.FreePlay && !_state.QuickClawUsedThisCombat
+                && RelicResolver.Holds(_state.ActiveRelics, "quick_claw_charm"))
+            {
+                MoveCardInstance echo = _factory.Create(move, attacker, isMasteryMove: false);
+                echo.FreePlay = true;
+                _state.SkillHand.Add(echo);
+                _state.QuickClawUsedThisCombat = true;
             }
 
             if (consumeDiscount) _state.DefensiveSwapDiscountAvailable = false;

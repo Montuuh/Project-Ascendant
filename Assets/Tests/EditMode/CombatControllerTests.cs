@@ -369,6 +369,39 @@ namespace ProjectAscendant.Tests
             Assert.That(player.PrimaryStatus, Is.EqualTo(StatusCondition.None));
         }
 
+        // Plays SkillHand[0] once (targeting enemy 0), then ends.
+        private sealed class PlayOneSkillAgent : IPlayerAgent
+        {
+            private bool _done;
+            public int PickLeadReplacement(CombatController.CombatState s, IReadOnlyList<PokemonInstance> c) => -1;
+            public PlayerAction DecideAction(CombatController.CombatState s)
+            {
+                if (!_done && s.SkillHand.Count > 0) { _done = true; return PlayerAction.PlaySkill(0, 0); }
+                return PlayerAction.End();
+            }
+        }
+
+        private RelicSO Relic(string id)
+        {
+            RelicSO r = ScriptableObject.CreateInstance<RelicSO>(); r.Id = id; _disposables.Add(r); return r;
+        }
+
+        [Test]
+        public void Relic_QuickClawCharm_AddsFreeReplayCopy()
+        {
+            // §8.3.3 — once per combat, the played skill card is re-added as a free (0-AP) copy.
+            PokemonInstance player = MakeMon(MakeSpecies(100, 80, 50, PokemonType.Normal), MakeMove(PokemonType.Normal, 40));
+            PokemonInstance enemy = MakeMon(MakeSpecies(80, 10, 50, PokemonType.Normal), MakeMove(PokemonType.Normal, 5));
+            CombatController.CombatSetup setup = BuildSetup(player, enemy, 9u);
+            setup.ActiveRelics = new List<RelicSO> { Relic("quick_claw_charm") };
+            CombatController c = new(setup, new PlayOneSkillAgent());
+            c.Start(); c.DrawPhase(); c.ActionPhase();
+
+            bool hasFreeCopy = c.State.SkillHand.Exists(card => card != null && card.FreePlay);
+            Assert.That(hasFreeCopy, Is.True, "Quick Claw added a free replay copy to the hand.");
+            Assert.That(c.State.QuickClawUsedThisCombat, Is.True, "fires once per combat.");
+        }
+
         [Test]
         public void Consumable_Ether_GrantsAP_NetOfCost()
         {

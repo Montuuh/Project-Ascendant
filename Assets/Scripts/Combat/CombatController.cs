@@ -128,6 +128,7 @@ namespace ProjectAscendant.Combat
             public Dictionary<PokemonInstance, HashSet<MoveSO>> MovesPlayedThisTurn = new();
             public bool MoveEchoGrantedThisTurn;
             public int PendingBonusAPNextTurn;
+            public bool QuickClawUsedThisCombat;          // §8.3.3 — Quick Claw Charm (once per combat)
             // Per §3.3.1 + Epic 5 Task 5.6.2 — a manual Lead swap grants a
             // 1-AP discount to the FIRST Defensive-tagged card played after
             // the swap, that turn. SF/SB swaps do NOT set this. Reset to false

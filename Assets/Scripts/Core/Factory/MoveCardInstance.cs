@@ -20,6 +20,7 @@ namespace ProjectAscendant.Core
         public PokemonInstance Owner;
         public bool IsMasteryMove;
         public bool IsExhausted;
+        public bool FreePlay; // §8.3.3 Quick Claw Charm — this copy plays for 0 AP
 
         public void Reset()
         {
@@ -27,6 +28,7 @@ namespace ProjectAscendant.Core
             Owner = null;
             IsMasteryMove = false;
             IsExhausted = false;
+            FreePlay = false;
         }
     }
 }
