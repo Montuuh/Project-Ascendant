@@ -340,7 +340,7 @@ namespace ProjectAscendant.UI
         {
             if (_teamPanel == null || _ctx?.Box == null || _ctx.Loadout == null) return;
             if (_run == null || _run.Map == null || _run.RunOver) return;
-            _teamPanel.Open(_ctx.Box, _state, _ctx.Loadout, Refresh, OnEvolveRequested);
+            _teamPanel.Open(_ctx.Box, _state, _ctx.Loadout, Refresh, OnEvolveRequested, _ctx.Economy);
         }
 
         // §5.4.1 / Task 10.6 — open the TM application flow (only between nodes).

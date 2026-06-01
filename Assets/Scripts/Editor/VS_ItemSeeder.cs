@@ -227,11 +227,14 @@ namespace ProjectAscendant.Editor
                 new[]{SynergyCategory.LeadEconomy},
                 "§8.3 | Effect: Each manual swap this turn reduces next move's AP cost by 1 (min 0).");
 
-            // Trauma Salve: at combat end, reduce most-traumatized Pokémon's Trauma by 1 stack.
+            // Trauma Salve (§6.2.4 LOCKED): single-charge — removes ALL Trauma stacks from one CHOSEN
+            // Pokémon, consumed on use. (Prior seeding said "−1 to most-traumatized at combat end" — that
+            // violated the locked spec; corrected here.) The active-use flow (pick target → clear → consume
+            // from HeldRelics) is Epic 12 (Relics runtime); see gap log.
             d["trauma_salve"]    = Rl(p,"trauma_salve",   "Trauma Salve",
                 RarityTier.Uncommon, metaTier:1,
                 new[]{SynergyCategory.Status},
-                "§8.3 | Effect: At combat end, remove 1 Trauma stack from the most-traumatized Pokémon.");
+                "§6.2.4 | Effect: Single-charge. Removes ALL Trauma stacks from one chosen Pokémon. Consumed on use.");
 
             return d;
         }

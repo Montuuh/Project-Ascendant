@@ -19,6 +19,7 @@ namespace ProjectAscendant.UI
         private Box _box;
         private RunStateSO _state;
         private LoadoutManager _loadout;
+        private EconomyConfigSO _economy; // §6.2.5 — Trauma params for the Effective-Max-HP preview
         private Action _onClosed;
         private Action<PokemonInstance> _onEvolve; // §5.3.1 — request the Branch-Selection modal
         private Font _font;
@@ -32,9 +33,10 @@ namespace ProjectAscendant.UI
         public bool IsOpen => _root != null;
 
         public void Open(Box box, RunStateSO state, LoadoutManager loadout, Action onClosed,
-                         Action<PokemonInstance> onEvolve = null)
+                         Action<PokemonInstance> onEvolve = null, EconomyConfigSO economy = null)
         {
             _box = box; _state = state; _loadout = loadout; _onClosed = onClosed; _onEvolve = onEvolve;
+            _economy = economy;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
             // Seed the working selection from the current Active Team.
@@ -143,13 +145,22 @@ namespace ProjectAscendant.UI
             Place(row.rectTransform, Mid(), new Vector2(0, y), new Vector2(1180, 76));
 
             string name = p?.Species != null ? (p.Species.DisplayName ?? p.Species.name) : "—";
-            int max = p != null ? PokemonVitals.MaxHP(p) : 0;
+            // §6.2.5 — the team panel previews the Trauma-adjusted ceiling, not the base max.
+            int effMax = p == null ? 0
+                       : _economy != null ? PokemonVitals.EffectiveMaxHP(p, _economy)
+                       : PokemonVitals.MaxHP(p);
             int hp = p?.CurrentHP ?? 0;
+            int stacks = p?.TraumaStacks ?? 0;
             string st = p != null && p.PrimaryStatus != StatusCondition.None ? $"  [{p.PrimaryStatus}]" : "";
             string role = isLead ? "★ LEAD   " : inTeam ? $"slot {_selected.IndexOf(boxIdx) + 1}   " : "";
             Color nameCol = fainted ? new Color(0.62f, 0.5f, 0.5f) : new Color(0.92f, 0.97f, 0.92f);
-            Txt(row.transform, $"{role}{name}  Lv{p?.Level ?? 0}    HP {hp}/{max}{st}", 22, nameCol,
+            Txt(row.transform, $"{role}{name}  Lv{p?.Level ?? 0}    HP {hp}/{effMax}{st}", 22, nameCol,
                 Mid(), new Vector2(-360, 0), new Vector2(680, 50));
+
+            // §6.2.5 — Trauma badge (⚠N) + the lost ceiling, amber, only when traumatized.
+            if (stacks > 0 && !fainted)
+                Txt(row.transform, $"⚠{stacks}  ·  base {PokemonVitals.MaxHP(p)}", 18,
+                    new Color(1f, 0.78f, 0.32f), Mid(), new Vector2(120, -24), new Vector2(360, 26));
 
             // ADD / REMOVE toggle (fainted is locked out of the team — §2.4.1).
             bool full = _selected.Count >= LoadoutManager.MAX_ACTIVE_TEAM;
