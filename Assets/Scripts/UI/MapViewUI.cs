@@ -36,6 +36,8 @@ namespace ProjectAscendant.UI
         private GameObject _teamButton;
         private GameObject _tmButton;
         private GameObject _hubButton;
+        private GameObject _bagButton;
+        private InventoryPanelUI _inventoryPanel;
         private HubPanelUI _hubPanel;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
@@ -71,6 +73,9 @@ namespace ProjectAscendant.UI
 
             _hubPanel = new GameObject("HubPanel").AddComponent<HubPanelUI>();
             _hubPanel.transform.SetParent(transform, false);
+
+            _inventoryPanel = new GameObject("InventoryPanel").AddComponent<InventoryPanelUI>();
+            _inventoryPanel.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -121,6 +126,11 @@ namespace ProjectAscendant.UI
                 new Color(0.30f, 0.34f, 0.52f), true, OpenHubPanel).gameObject;
             _hubButton.SetActive(false);
 
+            // §8.6 — Inventory + equip (Task 12.9). Shown during a run, like TEAM/TMs.
+            _bagButton = MakeButton(canvas.transform, new Vector2(350, 470), new Vector2(200, 56), "📦  BAG",
+                new Color(0.36f, 0.32f, 0.44f), true, OpenInventoryPanel).gameObject;
+            _bagButton.SetActive(false);
+
             GameObject g = new("Graph", typeof(RectTransform));
             g.transform.SetParent(canvas.transform, false);
             _graph = (RectTransform)g.transform;
@@ -142,6 +152,7 @@ namespace ProjectAscendant.UI
             bool inRun = _run.Map != null && !_run.RunOver;
             if (_teamButton != null) _teamButton.SetActive(inRun);
             if (_tmButton != null) _tmButton.SetActive(inRun);
+            if (_bagButton != null) _bagButton.SetActive(inRun);
             if (_hubButton != null) _hubButton.SetActive(!inRun); // §6.4 — Hub is a pre/post-run space
 
             if (_run.Map == null)
@@ -400,6 +411,14 @@ namespace ProjectAscendant.UI
                     ? new System.Collections.Generic.List<DifficultyModifierSO> { selected }
                     : null;
             Refresh();
+        }
+
+        // §8.6 / Task 12.9 — open the Inventory + Held-Item equip panel (between nodes).
+        private void OpenInventoryPanel()
+        {
+            if (_inventoryPanel == null || _ctx?.Box == null || _state == null) return;
+            if (_run == null || _run.Map == null || _run.RunOver) return;
+            _inventoryPanel.Open(_state, _ctx.Box, Refresh);
         }
 
         // §5.4.1 / Task 10.6 — open the TM application flow (only between nodes).
