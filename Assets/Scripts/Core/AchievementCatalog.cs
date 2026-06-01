@@ -10,7 +10,16 @@ namespace ProjectAscendant.Core
     {
         private static List<AchievementSO> _all;
 
-        public static IReadOnlyList<AchievementSO> All => _all ??= Build();
+        // Rebuild if uncached OR if the cached instances were destroyed (Unity "fake-null" — e.g. a test
+        // run that destroyed loose ScriptableObjects between fixtures). Guards against stale dispatch.
+        public static IReadOnlyList<AchievementSO> All
+        {
+            get
+            {
+                if (_all == null || _all.Count == 0 || _all[0] == null) _all = Build();
+                return _all;
+            }
+        }
 
         private static List<AchievementSO> Build() => new()
         {
