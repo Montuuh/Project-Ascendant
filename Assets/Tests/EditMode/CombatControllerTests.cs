@@ -284,6 +284,30 @@ namespace ProjectAscendant.Tests
             Assert.That(c.State.CurrentPhase, Is.EqualTo(CombatController.Phase.CombatEnd));
         }
 
+        [Test]
+        public void RunFullCombat_RecordsEnemyKillInBestiary()
+        {
+            // Per §6.9 / Task 11.8.2 — defeating an enemy records a Bestiary kill (exactly once).
+            PokemonSpeciesSO playerSp = MakeSpecies(100, 80, 50, PokemonType.Normal);
+            PokemonSpeciesSO enemySp = MakeSpecies(1, 10, 1, PokemonType.Normal);
+            enemySp.SpeciesId = "rattata";
+            enemySp.WildRarity = RarityTier.Common;
+            MoveSO strong = MakeMove(PokemonType.Normal, 80);
+            MoveSO weak = MakeMove(PokemonType.Normal, 5);
+            PokemonInstance player = MakeMon(playerSp, strong);
+            PokemonInstance enemy = MakeMon(enemySp, weak);
+
+            BestiaryProgressSO bestiary = ScriptableObject.CreateInstance<BestiaryProgressSO>();
+            CombatController.CombatSetup setup = BuildSetup(player, enemy, 0xCAFE0002u);
+            setup.Bestiary = bestiary;
+            CombatController c = new(setup, new FirstCardAgent());
+            c.RunFullCombat(maxTurns: 5);
+
+            Assert.That(c.State.Outcome, Is.EqualTo(CombatController.CombatOutcome.Victory));
+            Assert.That(bestiary.GetOrCreate("rattata").TimesDefeated, Is.EqualTo(1), "recorded once");
+            Object.DestroyImmediate(bestiary);
+        }
+
         // ── Bucket 5: Full round-trip — Defeat (Task 4.1.9) ──────────────────
 
         [Test]

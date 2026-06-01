@@ -61,6 +61,8 @@ namespace ProjectAscendant.Combat
             // Per §6.2 + Epic 11 Task 11.1.8 — Trauma params source for EffectiveMaxHP (DoT, HP-bar max).
             // Optional: when null, combat falls back to raw MaxHP (e.g. unit tests that don't model Trauma).
             public EconomyConfigSO Economy;
+            // Per §6.9 / Task 11.8 — optional Bestiary; enemy faints record a kill into it.
+            public BestiaryProgressSO Bestiary;
             public GameRNG Rng;
             // Per §7.4 + Epic 8 Task 8.2 — optional. When the enemy team
             // wipes, the controller consults this provider; a non-empty
@@ -130,6 +132,8 @@ namespace ProjectAscendant.Combat
             public BattleConfigSO Config;
             // Per §6.2 / Task 11.1.8 — Trauma-aware EffectiveMaxHP source (nullable; null → raw MaxHP).
             public EconomyConfigSO Economy;
+            // Per §6.9 / Task 11.8 — Bestiary that enemy faints record into (nullable in tests).
+            public BestiaryProgressSO Bestiary;
             public GameRNG Rng;
 
             // Per §7.3.4 + Epic 8 Task 8.1 — non-null iff a wild Pokémon was
@@ -150,6 +154,9 @@ namespace ProjectAscendant.Combat
         private readonly MoveCardInstanceFactory _cardFactory;
         private readonly CardPlayService _playService;
         private readonly IEnemyReinforcementProvider _reinforcements;
+        // Per §6.9 / Task 11.8.2 — enemies whose kill has already been recorded this combat (once each,
+        // even across the multiple HandleAnyFaints passes before reinforcements clear them).
+        private readonly HashSet<PokemonInstance> _recordedEnemyKills = new();
 
         // ── Constructor + lifecycle ──────────────────────────────────────────
 
@@ -176,6 +183,7 @@ namespace ProjectAscendant.Combat
                 Field = setup.InitialField,
                 Config = setup.Config,
                 Economy = setup.Economy,
+                Bestiary = setup.Bestiary,
                 Rng = setup.Rng,
                 Deck = new SkillDeck(_cardFactory),
                 Consumables = new ConsumablePile(),
@@ -800,6 +808,18 @@ namespace ProjectAscendant.Combat
                 // reshuffled into the deck next turn.
                 // Per §4.8.5 — +1 Trauma stack at moment of faint.
                 FaintResolver.ApplyTraumaOnFaint(p);
+            }
+
+            // Per §6.9 / Task 11.8.2 — record each defeated enemy in the Bestiary exactly once.
+            if (State.Bestiary != null)
+            {
+                for (int i = 0; i < State.EnemyTeam.Count; i++)
+                {
+                    PokemonInstance e = State.EnemyTeam[i];
+                    if (e == null || e.CurrentHP > 0 || e.Species == null) continue;
+                    if (_recordedEnemyKills.Add(e))
+                        State.Bestiary.RecordKill(e.Species.SpeciesId, e.Species.WildRarity);
+                }
             }
 
             // If Lead is fainted, ask for replacement.
