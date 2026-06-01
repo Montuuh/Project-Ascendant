@@ -58,5 +58,18 @@ namespace ProjectAscendant.Combat
         // §8.3.3 Quick Draw — +1 skill card on the FIRST turn of each combat.
         public static int QuickDrawBonus(IReadOnlyList<RelicSO> relics, int turnNumber)
             => (turnNumber == 1 && Holds(relics, "quick_draw")) ? 1 : 0;
+
+        // §8.3.4 Choice Specs / Choice Band — the first Ranged / Melee move each turn costs 0 AP;
+        // subsequent moves of that type cost +1. Returns the adjusted AP cost.
+        public static int ApplyChoiceCost(int apCost, MoveSO move, IReadOnlyList<RelicSO> relics,
+                                          int rangedPlayedThisTurn, int meleePlayedThisTurn)
+        {
+            if (move == null) return apCost;
+            if (move.Range == MoveRange.Ranged && Holds(relics, "choice_specs"))
+                return rangedPlayedThisTurn == 0 ? 0 : apCost + 1;
+            if (move.Range == MoveRange.Melee && Holds(relics, "choice_band"))
+                return meleePlayedThisTurn == 0 ? 0 : apCost + 1;
+            return apCost;
+        }
     }
 }

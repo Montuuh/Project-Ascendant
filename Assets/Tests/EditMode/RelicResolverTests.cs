@@ -84,6 +84,25 @@ namespace ProjectAscendant.Tests
             Assert.That(RelicResolver.ApplyHealBonus(30, new List<RelicSO>(), _cfg), Is.EqualTo(30), "no relic → unchanged.");
         }
 
+        private MoveSO Mv(MoveRange range) { MoveSO m = ScriptableObject.CreateInstance<MoveSO>(); m.Range = range; _disp.Add(m); return m; }
+
+        [Test]
+        public void ChoiceSpecs_FirstRangedFree_SubsequentPlusOne()
+        {
+            List<RelicSO> r = new() { Relic("choice_specs") };
+            Assert.That(RelicResolver.ApplyChoiceCost(3, Mv(MoveRange.Ranged), r, 0, 0), Is.EqualTo(0), "first ranged free.");
+            Assert.That(RelicResolver.ApplyChoiceCost(3, Mv(MoveRange.Ranged), r, 1, 0), Is.EqualTo(4), "subsequent +1.");
+            Assert.That(RelicResolver.ApplyChoiceCost(3, Mv(MoveRange.Melee), r, 0, 0), Is.EqualTo(3), "Specs ignores Melee.");
+        }
+
+        [Test]
+        public void ChoiceBand_FirstMeleeFree()
+        {
+            List<RelicSO> r = new() { Relic("choice_band") };
+            Assert.That(RelicResolver.ApplyChoiceCost(2, Mv(MoveRange.Melee), r, 0, 0), Is.EqualTo(0));
+            Assert.That(RelicResolver.ApplyChoiceCost(2, Mv(MoveRange.Melee), r, 0, 1), Is.EqualTo(3));
+        }
+
         [Test]
         public void QuickDraw_OnlyTurnOne()
         {

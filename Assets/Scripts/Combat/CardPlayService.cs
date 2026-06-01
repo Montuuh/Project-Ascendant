@@ -74,6 +74,9 @@ namespace ProjectAscendant.Combat
             int apCost = StatusModifiers.GetEffectiveAPCost(move, attacker, _state.Config);
             apCost = CardPlayValidator.ApplyDefensiveDiscount(
                 apCost, move, _state.DefensiveSwapDiscountAvailable);
+            // §8.3.4 Choice Specs / Choice Band — first Ranged/Melee move each turn 0 AP, subsequent +1.
+            apCost = RelicResolver.ApplyChoiceCost(apCost, move, _state.ActiveRelics,
+                _state.RangedMovesPlayedThisTurn, _state.MeleeMovesPlayedThisTurn);
             if (apCost > _state.CurrentAP) return true;
 
             bool consumeDiscount = CardPlayValidator.ShouldConsumeDefensiveDiscount(
@@ -81,6 +84,9 @@ namespace ProjectAscendant.Combat
 
             // ── State mutations from here on — commit point ─────────────────
             _state.CurrentAP -= apCost;
+            // §8.3.4 — track Ranged/Melee moves played this turn (Choice Specs/Band).
+            if (move.Range == MoveRange.Ranged) _state.RangedMovesPlayedThisTurn++;
+            else if (move.Range == MoveRange.Melee) _state.MeleeMovesPlayedThisTurn++;
             if (consumeDiscount) _state.DefensiveSwapDiscountAvailable = false;
             _state.SkillHand.RemoveAt(handIndex);
             _state.Deck.Discard(card);
