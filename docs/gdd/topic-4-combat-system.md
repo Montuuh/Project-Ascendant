@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-26T18:15:00.000Z -->
+<!-- Last updated from Notion: 2026-05-29T08:33:00.000Z -->
 
 **Status:** 🔒 Locked
 
@@ -624,6 +624,8 @@ No two paths within a Region share the same type. 12 total Gym types in the pool
 - **2 Pokémon, sequential.** Second is the ace (3-phase design, mid-fight evolution eligibility at 50% HP).
 - Type identity consistent with the drawn type — full team and moveset reflect that type.
 - A field effect matching their type is set at encounter start and persists for the full fight.
+> ⚠️ OPEN (Claude Code, 2026-05-29): §4.4.4.3 says a type-matching field effect is set + persists for the Gym fight, but the GDD does not define what a TYPE field (e.g. Rock) mechanically does — only Weather (Sunny/Rain) and Terrain (Electric) have defined multipliers (§4.3.8).
+> Blocked: the damage/utility effect of a Gym type field. VS stub (Task 8.5.5): FieldState.GymTypeField is set at encounter start and persists (marker only, no multiplier). See BACKLOG gap #33.
 
 ## §4.4.5 Badge Pool (12 Total)
 

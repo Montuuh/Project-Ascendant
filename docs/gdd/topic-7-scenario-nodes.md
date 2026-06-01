@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-24T00:06:00.000Z -->
+<!-- Last updated from Notion: 2026-05-29T17:00:00.000Z -->
 
 **Status:** 🔒 Locked
 
@@ -65,6 +65,8 @@ Across both lanes (12 standard nodes per Region after Layer 0, before Gym):
 
 **Seeding determinism:** Per Engineering Pillar 3 (§1.3.2), the map is generated from the run seed. Same seed = same map every time.
 
+> ⚠️ OPEN (Claude Code, 2026-05-29): §7.2.1 specifies the Layer-4 branch's two lanes "diverge to different Gyms," but the VS authors only one Gym (`rock_gym_r1`, Rock). The Epic 9 Task 9.1 generator builds both L7 Gym slots faithfully (topology-pure).
+> Blocked: which Gym asset each lane's L7 node resolves to. VS resolution: both L7 Gym nodes route to `rock_gym_r1` (node-content wiring at Task 9.8). See BACKLOG gap #34.
 
 ## §7.2.3 Connection Rules
 
@@ -224,6 +226,8 @@ Standard combat encounters featuring a human trainer fielding 1–2 Pokémon, se
 
 When a Trainer Battle node spawns, the seed picks one archetype from the Region's eligible list. Archetype eligibility expands per Region — Bug Catcher is R1-only; Rocket Grunt R2-R3; Ace Trainer R3-only.
 
+> ⚠️ OPEN (Claude Code, 2026-05-29): §7.4.3 specifies per-Region archetype eligibility in prose, but `TrainerArchetypeSO` carries no field encoding it — the Region map's trainer-pool filter has no data to enforce "R1-only" etc.
+> Blocked: an explicit `RegionEligibility` field on `TrainerArchetypeSO` (deferred post-VS — the VS ships only the 4 R1 archetypes, so eligibility is currently enforced by curation + `TrainerArchetypeAuditTests` roster/level-band checks). See BACKLOG gap #30.
 
 ---
 
@@ -240,6 +244,8 @@ Distinct from Gym Leaders. One Elite per Region (always Layer 3).
 - **Difficulty:** between Trainer Battle and Gym Leader. A real mid-Region threat.
 - **Reward:** 1 guaranteed Uncommon relic + Trainer XP bonus + Poké Dollar windfall (~300₽).
 - **Trainer archetype:** drawn from the Ace Trainer pool, or a Region-flavor archetype (e.g., "Rocket Lieutenant" in R3).
+> ⚠️ OPEN (Claude Code, 2026-05-29): §7.5.1 sources the Elite from the "Ace Trainer pool," but Ace Trainer is R3-only (§7.4.3) and out of VS scope (§7.13) — so the R1 Elite's identity/roster is unspecified.
+> Blocked: the canonical R1 Elite archetype + roster. VS stub: a bespoke R1 "Ace Trainer" (no type lock per this section) fielding 2 VS-roster Pokémon — Pidgeotto(12) + Ivysaur(13), each 2-phase. See BACKLOG gap #31.
 - **No type lock:** Elite Trainers do NOT have a single-type identity (that's reserved for Gym Leaders). This makes them a different kind of test than the Gym ahead.
 
 ---
@@ -573,3 +579,5 @@ Aggregated reward tables for every node type. Single source for systems-designer
 | City interstitial             | ❌ Not in VS (VS ends at Gym 1)                                                | —                                               |
 | Map generation algorithm      | ✅ Single-region                                                               | Cross-region pacing tuning                      |
 
+> ⚠️ OPEN (Claude Code, 2026-05-29): two VS Mystery Event choices (§7.9.2) reference systems not built in the slice — **Mysterious Stone (a)** "random Evolution Item" (no Evolution Item system exists) and **Wandering Tutor (a)** "free Move Tutor" (ties to §5.10 Learned Move Pool, not implemented — gap #36).
+> Blocked: the canonical effects for those two choices. VS resolution (user-confirmed 2026-05-29): Mysterious Stone (a) grants a random relic from a configured pool; Wandering Tutor (a) grants a placeholder consumable. Swap to the real effects once the Evolution-Item and Move-Pool systems land. See BACKLOG gap #37.

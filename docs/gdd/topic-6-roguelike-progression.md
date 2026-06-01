@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-24T00:03:00.000Z -->
+<!-- Last updated from Notion: 2026-06-01T09:00:00.000Z -->
 
 **Status:** 🔒 Locked
 
@@ -73,6 +73,7 @@ Trauma stacks **apply instantly at the moment of faint**, during the Resolution 
 
 **Healing interaction:** All healing events (§2.4.2) compute against `EffectiveMaxHP`. A Pokémon Center fully restores the Pokémon to `EffectiveMaxHP`, NOT to `BaseMaxHP`. This is the load-bearing consequence of Trauma — full heals never "undo" prior faints, only restore the current Trauma-adjusted ceiling.
 
+> ⚠ CLARIFIED (Claude Code, 2026-06-01): The original §6.2.2 prose specified EffectiveMaxHP only for _healing_ and was silent on damage-over-time. Resolved per Epic 11 Task 11.1.8 + user ruling: **Burn/Poison DoT also computes against** **`EffectiveMaxHP`** — `floor(EffectiveMaxHP / divisor)`, not BaseMaxHP. Rationale: the combat HP bar caps at EffectiveMaxHP (§6.2.5), so "DoT = 1/16 of your HP bar" only reads true if DoT uses the same (effective) max. Implemented in `StatusEffectManager.ComputeDoTDamage(target, config, economy)`; when no economy is supplied (Trauma-agnostic callers/tests) it falls back to raw MaxHP.
 
 ## §6.2.3 Stack Persistence Rules
 
