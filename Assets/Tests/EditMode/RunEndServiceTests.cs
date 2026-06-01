@@ -75,6 +75,22 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void Finalize_AppliesDifficultyXpMultiplier_BeforeCommit()
+        {
+            // §6.8.1 — a ×1.20 modifier boosts the whole run haul before banking.
+            _run.TrainerXPEarnedThisRun = 500;
+            DifficultyModifierSO hard = ScriptableObject.CreateInstance<DifficultyModifierSO>();
+            hard.TrainerXPMultiplier = 1.20f;
+            _run.ActiveDifficultyModifiers = new System.Collections.Generic.List<DifficultyModifierSO> { hard };
+
+            RunEndService.RunSummary s = RunEndService.Finalize(_run, null, _meta, _cfg, RunOutcome.Victory, 7);
+
+            Assert.That(s.RunXpEarned, Is.EqualTo(600), "500 × 1.20.");
+            Assert.That(_meta.TrainerXP, Is.EqualTo(600));
+            Object.DestroyImmediate(hard);
+        }
+
+        [Test]
         public void Finalize_ReportsMaxTrauma_FromBox()
         {
             Box box = new(6);

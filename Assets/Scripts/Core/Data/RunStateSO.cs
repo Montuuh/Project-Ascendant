@@ -48,6 +48,8 @@ namespace ProjectAscendant.Core
         [Header("Active Modifiers")]
         public List<RegionModifierSO> ActiveRegionModifiers;
         public LeagueBoonSO ActiveBoon;
+        // Per §6.8 / Task 11.6 — difficulty modifiers chosen at run start (VS: 0-1; Hub upgrade raises cap).
+        public List<DifficultyModifierSO> ActiveDifficultyModifiers;
 
         [Header("Event Flags")]
         // Per §9.3.2.4 — key/value flags for event tracking.

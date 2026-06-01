@@ -42,6 +42,11 @@ namespace ProjectAscendant.Map
                 if (bonus > cfg.RunFailedXPCap) bonus = cfg.RunFailedXPCap;
                 run.TrainerXPEarnedThisRun += bonus;
             }
+
+            // §6.8.1/§6.8.3 — difficulty modifiers multiply the run's Trainer-XP reward (after the
+            // failed bonus, so the whole haul is boosted). Stacks multiplicatively across modifiers.
+            run.TrainerXPEarnedThisRun =
+                DifficultyModifiers.ApplyXP(run.TrainerXPEarnedThisRun, run.ActiveDifficultyModifiers);
             s.RunXpEarned = run.TrainerXPEarnedThisRun;
 
             // §6.3.4 — bank XP → recompute Level → award Tokens, then persist (§6.10).
