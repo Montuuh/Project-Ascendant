@@ -333,7 +333,17 @@ namespace ProjectAscendant.UI
             List<PokemonInstance> team = BuildPlayerTeam(out _);
             int xp = _ctx.ProgressionConfig.XPForNode(nodeType);
             if (xp <= 0 || team.Count == 0) return "";
+            // §8.3.3 Lucky Egg Token — in-run XP ×1.15.
+            xp = RelicResolver.ApplyXpMultiplier(xp, _state?.HeldRelics, _ctx.ProgressionConfig);
             XPAwarder.Award(team, xp);
+            // §8.3.3 Exp Share — Box (non-active) Pokémon earn a fraction of Active Team XP.
+            if (RelicHeld("exp_share") && _ctx.Box?.Members != null)
+            {
+                int boxXp = Mathf.FloorToInt(xp * _ctx.ProgressionConfig.ExpShareBoxFraction);
+                if (boxXp > 0)
+                    foreach (PokemonInstance p in _ctx.Box.Members)
+                        if (p != null && !team.Contains(p)) p.CurrentXP += boxXp;
+            }
 
             StringBuilder sb = new();
             for (int i = 0; i < team.Count; i++)
@@ -346,6 +356,10 @@ namespace ProjectAscendant.UI
             }
             return $"   +{xp} XP{sb}";
         }
+
+        // §8.3 / Task 12.4 — true if the run holds a relic with the given Id.
+        private bool RelicHeld(string id) =>
+            _state?.HeldRelics != null && RelicResolver.Holds(_state.HeldRelics, id);
 
         // Per §2.3 / Pillar — the party IS the deck. Fills the Active Team with the first (up to 3)
         // non-fainted Box Pokémon so a freshly recruited one is immediately playable. (A full

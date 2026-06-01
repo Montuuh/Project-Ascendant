@@ -83,5 +83,15 @@ namespace ProjectAscendant.Tests
             Assert.That(RelicResolver.ApplyHealBonus(30, r, _cfg), Is.EqualTo(36), "30 × 1.20.");
             Assert.That(RelicResolver.ApplyHealBonus(30, new List<RelicSO>(), _cfg), Is.EqualTo(30), "no relic → unchanged.");
         }
+
+        [Test]
+        public void LuckyEgg_BoostsXp()
+        {
+            ProgressionConfigSO pc = ScriptableObject.CreateInstance<ProgressionConfigSO>();
+            pc.LuckyEggXPMultiplier = 1.15f; _disp.Add(pc);
+            List<RelicSO> r = new() { Relic("lucky_egg_token") };
+            Assert.That(RelicResolver.ApplyXpMultiplier(100, r, pc), Is.EqualTo(115), "100 × 1.15.");
+            Assert.That(RelicResolver.ApplyXpMultiplier(100, new List<RelicSO>(), pc), Is.EqualTo(100));
+        }
     }
 }

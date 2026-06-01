@@ -46,5 +46,13 @@ namespace ProjectAscendant.Combat
                 return Mathf.FloorToInt(baseHeal * cfg.BerryPouchHealMultiplier);
             return baseHeal;
         }
+
+        // §8.3.3 Lucky Egg Token — all in-run XP ×multiplier. Returns the boosted XP.
+        public static int ApplyXpMultiplier(int baseXp, IReadOnlyList<RelicSO> relics, ProgressionConfigSO cfg)
+        {
+            if (cfg != null && baseXp > 0 && Holds(relics, "lucky_egg_token"))
+                return Mathf.FloorToInt(baseXp * cfg.LuckyEggXPMultiplier);
+            return baseXp;
+        }
     }
 }
