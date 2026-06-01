@@ -22,12 +22,13 @@ namespace ProjectAscendant.UI
         private GameObject _root;
         private RectTransform _body;
         private HeldItemSO _equipping; // when set, the panel is in "pick a Pokémon" mode
+        private RelicSO _usingSalve;   // §6.2.4 — Trauma Salve target-pick mode
 
         public bool IsOpen => _root != null;
 
         public void Open(RunStateSO state, Box box, Action onClosed)
         {
-            _state = state; _box = box; _onClosed = onClosed; _equipping = null;
+            _state = state; _box = box; _onClosed = onClosed; _equipping = null; _usingSalve = null;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Build();
             Refresh();
@@ -63,6 +64,7 @@ namespace ProjectAscendant.UI
             for (int i = _body.childCount - 1; i >= 0; i--) Destroy(_body.GetChild(i).gameObject);
 
             if (_equipping != null) { RenderEquipTargets(); return; }
+            if (_usingSalve != null) { RenderSalveTargets(); return; }
 
             Txt(_body, "INVENTORY", 38, new Color(0.85f, 0.95f, 0.7f), Mid(), new Vector2(0, 440), new Vector2(1300, 52));
 
@@ -72,6 +74,12 @@ namespace ProjectAscendant.UI
             RenderHeldColumn(0f);
             // ── Relics (right) ──────────────────────────────────────────────────
             RenderColumn("TRAINER RELICS", 540f, RelicLines());
+
+            // §6.2.4 — Trauma Salve is a single-charge active relic: USE → pick a traumatised Pokémon.
+            RelicSO salve = _state?.HeldRelics?.Find(r => r != null && r.Id == "trauma_salve");
+            if (salve != null)
+                Btn(_body, Mid(), new Vector2(540, -320), new Vector2(420, 56), "USE Trauma Salve",
+                    new Color(0.40f, 0.30f, 0.42f), true, () => { _usingSalve = salve; Refresh(); });
 
             Btn(_body, Mid(), new Vector2(0, -440), new Vector2(340, 60), "CLOSE  ✕", new Color(0.42f, 0.34f, 0.36f), true, Close);
         }
@@ -174,6 +182,29 @@ namespace ProjectAscendant.UI
             mon.HeldItem = _equipping;                              // one slot per Pokémon
             _equipping = null;
             Refresh();
+        }
+
+        // §6.2.4 — pick a traumatised Pokémon to clear (0-stack mons greyed; salve consumed on use).
+        private void RenderSalveTargets()
+        {
+            Txt(_body, "TRAUMA SALVE — remove ALL Trauma from:", 30, new Color(0.92f, 0.85f, 0.55f), Mid(), new Vector2(0, 420), new Vector2(1300, 44));
+            float y = 320f;
+            List<PokemonInstance> box = _box?.Members ?? new List<PokemonInstance>();
+            for (int i = 0; i < box.Count; i++)
+            {
+                PokemonInstance p = box[i];
+                if (p?.Species == null) continue;
+                bool has = p.TraumaStacks > 0;
+                PokemonInstance mon = p;
+                string name = p.Species.DisplayName ?? p.Species.name;
+                Btn(_body, Mid(), new Vector2(0, y), new Vector2(820, 52),
+                    has ? $"{name}   ⚠{p.TraumaStacks}" : $"{name}   (no Trauma)",
+                    has ? new Color(0.40f, 0.30f, 0.42f) : new Color(0.3f, 0.3f, 0.34f), has,
+                    () => { TraumaSalveApplicator.Apply(_state, _usingSalve, mon); _usingSalve = null; Refresh(); });
+                y -= 64f;
+            }
+            Btn(_body, Mid(), new Vector2(0, y - 16f), new Vector2(320, 54), "◀ BACK", new Color(0.42f, 0.34f, 0.36f), true,
+                () => { _usingSalve = null; Refresh(); });
         }
 
         // ── uGUI primitives ───────────────────────────────────────────────────
