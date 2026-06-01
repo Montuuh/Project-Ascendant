@@ -104,6 +104,16 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void MoveEcho_TriggersAtThreshold_OncePerTurn()
+        {
+            List<RelicSO> r = new() { Relic("move_echo") };
+            Assert.That(RelicResolver.MoveEchoTriggers(2, 3, false, r), Is.False, "below threshold.");
+            Assert.That(RelicResolver.MoveEchoTriggers(3, 3, false, r), Is.True, "at threshold.");
+            Assert.That(RelicResolver.MoveEchoTriggers(3, 3, true, r), Is.False, "already granted this turn.");
+            Assert.That(RelicResolver.MoveEchoTriggers(3, 3, false, new List<RelicSO>()), Is.False, "no relic.");
+        }
+
+        [Test]
         public void QuickDraw_OnlyTurnOne()
         {
             List<RelicSO> r = new() { Relic("quick_draw") };

@@ -193,6 +193,8 @@ namespace ProjectAscendant.Core
         public float SootheBellDamageMultiplier = 1.05f;   // Soothe Bell — at full HP → +5% damage
         public float BerryPouchHealMultiplier = 1.20f;     // Berry Pouch — healing consumables +20%
         public float SmokeBallDamageMultiplier = 0.80f;    // Smoke Ball — first enemy attack −20% (VS: per-combat)
+        public int MoveEchoMoveThreshold = 3;              // Move Echo — distinct moves from one mon in a turn
+        public int MoveEchoBonusAP = 2;                    // Move Echo — AP granted next turn
 
         // Per §5.5.3 / §5.8 — Shell Armor: flat incoming-damage reduction while this Pokémon is Lead
         // (stacks with the Boulder Badge reduction, §4.4.5.1).

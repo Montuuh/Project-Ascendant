@@ -124,6 +124,10 @@ namespace ProjectAscendant.Combat
             public int RangedMovesPlayedThisTurn;         // §8.3.4 — Choice Specs
             public int MeleeMovesPlayedThisTurn;          // §8.3.4 — Choice Band
             public bool SmokeBallTriggeredThisCombat;     // §8.3.3 — Smoke Ball (first enemy attack)
+            // §8.3.4 Move Echo — distinct moves played per attacker this turn → +2 AP next turn.
+            public Dictionary<PokemonInstance, HashSet<MoveSO>> MovesPlayedThisTurn = new();
+            public bool MoveEchoGrantedThisTurn;
+            public int PendingBonusAPNextTurn;
             // Per §3.3.1 + Epic 5 Task 5.6.2 — a manual Lead swap grants a
             // 1-AP discount to the FIRST Defensive-tagged card played after
             // the swap, that turn. SF/SB swaps do NOT set this. Reset to false
@@ -246,10 +250,14 @@ namespace ProjectAscendant.Combat
         {
             State.CurrentPhase = Phase.DrawPhase;
             State.TurnNumber++;
-            State.CurrentAP = State.Config.BaseAPPerTurn;
+            // §8.3.4 Move Echo — carry the +2 AP bonus earned last turn, then clear it.
+            State.CurrentAP = State.Config.BaseAPPerTurn + State.PendingBonusAPNextTurn;
+            State.PendingBonusAPNextTurn = 0;
             State.SwapCounter = 0;
             State.RangedMovesPlayedThisTurn = 0;          // §8.3.4 — Choice Specs/Band reset per turn
             State.MeleeMovesPlayedThisTurn = 0;
+            State.MovesPlayedThisTurn.Clear();            // §8.3.4 — Move Echo per-turn tracking
+            State.MoveEchoGrantedThisTurn = false;
             State.DefensiveSwapDiscountAvailable = false; // §3.3.1 — per-turn
             State.SkillHand.Clear();
             State.ConsumableHand.Clear();

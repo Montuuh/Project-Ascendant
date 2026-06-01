@@ -87,6 +87,21 @@ namespace ProjectAscendant.Combat
             // §8.3.4 — track Ranged/Melee moves played this turn (Choice Specs/Band).
             if (move.Range == MoveRange.Ranged) _state.RangedMovesPlayedThisTurn++;
             else if (move.Range == MoveRange.Melee) _state.MeleeMovesPlayedThisTurn++;
+
+            // §8.3.4 Move Echo — 3 distinct moves from one Pokémon this turn → +2 AP next turn (once).
+            if (!_state.MovesPlayedThisTurn.TryGetValue(attacker, out HashSet<MoveSO> playedByMon))
+            {
+                playedByMon = new HashSet<MoveSO>();
+                _state.MovesPlayedThisTurn[attacker] = playedByMon;
+            }
+            playedByMon.Add(move);
+            if (RelicResolver.MoveEchoTriggers(playedByMon.Count, _state.Config.MoveEchoMoveThreshold,
+                    _state.MoveEchoGrantedThisTurn, _state.ActiveRelics))
+            {
+                _state.PendingBonusAPNextTurn += _state.Config.MoveEchoBonusAP;
+                _state.MoveEchoGrantedThisTurn = true;
+            }
+
             if (consumeDiscount) _state.DefensiveSwapDiscountAvailable = false;
             _state.SkillHand.RemoveAt(handIndex);
             _state.Deck.Discard(card);

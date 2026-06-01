@@ -59,6 +59,12 @@ namespace ProjectAscendant.Combat
         public static int QuickDrawBonus(IReadOnlyList<RelicSO> relics, int turnNumber)
             => (turnNumber == 1 && Holds(relics, "quick_draw")) ? 1 : 0;
 
+        // §8.3.4 Move Echo — true when a Pokémon has played `threshold` distinct moves this turn and the
+        // bonus hasn't already been granted this turn (grant once → +N AP next turn).
+        public static bool MoveEchoTriggers(int distinctMoves, int threshold, bool alreadyGrantedThisTurn,
+                                            IReadOnlyList<RelicSO> relics)
+            => !alreadyGrantedThisTurn && distinctMoves >= threshold && Holds(relics, "move_echo");
+
         // §8.3.4 Choice Specs / Choice Band — the first Ranged / Melee move each turn costs 0 AP;
         // subsequent moves of that type cost +1. Returns the adjusted AP cost.
         public static int ApplyChoiceCost(int apCost, MoveSO move, IReadOnlyList<RelicSO> relics,
