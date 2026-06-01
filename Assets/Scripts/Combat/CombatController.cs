@@ -63,6 +63,8 @@ namespace ProjectAscendant.Combat
             public EconomyConfigSO Economy;
             // Per §6.9 / Task 11.8 — optional Bestiary; enemy faints record a kill into it.
             public BestiaryProgressSO Bestiary;
+            // Per §8.3 / Task 12.3 — the run's held Trainer Relics (RelicResolver dispatch). Optional.
+            public List<RelicSO> ActiveRelics;
             public GameRNG Rng;
             // Per §7.4 + Epic 8 Task 8.2 — optional. When the enemy team
             // wipes, the controller consults this provider; a non-empty
@@ -134,6 +136,8 @@ namespace ProjectAscendant.Combat
             public EconomyConfigSO Economy;
             // Per §6.9 / Task 11.8 — Bestiary that enemy faints record into (nullable in tests).
             public BestiaryProgressSO Bestiary;
+            // Per §8.3 / Task 12.3 — held Trainer Relics active this combat (RelicResolver). Never null.
+            public List<RelicSO> ActiveRelics = new();
             public GameRNG Rng;
 
             // Per §7.3.4 + Epic 8 Task 8.1 — non-null iff a wild Pokémon was
@@ -184,6 +188,9 @@ namespace ProjectAscendant.Combat
                 Config = setup.Config,
                 Economy = setup.Economy,
                 Bestiary = setup.Bestiary,
+                ActiveRelics = setup.ActiveRelics != null
+                    ? new List<RelicSO>(setup.ActiveRelics)
+                    : new List<RelicSO>(),
                 Rng = setup.Rng,
                 Deck = new SkillDeck(_cardFactory),
                 Consumables = new ConsumablePile(),
@@ -475,6 +482,9 @@ namespace ProjectAscendant.Combat
                     if (t == null || t.CurrentHP <= 0) return; // §2.4.3 — Potions never revive
                     int effMax = EffectiveMaxHpFor(t);
                     int healAmount = heal.RestoreToFull ? effMax : heal.FlatHealAmount;
+                    // §8.3.3 Berry Pouch — healing consumables restore +20% (not applied to full-restore).
+                    if (!heal.RestoreToFull)
+                        healAmount = RelicResolver.ApplyHealBonus(healAmount, State.ActiveRelics, State.Config);
                     t.CurrentHP = Mathf.Min(effMax, t.CurrentHP + healAmount);
                     break;
                 }
@@ -684,7 +694,12 @@ namespace ProjectAscendant.Combat
             // while its HP is below the threshold (1.0 for everyone else).
             float abilityOutMul = AbilityResolver.OutgoingDamageMultiplier(attacker, move, State.Config);
 
-            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul);
+            // Per §8.3.3 + Task 12.3 — held-relic outgoing multiplier (player attackers only; relics are
+            // player run-state). Brave Charm / Soothe Bell.
+            float relicOutMul = State.PlayerTeam.Contains(attacker)
+                ? RelicResolver.OutgoingDamageMultiplier(attacker, State.ActiveRelics, State.Config) : 1f;
+
+            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul);
             if (final <= 0) final = (dmg.TypeEffectiveness == 0.0) ? 0 : 1; // immune stays 0
 
             // Per §5.5.3.3 — Levitate: Ground-type moves do nothing to a Levitate target.

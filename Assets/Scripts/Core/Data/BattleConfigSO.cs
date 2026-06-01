@@ -188,6 +188,11 @@ namespace ProjectAscendant.Core
         public float AbilityLowHpBoostMultiplier = 1.2f;   // +20%
         public float AbilityLowHpThreshold = 0.30f;        // when HP < 30%
 
+        // Per §8.3.3 + Epic 12 Task 12.4 — Trainer Relic combat multipliers (RelicResolver).
+        public float BraveCharmDamageMultiplier = 1.10f;   // Brave Charm — HP < 50% → +10% damage
+        public float SootheBellDamageMultiplier = 1.05f;   // Soothe Bell — at full HP → +5% damage
+        public float BerryPouchHealMultiplier = 1.20f;     // Berry Pouch — healing consumables +20%
+
         // Per §5.5.3 / §5.8 — Shell Armor: flat incoming-damage reduction while this Pokémon is Lead
         // (stacks with the Boulder Badge reduction, §4.4.5.1).
         public int ShellArmorFlatReduction = 2;
