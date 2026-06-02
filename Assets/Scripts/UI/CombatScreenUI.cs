@@ -33,6 +33,9 @@ namespace ProjectAscendant.UI
         private Text _waveText;
         // Per §3.2.6 (OPEN) — breather modal (blocking overlay)
         private GameObject _breatherModal;
+        // Per R4-4 / §3.2 / Topic 10 — combat log panel (right-side scroll strip, category-colored)
+        private GameObject _logPanel;
+        private RectTransform _logContent;
 
         public void Begin(CombatController cc, Action<CombatController.CombatOutcome> onComplete)
         {
@@ -181,6 +184,20 @@ namespace ProjectAscendant.UI
             Border(_wavePanel, new Color(0.65f, 0.55f, 0.75f));
             _waveText = Txt(_wavePanel.transform, "", 18, new Color(0.92f, 0.85f, 0.95f), Mid(), Vector2.zero, new Vector2(300, 70));
             _wavePanel.SetActive(false); // hidden until wave is pending
+
+            // Per R4-4 / §3.2 / Topic 10 — combat log panel (right-side vertical strip, newest at bottom).
+            // Pillar 1 (telegraphed tactics): category-colored entries show player/enemy/turn events with numbers.
+            _logPanel = new GameObject("CombatLogPanel");
+            _logPanel.transform.SetParent(_root.transform, false);
+            Image logBg = _logPanel.AddComponent<Image>();
+            logBg.color = new Color(0.10f, 0.12f, 0.14f, 0.96f);
+            Place((RectTransform)_logPanel.transform, new Vector2(1f, 0.5f), new Vector2(-160, 0), new Vector2(300, 740));
+            Border(_logPanel, new Color(0.50f, 0.55f, 0.60f));
+            Txt(_logPanel.transform, "COMBAT LOG", 20, new Color(0.85f, 0.88f, 0.92f), Top(), new Vector2(0, -18), new Vector2(280, 28));
+            GameObject logContentGO = new("LogContent", typeof(RectTransform));
+            logContentGO.transform.SetParent(_logPanel.transform, false);
+            _logContent = (RectTransform)logContentGO.transform;
+            Place(_logContent, Top(), new Vector2(0, -48), new Vector2(280, 680));
         }
 
         // ── Refresh ───────────────────────────────────────────────────────────
@@ -217,6 +234,9 @@ namespace ProjectAscendant.UI
 
             // Per §3.2.6 (OPEN) — breather modal (blocks normal UI when pending)
             BuildBreatherModal(s);
+
+            // Per R4-4 / §3.2 / Topic 10 — combat log (right panel, category-colored)
+            BuildCombatLog();
 
             // Block End Turn while breather is pending (player must act or pass)
             bool breatherBlocks = s.BreatherPending;
@@ -335,10 +355,14 @@ namespace ProjectAscendant.UI
             if (ab.Length > 0)
                 Txt(panel.transform, ab, 16, new Color(0.72f, 0.85f, 0.95f), Mid(), new Vector2(150, 28), new Vector2(320, 24));
 
-            // Per §4.2.6 / Topic 10 — stat-stage display below the HP counter (color-coded, non-zero only)
-            string stages = FormatStatStagesColored(p, panel.transform, new Vector2(-180, -22), new Vector2(480, 20));
-
+            // Per R4-2 / §4.2.6 / Topic 10 — stat-stage display (color-coded inline, to the right of HP counter).
+            // Per Pillar 1 (telegraphed tactics): buffs=green, debuffs=red for at-a-glance legibility.
+            // Placed inline instead of below to avoid clipping under the HP bar/swap button.
+            string stages = FormatStatStagesInline(p);
+            Color stageCol = GetStatStageColor(p);
             Txt(panel.transform, $"HP {hp} / {max}", 17, Color.white, Mid(), new Vector2(-180, 1), new Vector2(200, 24));
+            if (!string.IsNullOrEmpty(stages))
+                Txt(panel.transform, stages, 15, stageCol, Mid(), new Vector2(60, 1), new Vector2(280, 22));
             Image hb = HpBar(panel.transform, new Vector2(-20, -28), new Vector2(420, 18));
             SetFill(hb, max > 0 ? Mathf.Clamp01((float)hp / max) : 0f);
 
@@ -591,6 +615,40 @@ namespace ProjectAscendant.UI
             Refresh(); // modal will be torn down by next Refresh cycle
         }
 
+        // Per R4-4 / §3.2 / Topic 10 — combat log panel. Shows most recent ~12 entries (newest at
+        // bottom), color-coded by category for at-a-glance reading (PlayerAction=cyan/green,
+        // EnemyAction=red/orange, TurnEvent=neutral/grey). Messages already contain the numbers
+        // (e.g. "Bulbasaur used Tackle → 12 dmg"). Rebuilt each Refresh().
+        private void BuildCombatLog()
+        {
+            // Clear existing entries
+            for (int i = _logContent.childCount - 1; i >= 0; i--) Destroy(_logContent.GetChild(i).gameObject);
+
+            List<CombatController.CombatLogEntry> log = _cc.State.CombatLog;
+            if (log == null || log.Count == 0) return;
+
+            // Show the most recent 12 entries (or fewer if log is short)
+            const int maxVisible = 12;
+            int startIdx = Mathf.Max(0, log.Count - maxVisible);
+            const float entryHeight = 56f, gap = 2f;
+            float y = 0f; // top-down layout
+
+            for (int i = startIdx; i < log.Count; i++)
+            {
+                CombatController.CombatLogEntry entry = log[i];
+                // Per Pillar 1 (telegraphed tactics) — color-code by category for at-a-glance reading
+                Color col = entry.Category switch
+                {
+                    CombatController.CombatLogCategory.PlayerAction => new Color(0.45f, 0.88f, 0.75f),  // cyan/green
+                    CombatController.CombatLogCategory.EnemyAction  => new Color(0.95f, 0.52f, 0.45f),  // red/orange
+                    CombatController.CombatLogCategory.TurnEvent    => new Color(0.82f, 0.85f, 0.88f),  // neutral grey
+                    _ => Color.white
+                };
+                Txt(_logContent, entry.Message, 15, col, Top(), new Vector2(0, -y - entryHeight / 2f), new Vector2(270, entryHeight));
+                y += entryHeight + gap;
+            }
+        }
+
         // ── Stat Stage Formatting (§4.2.6 / Topic 10 readability) ────────────
 
         // Plain text format for enemy display (appended to status line)
@@ -608,9 +666,9 @@ namespace ProjectAscendant.UI
             return entries.Count > 0 ? $"   [{string.Join("  ", entries)}]" : "";
         }
 
-        // Colored display for player team rows (renders a Text widget with color hints)
-        // Per Pillar 1 (telegraphed tactics) — debuffs warning-tinted, buffs positive-tinted
-        private string FormatStatStagesColored(PokemonInstance p, Transform parent, Vector2 pos, Vector2 size)
+        // Per R4-2 / §4.2.6 / Topic 10 — inline stat-stage display for player rows (no widget, just the text).
+        // Per Pillar 1 (telegraphed tactics): color determined by GetStatStageColor (buffs=green, debuffs=red).
+        private static string FormatStatStagesInline(PokemonInstance p)
         {
             if (p?.StatStages == null || p.StatStages.Count == 0) return "";
             List<string> entries = new();
@@ -621,16 +679,16 @@ namespace ProjectAscendant.UI
                 string sign = kvp.Value > 0 ? "+" : "";
                 entries.Add($"{label} {sign}{kvp.Value}");
             }
-            if (entries.Count == 0) return "";
+            return entries.Count > 0 ? $"[{string.Join("  ", entries)}]" : "";
+        }
 
-            // Determine dominant color: if any debuff (negative), warning tint; else positive tint
-            bool hasDebuff = false;
+        // Per R4-2 / Pillar 1 (telegraphed tactics) — dominant color for stat-stage display: red if any debuff, else green.
+        private static Color GetStatStageColor(PokemonInstance p)
+        {
+            if (p?.StatStages == null || p.StatStages.Count == 0) return Color.white;
             foreach (var kvp in p.StatStages)
-                if (kvp.Value < 0) { hasDebuff = true; break; }
-            Color col = hasDebuff ? new Color(0.95f, 0.55f, 0.45f) : new Color(0.5f, 0.95f, 0.6f);
-
-            Txt(parent, string.Join("  ", entries), 15, col, Mid(), pos, size);
-            return string.Join("  ", entries); // return for consistency (not used currently)
+                if (kvp.Value < 0) return new Color(0.95f, 0.55f, 0.45f); // debuff → red
+            return new Color(0.5f, 0.95f, 0.6f); // buff → green
         }
 
         // Per §4.2.6 — localisation-ready stat labels (Attack→Atk, Defense→Def, Speed→Spd)
