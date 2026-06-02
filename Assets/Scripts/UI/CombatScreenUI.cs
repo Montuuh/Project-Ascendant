@@ -231,14 +231,27 @@ namespace ProjectAscendant.UI
             }
         }
 
+        // Per §4.2 (status) / §4.2.6 (stat stages) / Topic 10 (readability) — show both primary
+        // and secondary status, plus active stat-stage buffs/debuffs (non-zero stages only).
+        // Pillar 1 (telegraphed tactics): color-coded stat stages for at-a-glance legibility.
         private void SetMon(Text info, Image hpFill, string who, PokemonInstance p, bool enemy)
         {
             if (p == null || p.Species == null) { info.text = $"{who}: —"; SetFill(hpFill, 0); return; }
             int max = PokemonVitals.MaxHP(p);
             float pct = max > 0 ? Mathf.Clamp01((float)p.CurrentHP / max) : 0f;
             SetFill(hpFill, pct);
-            string status = p.PrimaryStatus != StatusCondition.None ? $"   [{p.PrimaryStatus}]" : "";
-            info.text = $"{who}:  {p.Species.DisplayName ?? p.Species.name}   Lv{p.Level}\nHP {p.CurrentHP} / {max}{status}";
+
+            // Status display: show primary + secondary (if any)
+            string status = "";
+            if (p.PrimaryStatus != StatusCondition.None)
+                status += $"   [{p.PrimaryStatus}]";
+            if (p.SecondaryStatus != StatusCondition.None)
+                status += $"   [{p.SecondaryStatus}]";
+
+            // Per §4.2.6 — stat-stage display (non-zero stages only, abbreviated labels)
+            string stages = FormatStatStages(p);
+
+            info.text = $"{who}:  {p.Species.DisplayName ?? p.Species.name}   Lv{p.Level}\nHP {p.CurrentHP} / {max}{status}{stages}";
         }
 
         // Per §4.3.2 — intents target POSITIONS (slots), not Pokémon. Translate a raw slot index to
@@ -304,7 +317,14 @@ namespace ProjectAscendant.UI
             string name = p?.Species != null ? (p.Species.DisplayName ?? p.Species.name) : "—";
             int max = p != null ? PokemonVitals.MaxHP(p) : 0;
             int hp = p?.CurrentHP ?? 0;
-            string st = p != null && p.PrimaryStatus != StatusCondition.None ? $"  [{p.PrimaryStatus}]" : "";
+
+            // Per §4.2 (status) — show both primary and secondary status alongside tag line
+            string st = "";
+            if (p != null && p.PrimaryStatus != StatusCondition.None)
+                st += $"  [{p.PrimaryStatus}]";
+            if (p != null && p.SecondaryStatus != StatusCondition.None)
+                st += $"  [{p.SecondaryStatus}]";
+
             // Per Bug #3 — stable bench numbering (BENCH 1, BENCH 2) instead of SlotRole dynamic lookup.
             string tag = (isLead ? "▶ LEAD" : $"BENCH {benchNumber}") + (fainted ? "  ✖ FAINTED" : "");
             Color nameCol = fainted ? new Color(0.62f, 0.5f, 0.5f) : new Color(0.92f, 0.97f, 0.92f);
@@ -314,6 +334,10 @@ namespace ProjectAscendant.UI
             Txt(panel.transform, $"{tag}   {name}  Lv{p?.Level ?? 0}{st}", 20, nameCol, Mid(), new Vector2(-40, 28), new Vector2(440, 28));
             if (ab.Length > 0)
                 Txt(panel.transform, ab, 16, new Color(0.72f, 0.85f, 0.95f), Mid(), new Vector2(150, 28), new Vector2(320, 24));
+
+            // Per §4.2.6 / Topic 10 — stat-stage display below the HP counter (color-coded, non-zero only)
+            string stages = FormatStatStagesColored(p, panel.transform, new Vector2(-180, -22), new Vector2(480, 20));
+
             Txt(panel.transform, $"HP {hp} / {max}", 17, Color.white, Mid(), new Vector2(-180, 1), new Vector2(200, 24));
             Image hb = HpBar(panel.transform, new Vector2(-20, -28), new Vector2(420, 18));
             SetFill(hb, max > 0 ? Mathf.Clamp01((float)hp / max) : 0f);
@@ -566,6 +590,57 @@ namespace ProjectAscendant.UI
             _cc.EndBreather();
             Refresh(); // modal will be torn down by next Refresh cycle
         }
+
+        // ── Stat Stage Formatting (§4.2.6 / Topic 10 readability) ────────────
+
+        // Plain text format for enemy display (appended to status line)
+        private static string FormatStatStages(PokemonInstance p)
+        {
+            if (p?.StatStages == null || p.StatStages.Count == 0) return "";
+            List<string> entries = new();
+            foreach (var kvp in p.StatStages)
+            {
+                if (kvp.Value == 0) continue; // skip neutral
+                string label = StatLabel(kvp.Key);
+                string sign = kvp.Value > 0 ? "+" : "";
+                entries.Add($"{label} {sign}{kvp.Value}");
+            }
+            return entries.Count > 0 ? $"   [{string.Join("  ", entries)}]" : "";
+        }
+
+        // Colored display for player team rows (renders a Text widget with color hints)
+        // Per Pillar 1 (telegraphed tactics) — debuffs warning-tinted, buffs positive-tinted
+        private string FormatStatStagesColored(PokemonInstance p, Transform parent, Vector2 pos, Vector2 size)
+        {
+            if (p?.StatStages == null || p.StatStages.Count == 0) return "";
+            List<string> entries = new();
+            foreach (var kvp in p.StatStages)
+            {
+                if (kvp.Value == 0) continue;
+                string label = StatLabel(kvp.Key);
+                string sign = kvp.Value > 0 ? "+" : "";
+                entries.Add($"{label} {sign}{kvp.Value}");
+            }
+            if (entries.Count == 0) return "";
+
+            // Determine dominant color: if any debuff (negative), warning tint; else positive tint
+            bool hasDebuff = false;
+            foreach (var kvp in p.StatStages)
+                if (kvp.Value < 0) { hasDebuff = true; break; }
+            Color col = hasDebuff ? new Color(0.95f, 0.55f, 0.45f) : new Color(0.5f, 0.95f, 0.6f);
+
+            Txt(parent, string.Join("  ", entries), 15, col, Mid(), pos, size);
+            return string.Join("  ", entries); // return for consistency (not used currently)
+        }
+
+        // Per §4.2.6 — localisation-ready stat labels (Attack→Atk, Defense→Def, Speed→Spd)
+        private static string StatLabel(Stat s) => s switch
+        {
+            Stat.Attack => "Atk",
+            Stat.Defense => "Def",
+            Stat.Speed => "Spd",
+            _ => s.ToString()
+        };
 
         // ── uGUI primitives ───────────────────────────────────────────────────
 
