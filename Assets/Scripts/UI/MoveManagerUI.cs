@@ -27,21 +27,39 @@ namespace ProjectAscendant.UI
         // Working selection: the 4 moves the player has chosen. On open, seed from CurrentMoves.
         // On Confirm, commit via MoveLoadoutService.SetActiveMoves.
         private readonly List<MoveSO> _workingActive = new(4);
+        // The active 4 at open-time, to detect whether the player actually CHANGED anything (§5.10.2).
+        private readonly List<MoveSO> _originalActive = new(4);
+
+        // §5.10.2 — when true, COMMITTING a change costs MoveReconfigCost (paid Map-View context).
+        // Free contexts (Pokémon Center / post-evolution) pass false. Viewing is always free.
+        private bool _chargeOnChange;
+        private RunStateSO _runState;
+        private EconomyConfigSO _economy;
+        private bool _payBlocked; // set when a confirm was blocked by insufficient ₽ (shows a hint)
 
         public bool IsOpen => _root != null;
 
-        public void Open(PokemonInstance pokemon, Action onClosed)
+        public void Open(PokemonInstance pokemon, Action onClosed,
+                         bool chargeOnChange = false, RunStateSO runState = null, EconomyConfigSO economy = null)
         {
             if (pokemon == null) return;
 
             _pokemon = pokemon;
             _onClosed = onClosed;
+            _chargeOnChange = chargeOnChange;
+            _runState = runState;
+            _economy = economy;
+            _payBlocked = false;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-            // Seed working selection from current active 4.
+            // Seed working selection from current active 4 + snapshot the original to detect changes.
             _workingActive.Clear();
+            _originalActive.Clear();
             for (int i = 0; i < pokemon.CurrentMoves.Count && i < 4; i++)
+            {
                 _workingActive.Add(pokemon.CurrentMoves[i]);
+                _originalActive.Add(pokemon.CurrentMoves[i]);
+            }
 
             Build();
             RefreshBody();
@@ -58,6 +76,33 @@ namespace ProjectAscendant.UI
             if (_root != null) Destroy(_root);
             _root = null;
             _onClosed?.Invoke();
+        }
+
+        // §5.10.2 — confirm the loadout. Keeping the same 4 (or just viewing) is ALWAYS free; CHANGING
+        // the active set in a paid context (Map View) costs MoveReconfigCost, charged here on confirm.
+        // If the player can't afford it, the confirm is blocked (no change, no charge) + a hint shows.
+        private void TryConfirm()
+        {
+            bool changed = !SameSet(_workingActive, _originalActive);
+            if (changed && _chargeOnChange)
+            {
+                if (_runState == null || _economy == null
+                    || !MoveLoadoutService.DeductReconfigCost(_runState, _economy))
+                {
+                    _payBlocked = true;
+                    RefreshBody();
+                    return;
+                }
+            }
+            Close(true);
+        }
+
+        // True iff both lists hold the same moves (order-independent) — detects a real change.
+        private static bool SameSet(List<MoveSO> a, List<MoveSO> b)
+        {
+            if (a.Count != b.Count) return false;
+            for (int i = 0; i < a.Count; i++) if (!b.Contains(a[i])) return false;
+            return true;
         }
 
         // ── Toggle logic ──────────────────────────────────────────────────────
@@ -123,6 +168,16 @@ namespace ProjectAscendant.UI
                             : new Color(0.9f, 0.7f, 0.4f);
             Txt(_body, status, 22, statusCol, Mid(), new Vector2(0, 406), new Vector2(1300, 34));
 
+            // §5.10.2 — paid-context note: viewing is always free; changing the Active 4 here costs ₽.
+            if (_chargeOnChange)
+            {
+                int cost = _economy != null ? _economy.MoveReconfigCost : 0;
+                string payNote = _payBlocked ? $"Not enough ₽ — changing your Active 4 costs {cost}₽"
+                                             : $"Viewing is free  ·  changing your Active 4 costs {cost}₽";
+                Txt(_body, payNote, 16, _payBlocked ? new Color(0.95f, 0.5f, 0.45f) : new Color(0.8f, 0.85f, 0.62f),
+                    Mid(), new Vector2(0, 382), new Vector2(1300, 24));
+            }
+
             float y = 356f;
 
             // §5.10.2 — Active 4 section (fixed, top).
@@ -155,7 +210,7 @@ namespace ProjectAscendant.UI
 
             // Buttons pinned to a FIXED bottom position so a large pool never pushes them off-screen.
             Btn(_body, Mid(), new Vector2(-260, -462), new Vector2(380, 60), "✔ CONFIRM",
-                new Color(0.28f, 0.52f, 0.36f), valid, () => Close(true));
+                new Color(0.28f, 0.52f, 0.36f), valid, () => TryConfirm());
             Btn(_body, Mid(), new Vector2(260, -462), new Vector2(380, 60), "CANCEL  ✕",
                 new Color(0.42f, 0.34f, 0.36f), true, () => Close(false));
         }

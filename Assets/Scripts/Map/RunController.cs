@@ -85,7 +85,15 @@ namespace ProjectAscendant.Map
         // §9.8.1), dispatch NodeConfirmed. Returns false (no change) if the node isn't reachable.
         public bool EnterNode(MapNode node)
         {
-            if (RunOver || !IsSelectable(node)) return false;
+            if (RunOver || node == null) return false;
+
+            // Per §7.6 + Bug R2-2 — allow RE-ENTERING the CURRENT utility node (Center / Shop / Mystery)
+            // while the player is still parked on it (before advancing a layer). Utility services are
+            // repeatable / idempotent, so re-entry is safe. Combat nodes are NEVER re-enterable (no
+            // reward re-farming): the current node is not in its own SelectableNodes, so a combat
+            // CurrentNode fails the IsSelectable gate below.
+            bool reentry = node == CurrentNode && IsUtilityNode(node.NodeType);
+            if (!reentry && !IsSelectable(node)) return false;
 
             _ctx.Loadout?.Lock();
             ActiveNode = _factory.Build(node, _ctx.Run);
@@ -95,6 +103,10 @@ namespace ProjectAscendant.Map
             _dispatch(new GameEvent(GameEventType.NodeConfirmed));
             return true;
         }
+
+        // Non-combat nodes whose current-node re-entry is allowed (§7.6 / §7.7 / §7.9).
+        private static bool IsUtilityNode(NodeType t)
+            => t == NodeType.Center || t == NodeType.Shop || t == NodeType.Mystery;
 
         // Routes the resolved active node to the next macro state. The caller must have resolved the
         // node first (so ActiveNode.IsCompleted is true). RunEnded/GameOver end the run; otherwise the

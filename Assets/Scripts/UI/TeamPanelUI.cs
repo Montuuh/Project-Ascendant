@@ -203,38 +203,30 @@ namespace ProjectAscendant.UI
                     new Color(0.58f, 0.42f, 0.22f), true, () => { _onEvolve(mon); Close(); });
             }
 
-            // §5.10.2 — PAID Move Manager from Map View (50₽). Only for non-fainted Pokémon.
-            // Position left of the Evolve button (or in the same spot if no Evolve button).
-            if (!fainted && p != null && _economy != null)
+            // §5.10.2 — Move Manager: ALWAYS available + FREE to open/view (from anywhere). Changing the
+            // Active 4 here (Map View) is the paid action — the cost is charged on confirm-with-change
+            // inside MoveManagerUI, not on open. Only for non-fainted Pokémon.
+            if (!fainted && p != null)
             {
-                int cost = _economy.MoveReconfigCost;
-                bool affordable = _state != null && _state.PokeDollars >= cost;
                 PokemonInstance mon = p;
                 float xPos = _onEvolve != null && LevelUpResolver.IsEvolutionEligible(p) ? -40f : 150f;
-                Btn(_body, Mid(), new Vector2(xPos, y), new Vector2(170, 56), $"MOVES ({cost}₽)",
-                    new Color(0.34f, 0.48f, 0.56f), affordable, () => OpenMoveManager(mon));
+                Btn(_body, Mid(), new Vector2(xPos, y), new Vector2(170, 56), "MOVES",
+                    new Color(0.34f, 0.48f, 0.56f), true, () => OpenMoveManager(mon));
             }
         }
 
-        // §5.10.2 — open the Move Manager for a Pokémon. Deduct cost BEFORE opening (service validates).
+        // §5.10.2 — open the Move Manager (FREE to view). This is the Map-View (paid) context: changing
+        // the Active 4 charges MoveReconfigCost on confirm, handled inside MoveManagerUI (only if the
+        // loadout actually changed). Viewing or keeping the same 4 costs nothing.
         private void OpenMoveManager(PokemonInstance mon)
         {
-            if (mon == null || _state == null || _economy == null) return;
-
-            // Deduct the cost. If it fails (unaffordable), abort — button should have been disabled.
-            if (!MoveLoadoutService.DeductReconfigCost(_state, _economy))
-            {
-                Debug.LogWarning("[TeamPanelUI] Move Manager cost deduction failed — button should have been disabled.");
-                return;
-            }
+            if (mon == null) return;
 
             // Close this panel and open the Move Manager. On close, re-open this panel.
             Close();
-            _moveManager.Open(mon, () =>
-            {
-                // Re-open this panel after the Move Manager closes.
-                Open(_box, _state, _loadout, _onClosed, _onEvolve, _economy);
-            });
+            _moveManager.Open(mon,
+                () => Open(_box, _state, _loadout, _onClosed, _onEvolve, _economy), // re-open on close
+                chargeOnChange: true, runState: _state, economy: _economy);
         }
 
         // ── uGUI primitives ───────────────────────────────────────────────────
