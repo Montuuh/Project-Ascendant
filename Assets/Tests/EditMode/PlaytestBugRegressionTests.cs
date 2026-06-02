@@ -379,17 +379,13 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void TryInjectReinforcements_NewEntrants_DoNotActSameTurn()
+        public void TryInjectReinforcements_NewEntrants_ActSameTurn()
         {
-            // Per §7.4 — reinforcements telegraph for next turn but do NOT act
-            // this turn. The constraint is structural: reinforcements spawn in
-            // HandleAnyFaints (called from ResolutionPhase), which fires AFTER
-            // the enemy intent resolution loop. So the turn the reinforcements
-            // arrive, their intents are declared but NOT executed.
-            //
-            // This test is actually redundant with the architecture (the controller
-            // can't execute intents that don't exist yet), but it documents the
-            // behavior explicitly per the bug report.
+            // Per §7.4 (OPEN — VS override per playtest R4-1) — reinforcements
+            // NOW ACT the turn they spawn. The old skip was overly punishing;
+            // the +1 AP breather (§3.2.6) and wave telegraph grant sufficient
+            // reaction time. This test REVERSES the old behavior: wave2 MUST
+            // attack on spawn turn, proving the gate is gone.
             PokemonInstance lead = MakeMon(100);
             lead.CurrentMoves.Add(MakeMove(power: 999)); // one-shot wave1 so reinforcements actually spawn
 
@@ -397,7 +393,7 @@ namespace ProjectAscendant.Tests
             wave1.CurrentMoves.Add(MakeMove(power: 1));
 
             PokemonInstance wave2 = MakeMon(60);
-            wave2.CurrentMoves.Add(MakeMove(power: 99)); // would hurt if it fired
+            wave2.CurrentMoves.Add(MakeMove(power: 20)); // will hurt the player
 
             TestReinforcementProvider provider = new();
             provider.NextWave = new List<PokemonInstance> { wave2 };
@@ -424,23 +420,22 @@ namespace ProjectAscendant.Tests
 
             // The player KOs wave1 during ActionPhase → CardPlayService.Play →
             // ResolveDamage → HandleAnyFaints → TryInjectReinforcements spawns
-            // wave2 and sets State.ReinforcementsSpawnedThisTurn = true.
+            // wave2 and grants breather (R2-5).
             int wave1Idx = FindCardByMove(c.State.SkillHand, lead.CurrentMoves[0]);
             c.State.CurrentPhase = CombatController.Phase.ActionPhase;
             c.ExecuteAction(PlayerAction.PlaySkill(wave1Idx, enemySlot: 0)); // KO wave1
             Assert.That(c.State.EnemyTeam[0], Is.SameAs(wave2),
                 "Reinforcements must have spawned this turn (precondition).");
 
-            // End the turn and run Resolution. Per §7.4 the just-arrived wave2 must
-            // NOT act this turn — the ReinforcementsSpawnedThisTurn gate skips the
-            // enemy-intent loop. wave2 telegraphs now and acts next turn.
+            // End the turn and run Resolution. Per §7.4 (OPEN — R4-1 override)
+            // the just-arrived wave2 MUST act this turn — the gate is gone.
             c.State.CurrentPhase = CombatController.Phase.ActionPhase;
             c.ExecuteAction(PlayerAction.End());
-            c.ResolutionPhase(); // gated — wave2 intent must NOT fire this turn
+            c.ResolutionPhase(); // NO gate — wave2 intent MUST fire this turn
             c.TurnEnd();
 
-            Assert.That(lead.CurrentHP, Is.EqualTo(leadHPBefore),
-                "Reinforcements must NOT act turn-of-spawn (§7.4 / Bug #1).");
+            Assert.That(lead.CurrentHP, Is.LessThan(leadHPBefore),
+                "Reinforcements MUST act turn-of-spawn (§7.4 OPEN — R4-1 override).");
         }
 
         // ── Bug #11: Meta save round-trip (§6.3 / §9.8) ──────────────────────
@@ -765,16 +760,17 @@ namespace ProjectAscendant.Tests
             Assert.That(atkStage, Is.EqualTo(-1), "Debuff effect must still apply.");
         }
 
-        // ── R3-7: Reinforcement acts next turn (§7.4) ────────────────────────
+        // ── R3-7 / R4-1: Reinforcement acts SAME turn (§7.4 OPEN override) ───
 
-        // Per §7.4 + R3-7 — a reinforcement spawned mid-combat must NOT act on the
-        // spawn turn (§7.4 gate: ReinforcementsSpawnedThisTurn blocks Resolution), but
-        // MUST act the following turn. This test locks "acts next turn" so we can prove
-        // it's not a "never attacks" bug.
+        // Per §7.4 (OPEN — VS override per playtest R4-1) — a reinforcement
+        // spawned mid-combat now acts THE SAME TURN it spawns (the old
+        // next-turn delay is gone). This test proves immediate action via
+        // multi-turn telemetry: wave2 damages the player on spawn turn T1,
+        // then again on T2 (proving it's not a single-fire artifact).
         [Test]
-        public void Reinforcement_SpawnedMidTurn_ActsTheFollowingTurn()
+        public void Reinforcement_SpawnedMidTurn_ActsSameTurn()
         {
-            // Per §7.4 + R3-7 — reinforcement spawned mid-combat acts next turn.
+            // Per §7.4 (OPEN — R4-1) — reinforcement spawned mid-combat acts SAME turn.
             PokemonInstance lead = MakeMon(100);
             lead.CurrentMoves.Add(MakeMove(power: 999)); // one-shot wave1
 
@@ -782,7 +778,7 @@ namespace ProjectAscendant.Tests
             wave1.CurrentMoves.Add(MakeMove(power: 1));
 
             PokemonInstance wave2 = MakeMon(60);
-            MoveSO wave2Move = MakeMove(power: 20);
+            MoveSO wave2Move = MakeMove(power: 15);
             wave2.CurrentMoves.Add(wave2Move);
 
             TestReinforcementProvider provider = new();
@@ -812,23 +808,97 @@ namespace ProjectAscendant.Tests
             c.State.CurrentPhase = CombatController.Phase.ActionPhase;
             c.ExecuteAction(PlayerAction.PlaySkill(cardIdx, enemySlot: 0));
             c.ExecuteAction(PlayerAction.End());
-            // Wave2 spawned; check it does NOT act this turn (§7.4 gate).
+            // Wave2 spawned; CHECK it DOES act this turn (§7.4 OPEN — R4-1).
             int hpAfterSpawn = lead.CurrentHP;
             c.ResolutionPhase();
-            Assert.That(lead.CurrentHP, Is.EqualTo(hpAfterSpawn),
-                "Reinforcement must NOT act on spawn turn (§7.4 gate).");
+            Assert.That(lead.CurrentHP, Is.LessThan(hpAfterSpawn),
+                "Reinforcement MUST act on spawn turn (§7.4 OPEN — R4-1 override).");
             c.TurnEnd();
 
-            // Turn 2: wave2 MUST act now (the gate is cleared at DrawPhase).
+            // Turn 2: wave2 must act again (proving it's not a single-fire artifact).
             c.DrawPhase();
             c.IntentPhase();
             Assert.That(c.State.EnemyIntents.Count, Is.EqualTo(1),
-                "Wave2 must telegraph an intent.");
+                "Wave2 must telegraph an intent on T2.");
             c.ActionPhase(); // player passes
             int hpBefore2 = lead.CurrentHP;
             c.ResolutionPhase(); // wave2 acts!
             Assert.That(lead.CurrentHP, Is.LessThan(hpBefore2),
-                "Reinforcement must act the turn AFTER spawn (§7.4 / R3-7).");
+                "Reinforcement must act again on T2 (continuous behavior).");
+        }
+
+        // ── R4-4: Combat log accumulator (data layer for UI) ─────────────────
+
+        // Per §playtest R4-4 — CombatState.CombatLog accumulates readable
+        // PlayerAction / TurnEvent / EnemyAction entries throughout combat.
+        // The UI will render this in a scrollable panel (UI work is deferred
+        // to the ui-programmer agent). This test proves the data layer works.
+        [Test]
+        public void CombatLog_AccumulatesPlayerAndEnemyActions()
+        {
+            // Per R4-4 — CombatLog must capture damage events with actual numbers.
+            PokemonInstance lead = MakeMon(60);
+            lead.CurrentMoves.Add(MakeMove(power: 10));
+
+            PokemonInstance enemy = MakeMon(50);
+            enemy.CurrentMoves.Add(MakeMove(power: 8));
+
+            PassiveAgent agent = new();
+            CombatController c = BuildController(
+                new List<PokemonInstance> { lead }, enemy, agent);
+
+            c.Start();
+            Assert.That(c.State.CombatLog.Count, Is.GreaterThan(0),
+                "Combat log must have a start entry.");
+            bool hasStartEntry = false;
+            for (int i = 0; i < c.State.CombatLog.Count; i++)
+            {
+                if (c.State.CombatLog[i].Message.Contains("Combat started"))
+                {
+                    hasStartEntry = true;
+                    break;
+                }
+            }
+            Assert.That(hasStartEntry, Is.True, "Combat log must record combat start.");
+
+            c.DrawPhase();
+            c.IntentPhase();
+            int cardIdx = FindCardByMove(c.State.SkillHand, lead.CurrentMoves[0]);
+            c.State.CurrentPhase = CombatController.Phase.ActionPhase;
+            c.ExecuteAction(PlayerAction.PlaySkill(cardIdx, enemySlot: 0)); // player damages enemy
+
+            // Check for a PlayerAction entry with damage.
+            bool hasPlayerDamage = false;
+            for (int i = 0; i < c.State.CombatLog.Count; i++)
+            {
+                CombatController.CombatLogEntry e = c.State.CombatLog[i];
+                if (e.Category == CombatController.CombatLogCategory.PlayerAction
+                    && e.Message.Contains("dmg"))
+                {
+                    hasPlayerDamage = true;
+                    break;
+                }
+            }
+            Assert.That(hasPlayerDamage, Is.True,
+                "Combat log must record player damage with numbers (R4-4).");
+
+            c.ExecuteAction(PlayerAction.End());
+            c.ResolutionPhase(); // enemy attacks
+
+            // Check for an EnemyAction entry with damage.
+            bool hasEnemyDamage = false;
+            for (int i = 0; i < c.State.CombatLog.Count; i++)
+            {
+                CombatController.CombatLogEntry e = c.State.CombatLog[i];
+                if (e.Category == CombatController.CombatLogCategory.EnemyAction
+                    && e.Message.Contains("dmg"))
+                {
+                    hasEnemyDamage = true;
+                    break;
+                }
+            }
+            Assert.That(hasEnemyDamage, Is.True,
+                "Combat log must record enemy damage (R4-4).");
         }
     }
 }

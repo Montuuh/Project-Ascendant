@@ -49,6 +49,19 @@ namespace ProjectAscendant.Combat
             CombatEnd
         }
 
+        // ── R4-4: Combat log data layer (§playtest 2026-06-02) ──────────────
+        public enum CombatLogCategory { PlayerAction, TurnEvent, EnemyAction }
+        public struct CombatLogEntry
+        {
+            public CombatLogCategory Category;
+            public string Message;
+            public CombatLogEntry(CombatLogCategory cat, string msg)
+            {
+                Category = cat;
+                Message = msg;
+            }
+        }
+
         // Initial inputs — once Start() runs, this is captured into State.
         public struct CombatSetup
         {
@@ -135,14 +148,12 @@ namespace ProjectAscendant.Combat
             // at DrawPhase. Consumed by the first Defensive card play that
             // matches CardPlayValidator.ShouldConsumeDefensiveDiscount.
             public bool DefensiveSwapDiscountAvailable;
-            // Per §7.4 + Bug #1 — set when reinforcements are injected mid-turn
-            // (e.g. the player KOs the last enemy during ActionPhase). Gates the
-            // ResolutionPhase enemy-intent loop so freshly-spawned entrants do
-            // NOT act the turn they arrive; reset at DrawPhase so they act next.
-            public bool ReinforcementsSpawnedThisTurn;
             public int TurnNumber;
             public FieldState Field;
             public List<Intent> EnemyIntents = new();
+            // Per §playtest R4-4 — readable combat log for UI display (PlayerAction/TurnEvent/EnemyAction).
+            // Cleared at Start(); appended throughout combat phases. UI renders this in a scrollable panel.
+            public List<CombatLogEntry> CombatLog = new();
             public CombatOutcome Outcome = CombatOutcome.InProgress;
             public Phase CurrentPhase = Phase.PreStart;
             public BattleConfigSO Config;
@@ -249,6 +260,8 @@ namespace ProjectAscendant.Combat
             State.Deck.Build(State.PlayerTeam);
             State.Consumables.Build(State.ConsumableInventory);
             State.TurnNumber = 0;
+            State.CombatLog.Clear(); // Per R4-4 — fresh log each combat
+            State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent, "Combat started"));
             AbilityResolver.ApplyLeadEntryEffects(State); // §5.5.3.5 Intimidate — initial Lead enters
         }
 
@@ -277,8 +290,13 @@ namespace ProjectAscendant.Combat
         {
             State.CurrentPhase = Phase.DrawPhase;
             State.TurnNumber++;
+            State.CombatLog.Add(new CombatLogEntry(
+                CombatLogCategory.TurnEvent, $"=== Turn {State.TurnNumber} ==="));
             // §8.3.4 Move Echo — carry the +2 AP bonus earned last turn, then clear it.
             State.CurrentAP = State.Config.BaseAPPerTurn + State.PendingBonusAPNextTurn;
+            if (State.PendingBonusAPNextTurn > 0)
+                State.CombatLog.Add(new CombatLogEntry(
+                    CombatLogCategory.TurnEvent, $"Move Echo: +{State.PendingBonusAPNextTurn} AP"));
             State.PendingBonusAPNextTurn = 0;
             State.SwapCounter = 0;
             State.RangedMovesPlayedThisTurn = 0;          // §8.3.4 — Choice Specs/Band reset per turn
@@ -286,7 +304,6 @@ namespace ProjectAscendant.Combat
             State.MovesPlayedThisTurn.Clear();            // §8.3.4 — Move Echo per-turn tracking
             State.MoveEchoGrantedThisTurn = false;
             State.DefensiveSwapDiscountAvailable = false; // §3.3.1 — per-turn
-            State.ReinforcementsSpawnedThisTurn = false;  // §7.4 — new entrants may act starting this turn
             State.BreatherPending = false;                // §3.2.6 (OPEN) — breather is a per-transition beat, cleared at turn start
             State.BreatherActionsAllowed = 0;
             State.SkillHand.Clear();
@@ -654,19 +671,16 @@ namespace ProjectAscendant.Combat
             // ordering + per-enemy targeting architecture). Single-enemy
             // encounters (wild/trainer/Elite/Gym) have only slot 0, so this is
             // identical to the old list-order resolution for them.
-            // Per §7.4 + Bug #1 — if reinforcements spawned earlier THIS turn
-            // (e.g. the player KO'd the last enemy during ActionPhase), the new
-            // entrants only telegraph; they do NOT act until next turn. The whole
-            // current EnemyTeam is the just-arrived wave (the old team wiped to
-            // trigger the spawn), so skipping the loop entirely is correct.
-            if (!State.ReinforcementsSpawnedThisTurn)
-            {
-                int n = State.EnemyIntents.Count < State.EnemyTeam.Count
-                    ? State.EnemyIntents.Count : State.EnemyTeam.Count;
-                for (int i = 1; i < n; i++)
-                    if (!ResolveEnemyIntentAt(i)) return; // a support changed outcome
-                if (n > 0 && !ResolveEnemyIntentAt(0)) return; // Lead enemy last
-            }
+            // Per §7.4 (OPEN — VS override per playtest 2026-06-02 / R4-1) —
+            // reinforcements NOW ACT the turn they spawn (the +1 AP "breather"
+            // and wave-telegraph grants the player reaction time; the old skip
+            // was overly punishing). The §7.4 "new entrants don't act this turn"
+            // rule is REVERSED for the VS; breather suffices. §3.2.6 (OPEN).
+            int n = State.EnemyIntents.Count < State.EnemyTeam.Count
+                ? State.EnemyIntents.Count : State.EnemyTeam.Count;
+            for (int i = 1; i < n; i++)
+                if (!ResolveEnemyIntentAt(i)) return; // a support changed outcome
+            if (n > 0 && !ResolveEnemyIntentAt(0)) return; // Lead enemy last
 
             // Status DoT + duration ticks for every Pokémon on both sides.
             TickStatusForAll(State.PlayerTeam);
@@ -855,6 +869,17 @@ namespace ProjectAscendant.Combat
             {
                 target.CurrentHP = Mathf.Max(0, target.CurrentHP - final);
             }
+
+            // Per R4-4 — log damage events with actual numbers.
+            if (final > 0)
+            {
+                bool isPlayerAttack = State.PlayerTeam.Contains(attacker);
+                CombatLogCategory cat = isPlayerAttack
+                    ? CombatLogCategory.PlayerAction : CombatLogCategory.EnemyAction;
+                State.CombatLog.Add(new CombatLogEntry(cat,
+                    $"{attacker.Species?.DisplayName} used {move.DisplayName} → {target.Species?.DisplayName} took {final} dmg"));
+            }
+
             // Per §5.5.3 — Static: a surviving target hit by an Electric move may be Paralysed.
             if (target.CurrentHP > 0
                 && AbilityResolver.RollStaticParalysis(attacker, move, State.Config, State.Rng))
@@ -945,10 +970,20 @@ namespace ProjectAscendant.Combat
                 PokemonInstance p = team[i];
                 if (p == null || p.CurrentHP <= 0) continue;
                 int dot = StatusEffectManager.ComputeDoTDamage(p, State.Config, State.Economy);
-                if (dot > 0) p.CurrentHP = Mathf.Max(0, p.CurrentHP - dot);
+                if (dot > 0)
+                {
+                    p.CurrentHP = Mathf.Max(0, p.CurrentHP - dot);
+                    State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                        $"{p.Species?.DisplayName} {p.PrimaryStatus} → {dot} dmg"));
+                }
                 // §8.4.4 Leftovers — end-of-Resolution regen (after DoT; never revives a fainted wearer).
                 int regen = HeldItemResolver.LeftoversRegen(p, State.Economy);
-                if (regen > 0) p.CurrentHP = Mathf.Min(EffectiveMaxHpFor(p), p.CurrentHP + regen);
+                if (regen > 0)
+                {
+                    p.CurrentHP = Mathf.Min(EffectiveMaxHpFor(p), p.CurrentHP + regen);
+                    State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                        $"{p.Species?.DisplayName} Leftovers → +{regen} HP"));
+                }
                 StatusEffectManager.TickAtEndOfTurn(p);
             }
         }
@@ -990,7 +1025,11 @@ namespace ProjectAscendant.Combat
                 // Per §4.8.5 / §6.2.2 — +1 Trauma stack at moment of faint,
                 // but ONLY once per faint event (Bug #9 fix: guard with HashSet).
                 if (_traumaApplied.Add(p))
+                {
                     FaintResolver.ApplyTraumaOnFaint(p);
+                    State.CombatLog.Add(new CombatLogEntry(
+                        CombatLogCategory.TurnEvent, $"{p.Species?.DisplayName} fainted"));
+                }
             }
 
             // Per §6.9 / Task 11.8.2 — record each defeated enemy in the Bestiary exactly once.
@@ -1093,9 +1132,9 @@ namespace ProjectAscendant.Combat
             State.EnemyTeam.Clear();
             for (int i = 0; i < next.Count; i++) State.EnemyTeam.Add(next[i]);
 
-            // Per Bug #1 — rebuild intents for the new team (UI display only;
-            // Resolution does NOT fire these intents this turn — constraint §7.4).
-            State.ReinforcementsSpawnedThisTurn = true;
+            // Per §7.4 (OPEN — VS override per playtest R4-1) — rebuild intents
+            // for the new team. The reinforcements ACT the turn they spawn (the
+            // +1 AP breather + wave telegraph grants reaction time per §3.2.6).
             RebuildEnemyIntents();
 
             // Per §3.2.6 (OPEN) — grant Breather: +BreatherBonusAP and set flag.
@@ -1105,6 +1144,8 @@ namespace ProjectAscendant.Combat
                 // Clamp to MaxAPPerTurn to prevent AP overflow exploits.
                 int maxAP = State.Config.MaxAPPerTurn;
                 if (State.CurrentAP > maxAP) State.CurrentAP = maxAP;
+                State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                    $"Reinforcements! Breather: +{State.Config.BreatherBonusAP} AP"));
             }
 
             State.BreatherPending = true;

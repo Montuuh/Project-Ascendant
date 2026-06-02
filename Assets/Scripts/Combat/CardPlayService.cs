@@ -242,7 +242,13 @@ namespace ProjectAscendant.Combat
                 {
                     // Per §3.2.4 — target must be alive to receive debuffs.
                     if (enemyTarget != null && enemyTarget.CurrentHP > 0)
+                    {
                         StatStageManager.Modify(enemyTarget, debuff.TargetStat, debuff.StageChange);
+                        string sign = debuff.StageChange >= 0 ? "+" : "";
+                        _state.CombatLog.Add(new CombatController.CombatLogEntry(
+                            CombatController.CombatLogCategory.PlayerAction,
+                            $"{enemyTarget.Species?.DisplayName} {debuff.TargetStat} {sign}{debuff.StageChange}"));
+                    }
                 }
                 else if (effect is StatusRiderEffectSO rider)
                 {
@@ -253,14 +259,25 @@ namespace ProjectAscendant.Combat
                         // Per §9.7.3 — ApplicationChance is deterministic via seeded RNG.
                         float roll = _state.Rng.Range01();
                         if (roll < rider.ApplicationChance)
+                        {
                             StatusEffectManager.TryApply(statusTarget, rider.StatusToApply, _state.Config);
+                            _state.CombatLog.Add(new CombatController.CombatLogEntry(
+                                CombatController.CombatLogCategory.PlayerAction,
+                                $"{statusTarget.Species?.DisplayName} {rider.StatusToApply} applied"));
+                        }
                     }
                 }
                 else if (effect is BuffSelfEffectSO buff)
                 {
                     // Per §3.2.4 — buffs always target self.
                     if (attacker != null)
+                    {
                         StatStageManager.Modify(attacker, buff.TargetStat, buff.StageChange);
+                        string sign = buff.StageChange >= 0 ? "+" : "";
+                        _state.CombatLog.Add(new CombatController.CombatLogEntry(
+                            CombatController.CombatLogCategory.PlayerAction,
+                            $"{attacker.Species?.DisplayName} {buff.TargetStat} {sign}{buff.StageChange}"));
+                    }
                 }
                 else if (effect is HealEffectSO heal)
                 {
@@ -268,6 +285,7 @@ namespace ProjectAscendant.Combat
                     PokemonInstance healTarget = heal.HealSelf ? attacker : enemyTarget;
                     if (healTarget != null && healTarget.CurrentHP > 0)
                     {
+                        int hpBefore = healTarget.CurrentHP;
                         int healAmount = heal.FlatHealAmount;
                         if (heal.PercentageOfMaxHP > 0)
                         {
@@ -281,6 +299,11 @@ namespace ProjectAscendant.Combat
                             ? PokemonVitals.EffectiveMaxHP(healTarget, _state.Economy)
                             : PokemonVitals.MaxHP(healTarget);
                         healTarget.CurrentHP = UnityEngine.Mathf.Min(effectiveMax2, healTarget.CurrentHP + healAmount);
+                        int actualHeal = healTarget.CurrentHP - hpBefore;
+                        if (actualHeal > 0)
+                            _state.CombatLog.Add(new CombatController.CombatLogEntry(
+                                CombatController.CombatLogCategory.PlayerAction,
+                                $"{healTarget.Species?.DisplayName} healed {actualHeal} HP"));
                     }
                 }
                 else if (effect is DrawCardsEffectSO draw)
@@ -288,12 +311,20 @@ namespace ProjectAscendant.Combat
                     // Per §3.2.4 — draw effects add skill cards from the deck to hand.
                     if (_state.Deck != null && _state.Rng != null)
                     {
+                        int drawnCount = 0;
                         for (int d = 0; d < draw.CardsToDrawBonus; d++)
                         {
                             MoveCardInstance drawnCard = _state.Deck.Draw(_state.Rng);
                             if (drawnCard != null)
+                            {
                                 _state.SkillHand.Add(drawnCard);
+                                drawnCount++;
+                            }
                         }
+                        if (drawnCount > 0)
+                            _state.CombatLog.Add(new CombatController.CombatLogEntry(
+                                CombatController.CombatLogCategory.PlayerAction,
+                                $"Drew {drawnCount} card{(drawnCount > 1 ? "s" : "")}"));
                     }
                 }
             }

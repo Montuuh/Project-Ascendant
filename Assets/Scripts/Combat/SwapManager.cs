@@ -100,6 +100,12 @@ namespace ProjectAscendant.Combat
                 && benchSlot >= 0 && benchSlot < state.PlayerTeam.Count)
                 StatStageManager.Modify(state.PlayerTeam[benchSlot], Stat.Defense, 1);
 
+            // Per R4-4 — log manual swap.
+            string newLeadName = state.PlayerTeam[benchSlot]?.Species?.DisplayName ?? "???";
+            state.CombatLog.Add(new CombatController.CombatLogEntry(
+                CombatController.CombatLogCategory.PlayerAction,
+                $"Swapped to {newLeadName} (cost: {cost} AP)"));
+
             AbilityResolver.ApplyLeadEntryEffects(state); // §5.5.3.5 Intimidate
             return true;
         }
