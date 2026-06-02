@@ -31,8 +31,6 @@ namespace ProjectAscendant.UI
         // Per §7.4.4 (OPEN) — reinforcement wave telegraph panel
         private GameObject _wavePanel;
         private Text _waveText;
-        // Per §3.2.6 (OPEN) — breather modal (blocking overlay)
-        private GameObject _breatherModal;
         // Per R4-4 / §3.2 / Topic 10 — combat log panel (right-side scroll strip, category-colored)
         private GameObject _logPanel;
         private RectTransform _logContent;
@@ -68,6 +66,7 @@ namespace ProjectAscendant.UI
         private void EndTurn()
         {
             if (_cc.State.Outcome != CombatController.CombatOutcome.InProgress) return;
+            _cc.EndBreather(); // clear any pending (non-blocking) breather so state stays clean
             _cc.ResolutionPhase();
             _cc.TurnEnd();
             if (_cc.State.Outcome != CombatController.CombatOutcome.InProgress)
@@ -241,15 +240,14 @@ namespace ProjectAscendant.UI
             // Per §7.4.4 (OPEN) — wave telegraph panel
             BuildWavePanel();
 
-            // Per §3.2.6 (OPEN) — breather modal (blocks normal UI when pending)
-            BuildBreatherModal(s);
-
             // Per R4-4 / §3.2 / Topic 10 — combat log (right panel, category-colored)
             BuildCombatLog();
 
-            // Block End Turn while breather is pending (player must act or pass)
-            bool breatherBlocks = s.BreatherPending;
-            _endTurn.SetActive(!over && !breatherBlocks);
+            // Per R4-1/R4-? — the breather is now a NON-blocking +1 AP bonus (granted by the controller)
+            // shown via the wave telegraph + combat log. It must NOT block End Turn: when reinforcements
+            // arrive and the player has no card/swap to make, a blocking modal would trap them. End Turn
+            // is always available; it clears any pending breather (see EndTurn()).
+            _endTurn.SetActive(!over);
             _banner.gameObject.SetActive(over);
             _continue.SetActive(over);
             if (over)
@@ -585,44 +583,9 @@ namespace ProjectAscendant.UI
             }
         }
 
-        // Per §3.2.6 (OPEN) — breather modal. Blocking overlay when BreatherPending is true. The
-        // controller auto-grants +1 AP and auto-ends after the player's one action (any card play /
-        // manual swap). UI provides an explicit "Pass" button → EndBreather(). Takes visual priority
-        // over lead-replacement modal (controller resolves lead-replacement first).
-        private void BuildBreatherModal(CombatController.CombatState s)
-        {
-            // Tear down any existing modal first
-            if (_breatherModal != null) { Destroy(_breatherModal); _breatherModal = null; }
-
-            // Only show when breather is pending
-            if (!s.BreatherPending) return;
-
-            _breatherModal = new GameObject("BreatherModal");
-            _breatherModal.transform.SetParent(_root.transform, false);
-            Canvas modal = _breatherModal.AddComponent<Canvas>();
-            modal.overrideSorting = true;
-            modal.sortingOrder = 30; // same layer as lead-replacement modal
-
-            // Semi-transparent backdrop
-            Image backdrop = Img(_breatherModal.transform, new Color(0, 0, 0, 0.75f));
-            Stretch(backdrop.rectTransform);
-
-            // Prompt
-            Txt(_breatherModal.transform, "⚔ REINFORCEMENTS! You catch your breath — +1 AP",
-                30, new Color(0.95f, 0.88f, 0.55f), Mid(), new Vector2(0, 140), new Vector2(1300, 50));
-            Txt(_breatherModal.transform, "Take one action (play a card / swap) or pass to continue",
-                24, new Color(0.85f, 0.92f, 0.95f), Mid(), new Vector2(0, 90), new Vector2(1200, 40));
-
-            // "Pass / Continue" button
-            Btn(_breatherModal.transform, Mid(), new Vector2(0, -20), new Vector2(320, 80),
-                "PASS / CONTINUE  ▶", new Color(0.45f, 0.55f, 0.62f), true, OnBreatherPass);
-        }
-
-        private void OnBreatherPass()
-        {
-            _cc.EndBreather();
-            Refresh(); // modal will be torn down by next Refresh cycle
-        }
+        // (R4-1) The breather is a NON-blocking +1 AP bonus on reinforcement spawn — granted by the
+        // controller, surfaced via the wave telegraph + combat log. No blocking modal: a modal here
+        // trapped the player when they had no card/swap to make. End Turn is always available.
 
         // Per R4-4 / §3.2 / Topic 10 — combat log panel. Shows most recent ~12 entries (newest at
         // bottom), color-coded by category for at-a-glance reading (PlayerAction=cyan/green,

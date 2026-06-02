@@ -28,8 +28,31 @@ namespace ProjectAscendant.Map
         private readonly Box _box;
         private readonly EconomyConfigSO _economy;
 
-        private bool _tutorUsed;
-        public bool TutorUsed => _tutorUsed;
+        // §7.6.1 — the tutor is once-per-Center-FOR-THE-RUN, persisted in RunState.EventFlags (not a
+        // per-instance flag) so RE-ENTERING the node (Bug R2-2 re-entry) does NOT reset it. This closes
+        // the leave/enter tutor-spam exploit. Keyed per Center node (Layer.Lane).
+        private string TutorFlagKey => $"center.tutor.{Node.Layer}.{Node.Lane}";
+        public bool TutorUsed => HasFlag(TutorFlagKey);
+
+        private bool HasFlag(string key)
+        {
+            if (RunState.EventFlags == null) return false;
+            for (int i = 0; i < RunState.EventFlags.Count; i++)
+                if (RunState.EventFlags[i].Key == key && RunState.EventFlags[i].Value != 0) return true;
+            return false;
+        }
+
+        private void SetFlag(string key)
+        {
+            RunState.EventFlags ??= new List<StringIntPair>();
+            for (int i = 0; i < RunState.EventFlags.Count; i++)
+                if (RunState.EventFlags[i].Key == key)
+                {
+                    RunState.EventFlags[i] = new StringIntPair { Key = key, Value = 1 };
+                    return;
+                }
+            RunState.EventFlags.Add(new StringIntPair { Key = key, Value = 1 });
+        }
 
         public PokemonCenterNodeController(MapNode node, RunStateSO runState, Box box, EconomyConfigSO economy)
             : base(node, runState)
@@ -82,12 +105,12 @@ namespace ProjectAscendant.Map
         // visit or the args are invalid.
         public bool LearnMove(PokemonInstance pokemon, MoveSO move)
         {
-            if (_tutorUsed) return false;
+            if (TutorUsed) return false; // once per Center for the run (§7.6.1) — survives re-entry
             if (pokemon == null || move == null) return false;
             if (pokemon.LearnedMoves.Contains(move)) return false; // already in pool
 
             MoveLoadoutService.AddToPool(pokemon, move);
-            _tutorUsed = true;
+            SetFlag(TutorFlagKey);
             return true;
         }
 
