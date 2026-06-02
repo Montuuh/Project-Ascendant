@@ -191,13 +191,14 @@ namespace ProjectAscendant.UI
             _logPanel.transform.SetParent(_root.transform, false);
             Image logBg = _logPanel.AddComponent<Image>();
             logBg.color = new Color(0.10f, 0.12f, 0.14f, 0.96f);
-            Place((RectTransform)_logPanel.transform, new Vector2(1f, 0.5f), new Vector2(-160, 0), new Vector2(300, 740));
+            // Lower-right corner so it clears the upper-right enemy info/intent panel (no overlap).
+            Place((RectTransform)_logPanel.transform, new Vector2(1f, 0f), new Vector2(-160, 250), new Vector2(300, 470));
             Border(_logPanel, new Color(0.50f, 0.55f, 0.60f));
-            Txt(_logPanel.transform, "COMBAT LOG", 20, new Color(0.85f, 0.88f, 0.92f), Top(), new Vector2(0, -18), new Vector2(280, 28));
+            Txt(_logPanel.transform, "COMBAT LOG", 18, new Color(0.85f, 0.88f, 0.92f), Top(), new Vector2(0, -16), new Vector2(280, 24));
             GameObject logContentGO = new("LogContent", typeof(RectTransform));
             logContentGO.transform.SetParent(_logPanel.transform, false);
             _logContent = (RectTransform)logContentGO.transform;
-            Place(_logContent, Top(), new Vector2(0, -48), new Vector2(280, 680));
+            Place(_logContent, Top(), new Vector2(0, -40), new Vector2(286, 420));
         }
 
         // ── Refresh ───────────────────────────────────────────────────────────
@@ -627,10 +628,10 @@ namespace ProjectAscendant.UI
             List<CombatController.CombatLogEntry> log = _cc.State.CombatLog;
             if (log == null || log.Count == 0) return;
 
-            // Show the most recent 12 entries (or fewer if log is short)
-            const int maxVisible = 12;
+            // Show the most recent entries (oldest at top, newest at bottom).
+            const int maxVisible = 10;
             int startIdx = Mathf.Max(0, log.Count - maxVisible);
-            const float entryHeight = 56f, gap = 2f;
+            const float entryHeight = 38f, gap = 2f;
             float y = 0f; // top-down layout
 
             for (int i = startIdx; i < log.Count; i++)
@@ -644,7 +645,12 @@ namespace ProjectAscendant.UI
                     CombatController.CombatLogCategory.TurnEvent    => new Color(0.82f, 0.85f, 0.88f),  // neutral grey
                     _ => Color.white
                 };
-                Txt(_logContent, entry.Message, 15, col, Top(), new Vector2(0, -y - entryHeight / 2f), new Vector2(270, entryHeight));
+                // Left-aligned + word-wrap so attack messages ("X used Y → N dmg") read cleanly
+                // inside the box instead of overflowing horizontally (the generic Txt centers + overflows).
+                Text line = Txt(_logContent, entry.Message, 14, col, Top(), new Vector2(0, -y - entryHeight / 2f), new Vector2(282, entryHeight));
+                line.alignment = TextAnchor.UpperLeft;
+                line.horizontalOverflow = HorizontalWrapMode.Wrap;
+                line.verticalOverflow = VerticalWrapMode.Truncate;
                 y += entryHeight + gap;
             }
         }
