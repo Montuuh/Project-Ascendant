@@ -27,6 +27,7 @@ namespace ProjectAscendant.UI
         private Image _enemyHp;
         private RectTransform _hand, _consumables, _playerTeam;
         private GameObject _endTurn, _continue;
+        private GameObject _leadReplacementModal;
 
         public void Begin(CombatController cc, Action<CombatController.CombatOutcome> onComplete)
         {
@@ -193,6 +194,9 @@ namespace ProjectAscendant.UI
             BuildHand(s, over);
             BuildConsumables(s, over);
 
+            // Per §3.3.5 + Bug #10 — blocking Lead-replacement modal when the Lead faints.
+            BuildLeadReplacementModal(s);
+
             _endTurn.SetActive(!over);
             _banner.gameObject.SetActive(over);
             _continue.SetActive(over);
@@ -247,21 +251,24 @@ namespace ProjectAscendant.UI
             int lead = Mathf.Clamp(s.LeadIndex, 0, n - 1);
             int swapCost = SwapManager.NextSwapCost(s.SwapCounter);
 
-            // Lead first, then the bench in slot order.
+            // Per Bug #3 — Lead first, then bench in stable order (BENCH 1, BENCH 2), regardless of slot index.
             List<int> order = new() { lead };
             for (int i = 0; i < n; i++) if (i != lead) order.Add(i);
 
             const float rowH = 112f, gap = 14f;
             float y = 200f; // top of the column, relative to the container centre
+            int benchNum = 1; // 1-based bench numbering (stable across swaps)
             foreach (int slot in order)
             {
-                BuildMonRow(s.PlayerTeam[slot], slot, slot == lead, s, over, swapCost, new Vector2(0, y));
+                bool isLead = (slot == lead);
+                BuildMonRow(s.PlayerTeam[slot], slot, isLead, s, over, swapCost, new Vector2(0, y), isLead ? 0 : benchNum);
+                if (!isLead) benchNum++;
                 y -= rowH + gap;
             }
         }
 
         private void BuildMonRow(PokemonInstance p, int slot, bool isLead, CombatController.CombatState s,
-                                 bool over, int swapCost, Vector2 pos)
+                                 bool over, int swapCost, Vector2 pos, int benchNumber)
         {
             bool fainted = p != null && p.CurrentHP == 0;
             Color bg = isLead ? new Color(0.16f, 0.26f, 0.19f, 1f)
@@ -275,7 +282,8 @@ namespace ProjectAscendant.UI
             int max = p != null ? PokemonVitals.MaxHP(p) : 0;
             int hp = p?.CurrentHP ?? 0;
             string st = p != null && p.PrimaryStatus != StatusCondition.None ? $"  [{p.PrimaryStatus}]" : "";
-            string tag = (isLead ? "▶ LEAD" : SlotRole(slot, s)) + (fainted ? "  ✖ FAINTED" : "");
+            // Per Bug #3 — stable bench numbering (BENCH 1, BENCH 2) instead of SlotRole dynamic lookup.
+            string tag = (isLead ? "▶ LEAD" : $"BENCH {benchNumber}") + (fainted ? "  ✖ FAINTED" : "");
             Color nameCol = fainted ? new Color(0.62f, 0.5f, 0.5f) : new Color(0.92f, 0.97f, 0.92f);
             // §5.5 — show the passive ability (low-HP type-boosters glow when armed).
             string ab = p?.Ability != null ? $"   ✦ {p.Ability.DisplayName ?? p.Ability.AbilityId}" : "";
@@ -351,8 +359,9 @@ namespace ProjectAscendant.UI
             }
         }
 
-        // Consumable hand (Pokéball etc.). Catching: throw the ball below 50% HP (or with a status,
-        // §7.3.4.1) to recruit the wild — telegraphed on the card (Pillar 1).
+        // Per §7.3.4 / §8.1 + Bug #2 — Consumable hand (Pokéball etc.). Catching: throw the ball below
+        // 50% HP (or with a status) to recruit the wild. Gate Pokéball on WildCatchResolver.IsCatchable
+        // (per UI rule: grayed-out non-playable, never hidden); show reason hint when not eligible.
         private void BuildConsumables(CombatController.CombatState s, bool over)
         {
             for (int i = _consumables.childCount - 1; i >= 0; i--) Destroy(_consumables.GetChild(i).gameObject);
@@ -370,9 +379,33 @@ namespace ProjectAscendant.UI
                 int i = idxs[slot];
                 ConsumableSO c = s.ConsumableHand[i];
                 bool isBall = c.Effect is CatchConsumableEffectSO;
-                bool playable = c.APCost <= s.CurrentAP && s.CurrentPhase == CombatController.Phase.ActionPhase;
+                bool canAfford = c.APCost <= s.CurrentAP && s.CurrentPhase == CombatController.Phase.ActionPhase;
+
+                // Per §7.3.4.1 + Bug #2 — check catch conditions for Pokéball eligibility
+                bool catchOk = true;
+                string catchHint = "";
+                if (isBall && c.Effect is CatchConsumableEffectSO catchEff)
+                {
+                    PokemonInstance wild = s.EnemyTeam.Count > 0 ? s.EnemyTeam[0] : null;
+                    if (wild == null || wild.CurrentHP <= 0)
+                    {
+                        catchOk = false;
+                        catchHint = "\n(no valid target)";
+                    }
+                    else if (!WildCatchResolver.IsCatchable(wild, catchEff))
+                    {
+                        catchOk = false;
+                        int max = wild.Species != null ? wild.Species.BaseStats.BaseHP + (wild.Species.GrowthCurve != null ? wild.Species.GrowthCurve.GetHPAt(wild.Level) : 0) : 0;
+                        float pct = max > 0 ? (float)wild.CurrentHP / max : 1f;
+                        catchHint = wild.PrimaryStatus == StatusCondition.None
+                            ? $"\n(HP {(int)(pct * 100)}% — need <50% or status)"
+                            : "\n(status active — reduce HP)";
+                    }
+                }
+
+                bool playable = canAfford && (isBall ? catchOk : true);
                 string label = isBall
-                    ? $"⊙ {c.DisplayName ?? c.name}\nCATCH if HP < 50%\n(or any status)   AP {c.APCost}"
+                    ? $"⊙ {c.DisplayName ?? c.name}\nCATCH if HP < 50%\n(or any status)   AP {c.APCost}{catchHint}"
                     : $"{c.DisplayName ?? c.name}\nAP {c.APCost}";
                 Color col = isBall ? new Color(0.62f, 0.26f, 0.30f) : new Color(0.30f, 0.42f, 0.32f);
                 float x = startX + slot * (cw + spacing);
@@ -391,6 +424,57 @@ namespace ProjectAscendant.UI
                 EndTurn();
             else
                 Refresh();
+        }
+
+        // Per §3.3.5 + Bug #10 — modal picker when the Lead faints. Player chooses a bench Pokémon to
+        // take the Lead position (no AP cost per §3.3.5). Blocks all other UI until a choice is made.
+        private void BuildLeadReplacementModal(CombatController.CombatState s)
+        {
+            // Tear down any existing modal first
+            if (_leadReplacementModal != null) { Destroy(_leadReplacementModal); _leadReplacementModal = null; }
+
+            // Only show when candidates are pending
+            if (s.PendingLeadReplacementCandidates == null || s.PendingLeadReplacementCandidates.Count == 0) return;
+
+            _leadReplacementModal = new GameObject("LeadReplacementModal");
+            _leadReplacementModal.transform.SetParent(_root.transform, false);
+            Canvas modal = _leadReplacementModal.AddComponent<Canvas>();
+            modal.overrideSorting = true;
+            modal.sortingOrder = 30; // above everything
+
+            // Semi-transparent backdrop
+            Image backdrop = Img(_leadReplacementModal.transform, new Color(0, 0, 0, 0.75f));
+            Stretch(backdrop.rectTransform);
+
+            // Prompt
+            Txt(_leadReplacementModal.transform, "LEAD FAINTED — Choose a replacement", 32, new Color(1f, 0.85f, 0.3f),
+                Mid(), new Vector2(0, 180), new Vector2(1200, 50));
+
+            // Candidate buttons (bench Pokémon that can take over)
+            const float cardW = 280f, cardH = 140f, spacing = 30f;
+            int n = s.PendingLeadReplacementCandidates.Count;
+            float startX = -(n * cardW + (n - 1) * spacing) / 2f + cardW / 2f;
+
+            for (int i = 0; i < n; i++)
+            {
+                PokemonInstance p = s.PendingLeadReplacementCandidates[i];
+                int slotIndex = s.PlayerTeam.IndexOf(p);
+                if (slotIndex < 0 || p == null) continue; // safety
+
+                string name = p.Species != null ? (p.Species.DisplayName ?? p.Species.name) : "—";
+                int max = PokemonVitals.MaxHP(p);
+                string label = $"{name}  Lv{p.Level}\nHP {p.CurrentHP} / {max}";
+                float x = startX + i * (cardW + spacing);
+
+                Btn(_leadReplacementModal.transform, Mid(), new Vector2(x, 0), new Vector2(cardW, cardH), label,
+                    new Color(0.28f, 0.52f, 0.38f), true, () => OnLeadReplacementChosen(slotIndex));
+            }
+        }
+
+        private void OnLeadReplacementChosen(int newLeadIndex)
+        {
+            _cc.ApplyLeadReplacement(newLeadIndex);
+            Refresh(); // modal will be torn down by next Refresh cycle
         }
 
         // ── uGUI primitives ───────────────────────────────────────────────────

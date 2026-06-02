@@ -71,7 +71,8 @@ namespace ProjectAscendant.Map
                 ProgressionConfig = catalog.ProgressionConfig,
                 // §6.10 — persistent meta loaded from disk (fresh instance if none); §6.3 config from the
                 // catalog, falling back to a spec-default instance so run-end commit works pre-authoring.
-                Meta = SaveSystem.LoadMeta(),
+                // Per Bug #11 — LoadMeta returns null when no save exists; instantiate a fresh SO in that case.
+                Meta = SaveSystem.LoadMeta() ?? ScriptableObject.CreateInstance<MetaProgressionSO>(),
                 MetaConfig = catalog.MetaProgressionConfig != null
                     ? catalog.MetaProgressionConfig
                     : ScriptableObject.CreateInstance<MetaProgressionConfigSO>(),

@@ -135,6 +135,11 @@ namespace ProjectAscendant.Combat
             // at DrawPhase. Consumed by the first Defensive card play that
             // matches CardPlayValidator.ShouldConsumeDefensiveDiscount.
             public bool DefensiveSwapDiscountAvailable;
+            // Per §7.4 + Bug #1 — set when reinforcements are injected mid-turn
+            // (e.g. the player KOs the last enemy during ActionPhase). Gates the
+            // ResolutionPhase enemy-intent loop so freshly-spawned entrants do
+            // NOT act the turn they arrive; reset at DrawPhase so they act next.
+            public bool ReinforcementsSpawnedThisTurn;
             public int TurnNumber;
             public FieldState Field;
             public List<Intent> EnemyIntents = new();
@@ -158,6 +163,12 @@ namespace ProjectAscendant.Combat
             // Per §4.4.5 + Task 8.5.7 — run-wide Badges active this combat.
             // Never null after construction.
             public List<BadgeSO> ActiveBadges = new();
+
+            // Per §3.3.5 + Bug #10 — when the Lead faints, the controller pauses
+            // mid-HandleAnyFaints and exposes the replacement candidates here.
+            // UI shows a picker modal; player clicks; UI calls ApplyLeadReplacement(index).
+            // Null when no replacement is pending.
+            public IReadOnlyList<PokemonInstance> PendingLeadReplacementCandidates;
         }
 
         // ── State ────────────────────────────────────────────────────────────
@@ -170,6 +181,11 @@ namespace ProjectAscendant.Combat
         // Per §6.9 / Task 11.8.2 — enemies whose kill has already been recorded this combat (once each,
         // even across the multiple HandleAnyFaints passes before reinforcements clear them).
         private readonly HashSet<PokemonInstance> _recordedEnemyKills = new();
+
+        // Per §6.2.2 / Bug #9 — each fainted player Pokémon gets +1 Trauma
+        // EXACTLY once per combat, even if hit multiple times or DoT-ticked
+        // after fainting (mirrors _recordedEnemyKills pattern).
+        private readonly HashSet<PokemonInstance> _traumaApplied = new();
 
         // ── Constructor + lifecycle ──────────────────────────────────────────
 
@@ -260,6 +276,7 @@ namespace ProjectAscendant.Combat
             State.MovesPlayedThisTurn.Clear();            // §8.3.4 — Move Echo per-turn tracking
             State.MoveEchoGrantedThisTurn = false;
             State.DefensiveSwapDiscountAvailable = false; // §3.3.1 — per-turn
+            State.ReinforcementsSpawnedThisTurn = false;  // §7.4 — new entrants may act starting this turn
             State.SkillHand.Clear();
             State.ConsumableHand.Clear();
 
@@ -328,17 +345,7 @@ namespace ProjectAscendant.Combat
             // Phase 3) BEFORE the boss declares intents, so the escalated form
             // acts this turn. No-op for non-boss enemies (PhaseCount 1).
             ProcessBossPhaseTransitions();
-            State.EnemyIntents.Clear();
-            for (int i = 0; i < State.EnemyTeam.Count; i++)
-            {
-                PokemonInstance enemy = State.EnemyTeam[i];
-                if (enemy == null || enemy.CurrentHP <= 0)
-                {
-                    State.EnemyIntents.Add(new Intent { Kind = IntentKind.Unknown });
-                    continue;
-                }
-                State.EnemyIntents.Add(BuildIntentForEnemy(enemy));
-            }
+            RebuildEnemyIntents();
 
             // Per §5.5.3.1 — Keen Eye: a team holding it reveals any Hidden intents (latent while VS
             // intents are all Witnessed; active once Hidden/counter-intel content exists).
@@ -405,6 +412,38 @@ namespace ProjectAscendant.Combat
                 PhaseAggressive = phaseAggressive,
             };
             return IntentScorer.PickIntent(candidates, ctx, State.Rng);
+        }
+
+        // Per Bug #1 — rebuild intents for the current EnemyTeam. Factored out
+        // from IntentPhase so TryInjectReinforcements can refresh intents mid-turn
+        // when reinforcements spawn (UI display only; these intents do NOT fire
+        // the same turn per §7.4 constraint).
+        private void RebuildEnemyIntents()
+        {
+            State.EnemyIntents.Clear();
+            for (int i = 0; i < State.EnemyTeam.Count; i++)
+            {
+                PokemonInstance enemy = State.EnemyTeam[i];
+                if (enemy == null || enemy.CurrentHP <= 0)
+                {
+                    State.EnemyIntents.Add(new Intent { Kind = IntentKind.Unknown });
+                    continue;
+                }
+                State.EnemyIntents.Add(BuildIntentForEnemy(enemy));
+            }
+
+            // Per §5.5.3.1 — Keen Eye: a team holding it reveals any Hidden intents (latent while VS
+            // intents are all Witnessed; active once Hidden/counter-intel content exists).
+            if (AbilityResolver.TeamRevealsIntents(State.PlayerTeam))
+                for (int i = 0; i < State.EnemyIntents.Count; i++)
+                {
+                    Intent it = State.EnemyIntents[i];
+                    if (it.Reveal == IntentReveal.Hidden)
+                    {
+                        it.Reveal = IntentReveal.Witnessed;
+                        State.EnemyIntents[i] = it;
+                    }
+                }
         }
 
         // ── Phase 3: Action (Task 4.1.5) ─────────────────────────────────────
@@ -575,11 +614,19 @@ namespace ProjectAscendant.Combat
             // ordering + per-enemy targeting architecture). Single-enemy
             // encounters (wild/trainer/Elite/Gym) have only slot 0, so this is
             // identical to the old list-order resolution for them.
-            int n = State.EnemyIntents.Count < State.EnemyTeam.Count
-                ? State.EnemyIntents.Count : State.EnemyTeam.Count;
-            for (int i = 1; i < n; i++)
-                if (!ResolveEnemyIntentAt(i)) return; // a support changed outcome
-            if (n > 0 && !ResolveEnemyIntentAt(0)) return; // Lead enemy last
+            // Per §7.4 + Bug #1 — if reinforcements spawned earlier THIS turn
+            // (e.g. the player KO'd the last enemy during ActionPhase), the new
+            // entrants only telegraph; they do NOT act until next turn. The whole
+            // current EnemyTeam is the just-arrived wave (the old team wiped to
+            // trigger the spawn), so skipping the loop entirely is correct.
+            if (!State.ReinforcementsSpawnedThisTurn)
+            {
+                int n = State.EnemyIntents.Count < State.EnemyTeam.Count
+                    ? State.EnemyIntents.Count : State.EnemyTeam.Count;
+                for (int i = 1; i < n; i++)
+                    if (!ResolveEnemyIntentAt(i)) return; // a support changed outcome
+                if (n > 0 && !ResolveEnemyIntentAt(0)) return; // Lead enemy last
+            }
 
             // Status DoT + duration ticks for every Pokémon on both sides.
             TickStatusForAll(State.PlayerTeam);
@@ -893,8 +940,10 @@ namespace ProjectAscendant.Combat
                 // attempts with PlayResult.OwnerFainted; TurnEnd drops them
                 // (rather than sending to discard) so they don't get
                 // reshuffled into the deck next turn.
-                // Per §4.8.5 — +1 Trauma stack at moment of faint.
-                FaintResolver.ApplyTraumaOnFaint(p);
+                // Per §4.8.5 / §6.2.2 — +1 Trauma stack at moment of faint,
+                // but ONLY once per faint event (Bug #9 fix: guard with HashSet).
+                if (_traumaApplied.Add(p))
+                    FaintResolver.ApplyTraumaOnFaint(p);
             }
 
             // Per §6.9 / Task 11.8.2 — record each defeated enemy in the Bestiary exactly once.
@@ -909,21 +958,24 @@ namespace ProjectAscendant.Combat
                 }
             }
 
-            // If Lead is fainted, ask for replacement.
+            // Per §3.3.5 + Bug #10 — if Lead is fainted, pause and expose candidates for UI modal picker.
+            // The UI will call ApplyLeadReplacement(index) to resume, or the headless agent path below
+            // resolves it immediately (backward-compat for unit tests that don't drive the modal).
             PokemonInstance lead = ResolveLead();
             if (lead == null || lead.CurrentHP <= 0)
             {
                 List<PokemonInstance> candidates = FaintResolver.EligibleLeadReplacements(
                     State.PlayerTeam, lead);
-                if (candidates.Count > 0 && _agent != null)
+                if (candidates.Count > 0)
                 {
-                    int newIdx = _agent.PickLeadReplacement(State, candidates);
-                    if (newIdx >= 0 && newIdx < State.PlayerTeam.Count
-                        && State.PlayerTeam[newIdx] != null
-                        && State.PlayerTeam[newIdx].CurrentHP > 0)
+                    State.PendingLeadReplacementCandidates = candidates;
+                    // Headless agent path (unit tests / AI). If the agent is the UIPlayerAgent stub
+                    // that returns state.LeadIndex, this would soft-lock; but production UI calls
+                    // ApplyLeadReplacement(idx) directly from the modal and skips this branch.
+                    if (_agent != null)
                     {
-                        State.LeadIndex = newIdx;
-                        AbilityResolver.ApplyLeadEntryEffects(State); // §5.5.3.5 Intimidate
+                        int newIdx = _agent.PickLeadReplacement(State, candidates);
+                        ApplyLeadReplacement(newIdx);
                     }
                 }
             }
@@ -944,10 +996,42 @@ namespace ProjectAscendant.Combat
             }
         }
 
+        // Per §3.3.5 + Bug #10 — UI-driven Lead replacement hook. Called from the modal picker after the
+        // player chooses a replacement. The index must be valid and the candidate must be non-fainted;
+        // any invalid input is logged and ignored (controller state stays paused). Clears the pending
+        // candidates and applies Lead Aura entry effects per §5.5.3.5 (Intimidate, etc.).
+        public void ApplyLeadReplacement(int newLeadIndex)
+        {
+            if (State.PendingLeadReplacementCandidates == null || State.PendingLeadReplacementCandidates.Count == 0)
+            {
+                Debug.LogWarning($"[CombatController] ApplyLeadReplacement({newLeadIndex}) called but no pending replacement.");
+                return;
+            }
+            if (newLeadIndex < 0 || newLeadIndex >= State.PlayerTeam.Count)
+            {
+                Debug.LogWarning($"[CombatController] ApplyLeadReplacement({newLeadIndex}) out of bounds.");
+                return;
+            }
+            PokemonInstance replacement = State.PlayerTeam[newLeadIndex];
+            if (replacement == null || replacement.CurrentHP <= 0)
+            {
+                Debug.LogWarning($"[CombatController] ApplyLeadReplacement({newLeadIndex}) candidate is fainted/null.");
+                return;
+            }
+            State.LeadIndex = newLeadIndex;
+            State.PendingLeadReplacementCandidates = null; // resume
+            AbilityResolver.ApplyLeadEntryEffects(State); // §5.5.3.5 Intimidate
+        }
+
         // Per Epic 8 Task 8.2 — returns true if reinforcements landed (so the
         // caller knows to skip the Outcome.Victory branch). Replaces team
         // contents in-place rather than swapping the list reference so any
         // downstream code holding the IList<PokemonInstance> stays valid.
+        //
+        // Per §7.4 + Bug #1 — refreshes intents for the new team so the UI
+        // displays the reinforcements' intents immediately (not stale dead-enemy
+        // intents). Per §8.2: new entrants do NOT act this turn (they only
+        // telegraph for next turn).
         private bool TryInjectReinforcements()
         {
             if (_reinforcements == null) return false;
@@ -955,6 +1039,11 @@ namespace ProjectAscendant.Combat
             if (next == null || next.Count == 0) return false;
             State.EnemyTeam.Clear();
             for (int i = 0; i < next.Count; i++) State.EnemyTeam.Add(next[i]);
+
+            // Per Bug #1 — rebuild intents for the new team (UI display only;
+            // Resolution does NOT fire these intents this turn — constraint §7.4).
+            State.ReinforcementsSpawnedThisTurn = true;
+            RebuildEnemyIntents();
             return true;
         }
 

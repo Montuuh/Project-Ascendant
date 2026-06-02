@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ec4a6286c7fc94fae486b43884ac18, type: 3}
   m_Name: BattleConfig
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.BattleConfigSO
-  Divisor: 6
+  Divisor: 8
   StabMultiplier: 1.5
   CritMultiplier: 1.5
   RangedModifier: 0.75
@@ -33,5 +33,5 @@ MonoBehaviour:
   - 4
   BaseAPPerTurn: 3
   MaxAPPerTurn: 6
-  BaseSkillCardsPerTurn: 4
+  BaseSkillCardsPerTurn: 5
   BaseConsumableCardsPerTurn: 2

@@ -208,8 +208,11 @@ namespace ProjectAscendant.UI
             {
                 MapNode node = kv.Key;
                 bool isCurrent = node == _run.CurrentNode;
-                bool isReach = !_run.RunOver && reachable.Contains(node);
                 bool isVisited = _visited.Contains(node);
+                // Per Bug #4 — a node is interactable if it's reachable (forward-connected) OR it's the
+                // current node (so the player can re-enter a utility node like Center after initial visit).
+                // Already-passed nodes (visited but not current) are locked.
+                bool isReach = !_run.RunOver && (reachable.Contains(node) || isCurrent);
 
                 Color baseCol = NodeColor(node.NodeType);
                 Color col = isVisited && !isCurrent ? baseCol * 0.75f : isReach || isCurrent ? baseCol : baseCol * 0.4f;

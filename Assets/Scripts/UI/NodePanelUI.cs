@@ -208,8 +208,7 @@ namespace ProjectAscendant.UI
             return y;
         }
 
-        // ── Mystery (§7.9) ────────────────────────────────────────────────────
-
+        // Per §7.9 + Bug #5 — Mystery event with outcome feedback after Choose.
         private void RenderMystery(MysteryEventNodeController mystery)
         {
             MysteryEventSO ev = mystery.SelectedEvent;
@@ -219,6 +218,13 @@ namespace ProjectAscendant.UI
                 Txt(_body, "Nothing stirs here.", 24, new Color(0.8f, 0.85f, 0.9f), Mid(), new Vector2(0, 120), new Vector2(1000, 40));
                 Btn(_body, Mid(), new Vector2(0, -40), new Vector2(360, 64), "CONTINUE  ▶",
                     new Color(0.30f, 0.42f, 0.55f), true, () => { mystery.Choose(0); Done(); });
+                return;
+            }
+
+            // Per Bug #5 — if a choice was made (controller called ResolveOutcome), show the result instead of choices.
+            if (mystery.IsCompleted)
+            {
+                RenderMysteryOutcome(mystery, ev);
                 return;
             }
 
@@ -232,9 +238,32 @@ namespace ProjectAscendant.UI
                 int idx = i;
                 string text = string.IsNullOrEmpty(choices[i].ChoiceText) ? $"Option {i + 1}" : choices[i].ChoiceText;
                 Btn(_body, Mid(), new Vector2(0, y), new Vector2(900, 70),
-                    text, RiskColor(ev.RiskProfile, i), true, () => { mystery.Choose(idx); Done(); });
+                    text, RiskColor(ev.RiskProfile, i), true, () => { mystery.Choose(idx); RefreshBody(); });
                 y -= 88f;
             }
+        }
+
+        // Per Bug #5 — outcome display after a Mystery choice. Shows what the player got: relic, dollars,
+        // heal, wager win/loss. Reads the controller's LastWagerWon + RunState changes made by ResolveOutcome.
+        private void RenderMysteryOutcome(MysteryEventNodeController mystery, MysteryEventSO ev)
+        {
+            Title($"{ev.DisplayName ?? ev.EventId}", "[RESULT]");
+
+            string outcome = ev.EventId switch
+            {
+                "mysterious_stone" => "Acquired: Random Relic",
+                "berry_bush" => "Box fully healed / Potions acquired",
+                "wandering_tutor" => $"Gained ₽{(_state != null ? _state.PokeDollars : 0)}",
+                "slot_booth" => (mystery.LastWagerWon ? "✓ JACKPOT! Won coins!" : "✖ Lost the wager."),
+                _ => "Event resolved."
+            };
+
+            Color col = mystery.LastWagerWon || ev.EventId != "slot_booth"
+                ? new Color(0.5f, 0.9f, 0.6f) : new Color(0.9f, 0.5f, 0.5f);
+            Txt(_body, outcome, 28, col, Mid(), new Vector2(0, 140), new Vector2(1100, 80));
+
+            Btn(_body, Mid(), new Vector2(0, -80), new Vector2(400, 64), "CONTINUE  ▶",
+                new Color(0.30f, 0.42f, 0.55f), true, Done);
         }
 
         private static Color RiskColor(MysteryRiskProfile risk, int choiceIndex) => choiceIndex == 0

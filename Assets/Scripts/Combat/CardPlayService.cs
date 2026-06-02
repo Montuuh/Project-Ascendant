@@ -129,7 +129,16 @@ namespace ProjectAscendant.Combat
             // Per §3.2.4 — "Card effects resolve immediately when played."
             // Damage callback handles HP delta + faint sweep + outcome flip.
             PokemonInstance target = ResolveEnemySlot(targetEnemySlot);
-            if (target != null) _resolveDamage(attacker, target, move);
+            if (target != null)
+            {
+                _resolveDamage(attacker, target, move);
+
+                // Per §3.2.4 / Bug #8 — secondary effects resolve AFTER damage.
+                // Effects target: DebuffTarget/StatusRider → enemy target (if alive);
+                // BuffSelf/Heal → self; DrawCards → player deck/hand.
+                // Guard: don't apply debuffs/status to a just-fainted target.
+                ResolveEffects(move, attacker, target);
+            }
 
             // Per §3.2.4 — "If a card play kills an enemy or fulfills a
             // Victory/Defeat condition, combat ends at that moment." If the
@@ -212,6 +221,82 @@ namespace ProjectAscendant.Combat
             for (int i = 0; i < team.Count; i++)
                 if (ReferenceEquals(team[i], p)) return i;
             return -1;
+        }
+
+        // Per §3.2.4 / Bug #8 — resolve secondary effects from move.Effects[].
+        // Targeting:
+        //   • DebuffTarget, StatusRider → enemy target (if alive)
+        //   • BuffSelf, Heal → attacker
+        //   • DrawCards → player deck/hand
+        // Fainted targets: debuffs/status on a fainted enemy are no-ops.
+        private void ResolveEffects(MoveSO move, PokemonInstance attacker, PokemonInstance enemyTarget)
+        {
+            if (move == null || move.Effects == null || move.Effects.Count == 0) return;
+
+            for (int i = 0; i < move.Effects.Count; i++)
+            {
+                MoveEffectSO effect = move.Effects[i];
+                if (effect == null) continue;
+
+                if (effect is DebuffTargetEffectSO debuff)
+                {
+                    // Per §3.2.4 — target must be alive to receive debuffs.
+                    if (enemyTarget != null && enemyTarget.CurrentHP > 0)
+                        StatStageManager.Modify(enemyTarget, debuff.TargetStat, debuff.StageChange);
+                }
+                else if (effect is StatusRiderEffectSO rider)
+                {
+                    // Per §3.2.4 — status riders target the enemy if ApplyToSelf = false.
+                    PokemonInstance statusTarget = rider.ApplyToSelf ? attacker : enemyTarget;
+                    if (statusTarget != null && statusTarget.CurrentHP > 0)
+                    {
+                        // Per §9.7.3 — ApplicationChance is deterministic via seeded RNG.
+                        float roll = _state.Rng.Range01();
+                        if (roll < rider.ApplicationChance)
+                            StatusEffectManager.TryApply(statusTarget, rider.StatusToApply, _state.Config);
+                    }
+                }
+                else if (effect is BuffSelfEffectSO buff)
+                {
+                    // Per §3.2.4 — buffs always target self.
+                    if (attacker != null)
+                        StatStageManager.Modify(attacker, buff.TargetStat, buff.StageChange);
+                }
+                else if (effect is HealEffectSO heal)
+                {
+                    // Per §3.2.4 — heal targets self or enemy based on HealSelf flag.
+                    PokemonInstance healTarget = heal.HealSelf ? attacker : enemyTarget;
+                    if (healTarget != null && healTarget.CurrentHP > 0)
+                    {
+                        int healAmount = heal.FlatHealAmount;
+                        if (heal.PercentageOfMaxHP > 0)
+                        {
+                            // Per §6.2.2 — heals compute against EffectiveMaxHP.
+                            int effectiveMax = _state.Economy != null
+                                ? PokemonVitals.EffectiveMaxHP(healTarget, _state.Economy)
+                                : PokemonVitals.MaxHP(healTarget);
+                            healAmount += UnityEngine.Mathf.FloorToInt(effectiveMax * heal.PercentageOfMaxHP);
+                        }
+                        int effectiveMax2 = _state.Economy != null
+                            ? PokemonVitals.EffectiveMaxHP(healTarget, _state.Economy)
+                            : PokemonVitals.MaxHP(healTarget);
+                        healTarget.CurrentHP = UnityEngine.Mathf.Min(effectiveMax2, healTarget.CurrentHP + healAmount);
+                    }
+                }
+                else if (effect is DrawCardsEffectSO draw)
+                {
+                    // Per §3.2.4 — draw effects add skill cards from the deck to hand.
+                    if (_state.Deck != null && _state.Rng != null)
+                    {
+                        for (int d = 0; d < draw.CardsToDrawBonus; d++)
+                        {
+                            MoveCardInstance drawnCard = _state.Deck.Draw(_state.Rng);
+                            if (drawnCard != null)
+                                _state.SkillHand.Add(drawnCard);
+                        }
+                    }
+                }
+            }
         }
     }
 }
