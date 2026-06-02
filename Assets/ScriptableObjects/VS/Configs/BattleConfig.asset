@@ -33,5 +33,6 @@ MonoBehaviour:
   - 4
   BaseAPPerTurn: 3
   MaxAPPerTurn: 6
+  BreatherBonusAP: 1
   BaseSkillCardsPerTurn: 5
   BaseConsumableCardsPerTurn: 2

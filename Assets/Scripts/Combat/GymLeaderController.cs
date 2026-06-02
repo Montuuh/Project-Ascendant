@@ -79,6 +79,21 @@ namespace ProjectAscendant.Combat
             return next;
         }
 
+        // Per §7.4.4 (OPEN) + R2-5 Task 5 — peek the next wave without
+        // consuming it. Gym roster is predefined (no RNG), so peek is
+        // trivial: return the next queued slot's species + level.
+        public IReadOnlyList<ReinforcementPreview> PeekNextWave()
+        {
+            List<ReinforcementPreview> preview = new();
+            if (_remaining.Count == 0) return preview;
+            // Gym battles spawn one at a time (sequential-spawn rule), so
+            // the "next wave" is the single next Pokémon in the queue.
+            GymPokemonSlot next = _remaining.Peek();
+            if (next.Species != null)
+                preview.Add(new ReinforcementPreview(next.Species, next.Level));
+            return preview;
+        }
+
         // Per §7.12 / §4.4.5 — guaranteed reward, no RNG. Badge + Rare relic +
         // 50 XP + 500₽. Empty for any non-Victory outcome. The run layer reads
         // BadgeAwards into RunStateSO.EarnedBadges and transitions to run-end

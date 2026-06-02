@@ -169,6 +169,16 @@ namespace ProjectAscendant.Combat
             // UI shows a picker modal; player clicks; UI calls ApplyLeadReplacement(index).
             // Null when no replacement is pending.
             public IReadOnlyList<PokemonInstance> PendingLeadReplacementCandidates;
+
+            // Per §3.2.6 (OPEN) + R2-5 Task 5 — when reinforcements arrive mid-combat,
+            // the player gets a "Breather" beat: +BreatherBonusAP and permission for
+            // ONE action (card play OR manual swap) before the next turn starts.
+            // UI-driven: UI checks this flag and renders a modal / gated ActionPhase
+            // continuation. Headless path (tests/AI) auto-clears when no valid action.
+            public bool BreatherPending;
+            // Counts actions during the breather so only ONE is allowed (card play
+            // OR manual swap). Reset to 0 when BreatherPending is cleared.
+            public int BreatherActionsAllowed;
         }
 
         // ── State ────────────────────────────────────────────────────────────
@@ -277,6 +287,8 @@ namespace ProjectAscendant.Combat
             State.MoveEchoGrantedThisTurn = false;
             State.DefensiveSwapDiscountAvailable = false; // §3.3.1 — per-turn
             State.ReinforcementsSpawnedThisTurn = false;  // §7.4 — new entrants may act starting this turn
+            State.BreatherPending = false;                // §3.2.6 (OPEN) — breather is a per-transition beat, cleared at turn start
+            State.BreatherActionsAllowed = 0;
             State.SkillHand.Clear();
             State.ConsumableHand.Clear();
 
@@ -500,8 +512,25 @@ namespace ProjectAscendant.Combat
         // Per Epic 5 Task 5.4.1 — delegated to CardPlayService. The service
         // owns validation, AP spend, discount apply/consume, SF/SB position
         // changes, and the post-play combat-end short-circuit (§3.2.4).
-        private bool TryPlaySkillCard(int handIndex, int enemySlot) =>
-            _playService.Play(handIndex, enemySlot);
+        //
+        // Per §3.2.6 (OPEN) — if a Breather is active, decrement the allowed
+        // action count on successful card play so only ONE action is permitted.
+        private bool TryPlaySkillCard(int handIndex, int enemySlot)
+        {
+            // Per §3.2.6 (OPEN) — capture the breather state BEFORE the play.
+            // The play itself may TRIGGER reinforcements (KO the last enemy →
+            // TryInjectReinforcements sets BreatherPending), so only a play made
+            // while the breather was ALREADY pending counts against the allowance —
+            // otherwise the triggering kill would instantly consume its own breather.
+            bool breatherActiveBefore = State.BreatherPending;
+            bool success = _playService.Play(handIndex, enemySlot);
+            if (success && breatherActiveBefore && State.BreatherPending && State.BreatherActionsAllowed > 0)
+            {
+                State.BreatherActionsAllowed--;
+                if (State.BreatherActionsAllowed <= 0) EndBreather();
+            }
+            return success;
+        }
 
         private bool TryPlayConsumable(int handIndex, int targetPlayerSlot)
         {
@@ -512,11 +541,22 @@ namespace ProjectAscendant.Combat
             // Per §3.5 — reject if unaffordable; no state change (player can pick another action).
             if (c.APCost > State.CurrentAP) return true;
 
+            // Per §3.2.6 (OPEN) — capture breather state before the play (see TryPlaySkillCard).
+            bool breatherActiveBefore = State.BreatherPending;
+
             DispatchConsumableEffect(c, targetPlayerSlot);
             State.CurrentAP -= c.APCost; // §3.5 — AP consumed on play
 
             State.ConsumableHand.RemoveAt(handIndex);
             State.Consumables.MarkUsed(c); // §8.2.1 — restored to inventory at combat end
+
+            // Per §3.2.6 (OPEN) — decrement breather action count on successful consumable play.
+            if (breatherActiveBefore && State.BreatherPending && State.BreatherActionsAllowed > 0)
+            {
+                State.BreatherActionsAllowed--;
+                if (State.BreatherActionsAllowed <= 0) EndBreather();
+            }
+
             return true;
         }
 
@@ -1032,6 +1072,12 @@ namespace ProjectAscendant.Combat
         // displays the reinforcements' intents immediately (not stale dead-enemy
         // intents). Per §8.2: new entrants do NOT act this turn (they only
         // telegraph for next turn).
+        //
+        // Per §3.2.6 (OPEN) + R2-5 Task 5 — when reinforcements arrive mid-combat
+        // AND combat continues, grant a one-time Breather: +BreatherBonusAP and
+        // permission for ONE action (card play OR manual swap). UI drives the
+        // breather flow via BreatherPending flag. If the player has no valid
+        // action (empty hand + no eligible swap target), auto-clear the breather.
         private bool TryInjectReinforcements()
         {
             if (_reinforcements == null) return false;
@@ -1044,8 +1090,89 @@ namespace ProjectAscendant.Combat
             // Resolution does NOT fire these intents this turn — constraint §7.4).
             State.ReinforcementsSpawnedThisTurn = true;
             RebuildEnemyIntents();
+
+            // Per §3.2.6 (OPEN) — grant Breather: +BreatherBonusAP and set flag.
+            if (State.Config != null && State.Config.BreatherBonusAP > 0)
+            {
+                State.CurrentAP += State.Config.BreatherBonusAP;
+                // Clamp to MaxAPPerTurn to prevent AP overflow exploits.
+                int maxAP = State.Config.MaxAPPerTurn;
+                if (State.CurrentAP > maxAP) State.CurrentAP = maxAP;
+            }
+
+            State.BreatherPending = true;
+            State.BreatherActionsAllowed = 1;
+
+            // Auto-skip breather if the player has no valid action: empty hand
+            // AND no eligible manual swap target (non-fainted non-Frozen bench).
+            if (ShouldAutoSkipBreather())
+            {
+                State.BreatherPending = false;
+                State.BreatherActionsAllowed = 0;
+            }
+
             return true;
         }
+
+        // Per §3.2.6 (OPEN) — auto-skip the breather when the player has no valid
+        // action: empty hand AND no eligible manual swap target. A full-party
+        // Freeze (Lead + all bench Frozen) qualifies as "no swap target".
+        private bool ShouldAutoSkipBreather()
+        {
+            // Check for playable cards in hand.
+            if (State.SkillHand != null && State.SkillHand.Count > 0)
+            {
+                for (int i = 0; i < State.SkillHand.Count; i++)
+                {
+                    MoveCardInstance c = State.SkillHand[i];
+                    if (c == null || c.Owner == null) continue;
+                    // If the owner is in the team and not fainted, there's a
+                    // potentially-playable card (AP cost check is expensive; defer
+                    // to CardPlayValidator when the player tries to play it).
+                    if (State.PlayerTeam.Contains(c.Owner) && c.Owner.CurrentHP > 0)
+                        return false;
+                }
+            }
+            if (State.ConsumableHand != null && State.ConsumableHand.Count > 0)
+            {
+                // Consumables are typically free or low-cost; if any exist, there's
+                // a valid action. Full cost check is overkill; presence suffices.
+                for (int i = 0; i < State.ConsumableHand.Count; i++)
+                    if (State.ConsumableHand[i] != null) return false;
+            }
+
+            // Check for eligible manual swap target: non-fainted, non-Frozen bench.
+            PokemonInstance lead = ResolveLead();
+            if (lead == null) return true; // no valid Lead → no swap possible
+            for (int i = 0; i < State.PlayerTeam.Count; i++)
+            {
+                if (i == State.LeadIndex) continue; // Lead can't swap with itself
+                PokemonInstance p = State.PlayerTeam[i];
+                if (p == null || p.CurrentHP <= 0) continue;
+                if (StatusModifiers.IsPositionLocked(p.PrimaryStatus)) continue; // Frozen
+                return false; // found an eligible swap target
+            }
+
+            return true; // no valid action
+        }
+
+        // Per §3.2.6 (OPEN) + R2-5 Task 5 — UI-driven hook to clear the breather
+        // flag and resume normal flow. Called by the UI when the player confirms
+        // "End Breather" (typically after the ONE allowed action is taken, or
+        // immediately if the player chooses to pass). Headless path (tests/AI)
+        // may call this explicitly, or auto-skip will clear it in TryInjectReinforcements.
+        public void EndBreather()
+        {
+            if (!State.BreatherPending) return; // idempotent no-op
+            State.BreatherPending = false;
+            State.BreatherActionsAllowed = 0;
+        }
+
+        // Per §7.4.4 (OPEN) — UI passthrough: preview the next reinforcement wave
+        // for the wave-queue telegraph panel. Empty when there's no provider or no
+        // wave remaining. Non-consuming (delegates to the provider's PeekNextWave).
+        public IReadOnlyList<ReinforcementPreview> PeekNextWave()
+            => _reinforcements?.PeekNextWave() ?? System.Array.Empty<ReinforcementPreview>();
 
         // ── Phase 5: TurnEnd (Task 4.1.7) ────────────────────────────────────
 

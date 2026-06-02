@@ -44,6 +44,9 @@ namespace ProjectAscendant.Core
         [Tooltip("Maximum AP that can be carried into a turn (from relics/effects).")]
         public int MaxAPPerTurn = 6;
 
+        [Tooltip("Per §3.2.6 (OPEN) — bonus AP granted when reinforcements arrive mid-combat (the 'Breather' beat). Vertical Slice default: 1.")]
+        public int BreatherBonusAP = 1;
+
         [Header("Hand Size")]
         [Tooltip("Base skill cards drawn per turn.")]
         public int BaseSkillCardsPerTurn = 4;

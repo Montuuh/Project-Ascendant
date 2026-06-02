@@ -107,6 +107,21 @@ namespace ProjectAscendant.Combat
             return next;
         }
 
+        // Per §7.4.4 (OPEN) + R2-5 Task 5 — peek the next wave without
+        // consuming it. Trainer roster is predefined (no RNG), so peek is
+        // trivial: return the next queued slot's species + level.
+        public IReadOnlyList<ReinforcementPreview> PeekNextWave()
+        {
+            List<ReinforcementPreview> preview = new();
+            if (_remaining.Count == 0) return preview;
+            // Trainer battles spawn one at a time (sequential-spawn rule), so
+            // the "next wave" is the single next Pokémon in the queue.
+            TrainerPokemonSlot next = _remaining.Peek();
+            if (next.Species != null)
+                preview.Add(new ReinforcementPreview(next.Species, next.Level));
+            return preview;
+        }
+
         // Per §7.4.2 — compute the reward bundle. Returns Empty for any
         // outcome other than Victory. Loot rolls are deterministic given
         // the seeded LootRNG. Empty loot tables produce empty drop lists

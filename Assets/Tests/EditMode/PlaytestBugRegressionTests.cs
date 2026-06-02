@@ -468,6 +468,115 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(effective);
         }
 
+        // ── R2-5: Breather beat + wave-queue peek (§3.2.6 / §7.4.4, OPEN) ────
+
+        // Per §3.2.6 (OPEN) — KO the last enemy mid-ActionPhase → reinforcements
+        // spawn → the player gets a Breather: +BreatherBonusAP and ONE pending
+        // action. Crucially the triggering kill must NOT consume its own breather.
+        [Test]
+        public void TryInjectReinforcements_OnWaveSpawn_GrantsBreatherAndBonusAP()
+        {
+            _config.BreatherBonusAP = 1;
+            PokemonInstance lead = MakeMon(60);
+            lead.CurrentMoves.Add(MakeMove(power: 999)); // one-shot wave1
+            lead.CurrentMoves.Add(MakeMove(power: 5));    // follow-up option (keeps hand non-empty)
+            PokemonInstance wave1 = MakeMon(10); wave1.CurrentMoves.Add(MakeMove(power: 1));
+            PokemonInstance wave2 = MakeMon(60); wave2.CurrentMoves.Add(MakeMove(power: 1));
+
+            CombatController c = BuildReinforcedController(
+                new List<PokemonInstance> { lead }, wave1, new List<PokemonInstance> { wave2 }, new PassiveAgent());
+            c.Start(); c.DrawPhase(); c.IntentPhase();
+
+            c.State.CurrentPhase = CombatController.Phase.ActionPhase;
+            c.ExecuteAction(PlayerAction.PlaySkill(FindCardByMove(c.State.SkillHand, lead.CurrentMoves[0]), 0));
+
+            Assert.That(c.State.EnemyTeam[0], Is.SameAs(wave2), "Reinforcements spawned (precondition).");
+            Assert.That(c.State.BreatherPending, Is.True, "Breather pending after wave spawn (§3.2.6).");
+            Assert.That(c.State.BreatherActionsAllowed, Is.EqualTo(1), "Triggering kill must NOT consume the breather.");
+            // Net AP: base 3, −1 kill, +1 breather → back to base.
+            Assert.That(c.State.CurrentAP, Is.EqualTo(_config.BaseAPPerTurn), "Breather grants +BreatherBonusAP (§3.2.6).");
+        }
+
+        // Per §3.2.6 (OPEN) — a follow-up action taken WHILE the breather is
+        // pending consumes it (one action allowed).
+        [Test]
+        public void Breather_FollowUpCardPlay_ClearsBreather()
+        {
+            _config.BreatherBonusAP = 1;
+            PokemonInstance lead = MakeMon(60);
+            lead.CurrentMoves.Add(MakeMove(power: 999)); // kill wave1
+            lead.CurrentMoves.Add(MakeMove(power: 5));    // follow-up during breather
+            PokemonInstance wave1 = MakeMon(10); wave1.CurrentMoves.Add(MakeMove(power: 1));
+            PokemonInstance wave2 = MakeMon(60); wave2.CurrentMoves.Add(MakeMove(power: 1));
+
+            CombatController c = BuildReinforcedController(
+                new List<PokemonInstance> { lead }, wave1, new List<PokemonInstance> { wave2 }, new PassiveAgent());
+            c.Start(); c.DrawPhase(); c.IntentPhase();
+            c.State.CurrentPhase = CombatController.Phase.ActionPhase;
+            c.ExecuteAction(PlayerAction.PlaySkill(FindCardByMove(c.State.SkillHand, lead.CurrentMoves[0]), 0));
+            Assert.That(c.State.BreatherPending, Is.True, "Breather pending (precondition).");
+
+            int followIdx = FindCardByMove(c.State.SkillHand, lead.CurrentMoves[1]);
+            Assert.That(followIdx, Is.GreaterThanOrEqualTo(0), "Follow-up card in hand.");
+            c.ExecuteAction(PlayerAction.PlaySkill(followIdx, 0));
+            Assert.That(c.State.BreatherPending, Is.False, "One breather action ends the breather (§3.2.6).");
+        }
+
+        // Per §3.2.6 (OPEN) — empty hand AND no eligible swap target → auto-skip.
+        [Test]
+        public void Breather_NoValidAction_AutoSkips()
+        {
+            _config.BreatherBonusAP = 1;
+            _config.BaseSkillCardsPerTurn = 1; // draw only the single kill card
+            PokemonInstance lead = MakeMon(60); // solo team → no swap target
+            lead.CurrentMoves.Add(MakeMove(power: 999));
+            PokemonInstance wave1 = MakeMon(10); wave1.CurrentMoves.Add(MakeMove(power: 1));
+            PokemonInstance wave2 = MakeMon(60); wave2.CurrentMoves.Add(MakeMove(power: 1));
+
+            CombatController c = BuildReinforcedController(
+                new List<PokemonInstance> { lead }, wave1, new List<PokemonInstance> { wave2 }, new PassiveAgent());
+            c.Start(); c.DrawPhase(); c.IntentPhase();
+            Assert.That(c.State.SkillHand.Count, Is.EqualTo(1), "Only the kill card drawn (precondition).");
+
+            c.State.CurrentPhase = CombatController.Phase.ActionPhase;
+            c.ExecuteAction(PlayerAction.PlaySkill(FindCardByMove(c.State.SkillHand, lead.CurrentMoves[0]), 0));
+
+            Assert.That(c.State.EnemyTeam[0], Is.SameAs(wave2), "Reinforcements spawned (precondition).");
+            Assert.That(c.State.BreatherPending, Is.False, "No card + no swap target → auto-skip (§3.2.6).");
+        }
+
+        // Per §3.2.6 / §7.4 — a headless full combat through a wave transition must
+        // terminate (the breather must not deadlock RunFullCombat).
+        [Test]
+        public void RunFullCombat_WithReinforcements_TerminatesWithVictory()
+        {
+            _config.BreatherBonusAP = 1;
+            PokemonInstance lead = MakeMon(200);
+            lead.CurrentMoves.Add(MakeMove(power: 999));
+            PokemonInstance wave1 = MakeMon(10); wave1.CurrentMoves.Add(MakeMove(power: 1));
+            PokemonInstance wave2 = MakeMon(10); wave2.CurrentMoves.Add(MakeMove(power: 1));
+
+            CombatController c = BuildReinforcedController(
+                new List<PokemonInstance> { lead }, wave1, new List<PokemonInstance> { wave2 }, new KillerAgent());
+            CombatController.CombatOutcome outcome = c.RunFullCombat(maxTurns: 20);
+
+            Assert.That(outcome, Is.EqualTo(CombatController.CombatOutcome.Victory),
+                "Combat with reinforcements + breather must terminate (no deadlock) (§3.2.6/§7.4).");
+        }
+
+        // Per §7.4.4 (OPEN) — peek previews the next wave without consuming it.
+        [Test]
+        public void PeekNextWave_ReturnsNextWavePreview_WithoutConsuming()
+        {
+            PokemonInstance wave2 = MakeMon(60); wave2.CurrentMoves.Add(MakeMove(power: 1));
+            TestReinforcementProvider provider = new() { NextWave = new List<PokemonInstance> { wave2 } };
+
+            IReadOnlyList<ReinforcementPreview> peek = provider.PeekNextWave();
+            Assert.That(peek.Count, Is.EqualTo(1), "Peek returns the queued wave (§7.4.4).");
+            Assert.That(peek[0].Species, Is.SameAs(wave2.Species), "Peek species matches the wave.");
+            Assert.That(provider.PeekNextWave().Count, Is.EqualTo(1), "Peek does not consume the wave.");
+        }
+
         // ── Helpers ───────────────────────────────────────────────────────────
 
         private PokemonInstance MakeMon(int hp)
@@ -514,6 +623,26 @@ namespace ProjectAscendant.Tests
             return new CombatController(setup, agent);
         }
 
+        // Builds a controller with a one-shot reinforcement provider for R2-5 tests.
+        private CombatController BuildReinforcedController(
+            List<PokemonInstance> playerTeam, PokemonInstance enemy,
+            List<PokemonInstance> reinforcements, IPlayerAgent agent)
+        {
+            CombatController.CombatSetup setup = new()
+            {
+                PlayerTeam = playerTeam,
+                InitialLeadIndex = 0,
+                EnemyTeam = new List<PokemonInstance> { enemy },
+                ConsumableInventory = new List<ConsumableSO>(),
+                InitialField = FieldState.Empty,
+                Config = _config,
+                Economy = _economy,
+                Rng = new GameRNG(seed: 0xBEEF),
+                Reinforcements = new TestReinforcementProvider { NextWave = reinforcements },
+            };
+            return new CombatController(setup, agent);
+        }
+
         private int FindCardByMove(IReadOnlyList<MoveCardInstance> hand, MoveSO move)
         {
             if (hand == null || move == null) return -1;
@@ -532,10 +661,39 @@ namespace ProjectAscendant.Tests
                 IReadOnlyList<PokemonInstance> c) => PickIndex;
         }
 
+        // One-shot: spawns NextWave exactly once, then returns null (so a
+        // multi-wave RunFullCombat terminates instead of re-injecting a dead wave).
         private sealed class TestReinforcementProvider : IEnemyReinforcementProvider
         {
             public List<PokemonInstance> NextWave;
-            public List<PokemonInstance> RequestReinforcements(CombatController.CombatState s) => NextWave;
+            private bool _used;
+            public List<PokemonInstance> RequestReinforcements(CombatController.CombatState s)
+            {
+                if (_used) return null;
+                _used = true;
+                return NextWave;
+            }
+
+            // §7.4.4 (OPEN) — non-consuming peek mirrors NextWave (empty once used).
+            public IReadOnlyList<ReinforcementPreview> PeekNextWave()
+            {
+                List<ReinforcementPreview> preview = new();
+                if (!_used && NextWave != null)
+                    foreach (PokemonInstance p in NextWave)
+                        if (p != null) preview.Add(new ReinforcementPreview(p.Species, p.Level));
+                return preview;
+            }
+        }
+
+        // Plays card 0 at enemy 0 while it has AP + cards; otherwise ends the turn.
+        private sealed class KillerAgent : IPlayerAgent
+        {
+            public PlayerAction DecideAction(CombatController.CombatState s)
+                => (s.CurrentAP > 0 && s.SkillHand.Count > 0)
+                    ? PlayerAction.PlaySkill(0, 0)
+                    : PlayerAction.End();
+            public int PickLeadReplacement(CombatController.CombatState s,
+                IReadOnlyList<PokemonInstance> c) => s.LeadIndex;
         }
     }
 }

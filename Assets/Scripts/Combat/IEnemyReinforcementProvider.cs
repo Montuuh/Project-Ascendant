@@ -21,5 +21,32 @@ namespace ProjectAscendant.Combat
     public interface IEnemyReinforcementProvider
     {
         List<PokemonInstance> RequestReinforcements(CombatController.CombatState state);
+
+        // Per §7.4.4 (OPEN) + R2-5 Task 5 — non-consuming preview of the next
+        // wave for UI wave-queue telegraph. Returns a lightweight struct with
+        // species + level data for the NEXT wave that RequestReinforcements
+        // would spawn. CRITICAL: MUST NOT consume RNG or otherwise change
+        // what RequestReinforcements will produce (determinism requirement).
+        //
+        // Returns empty/null when no reinforcements remain. For providers
+        // with predefined rosters (Trainer/Elite/Gym) this is trivial (peek
+        // the queue). For RNG-driven providers, pre-generate or cache the
+        // wave so peek == eventual spawn.
+        IReadOnlyList<ReinforcementPreview> PeekNextWave();
+    }
+
+    // Per §7.4.4 (OPEN) — lightweight wave preview for UI display. Species
+    // + level suffice for the UI to render "Ivysaur Lv13" + intent-kind
+    // placeholder (the full intent is not computed until spawn).
+    public struct ReinforcementPreview
+    {
+        public PokemonSpeciesSO Species;
+        public int Level;
+
+        public ReinforcementPreview(PokemonSpeciesSO species, int level)
+        {
+            Species = species;
+            Level = level;
+        }
     }
 }
