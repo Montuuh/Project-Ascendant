@@ -87,12 +87,17 @@ namespace ProjectAscendant.Map
 
         // Interprets the combat result and routes the recruit into the Box (§2.3.1), then Completes.
         // PlayerWiped → NodeOutcome.PlayerWiped (run-failure); Caught/WildFainted → Cleared.
+        // Per §3.3.1 / §2.3 + R3-5 — persist final combat LeadIndex so team order survives.
         public WildEncounterResult ResolveCombat(
             CombatController.CombatOutcome outcome,
-            PokemonInstance caughtTarget)
+            PokemonInstance caughtTarget,
+            int finalLeadIndex)
         {
             WildEncounterResult result = _wild.ResolveOutcome(
                 outcome, caughtTarget, _box.Members, _box.Capacity, _overflowHandler);
+
+            // Per R3-5 — persist final combat LeadIndex so team order survives node→MapView.
+            RunState.LeadIndex = finalLeadIndex;
 
             NodeOutcome nodeOutcome = result.Outcome == WildEncounterResult.WildOutcome.PlayerWiped
                 ? NodeOutcome.PlayerWiped

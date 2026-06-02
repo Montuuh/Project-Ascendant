@@ -352,7 +352,9 @@ namespace ProjectAscendant.UI
         private void OnCombatComplete(MapNode node, NodeController active, CombatController cc, CombatController.CombatOutcome outcome)
         {
             PokemonInstance caught = cc.State.CaughtTarget;
-            ResolveCombatNode(active, caught, outcome);
+            // Per R3-5 — persist the final combat LeadIndex so team order survives node→MapView.
+            int finalLeadIndex = cc.State.LeadIndex;
+            ResolveCombatNode(active, caught, outcome, finalLeadIndex);
 
             // §5.2 — on a win, the team that fought earns node-tier XP, then level-ups are processed
             // between nodes (before the run advances + before a freshly-caught mon joins). Defeat: none.
@@ -565,14 +567,15 @@ namespace ProjectAscendant.UI
             return new CombatController(setup, new UIPlayerAgent());
         }
 
-        private void ResolveCombatNode(NodeController active, PokemonInstance caught, CombatController.CombatOutcome outcome)
+        // Per R3-5 — pass the final combat LeadIndex to each node's ResolveCombat.
+        private void ResolveCombatNode(NodeController active, PokemonInstance caught, CombatController.CombatOutcome outcome, int finalLeadIndex)
         {
             switch (active)
             {
-                case WildAreaNodeController w:      w.ResolveCombat(outcome, caught); break;
-                case TrainerBattleNodeController t: t.ResolveCombat(outcome); break;
-                case EliteNodeController e:         e.ResolveCombat(outcome); break;
-                case GymNodeController g:           g.ResolveCombat(outcome); break;
+                case WildAreaNodeController w:      w.ResolveCombat(outcome, caught, finalLeadIndex); break;
+                case TrainerBattleNodeController t: t.ResolveCombat(outcome, finalLeadIndex); break;
+                case EliteNodeController e:         e.ResolveCombat(outcome, finalLeadIndex); break;
+                case GymNodeController g:           g.ResolveCombat(outcome, finalLeadIndex); break;
             }
         }
 

@@ -122,7 +122,7 @@ namespace ProjectAscendant.Tests
             c.Enter();
             c.BuildCombat(new List<PokemonInstance>(), 0, new List<ConsumableSO>(), MakeConfig(), new GameRNG(1u));
 
-            TrainerRewardBundle bundle = c.ResolveCombat(CombatController.CombatOutcome.Victory);
+            TrainerRewardBundle bundle = c.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0);
 
             Assert.That(bundle.BadgeAwards, Has.Member(badge));
             Assert.That(run.EarnedBadges, Has.Member(badge));
@@ -141,7 +141,7 @@ namespace ProjectAscendant.Tests
             c.Enter();
             c.BuildCombat(new List<PokemonInstance>(), 0, new List<ConsumableSO>(), MakeConfig(), new GameRNG(1u));
 
-            c.ResolveCombat(CombatController.CombatOutcome.Defeat);
+            c.ResolveCombat(CombatController.CombatOutcome.Defeat, finalLeadIndex: 0);
 
             Assert.That(run.EarnedBadges ?? new List<BadgeSO>(), Has.No.Member(badge));
             Assert.That(run.PokeDollars, Is.EqualTo(0));

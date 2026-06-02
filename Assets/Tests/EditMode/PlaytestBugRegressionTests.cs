@@ -695,5 +695,140 @@ namespace ProjectAscendant.Tests
             public int PickLeadReplacement(CombatController.CombatState s,
                 IReadOnlyList<PokemonInstance> c) => s.LeadIndex;
         }
+
+        // ── R3-1: Fresh Pokémon start at full HP (§2.4.2) ────────────────────
+
+        // Per §2.4.2 + R3-1 — a freshly-created PokemonInstance must have
+        // CurrentHP == PokemonVitals.MaxHP(instance). The OLD BUG: factory used a
+        // stale stub ComputeMaxHP(BaseHP + level*2) that disagreed with the canonical
+        // PokemonVitals.MaxHP (BaseHP + GrowthCurve.GetHPAt(level)). This made mons
+        // look under-full at spawn when the HP bar's max used the canonical formula.
+        [Test]
+        public void PokemonInstanceFactory_Create_SetsCurrentHPToCanonicalMaxHP()
+        {
+            // Per §2.4.2 + R3-1 — freshly-created instance starts at full HP.
+            PokemonInstanceFactory factory = new();
+            PokemonSpeciesSO species = ScriptableObject.CreateInstance<PokemonSpeciesSO>();
+            species.Types = new List<PokemonType> { PokemonType.Normal };
+            species.BaseStats = new BaseStats { BaseHP = 60, BaseAtk = 50, BaseDef = 50, BaseSpd = 50 };
+            StatGrowthCurveSO curve = ScriptableObject.CreateInstance<StatGrowthCurveSO>();
+            curve.HPGrowthPerLevel = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+            species.GrowthCurve = curve;
+            _disposables.Add(species);
+            _disposables.Add(curve);
+
+            PokemonInstance instance = factory.Create(species, level: 10);
+
+            int expectedMaxHP = PokemonVitals.MaxHP(instance);
+            Assert.That(instance.CurrentHP, Is.EqualTo(expectedMaxHP),
+                "Fresh PokemonInstance must start at canonical MaxHP (§2.4.2 / R3-1).");
+        }
+
+        // ── R3-4: 0-power moves deal 0 damage (§4.1.1) ───────────────────────
+
+        // Per §4.1.1 + R3-4 — a pure status/buff/debuff move (BasePower 0) must deal
+        // 0 damage, not 1. The OLD BUG: ResolveDamage floored all non-immune attacks
+        // to 1 even when BasePower was 0. The FIX: check move.BasePower <= 0 before
+        // applying the 1-damage floor.
+        [Test]
+        public void ResolveDamage_ZeroPowerStatusMove_DealsZeroDamage()
+        {
+            // Per §4.1.1 + R3-4 — 0-power moves must deal 0, not 1.
+            PokemonInstance lead = MakeMon(60);
+            MoveSO debuffMove = MakeMove(power: 0); // e.g. Growl
+            DebuffTargetEffectSO debuff = ScriptableObject.CreateInstance<DebuffTargetEffectSO>();
+            debuff.TargetStat = Stat.Attack;
+            debuff.StageChange = -1;
+            debuffMove.Effects = new List<MoveEffectSO> { debuff };
+            _disposables.Add(debuff);
+            lead.CurrentMoves.Add(debuffMove);
+
+            PokemonInstance enemy = MakeMon(60);
+            enemy.CurrentMoves.Add(MakeMove(power: 1));
+
+            PassiveAgent agent = new();
+            CombatController c = BuildController(new List<PokemonInstance> { lead }, enemy, agent);
+            c.Start();
+            c.DrawPhase();
+            c.IntentPhase();
+
+            int hpBefore = enemy.CurrentHP;
+            int cardIdx = FindCardByMove(c.State.SkillHand, debuffMove);
+            Assert.That(cardIdx, Is.GreaterThanOrEqualTo(0), "Debuff move must be in hand.");
+            c.State.CurrentPhase = CombatController.Phase.ActionPhase;
+            c.ExecuteAction(PlayerAction.PlaySkill(cardIdx, enemySlot: 0));
+
+            Assert.That(enemy.CurrentHP, Is.EqualTo(hpBefore),
+                "0-power move must deal 0 damage (§4.1.1 / R3-4).");
+            // Effect still applies:
+            int atkStage = enemy.StatStages.TryGetValue(Stat.Attack, out int a) ? a : 0;
+            Assert.That(atkStage, Is.EqualTo(-1), "Debuff effect must still apply.");
+        }
+
+        // ── R3-7: Reinforcement acts next turn (§7.4) ────────────────────────
+
+        // Per §7.4 + R3-7 — a reinforcement spawned mid-combat must NOT act on the
+        // spawn turn (§7.4 gate: ReinforcementsSpawnedThisTurn blocks Resolution), but
+        // MUST act the following turn. This test locks "acts next turn" so we can prove
+        // it's not a "never attacks" bug.
+        [Test]
+        public void Reinforcement_SpawnedMidTurn_ActsTheFollowingTurn()
+        {
+            // Per §7.4 + R3-7 — reinforcement spawned mid-combat acts next turn.
+            PokemonInstance lead = MakeMon(100);
+            lead.CurrentMoves.Add(MakeMove(power: 999)); // one-shot wave1
+
+            PokemonInstance wave1 = MakeMon(10);
+            wave1.CurrentMoves.Add(MakeMove(power: 1));
+
+            PokemonInstance wave2 = MakeMon(60);
+            MoveSO wave2Move = MakeMove(power: 20);
+            wave2.CurrentMoves.Add(wave2Move);
+
+            TestReinforcementProvider provider = new();
+            provider.NextWave = new List<PokemonInstance> { wave2 };
+
+            PassiveAgent agent = new();
+            CombatController.CombatSetup setup = new()
+            {
+                PlayerTeam = new List<PokemonInstance> { lead },
+                InitialLeadIndex = 0,
+                EnemyTeam = new List<PokemonInstance> { wave1 },
+                ConsumableInventory = new List<ConsumableSO>(),
+                InitialField = FieldState.Empty,
+                Config = _config,
+                Economy = _economy,
+                Rng = new GameRNG(seed: 0xCAFE),
+                Reinforcements = provider,
+            };
+            CombatController c = new(setup, agent);
+
+            c.Start();
+            // Turn 1: kill wave1 in ActionPhase → wave2 spawns mid-turn.
+            c.DrawPhase();
+            c.IntentPhase();
+            int cardIdx = FindCardByMove(c.State.SkillHand, lead.CurrentMoves[0]);
+            Assert.That(cardIdx, Is.GreaterThanOrEqualTo(0), "Player must draw their card.");
+            c.State.CurrentPhase = CombatController.Phase.ActionPhase;
+            c.ExecuteAction(PlayerAction.PlaySkill(cardIdx, enemySlot: 0));
+            c.ExecuteAction(PlayerAction.End());
+            // Wave2 spawned; check it does NOT act this turn (§7.4 gate).
+            int hpAfterSpawn = lead.CurrentHP;
+            c.ResolutionPhase();
+            Assert.That(lead.CurrentHP, Is.EqualTo(hpAfterSpawn),
+                "Reinforcement must NOT act on spawn turn (§7.4 gate).");
+            c.TurnEnd();
+
+            // Turn 2: wave2 MUST act now (the gate is cleared at DrawPhase).
+            c.DrawPhase();
+            c.IntentPhase();
+            Assert.That(c.State.EnemyIntents.Count, Is.EqualTo(1),
+                "Wave2 must telegraph an intent.");
+            c.ActionPhase(); // player passes
+            int hpBefore2 = lead.CurrentHP;
+            c.ResolutionPhase(); // wave2 acts!
+            Assert.That(lead.CurrentHP, Is.LessThan(hpBefore2),
+                "Reinforcement must act the turn AFTER spawn (§7.4 / R3-7).");
+        }
     }
 }

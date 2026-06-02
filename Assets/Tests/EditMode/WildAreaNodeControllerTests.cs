@@ -223,7 +223,7 @@ namespace ProjectAscendant.Tests
             c.Enter();
             PokemonInstance caught = new() { Species = c.Choices[0], Level = 5, CurrentHP = 10 };
 
-            WildEncounterResult r = c.ResolveCombat(CombatController.CombatOutcome.Victory, caught);
+            WildEncounterResult r = c.ResolveCombat(CombatController.CombatOutcome.Victory, caught, finalLeadIndex: 0);
 
             Assert.That(r.Outcome, Is.EqualTo(WildEncounterResult.WildOutcome.Caught));
             Assert.That(box.Members, Has.Member(caught));
@@ -236,7 +236,7 @@ namespace ProjectAscendant.Tests
         {
             WildAreaNodeController c = Make(MakeConfig(StandardBiome()));
             c.Enter();
-            WildEncounterResult r = c.ResolveCombat(CombatController.CombatOutcome.Defeat, null);
+            WildEncounterResult r = c.ResolveCombat(CombatController.CombatOutcome.Defeat, null, finalLeadIndex: 0);
             Assert.That(r.Outcome, Is.EqualTo(WildEncounterResult.WildOutcome.PlayerWiped));
             Assert.That(c.Outcome, Is.EqualTo(NodeOutcome.PlayerWiped));
         }
@@ -246,7 +246,7 @@ namespace ProjectAscendant.Tests
         {
             WildAreaNodeController c = Make(MakeConfig(StandardBiome()));
             c.Enter();
-            WildEncounterResult r = c.ResolveCombat(CombatController.CombatOutcome.Victory, caughtTarget: null);
+            WildEncounterResult r = c.ResolveCombat(CombatController.CombatOutcome.Victory, caughtTarget: null, finalLeadIndex: 0);
             Assert.That(r.Outcome, Is.EqualTo(WildEncounterResult.WildOutcome.WildFainted));
             Assert.That(c.Outcome, Is.EqualTo(NodeOutcome.Cleared));
         }
@@ -261,7 +261,7 @@ namespace ProjectAscendant.Tests
             c.Enter();
             PokemonInstance caught = new() { Species = c.Choices[0], Level = 5, CurrentHP = 10 };
 
-            WildEncounterResult r = c.ResolveCombat(CombatController.CombatOutcome.Victory, caught);
+            WildEncounterResult r = c.ResolveCombat(CombatController.CombatOutcome.Victory, caught, finalLeadIndex: 0);
 
             Assert.That(r.Outcome, Is.EqualTo(WildEncounterResult.WildOutcome.Caught));
             Assert.That(r.BoxOverflowPromptShown, Is.True);

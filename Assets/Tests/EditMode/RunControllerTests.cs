@@ -180,14 +180,15 @@ namespace ProjectAscendant.Tests
         }
 
         // Resolves whatever node is active with a "win/proceed" policy (combat = Victory).
+        // Per R3-5 — ResolveCombat now requires finalLeadIndex; test harness passes 0.
         private static void ResolveActive(RunController rc)
         {
             switch (rc.ActiveNode)
             {
-                case WildAreaNodeController w:  w.ResolveCombat(CombatController.CombatOutcome.Victory, null); break;
-                case EliteNodeController e:     e.ResolveCombat(CombatController.CombatOutcome.Victory); break;
-                case TrainerBattleNodeController t: t.ResolveCombat(CombatController.CombatOutcome.Victory); break;
-                case GymNodeController g:       g.ResolveCombat(CombatController.CombatOutcome.Victory); break;
+                case WildAreaNodeController w:  w.ResolveCombat(CombatController.CombatOutcome.Victory, null, finalLeadIndex: 0); break;
+                case EliteNodeController e:     e.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0); break;
+                case TrainerBattleNodeController t: t.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0); break;
+                case GymNodeController g:       g.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0); break;
                 case PokemonCenterNodeController c: c.Leave(); break;
                 case RegionShopNodeController s:    s.Leave(); break;
                 case MysteryEventNodeController m:  m.Choose(1); break;
@@ -292,7 +293,7 @@ namespace ProjectAscendant.Tests
             RunController rc = MakeRunController(123u, out _, out _);
             rc.StartRun();
             rc.EnterNode(rc.Map.Entry); // forced Wild at Layer 0
-            ((WildAreaNodeController)rc.ActiveNode).ResolveCombat(CombatController.CombatOutcome.Defeat, null);
+            ((WildAreaNodeController)rc.ActiveNode).ResolveCombat(CombatController.CombatOutcome.Defeat, null, finalLeadIndex: 0);
             rc.CompleteActiveNode();
 
             Assert.That(rc.RunOver, Is.True, "A player wipe ends the run.");

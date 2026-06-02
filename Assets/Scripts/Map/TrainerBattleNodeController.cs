@@ -63,12 +63,16 @@ namespace ProjectAscendant.Map
             return setup;
         }
 
-        // 9.4.3/9.4.4 — resolve the combat: apply rewards on Victory, then Complete.
-        public TrainerRewardBundle ResolveCombat(CombatController.CombatOutcome outcome)
+        // 9.4.3/9.4.4 — resolve the combat: apply rewards on Victory, persist final LeadIndex, then Complete.
+        // Per §3.3.1 / §2.3 + R3-5 — the post-combat LeadIndex must persist back to RunStateSO.
+        public TrainerRewardBundle ResolveCombat(CombatController.CombatOutcome outcome, int finalLeadIndex)
         {
             TrainerRewardBundle bundle = _battle.ResolveReward(outcome);
             if (outcome == CombatController.CombatOutcome.Victory)
                 RewardApplier.Apply(RunState, bundle, _economy);
+
+            // Per R3-5 — persist final combat LeadIndex so team order survives node→MapView.
+            RunState.LeadIndex = finalLeadIndex;
 
             Complete(outcome == CombatController.CombatOutcome.Defeat
                 ? NodeOutcome.PlayerWiped

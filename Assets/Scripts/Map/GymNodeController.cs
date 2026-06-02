@@ -51,17 +51,22 @@ namespace ProjectAscendant.Map
                 playerTeam, initialLeadIndex, baseInventory, battleConfig, combatRng, RunState.EarnedBadges);
         }
 
-        public TrainerRewardBundle ResolveCombat(CombatController.CombatOutcome outcome)
+        // Per §3.3.1 / §2.3 + R3-5 — persist final combat LeadIndex so team order survives.
+        public TrainerRewardBundle ResolveCombat(CombatController.CombatOutcome outcome, int finalLeadIndex)
         {
             TrainerRewardBundle bundle = _gym.ResolveReward(outcome);
 
             if (outcome == CombatController.CombatOutcome.Victory)
             {
                 RewardApplier.Apply(RunState, bundle, _economy); // Badge → EarnedBadges, Rare relic → HeldRelics
+                // Per R3-5 — persist final combat LeadIndex so team order survives node→MapView.
+                RunState.LeadIndex = finalLeadIndex;
                 Complete(NodeOutcome.RunEnded);         // §7.13 — VS ends at Gym 1 → run-end (8.5.9)
             }
             else
             {
+                // Per R3-5 — persist even on Defeat so the final order is visible at run-failure.
+                RunState.LeadIndex = finalLeadIndex;
                 Complete(NodeOutcome.PlayerWiped);
             }
             return bundle;

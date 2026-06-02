@@ -807,7 +807,14 @@ namespace ProjectAscendant.Combat
             float heldItemMul = HeldItemResolver.OutgoingDamageMultiplier(attacker, move);
 
             int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul * heldItemMul);
-            if (final <= 0) final = (dmg.TypeEffectiveness == 0.0) ? 0 : 1; // immune stays 0
+            // Per §4.1.1 + R3-4 — 0-damage floor ONLY for real attacks (non-immune).
+            // Pure status/buff/debuff moves (BasePower 0) deal 0, not 1.
+            if (final <= 0)
+            {
+                if (dmg.TypeEffectiveness == 0.0) final = 0; // immune → 0
+                else if (move.BasePower <= 0) final = 0;    // 0-power → 0 (R3-4)
+                else final = 1;                              // non-immune attack → floor to 1
+            }
 
             // Per §5.5.3.3 — Levitate: Ground-type moves do nothing to a Levitate target.
             if (AbilityResolver.IsImmuneTo(target, move)) final = 0;

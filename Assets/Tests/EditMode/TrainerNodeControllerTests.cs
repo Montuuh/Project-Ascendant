@@ -160,7 +160,7 @@ namespace ProjectAscendant.Tests
             TrainerBattleNodeController c = new(TrainerNode(), run, pool, new PokemonInstanceFactory(), new GameRNG(1u), new GameRNG(1u));
             c.Enter();
             c.BuildCombat(new List<PokemonInstance>(), 0, new List<ConsumableSO>(), FieldState.Empty, MakeConfig(), new GameRNG(1u));
-            TrainerRewardBundle bundle = c.ResolveCombat(CombatController.CombatOutcome.Victory);
+            TrainerRewardBundle bundle = c.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0);
 
             Assert.That(bundle.PokeDollars, Is.EqualTo(120));
             Assert.That(run.PokeDollars, Is.EqualTo(120));
@@ -178,7 +178,7 @@ namespace ProjectAscendant.Tests
             TrainerBattleNodeController c = new(TrainerNode(), run, pool, new PokemonInstanceFactory(), new GameRNG(1u), new GameRNG(1u));
             c.Enter();
             c.BuildCombat(new List<PokemonInstance>(), 0, new List<ConsumableSO>(), FieldState.Empty, MakeConfig(), new GameRNG(1u));
-            c.ResolveCombat(CombatController.CombatOutcome.Defeat);
+            c.ResolveCombat(CombatController.CombatOutcome.Defeat, finalLeadIndex: 0);
 
             Assert.That(run.PokeDollars, Is.EqualTo(0));
             Assert.That(run.HeldRelics ?? new List<RelicSO>(), Has.No.Member(relic));
@@ -224,7 +224,7 @@ namespace ProjectAscendant.Tests
             EliteNodeController c = new(EliteNode(), run, elite, new PokemonInstanceFactory());
             c.Enter();
             c.BuildCombat(new List<PokemonInstance>(), 0, new List<ConsumableSO>(), FieldState.Empty, MakeConfig(), new GameRNG(1u));
-            TrainerRewardBundle bundle = c.ResolveCombat(CombatController.CombatOutcome.Victory);
+            TrainerRewardBundle bundle = c.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0);
 
             Assert.That(bundle.PokeDollars, Is.EqualTo(300));
             Assert.That(bundle.TrainerXP, Is.EqualTo(25));
@@ -243,7 +243,7 @@ namespace ProjectAscendant.Tests
             EliteNodeController c = new(EliteNode(), run, elite, new PokemonInstanceFactory());
             c.Enter();
             c.BuildCombat(new List<PokemonInstance>(), 0, new List<ConsumableSO>(), FieldState.Empty, MakeConfig(), new GameRNG(1u));
-            c.ResolveCombat(CombatController.CombatOutcome.Defeat);
+            c.ResolveCombat(CombatController.CombatOutcome.Defeat, finalLeadIndex: 0);
 
             Assert.That(run.PokeDollars, Is.EqualTo(0));
             Assert.That(c.Outcome, Is.EqualTo(NodeOutcome.PlayerWiped));

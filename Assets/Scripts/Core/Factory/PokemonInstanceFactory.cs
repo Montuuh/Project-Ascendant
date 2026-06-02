@@ -9,12 +9,16 @@ namespace ProjectAscendant.Core
         public int PoolFreeCount => _pool.FreeCount;
 
         // Per §9.6.2 — creates and initialises a PokemonInstance from species data.
+        // Per §2.4.2 — freshly-created Pokémon start at full HP (canonical MaxHP).
         public PokemonInstance Create(PokemonSpeciesSO species, int level)
         {
             PokemonInstance instance = _pool.Rent();
             instance.Species = species;
             instance.Level = level;
-            instance.CurrentHP = species != null ? ComputeMaxHP(species, level) : 0;
+            // Per R3-1 fix — seed CurrentHP from PokemonVitals.MaxHP (canonical),
+            // not the stale ComputeMaxHP stub. Fresh recruits + wild enemies enter
+            // at full HP per §2.4 / §7.3.4.1.
+            instance.CurrentHP = PokemonVitals.MaxHP(instance);
             instance.CurrentXP = 0;
             instance.TraumaStacks = 0;
             instance.CurrentMoves.Clear();
@@ -34,10 +38,5 @@ namespace ProjectAscendant.Core
             instance.Reset();
             _pool.Return(instance);
         }
-
-        // TODO: Epic 4 — replace with actual HP formula from §4.2.X using BattleConfigSO.
-        // Stub: BaseHP + (Level * 2).
-        private static int ComputeMaxHP(PokemonSpeciesSO species, int level) =>
-            species.BaseStats.BaseHP + (level * 2);
     }
 }

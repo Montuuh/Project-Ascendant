@@ -123,11 +123,12 @@ namespace ProjectAscendant.Tests
         [Test]
         public void PokemonInstanceFactory_Create_ComputesCurrentHP()
         {
-            // Per §9.3.2.6 stub formula: BaseHP(45) + Level(5)*2 = 55.
-            // TODO: Epic 4 — update test when real HP formula is in BattleConfigSO.
+            // Per R3-1 (§2.4.2) — the factory now seeds CurrentHP from the canonical
+            // PokemonVitals.MaxHP (BaseHP + GrowthCurve), not the old stub (BaseHP + level*2).
+            // A freshly-created Pokémon starts at full HP.
             PokemonInstanceFactory factory = new();
             PokemonInstance instance = factory.Create(_species, level: 5);
-            Assert.That(instance.CurrentHP, Is.EqualTo(55));
+            Assert.That(instance.CurrentHP, Is.EqualTo(ProjectAscendant.Core.PokemonVitals.MaxHP(instance)));
             factory.Release(instance);
         }
 

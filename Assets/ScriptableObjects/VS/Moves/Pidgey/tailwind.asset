@@ -32,7 +32,7 @@ MonoBehaviour:
   Range: 1
   Modifier: 0
   BasePower: 0
-  APCost: 0
+  APCost: 1
   RangeModifierMultiplier: 0.75
   AlwaysCrit: 0
   Effects:

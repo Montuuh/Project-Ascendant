@@ -12,21 +12,22 @@ namespace ProjectAscendant.Map
     public static class RunAutoPilot
     {
         // Resolves whatever node is active and returns a human-readable description of the outcome.
+        // Per R3-5 — ResolveCombat now requires finalLeadIndex; auto-pilot passes 0 (default Lead).
         public static string ResolveActive(RunController rc)
         {
             switch (rc.ActiveNode)
             {
                 case WildAreaNodeController w:
-                    w.ResolveCombat(CombatController.CombatOutcome.Victory, null);
+                    w.ResolveCombat(CombatController.CombatOutcome.Victory, null, finalLeadIndex: 0);
                     return "wild combat auto-resolved: Victory (no catch)";
                 case EliteNodeController e:
-                    e.ResolveCombat(CombatController.CombatOutcome.Victory);
+                    e.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0);
                     return "elite combat auto-resolved: Victory";
                 case TrainerBattleNodeController t:
-                    t.ResolveCombat(CombatController.CombatOutcome.Victory);
+                    t.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0);
                     return "trainer combat auto-resolved: Victory";
                 case GymNodeController g:
-                    g.ResolveCombat(CombatController.CombatOutcome.Victory);
+                    g.ResolveCombat(CombatController.CombatOutcome.Victory, finalLeadIndex: 0);
                     return "GYM combat auto-resolved: Victory — run complete";
                 case PokemonCenterNodeController c:
                     c.Heal();

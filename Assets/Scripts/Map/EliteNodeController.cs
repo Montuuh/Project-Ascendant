@@ -56,11 +56,15 @@ namespace ProjectAscendant.Map
             return setup;
         }
 
-        public TrainerRewardBundle ResolveCombat(CombatController.CombatOutcome outcome)
+        // Per §3.3.1 / §2.3 + R3-5 — persist final combat LeadIndex so team order survives.
+        public TrainerRewardBundle ResolveCombat(CombatController.CombatOutcome outcome, int finalLeadIndex)
         {
             TrainerRewardBundle bundle = _elite.ResolveReward(outcome);
             if (outcome == CombatController.CombatOutcome.Victory)
                 RewardApplier.Apply(RunState, bundle, _economy);
+
+            // Per R3-5 — persist final combat LeadIndex so team order survives node→MapView.
+            RunState.LeadIndex = finalLeadIndex;
 
             Complete(outcome == CombatController.CombatOutcome.Defeat
                 ? NodeOutcome.PlayerWiped
