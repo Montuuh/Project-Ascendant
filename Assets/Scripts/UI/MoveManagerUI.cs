@@ -123,57 +123,89 @@ namespace ProjectAscendant.UI
                             : new Color(0.9f, 0.7f, 0.4f);
             Txt(_body, status, 22, statusCol, Mid(), new Vector2(0, 406), new Vector2(1300, 34));
 
-            float y = 330f;
+            float y = 356f;
 
-            // §5.10.2 — Active 4 section.
-            Txt(_body, "ACTIVE 4", 28, new Color(0.8f, 0.95f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1300, 38));
-            y -= 48f;
-            Txt(_body, "(These moves contribute to your Skill Deck)", 18, new Color(0.75f, 0.8f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1000, 26));
-            y -= 42f;
+            // §5.10.2 — Active 4 section (fixed, top).
+            Txt(_body, "ACTIVE 4", 26, new Color(0.8f, 0.95f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1300, 36));
+            y -= 32f;
+            Txt(_body, "(These moves contribute to your Skill Deck)", 16, new Color(0.75f, 0.8f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1000, 24));
+            y -= 34f;
 
             for (int i = 0; i < 4; i++)
             {
                 MoveSO m = i < _workingActive.Count ? _workingActive[i] : null;
-                RenderMoveRow(m, y, isActive: true, slotLabel: $"SLOT {i + 1}");
-                y -= 68f;
+                RenderMoveRow(_body, Mid(), m, y, isActive: true, slotLabel: $"SLOT {i + 1}");
+                y -= 56f;
             }
 
-            y -= 18f;
+            y -= 6f;
 
-            // §4.3.9.2 — Mastery Move (immutable 5th slot).
-            Txt(_body, "MASTERY MOVE (Immutable)", 24, new Color(0.9f, 0.78f, 0.55f), Mid(), new Vector2(0, y), new Vector2(1300, 32));
-            y -= 40f;
-            Txt(_body, "(Fixed 5th card — cannot be reconfigured)", 16, new Color(0.8f, 0.75f, 0.7f), Mid(), new Vector2(0, y), new Vector2(1000, 24));
-            y -= 36f;
-            RenderMoveRow(_pokemon.MasteryMove, y, isActive: false, slotLabel: "MASTERY", isMastery: true);
-            y -= 80f;
+            // §4.3.9.2 — Mastery Move (immutable 5th slot, fixed).
+            Txt(_body, "MASTERY MOVE (Immutable, fixed 5th card)", 22, new Color(0.9f, 0.78f, 0.55f), Mid(), new Vector2(0, y), new Vector2(1300, 30));
+            y -= 32f;
+            RenderMoveRow(_body, Mid(), _pokemon.MasteryMove, y, isActive: false, slotLabel: "MASTERY", isMastery: true);
+            y -= 56f;
 
-            // §5.10.1 — Learned Move Pool section.
-            Txt(_body, "LEARNED MOVE POOL", 28, new Color(0.8f, 0.95f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1300, 38));
-            y -= 48f;
-            Txt(_body, "Tap a move to add/remove from your Active 4", 18, new Color(0.75f, 0.8f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1000, 26));
-            y -= 42f;
+            // §5.10.1 — Learned Move Pool (SCROLLABLE — the pool can grow to 8+ entries; see BuildPoolScroll).
+            Txt(_body, "LEARNED MOVE POOL", 26, new Color(0.8f, 0.95f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1300, 36));
+            y -= 30f;
+            Txt(_body, "Tap ADD / REMOVE to set your Active 4  —  scroll for more", 16, new Color(0.75f, 0.8f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1100, 24));
 
-            // Show the full pool. Pool size can grow to ~8 entries (§5.10).
-            List<MoveSO> pool = _pokemon.LearnedMoves;
-            for (int i = 0; i < pool.Count; i++)
-            {
-                MoveSO m = pool[i];
-                bool inActive = _workingActive.Contains(m);
-                RenderMoveRow(m, y, isActive: false, slotLabel: null, isInPool: true, isActiveInPool: inActive);
-                y -= 68f;
-            }
+            BuildPoolScroll(_pokemon.LearnedMoves);
 
-            y -= 36f;
-
-            // Buttons: Confirm (only if valid) and Cancel.
-            Btn(_body, Mid(), new Vector2(-260, y), new Vector2(380, 66), "✔ CONFIRM",
+            // Buttons pinned to a FIXED bottom position so a large pool never pushes them off-screen.
+            Btn(_body, Mid(), new Vector2(-260, -462), new Vector2(380, 60), "✔ CONFIRM",
                 new Color(0.28f, 0.52f, 0.36f), valid, () => Close(true));
-            Btn(_body, Mid(), new Vector2(260, y), new Vector2(380, 66), "CANCEL  ✕",
+            Btn(_body, Mid(), new Vector2(260, -462), new Vector2(380, 60), "CANCEL  ✕",
                 new Color(0.42f, 0.34f, 0.36f), true, () => Close(false));
         }
 
-        private void RenderMoveRow(MoveSO move, float y, bool isActive, string slotLabel, bool isMastery = false, bool isInPool = false, bool isActiveInPool = false)
+        // §5.10.1 — scrollable Learned Move Pool. A clipped viewport + a tall content rect inside a
+        // ScrollRect (vertical, clamped). The pool can grow to 8+ entries, so it must scroll at any
+        // resolution. Rows live in `content` (top-anchored) and scroll; the viewport masks the overflow.
+        private void BuildPoolScroll(List<MoveSO> pool)
+        {
+            GameObject viewportGO = new("PoolViewport", typeof(RectTransform));
+            viewportGO.transform.SetParent(_body, false);
+            RectTransform viewport = (RectTransform)viewportGO.transform;
+            Image vpBg = viewportGO.AddComponent<Image>();
+            vpBg.color = new Color(0.06f, 0.07f, 0.09f, 0.55f); // also the ScrollRect drag/raycast target
+            viewportGO.AddComponent<UnityEngine.UI.RectMask2D>(); // clip rows to the box
+            Place(viewport, Mid(), new Vector2(0, -245f), new Vector2(1340, 360));
+
+            GameObject contentGO = new("PoolContent", typeof(RectTransform));
+            contentGO.transform.SetParent(viewport, false);
+            RectTransform content = (RectTransform)contentGO.transform;
+            content.anchorMin = new Vector2(0.5f, 1f);
+            content.anchorMax = new Vector2(0.5f, 1f);
+            content.pivot = new Vector2(0.5f, 1f);           // top-pivot: rows fill downward from the top
+            content.anchoredPosition = Vector2.zero;
+
+            const float rowSpacing = 60f;
+            int count = pool?.Count ?? 0;
+            float contentHeight = Mathf.Max(360f, count * rowSpacing + 10f);
+            content.sizeDelta = new Vector2(1320, contentHeight);
+
+            UnityEngine.UI.ScrollRect sr = viewportGO.AddComponent<UnityEngine.UI.ScrollRect>();
+            sr.viewport = viewport;
+            sr.content = content;
+            sr.horizontal = false;
+            sr.vertical = true;
+            sr.movementType = UnityEngine.UI.ScrollRect.MovementType.Clamped;
+            sr.scrollSensitivity = 30f;
+
+            for (int i = 0; i < count; i++)
+            {
+                MoveSO m = pool[i];
+                float rowY = -(i * rowSpacing) - rowSpacing / 2f; // from content top
+                RenderMoveRow(content, new Vector2(0.5f, 1f), m, rowY, isActive: false, slotLabel: null,
+                    isInPool: true, isActiveInPool: _workingActive.Contains(m));
+            }
+        }
+
+        // Renders a move row under `parent` at the given anchor + y. The toggle button is parented to
+        // the ROW (not _body) so pool rows scroll as a unit inside the ScrollRect content.
+        private void RenderMoveRow(Transform parent, Vector2 anchor, MoveSO move, float y, bool isActive, string slotLabel, bool isMastery = false, bool isInPool = false, bool isActiveInPool = false)
         {
             Color rowBg;
             if (isMastery)
@@ -185,14 +217,14 @@ namespace ProjectAscendant.UI
             else
                 rowBg = new Color(0.13f, 0.15f, 0.17f, 1f); // pool default
 
-            Image row = Img(_body, rowBg);
-            Place(row.rectTransform, Mid(), new Vector2(0, y), new Vector2(1280, 58));
+            Image row = Img(parent, rowBg);
+            Place(row.rectTransform, anchor, new Vector2(0, y), new Vector2(1280, 52));
 
             // If this is a placeholder slot (no move yet), just show the slot label.
             if (move == null)
             {
                 string label = slotLabel ?? "EMPTY";
-                Txt(row.transform, label, 20, new Color(0.6f, 0.65f, 0.7f), Mid(), new Vector2(0, 0), new Vector2(1200, 50));
+                Txt(row.transform, label, 20, new Color(0.6f, 0.65f, 0.7f), Mid(), new Vector2(0, 0), new Vector2(1200, 46));
                 return;
             }
 
@@ -210,20 +242,20 @@ namespace ProjectAscendant.UI
             Color txtCol = isMastery ? new Color(1f, 0.92f, 0.7f)
                          : isActiveInPool ? new Color(0.7f, 0.95f, 0.75f)
                          : new Color(0.92f, 0.97f, 0.92f);
-            Txt(row.transform, info, 20, txtCol, Mid(), new Vector2(-60, 0), new Vector2(1080, 50));
+            Txt(row.transform, info, 19, txtCol, Mid(), new Vector2(-60, 0), new Vector2(1080, 46));
 
-            // Toggle button for pool rows (not Mastery, not the active-4 summary).
+            // Toggle button for pool rows (parented to the row so it scrolls with it).
             if (isInPool && !isMastery)
             {
                 string btnLabel = isActiveInPool ? "REMOVE" : "ADD";
                 Color btnCol = isActiveInPool ? new Color(0.5f, 0.36f, 0.34f) : new Color(0.28f, 0.46f, 0.34f);
                 bool canToggle = isActiveInPool || _workingActive.Count < 4;
-                Btn(_body, Mid(), new Vector2(540, y), new Vector2(140, 50), btnLabel, btnCol, canToggle, () => ToggleMove(move));
+                Btn(row.transform, Mid(), new Vector2(540, 0), new Vector2(140, 44), btnLabel, btnCol, canToggle, () => ToggleMove(move));
             }
             else if (isMastery)
             {
                 // §4.3.9.2 — show LOCKED badge.
-                Txt(row.transform, "🔒 LOCKED", 18, new Color(0.8f, 0.75f, 0.7f), Mid(), new Vector2(520, 0), new Vector2(160, 50));
+                Txt(row.transform, "🔒 LOCKED", 18, new Color(0.8f, 0.75f, 0.7f), Mid(), new Vector2(520, 0), new Vector2(160, 46));
             }
         }
 
