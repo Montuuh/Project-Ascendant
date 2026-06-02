@@ -191,14 +191,22 @@ namespace ProjectAscendant.UI
             _logPanel.transform.SetParent(_root.transform, false);
             Image logBg = _logPanel.AddComponent<Image>();
             logBg.color = new Color(0.10f, 0.12f, 0.14f, 0.96f);
-            // Lower-right corner so it clears the upper-right enemy info/intent panel (no overlap).
-            Place((RectTransform)_logPanel.transform, new Vector2(1f, 0f), new Vector2(-160, 250), new Vector2(300, 470));
+            // Centre gap BETWEEN the player team (left, ends x~860) and the enemy panel (right, starts
+            // x~1080), ABOVE the full-width consumables/hand rows — the only clear space that doesn't
+            // cover End Turn (lower-right), the hand, or the enemy info (upper-right).
+            Place((RectTransform)_logPanel.transform, Mid(), new Vector2(10, 195), new Vector2(216, 430));
             Border(_logPanel, new Color(0.50f, 0.55f, 0.60f));
-            Txt(_logPanel.transform, "COMBAT LOG", 18, new Color(0.85f, 0.88f, 0.92f), Top(), new Vector2(0, -16), new Vector2(280, 24));
+            Txt(_logPanel.transform, "COMBAT LOG", 16, new Color(0.85f, 0.88f, 0.92f), Top(), new Vector2(0, -12), new Vector2(200, 22));
             GameObject logContentGO = new("LogContent", typeof(RectTransform));
             logContentGO.transform.SetParent(_logPanel.transform, false);
             _logContent = (RectTransform)logContentGO.transform;
-            Place(_logContent, Top(), new Vector2(0, -40), new Vector2(286, 420));
+            // Top-anchored with a TOP pivot + a clip mask so entries fill DOWNWARD inside the box.
+            // (The generic Place uses a centre pivot, which pushed half the content above the panel —
+            // that's why entries rendered outside the box.)
+            Place(_logContent, Top(), new Vector2(0, -34), new Vector2(204, 384));
+            _logContent.pivot = new Vector2(0.5f, 1f);
+            _logContent.anchoredPosition = new Vector2(0, -34);
+            logContentGO.AddComponent<UnityEngine.UI.RectMask2D>();
         }
 
         // ── Refresh ───────────────────────────────────────────────────────────
@@ -629,9 +637,9 @@ namespace ProjectAscendant.UI
             if (log == null || log.Count == 0) return;
 
             // Show the most recent entries (oldest at top, newest at bottom).
-            const int maxVisible = 10;
+            const int maxVisible = 8;
             int startIdx = Mathf.Max(0, log.Count - maxVisible);
-            const float entryHeight = 38f, gap = 2f;
+            const float entryHeight = 44f, gap = 2f;
             float y = 0f; // top-down layout
 
             for (int i = startIdx; i < log.Count; i++)
@@ -647,7 +655,7 @@ namespace ProjectAscendant.UI
                 };
                 // Left-aligned + word-wrap so attack messages ("X used Y → N dmg") read cleanly
                 // inside the box instead of overflowing horizontally (the generic Txt centers + overflows).
-                Text line = Txt(_logContent, entry.Message, 14, col, Top(), new Vector2(0, -y - entryHeight / 2f), new Vector2(282, entryHeight));
+                Text line = Txt(_logContent, entry.Message, 13, col, Top(), new Vector2(0, -y - entryHeight / 2f), new Vector2(196, entryHeight));
                 line.alignment = TextAnchor.UpperLeft;
                 line.horizontalOverflow = HorizontalWrapMode.Wrap;
                 line.verticalOverflow = VerticalWrapMode.Truncate;
