@@ -25,6 +25,7 @@ namespace ProjectAscendant.UI
         private Font _font;
         private GameObject _root;
         private RectTransform _body;
+        private MoveManagerUI _moveManager; // §5.10.2 — paid entry from Map View
 
         // Working selection (box indices, ordered) + the Lead's position within it.
         private readonly List<int> _selected = new();
@@ -38,6 +39,10 @@ namespace ProjectAscendant.UI
             _box = box; _state = state; _loadout = loadout; _onClosed = onClosed; _onEvolve = onEvolve;
             _economy = economy;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+            // §5.10.2 — lazy-init the Move Manager UI if needed.
+            if (_moveManager == null)
+                _moveManager = gameObject.AddComponent<MoveManagerUI>();
 
             // Seed the working selection from the current Active Team.
             _selected.Clear();
@@ -197,6 +202,39 @@ namespace ProjectAscendant.UI
                 Btn(_body, Mid(), new Vector2(150, y), new Vector2(170, 56), "✦ EVOLVE",
                     new Color(0.58f, 0.42f, 0.22f), true, () => { _onEvolve(mon); Close(); });
             }
+
+            // §5.10.2 — PAID Move Manager from Map View (50₽). Only for non-fainted Pokémon.
+            // Position left of the Evolve button (or in the same spot if no Evolve button).
+            if (!fainted && p != null && _economy != null)
+            {
+                int cost = _economy.MoveReconfigCost;
+                bool affordable = _state != null && _state.PokeDollars >= cost;
+                PokemonInstance mon = p;
+                float xPos = _onEvolve != null && LevelUpResolver.IsEvolutionEligible(p) ? -40f : 150f;
+                Btn(_body, Mid(), new Vector2(xPos, y), new Vector2(170, 56), $"MOVES ({cost}₽)",
+                    new Color(0.34f, 0.48f, 0.56f), affordable, () => OpenMoveManager(mon));
+            }
+        }
+
+        // §5.10.2 — open the Move Manager for a Pokémon. Deduct cost BEFORE opening (service validates).
+        private void OpenMoveManager(PokemonInstance mon)
+        {
+            if (mon == null || _state == null || _economy == null) return;
+
+            // Deduct the cost. If it fails (unaffordable), abort — button should have been disabled.
+            if (!MoveLoadoutService.DeductReconfigCost(_state, _economy))
+            {
+                Debug.LogWarning("[TeamPanelUI] Move Manager cost deduction failed — button should have been disabled.");
+                return;
+            }
+
+            // Close this panel and open the Move Manager. On close, re-open this panel.
+            Close();
+            _moveManager.Open(mon, () =>
+            {
+                // Re-open this panel after the Move Manager closes.
+                Open(_box, _state, _loadout, _onClosed, _onEvolve, _economy);
+            });
         }
 
         // ── uGUI primitives ───────────────────────────────────────────────────

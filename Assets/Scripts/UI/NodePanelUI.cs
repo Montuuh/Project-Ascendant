@@ -22,6 +22,7 @@ namespace ProjectAscendant.UI
         private Font _font;
         private GameObject _root;
         private RectTransform _body;
+        private MoveManagerUI _moveManager; // §5.10.2 — FREE entry from Center
 
         // Move-Tutor two-step selection state (Center only).
         private PokemonInstance _tutorMon;
@@ -36,6 +37,11 @@ namespace ProjectAscendant.UI
             _node = node; _ctx = ctx; _state = state; _onComplete = onComplete;
             _tutorMon = null; _tutorMove = null;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+            // §5.10.2 — lazy-init the Move Manager UI if needed.
+            if (_moveManager == null)
+                _moveManager = gameObject.AddComponent<MoveManagerUI>();
+
             Build();
             RefreshBody();
             return true;
@@ -156,9 +162,15 @@ namespace ProjectAscendant.UI
                 if (!center.TutorUsed && offer.Count > 0)
                 {
                     PokemonInstance mon = p;
-                    Btn(_body, Mid(), new Vector2(590, y), new Vector2(150, 50), "TUTOR",
+                    Btn(_body, Mid(), new Vector2(520, y), new Vector2(140, 50), "TUTOR",
                         new Color(0.30f, 0.42f, 0.58f), true, () => { _tutorMon = mon; _tutorMove = null; RefreshBody(); });
                 }
+
+                // §5.10.2 — FREE Move Manager from Center. Always available (no cost gate).
+                PokemonInstance pokemonForMoves = p;
+                Btn(_body, Mid(), new Vector2(680, y), new Vector2(140, 50), "MOVES",
+                    new Color(0.34f, 0.48f, 0.56f), true, () => OpenMoveManager(pokemonForMoves));
+
                 y -= 70f;
             }
 
@@ -166,6 +178,23 @@ namespace ProjectAscendant.UI
 
             Btn(_body, Mid(), new Vector2(0, Mathf.Min(y - 20f, -360f)), new Vector2(360, 64), "LEAVE  ▶",
                 new Color(0.30f, 0.42f, 0.55f), true, () => { center.Leave(); Done(); });
+        }
+
+        // §5.10.2 — open the Move Manager for a Pokémon. FREE at Center (no cost deduction).
+        private void OpenMoveManager(PokemonInstance mon)
+        {
+            if (mon == null) return;
+
+            // Close this panel and open the Move Manager. On close, re-open this panel.
+            // Do not destroy the root — just hide it. RefreshBody when we return.
+            if (_root != null) _root.SetActive(false);
+
+            _moveManager.Open(mon, () =>
+            {
+                // Re-activate the panel and refresh.
+                if (_root != null) _root.SetActive(true);
+                RefreshBody();
+            });
         }
 
         // Two-step Move-Tutor: pick an offered move, then the CurrentMoves slot it replaces (§5.4.2;
