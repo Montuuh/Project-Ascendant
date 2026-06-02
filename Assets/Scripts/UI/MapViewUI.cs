@@ -209,8 +209,11 @@ namespace ProjectAscendant.UI
                 MapNode node = kv.Key;
                 bool isCurrent = node == _run.CurrentNode;
                 bool isVisited = _visited.Contains(node);
-                // Per Bug #4 — a node is interactable if it's reachable (forward-connected) OR it's the
-                // current node (so the player can re-enter a utility node like Center after initial visit).
+                // Per §7.6 + §7.2 + Bug R2-2 — a node is interactable if:
+                //   1. It's in the forward-reachable set (SelectableNodes), OR
+                //   2. It's the current node (player is still parked on it, has NOT advanced a layer yet).
+                // Re-entry of the current node lets the player revisit utility nodes (Center / Shop) freely
+                // while still on the node, without layer advancement locking them out (even if Cleared).
                 // Already-passed nodes (visited but not current) are locked.
                 bool isReach = !_run.RunOver && (reachable.Contains(node) || isCurrent);
 

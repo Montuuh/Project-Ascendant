@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ProjectAscendant.Core;
+using ProjectAscendant.Combat;
 
 namespace ProjectAscendant.Map
 {
@@ -39,13 +40,19 @@ namespace ProjectAscendant.Map
         // Utility node — no combat. Services are called interactively after Enter().
         protected override void OnEnter() { }
 
-        // 9.5.2 / §2.4.2 — full heal: every Box Pokémon to its Trauma-adjusted Max HP (revives fainted).
+        // 9.5.2 / §7.6.1 — full heal: every Box Pokémon to its Trauma-adjusted Max HP (revives fainted)
+        // AND cure all status conditions. "Full restore" per §7.6.1 matches the franchise definition
+        // (HP + status cure).
         public void Heal()
         {
             for (int i = 0; i < _box.Members.Count; i++)
             {
                 PokemonInstance p = _box.Members[i];
-                if (p != null) p.CurrentHP = PokemonVitals.EffectiveMaxHP(p, _economy);
+                if (p != null)
+                {
+                    p.CurrentHP = PokemonVitals.EffectiveMaxHP(p, _economy);
+                    StatusEffectManager.CureAll(p); // Per §7.6.1 "Full restore" — cure status too
+                }
             }
         }
 

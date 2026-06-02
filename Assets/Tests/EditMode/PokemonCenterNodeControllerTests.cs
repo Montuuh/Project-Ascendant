@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
+using ProjectAscendant.Combat;
 using ProjectAscendant.Core;
 using ProjectAscendant.Map;
 using UnityEngine;
@@ -131,6 +132,35 @@ namespace ProjectAscendant.Tests
 
             Assert.That(fainted.CurrentHP, Is.EqualTo(100), "Fainted Pokémon revived to EffectiveMaxHP (§2.4.2).");
             Assert.That(hurtTrauma.CurrentHP, Is.EqualTo(90), "Trauma-adjusted heal: 2 stacks → 90.");
+        }
+
+        [Test]
+        public void Heal_CuresStatus_OnAllBoxMembers()
+        {
+            // Per §7.6.1 — "Full restore" = HP + status cure. Bug R2-3: a Box Pokémon with
+            // Poison persisted after Heal(). This regression test locks the fix.
+            EconomyConfigSO eco = MakeEconomy();
+            Box box = new(6);
+            PokemonInstance p1 = MakeInstance(MakeSpecies(100), hp: 50);
+            PokemonInstance p2 = MakeInstance(MakeSpecies(100), hp: 30);
+            p1.PrimaryStatus = StatusCondition.Poison; // poisoned
+            p1.PrimaryStatusTurnsRemaining = int.MaxValue;
+            p2.PrimaryStatus = StatusCondition.Burn;   // burned
+            p2.PrimaryStatusTurnsRemaining = int.MaxValue;
+            p2.SecondaryStatus = StatusCondition.Confusion; // also confused
+            p2.SecondaryStatusTurnsRemaining = 3;
+            box.Members.Add(p1);
+            box.Members.Add(p2);
+
+            Make(box, eco, MakeRun()).Heal();
+
+            Assert.That(p1.CurrentHP, Is.EqualTo(100), "HP restored.");
+            Assert.That(p1.PrimaryStatus, Is.EqualTo(StatusCondition.None), "Poison cured (Bug R2-3 fix).");
+            Assert.That(p1.PrimaryStatusTurnsRemaining, Is.EqualTo(0));
+            Assert.That(p2.CurrentHP, Is.EqualTo(100), "HP restored.");
+            Assert.That(p2.PrimaryStatus, Is.EqualTo(StatusCondition.None), "Burn cured.");
+            Assert.That(p2.SecondaryStatus, Is.EqualTo(StatusCondition.None), "Confusion cured.");
+            Assert.That(p2.SecondaryStatusTurnsRemaining, Is.EqualTo(0));
         }
 
         // ── Move Tutor (9.5.3) ────────────────────────────────────────────────

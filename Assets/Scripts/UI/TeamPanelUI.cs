@@ -121,7 +121,22 @@ namespace ProjectAscendant.UI
 
             int count = _box != null ? _box.Members.Count : 0;
             float y = 300f;
-            for (int i = 0; i < count; i++) { BuildBoxRow(i, y); y -= 86f; }
+
+            // Per §2.3 + §3.3 + Bug R2-1 — render the active-team members FIRST, in LEAD-then-BENCH order.
+            if (_selected.Count > 0)
+            {
+                // Build a reordered list: Lead first, then bench members in stable order.
+                List<int> orderedActive = new();
+                if (_leadPos >= 0 && _leadPos < _selected.Count) orderedActive.Add(_selected[_leadPos]);
+                for (int i = 0; i < _selected.Count; i++)
+                    if (i != _leadPos) orderedActive.Add(_selected[i]);
+
+                foreach (int boxIdx in orderedActive) { BuildBoxRow(boxIdx, y); y -= 86f; }
+            }
+
+            // Then render the rest of the Box (non-selected members).
+            for (int i = 0; i < count; i++)
+                if (!_selected.Contains(i)) { BuildBoxRow(i, y); y -= 86f; }
 
             bool valid = _loadout != null && _loadout.IsValidSelection(_selected, _leadPos) && !_loadout.IsLocked;
             Btn(_body, Mid(), new Vector2(-260, y - 20f), new Vector2(380, 66), "✔ CONFIRM",
@@ -152,7 +167,8 @@ namespace ProjectAscendant.UI
             int hp = p?.CurrentHP ?? 0;
             int stacks = p?.TraumaStacks ?? 0;
             string st = p != null && p.PrimaryStatus != StatusCondition.None ? $"  [{p.PrimaryStatus}]" : "";
-            string role = isLead ? "★ LEAD   " : inTeam ? $"slot {_selected.IndexOf(boxIdx) + 1}   " : "";
+            // Per §2.3 + §3.3.1 + Bug R2-1 — label active-team members as LEAD / BENCH 1 / BENCH 2.
+            string role = !inTeam ? "" : isLead ? "★ LEAD   " : RoleName(_selected.IndexOf(boxIdx), _leadPos);
             Color nameCol = fainted ? new Color(0.62f, 0.5f, 0.5f) : new Color(0.92f, 0.97f, 0.92f);
             Txt(row.transform, $"{role}{name}  Lv{p?.Level ?? 0}    HP {hp}/{effMax}{st}", 22, nameCol,
                 Mid(), new Vector2(-360, 0), new Vector2(680, 50));
@@ -229,5 +245,13 @@ namespace ProjectAscendant.UI
         }
 
         private static Vector2 Mid() => new(0.5f, 0.5f);
+
+        // Per §2.3 + §3.3 + Bug R2-1 — produce "BENCH 1   " or "BENCH 2   " for non-lead members.
+        private static string RoleName(int posInSelected, int leadPos)
+        {
+            if (posInSelected == leadPos) return "★ LEAD   ";
+            int benchIdx = posInSelected < leadPos ? posInSelected + 1 : posInSelected - leadPos;
+            return $"BENCH {benchIdx}   ";
+        }
     }
 }
