@@ -190,19 +190,14 @@ namespace ProjectAscendant.UI
             }
             else
             {
-                Txt(_body, $"Replace which move with {_tutorMove.DisplayName ?? _tutorMove.name}?", 20, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(0, y), new Vector2(1000, 34));
-                y -= 44f;
-                IReadOnlyList<MoveSO> cur = _tutorMon.CurrentMoves;
-                float x = -((cur.Count - 1) * 270f) / 2f;
-                for (int i = 0; i < cur.Count; i++)
-                {
-                    int slot = i;
-                    MoveSO m = cur[i];
-                    Btn(_body, Mid(), new Vector2(x, y), new Vector2(250, 60), m != null ? $"{m.DisplayName ?? m.name}\n(replace)" : "(empty)",
-                        new Color(0.45f, 0.32f, 0.30f), true,
-                        () => { center.LearnMove(_tutorMon, _tutorMove, slot); _tutorMon = null; _tutorMove = null; RefreshBody(); });
-                    x += 270f;
-                }
+                // Per §5.10 — the Tutor ADDS the move to the pool; equip via the Move Manager.
+                Txt(_body, $"Teach {_tutorMove.DisplayName ?? _tutorMove.name} to {who}?", 20, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(0, y), new Vector2(1000, 34));
+                y -= 40f;
+                Txt(_body, "Added to its move pool — equip it in the Move Manager (§5.10).", 16, new Color(0.8f, 0.95f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1000, 28));
+                y -= 50f;
+                Btn(_body, Mid(), new Vector2(0, y), new Vector2(300, 60), "✔ LEARN",
+                    new Color(0.30f, 0.50f, 0.36f), true,
+                    () => { center.LearnMove(_tutorMon, _tutorMove); _tutorMon = null; _tutorMove = null; RefreshBody(); });
                 y -= 76f;
             }
             return y;

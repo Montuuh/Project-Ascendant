@@ -48,5 +48,11 @@ namespace ProjectAscendant.Core
         // Per §6.2.4 — Therapy removes 1 Trauma stack for TherapyBaseCost × (1 + stack count).
         [Tooltip("Base Trauma-therapy cost. Total = this × (1 + current stacks). Per §6.2.4 — 100.")]
         public int TherapyBaseCost = 100;
+
+        [Header("Move Loadout — §5.10")]
+        // Per §5.10 (approved 2026-06-02, pending Notion lock) — paid reconfigure cost per Pokémon
+        // per Map View session. Free at Center and post-evolution; paid otherwise.
+        [Tooltip("Poké Dollar cost per Pokémon for paid move reconfiguration from Map View. Per §5.10 — 50.")]
+        public int MoveReconfigCost = 50;
     }
 }

@@ -171,7 +171,7 @@ namespace ProjectAscendant.Tests
             MoveSO m1 = MakeMove("t1"), m2 = MakeMove("t2"), m3 = MakeMove("t3"), m4 = MakeMove("t4");
             PokemonSpeciesSO sp = MakeSpecies(100, m1, m2, m3, m4);
             PokemonInstance p = MakeInstance(sp, hp: 100);
-            p.CurrentMoves.Add(m1); // already known → excluded
+            p.LearnedMoves.Add(m1); // already in pool → excluded (§5.10)
 
             List<MoveSO> offer = Make(new Box(6), MakeEconomy(), MakeRun()).OfferTutorMoves(p);
             Assert.That(offer.Count, Is.EqualTo(3));
@@ -179,22 +179,23 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Tutor_LearnMove_ReplacesSlot_OncePerVisit()
+        public void Tutor_LearnMove_AddsToPool_OncePerVisit()
         {
             MoveSO known = MakeMove("k"), tutored = MakeMove("new");
             PokemonSpeciesSO sp = MakeSpecies(100, tutored);
             PokemonInstance p = MakeInstance(sp, hp: 100);
-            p.CurrentMoves.Add(MakeMove("a"));
-            p.CurrentMoves.Add(known);
+            p.LearnedMoves.Add(MakeMove("a"));
+            p.LearnedMoves.Add(known);
             PokemonCenterNodeController c = Make(new Box(6), MakeEconomy(), MakeRun());
 
-            bool first = c.LearnMove(p, tutored, slotIndex: 1);
+            bool first = c.LearnMove(p, tutored);
             Assert.That(first, Is.True);
-            Assert.That(p.CurrentMoves[1], Is.SameAs(tutored));
+            Assert.That(p.LearnedMoves, Contains.Item(tutored), "Tutored move added to pool (§5.10.1).");
+            Assert.That(p.LearnedMoves.Count, Is.EqualTo(3), "Pool grew by 1.");
             Assert.That(c.TutorUsed, Is.True);
 
             // Second learn this visit is refused.
-            bool second = c.LearnMove(p, MakeMove("other"), slotIndex: 0);
+            bool second = c.LearnMove(p, MakeMove("other"));
             Assert.That(second, Is.False);
         }
 
@@ -218,12 +219,13 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Tutor_LearnMove_InvalidSlot_False()
+        public void Tutor_LearnMove_Duplicate_Rejected()
         {
+            MoveSO m = MakeMove("m");
             PokemonInstance p = MakeInstance(MakeSpecies(100), hp: 100);
-            p.CurrentMoves.Add(MakeMove("a"));
+            p.LearnedMoves.Add(m); // already in pool
             PokemonCenterNodeController c = Make(new Box(6), MakeEconomy(), MakeRun());
-            Assert.That(c.LearnMove(p, MakeMove("x"), slotIndex: 5), Is.False);
+            Assert.That(c.LearnMove(p, m), Is.False, "Duplicate learn rejected (§5.10.1 dedup).");
         }
 
         // ── Therapy (9.5.4) ───────────────────────────────────────────────────

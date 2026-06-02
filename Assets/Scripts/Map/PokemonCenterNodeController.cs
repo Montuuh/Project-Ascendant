@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ProjectAscendant.Core;
 using ProjectAscendant.Combat;
+using ProjectAscendant.Progression;
 
 namespace ProjectAscendant.Map
 {
@@ -57,7 +58,8 @@ namespace ProjectAscendant.Map
         }
 
         // 9.5.3 / §5.4.2 — up to MOVE_TUTOR_OFFER moves from the Pokémon's TutorLearnset, excluding
-        // moves it already knows. Curated order (deterministic — no RNG).
+        // moves already in the Learned Move Pool (§5.10 approved 2026-06-02, pending Notion lock).
+        // Curated order (deterministic — no RNG).
         public List<MoveSO> OfferTutorMoves(PokemonInstance pokemon)
         {
             List<MoveSO> offer = new();
@@ -69,21 +71,22 @@ namespace ProjectAscendant.Map
             {
                 MoveSO m = tutor[i];
                 if (m == null) continue;
-                if (pokemon.CurrentMoves.Contains(m)) continue; // already known
+                if (pokemon.LearnedMoves.Contains(m)) continue; // already in pool (§5.10)
                 offer.Add(m);
             }
             return offer;
         }
 
-        // 9.5.3 — learn (replace a CurrentMoves slot). Once per visit. Mastery (separate slot) untouched.
-        // Returns false if the tutor was already used this visit or the args are invalid.
-        public bool LearnMove(PokemonInstance pokemon, MoveSO move, int slotIndex)
+        // 9.5.3 / §5.10.1 — learn (add to Learned Move Pool; deduplicates). Once per visit. Mastery
+        // (separate slot) untouched per §4.3.9.2. Returns false if the tutor was already used this
+        // visit or the args are invalid.
+        public bool LearnMove(PokemonInstance pokemon, MoveSO move)
         {
             if (_tutorUsed) return false;
             if (pokemon == null || move == null) return false;
-            if (slotIndex < 0 || slotIndex >= pokemon.CurrentMoves.Count) return false;
+            if (pokemon.LearnedMoves.Contains(move)) return false; // already in pool
 
-            pokemon.CurrentMoves[slotIndex] = move;
+            MoveLoadoutService.AddToPool(pokemon, move);
             _tutorUsed = true;
             return true;
         }

@@ -3,10 +3,10 @@ using ProjectAscendant.Core;
 namespace ProjectAscendant.Progression
 {
     // Per §5.3.5 + Epic 10 Task 10.4 — execute a chosen evolution branch on a PokemonInstance. A
-    // permanent, irreversible mutation: the species advances, pool moves upgrade in place (VS uses
-    // the replace-a-slot model — the §5.10 additive Learned Move Pool is unbuilt, gap #36), the
-    // branch's ability is granted, the Mastery card upgrades to the evolved stage (§4.3.9.2), and the
-    // archetype path is locked for the next stage (§5.3.5). Trauma carries through (§6.2.3). Pure C#.
+    // permanent, irreversible mutation: the species advances, Learned Move Pool moves upgrade in place
+    // per §5.10 (approved 2026-06-02, pending Notion lock), the branch's ability is granted, the Mastery
+    // card upgrades to the evolved stage (§4.3.9.2), and the archetype path is locked for the next stage
+    // (§5.3.5). Trauma carries through (§6.2.3). Pure C#.
     //
     // Task 10.4.5 — on a successful evolution this publishes EvolutionTriggeredContext on the EventBus
     // (achievements/VFX/Bestiary may subscribe; no VS listener is required, but the hook is in place).
@@ -28,28 +28,27 @@ namespace ProjectAscendant.Progression
             r.From = p.Species;
             PokemonSpeciesSO evolved = branch.EvolvedSpecies;
 
-            // §5.3.5 / §5.10.3 — upgrade pool moves in place: if the old move is in the active 4, the
-            // evolved version takes its slot.
+            // §5.3.5 / §5.10.3 (approved 2026-06-02, pending Notion lock) — upgrade pool moves in place:
+            // if the old move is in the active 4, the evolved version takes its slot automatically.
             if (branch.MoveUpgrades != null)
             {
                 for (int i = 0; i < branch.MoveUpgrades.Count; i++)
                 {
                     MoveUpgradePair up = branch.MoveUpgrades[i];
                     if (up.OldMove == null || up.NewMove == null) continue;
-                    int idx = p.CurrentMoves.IndexOf(up.OldMove);
-                    if (idx >= 0) p.CurrentMoves[idx] = up.NewMove;
+                    MoveLoadoutService.UpgradePoolMove(p, up.OldMove, up.NewMove);
                 }
             }
 
-            // §5.3.5 — additions. VS replace-a-slot: append while there is room (Vanguard stage-1
-            // adds none; the §5.10 growing pool is post-VS).
+            // §5.3.5 / §5.10.1 — additions: grow the pool with new moves. The player will reconfigure
+            // their active 4 post-evolution (UI flow; MoveLoadoutService.SetActiveMoves).
             if (branch.NewMoves != null)
             {
                 for (int i = 0; i < branch.NewMoves.Count; i++)
                 {
                     MoveSO m = branch.NewMoves[i];
-                    if (m == null || p.CurrentMoves.Contains(m)) continue;
-                    if (p.CurrentMoves.Count < 4) p.CurrentMoves.Add(m);
+                    if (m == null) continue;
+                    MoveLoadoutService.AddToPool(p, m); // dedups internally per §5.10.1
                 }
             }
 

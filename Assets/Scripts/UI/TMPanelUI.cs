@@ -123,26 +123,20 @@ namespace ProjectAscendant.UI
                 () => { _tm = null; RefreshBody(); });
         }
 
-        // Step 3 — pick the move slot to replace (Mastery is a separate slot, untouched).
+        // Step 3 — confirm. Per §5.10 the TM ADDS the move to the Pokémon's Learned Move Pool;
+        // the player equips it into the active 4 later via the Move Manager (Mastery untouched).
         private void RenderSlotPicker()
         {
             string move = _tm.MoveTeach != null ? (_tm.MoveTeach.DisplayName ?? _tm.MoveTeach.name) : "?";
-            Txt(_body, $"Replace which move with {move}?", 22, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(0, 388), new Vector2(1200, 32));
-            Txt(_body, "⚠  Permanent — the old move is overwritten (Mastery is safe).", 18, new Color(1f, 0.8f, 0.4f), Mid(), new Vector2(0, 348), new Vector2(1200, 28));
-            IReadOnlyList<MoveSO> cur = _mon.CurrentMoves;
-            float x = -((cur.Count - 1) * 280f) / 2f;
-            for (int i = 0; i < cur.Count; i++)
-            {
-                int slot = i;
-                MoveSO m = cur[i];
-                Btn(_body, Mid(), new Vector2(x, 120), new Vector2(260, 70), m != null ? $"{m.DisplayName ?? m.name}\n(replace)" : "(empty)",
-                    new Color(0.45f, 0.32f, 0.30f), true, () =>
-                    {
-                        TMApplicator.Apply(_state, _tm, _mon, slot);
-                        Close();
-                    });
-                x += 280f;
-            }
+            string monName = _mon.Species != null ? (_mon.Species.DisplayName ?? _mon.Species.name) : "?";
+            Txt(_body, $"Teach {move} to {monName}?", 22, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(0, 388), new Vector2(1200, 32));
+            Txt(_body, "Added to its move pool — equip it in the Move Manager (§5.10).", 18, new Color(0.8f, 0.95f, 0.85f), Mid(), new Vector2(0, 348), new Vector2(1200, 28));
+            Btn(_body, Mid(), new Vector2(0, 120), new Vector2(340, 70), $"✔ LEARN {move}",
+                new Color(0.30f, 0.50f, 0.36f), true, () =>
+                {
+                    TMApplicator.Apply(_state, _tm, _mon);
+                    Close();
+                });
             Btn(_body, Mid(), new Vector2(0, -40), new Vector2(360, 60), "◀ BACK", new Color(0.42f, 0.34f, 0.36f), true,
                 () => { _mon = null; RefreshBody(); });
         }

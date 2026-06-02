@@ -13,6 +13,10 @@ namespace ProjectAscendant.Core
         public int TraumaStacks;           // §6.2
         public readonly List<MoveSO> CurrentMoves = new(4); // 4 slots; mutated by evolution/TM
         public MoveSO MasteryMove;         // 5th slot — immutable per §4.3.9.2
+        // Per §5.10 (approved 2026-06-02, pending Notion lock) — the full pool of learned moves.
+        // Active 4 are chosen from this pool. Grows via evolution, TMs, and Move Tutors. Never shrinks.
+        // Evolution in-place upgrades replace entries by reference. Seed from BaseLearnset on creation.
+        public readonly List<MoveSO> LearnedMoves = new(8); // start 4, grow to ~5-8 per §5.10
         public AbilitySO Ability;
         public HeldItemSO HeldItem;
         public readonly Dictionary<Stat, int> StatStages = new();
@@ -72,6 +76,7 @@ namespace ProjectAscendant.Core
             CurrentXP = 0;
             TraumaStacks = 0;
             CurrentMoves.Clear();
+            LearnedMoves.Clear();
             MasteryMove = null;
             Ability = null;
             HeldItem = null;

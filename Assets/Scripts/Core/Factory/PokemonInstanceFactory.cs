@@ -22,6 +22,14 @@ namespace ProjectAscendant.Core
             instance.CurrentXP = 0;
             instance.TraumaStacks = 0;
             instance.CurrentMoves.Clear();
+            instance.LearnedMoves.Clear();
+            // Per §5.10 (approved 2026-06-02, pending Notion lock) — seed the Learned Move Pool from
+            // the species' BaseLearnset. The pool grows via evolution/TM/Tutor; never shrinks.
+            if (species?.BaseLearnset != null)
+            {
+                for (int i = 0; i < species.BaseLearnset.Count; i++)
+                    if (species.BaseLearnset[i] != null) instance.LearnedMoves.Add(species.BaseLearnset[i]);
+            }
             instance.MasteryMove = species?.MasteryMove;
             instance.Ability = species?.PrimaryAbility;
             instance.HeldItem = null;

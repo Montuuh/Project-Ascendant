@@ -176,6 +176,34 @@ namespace ProjectAscendant.Tests
             foreach (PokemonInstance p in drained) factory.Release(p);
         }
 
+        [Test]
+        public void PokemonInstanceFactory_Create_SeedsLearnedMovesFromBaseLearnset()
+        {
+            // Per §5.10 (approved 2026-06-02, pending Notion lock) — the factory seeds the Learned Move Pool
+            // from the species' BaseLearnset. The pool grows via evolution/TM/Tutor; never shrinks.
+            MoveSO m1 = ScriptableObject.CreateInstance<MoveSO>();
+            MoveSO m2 = ScriptableObject.CreateInstance<MoveSO>();
+            MoveSO m3 = ScriptableObject.CreateInstance<MoveSO>();
+            MoveSO m4 = ScriptableObject.CreateInstance<MoveSO>();
+            m1.MoveId = "tackle";
+            m2.MoveId = "growl";
+            m3.MoveId = "leech-seed";
+            m4.MoveId = "vine-whip";
+            _species.BaseLearnset = new List<MoveSO> { m1, m2, m3, m4 };
+
+            PokemonInstanceFactory factory = new();
+            PokemonInstance instance = factory.Create(_species, level: 5);
+
+            Assert.That(instance.LearnedMoves.Count, Is.EqualTo(4), "Pool seeded from BaseLearnset.");
+            Assert.That(instance.LearnedMoves, Is.EquivalentTo(new[] { m1, m2, m3, m4 }));
+
+            factory.Release(instance);
+            Object.DestroyImmediate(m1);
+            Object.DestroyImmediate(m2);
+            Object.DestroyImmediate(m3);
+            Object.DestroyImmediate(m4);
+        }
+
         // ── IntentDataFactory ─────────────────────────────────────────────────────
 
         [Test]
