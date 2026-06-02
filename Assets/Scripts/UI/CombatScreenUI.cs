@@ -28,6 +28,11 @@ namespace ProjectAscendant.UI
         private RectTransform _hand, _consumables, _playerTeam;
         private GameObject _endTurn, _continue;
         private GameObject _leadReplacementModal;
+        // Per §7.4.4 (OPEN) — reinforcement wave telegraph panel
+        private GameObject _wavePanel;
+        private Text _waveText;
+        // Per §3.2.6 (OPEN) — breather modal (blocking overlay)
+        private GameObject _breatherModal;
 
         public void Begin(CombatController cc, Action<CombatController.CombatOutcome> onComplete)
         {
@@ -166,6 +171,16 @@ namespace ProjectAscendant.UI
             _continue = Btn(_root.transform, Mid(), new Vector2(0, -70), new Vector2(360, 70), "CONTINUE  ▶",
                 new Color(0.25f, 0.55f, 0.35f), true, Continue).gameObject;
             _continue.SetActive(false);
+
+            // Per §7.4.4 (OPEN) — wave telegraph panel (bottom-left, persistent, shows next wave when non-empty)
+            _wavePanel = new GameObject("WavePanel");
+            _wavePanel.transform.SetParent(_root.transform, false);
+            Image waveImg = _wavePanel.AddComponent<Image>();
+            waveImg.color = new Color(0.15f, 0.12f, 0.18f, 0.92f);
+            Place((RectTransform)_wavePanel.transform, new Vector2(0f, 0f), new Vector2(180, 80), new Vector2(320, 90));
+            Border(_wavePanel, new Color(0.65f, 0.55f, 0.75f));
+            _waveText = Txt(_wavePanel.transform, "", 18, new Color(0.92f, 0.85f, 0.95f), Mid(), Vector2.zero, new Vector2(300, 70));
+            _wavePanel.SetActive(false); // hidden until wave is pending
         }
 
         // ── Refresh ───────────────────────────────────────────────────────────
@@ -197,7 +212,15 @@ namespace ProjectAscendant.UI
             // Per §3.3.5 + Bug #10 — blocking Lead-replacement modal when the Lead faints.
             BuildLeadReplacementModal(s);
 
-            _endTurn.SetActive(!over);
+            // Per §7.4.4 (OPEN) — wave telegraph panel
+            BuildWavePanel();
+
+            // Per §3.2.6 (OPEN) — breather modal (blocks normal UI when pending)
+            BuildBreatherModal(s);
+
+            // Block End Turn while breather is pending (player must act or pass)
+            bool breatherBlocks = s.BreatherPending;
+            _endTurn.SetActive(!over && !breatherBlocks);
             _banner.gameObject.SetActive(over);
             _continue.SetActive(over);
             if (over)
@@ -474,6 +497,73 @@ namespace ProjectAscendant.UI
         private void OnLeadReplacementChosen(int newLeadIndex)
         {
             _cc.ApplyLeadReplacement(newLeadIndex);
+            Refresh(); // modal will be torn down by next Refresh cycle
+        }
+
+        // Per §7.4.4 (OPEN) — wave telegraph panel. Shows PeekNextWave() when non-empty (upcoming
+        // reinforcement wave). Non-blocking, persistent, bottom-left. Hides when no wave is queued.
+        private void BuildWavePanel()
+        {
+            var nextWave = _cc.PeekNextWave();
+            if (nextWave == null || nextWave.Count == 0)
+            {
+                _wavePanel.SetActive(false);
+                return;
+            }
+
+            _wavePanel.SetActive(true);
+            // VS: all intents are Attack, so show species + level + generic "incoming" tag
+            if (nextWave.Count == 1)
+            {
+                var preview = nextWave[0];
+                string species = preview.Species != null ? (preview.Species.DisplayName ?? preview.Species.name) : "?";
+                _waveText.text = $"NEXT WAVE:\n{species}  Lv{preview.Level}\n⚔ incoming";
+            }
+            else
+            {
+                // Multiple enemies in the next wave — show count + first species
+                var preview = nextWave[0];
+                string species = preview.Species != null ? (preview.Species.DisplayName ?? preview.Species.name) : "?";
+                _waveText.text = $"NEXT WAVE ({nextWave.Count}):\n{species}  Lv{preview.Level}\n⚔ incoming";
+            }
+        }
+
+        // Per §3.2.6 (OPEN) — breather modal. Blocking overlay when BreatherPending is true. The
+        // controller auto-grants +1 AP and auto-ends after the player's one action (any card play /
+        // manual swap). UI provides an explicit "Pass" button → EndBreather(). Takes visual priority
+        // over lead-replacement modal (controller resolves lead-replacement first).
+        private void BuildBreatherModal(CombatController.CombatState s)
+        {
+            // Tear down any existing modal first
+            if (_breatherModal != null) { Destroy(_breatherModal); _breatherModal = null; }
+
+            // Only show when breather is pending
+            if (!s.BreatherPending) return;
+
+            _breatherModal = new GameObject("BreatherModal");
+            _breatherModal.transform.SetParent(_root.transform, false);
+            Canvas modal = _breatherModal.AddComponent<Canvas>();
+            modal.overrideSorting = true;
+            modal.sortingOrder = 30; // same layer as lead-replacement modal
+
+            // Semi-transparent backdrop
+            Image backdrop = Img(_breatherModal.transform, new Color(0, 0, 0, 0.75f));
+            Stretch(backdrop.rectTransform);
+
+            // Prompt
+            Txt(_breatherModal.transform, "⚔ REINFORCEMENTS! You catch your breath — +1 AP",
+                30, new Color(0.95f, 0.88f, 0.55f), Mid(), new Vector2(0, 140), new Vector2(1300, 50));
+            Txt(_breatherModal.transform, "Take one action (play a card / swap) or pass to continue",
+                24, new Color(0.85f, 0.92f, 0.95f), Mid(), new Vector2(0, 90), new Vector2(1200, 40));
+
+            // "Pass / Continue" button
+            Btn(_breatherModal.transform, Mid(), new Vector2(0, -20), new Vector2(320, 80),
+                "PASS / CONTINUE  ▶", new Color(0.45f, 0.55f, 0.62f), true, OnBreatherPass);
+        }
+
+        private void OnBreatherPass()
+        {
+            _cc.EndBreather();
             Refresh(); // modal will be torn down by next Refresh cycle
         }
 
