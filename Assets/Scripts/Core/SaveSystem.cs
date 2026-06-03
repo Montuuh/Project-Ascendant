@@ -109,6 +109,33 @@ namespace ProjectAscendant.Core
             if (File.Exists(RunPath)) File.Delete(RunPath);
         }
 
+        // Per §9.8.1 + gap #43 — does a valid (checksum-passing) in-progress run save exist? Used by the
+        // Main Menu to enable/disable Continue. Cheap: a corrupt/absent file reads as no save.
+        public static bool HasRun() => AtomicRead(RunPath, bakPath: null) != null;
+
+        // Per §9.8.1 + gap #43 — load the run save INTO an existing RunStateSO (preserving its identity,
+        // so live references like LoadoutManager stay valid). Returns false if no/corrupt save. The Box
+        // (team) is returned via out params for the caller to install into its RunContext.Box.
+        public static bool LoadRunInto(
+            RunStateSO target, RunContentRegistry registry, PokemonInstanceFactory factory,
+            out List<PokemonInstance> box, out int boxCapacity)
+        {
+            box = null;
+            boxCapacity = 0;
+            if (target == null) return false;
+
+            string dataJson = AtomicRead(RunPath, bakPath: null);
+            if (dataJson == null) return false;
+
+            RunSaveDTO dto = JsonUtility.FromJson<RunSaveDTO>(dataJson);
+            if (dto?.Run == null) return false;
+
+            dto.Run.ApplyTo(target, registry);
+            box = PokemonInstanceDTO.RebuildBox(dto.Box, registry, factory);
+            boxCapacity = dto.BoxCapacity;
+            return true;
+        }
+
         // Per §9.8.1 — save Settings as JSON on change.
         public static void SaveSettings(SettingsSO settings)
         {

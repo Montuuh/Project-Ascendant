@@ -65,5 +65,40 @@ namespace ProjectAscendant.Core
         // Per §9.7.4 — recorded input log for deterministic replay.
         // Populated by InputLogRecorder during the run.
         public InputLog RecordedInputs;
+
+        // Per gap #43 — reset this SO to a fresh run with the given seed, in place (preserving the
+        // instance identity so live references — LoadoutManager, Services registration — stay valid).
+        // Used by "New Run" from the Main Menu. Position, inventory, team, modifiers, and tallies all
+        // clear; only the new seed remains.
+        public void ResetToNewRun(int seed)
+        {
+            RunSeed = seed;
+            CurrentRegionIndex = 0;
+            CurrentLayerIndex = 0;
+            CurrentLaneIndex = 0;
+            CurrentNodeIndexInLane = 0;
+
+            ActiveTeamIndices = null;
+            LeadIndex = 0;
+
+            HeldRelics = null;
+            Inventory = null;
+            PokeDollars = 0;
+            EarnedBadges = null;
+            OwnedHeldItems = null;
+            OwnedTMs = null;
+            OwnedEvolutionItems = null;
+
+            TrainerXPEarnedThisRun = 0;
+            CombatsClearedThisRun = 0;
+            EvolutionsThisRun = 0;
+
+            ActiveRegionModifiers = null;
+            ActiveBoon = null;
+            ActiveDifficultyModifiers = null;
+
+            EventFlags = null;
+            RecordedInputs = null;
+        }
     }
 }

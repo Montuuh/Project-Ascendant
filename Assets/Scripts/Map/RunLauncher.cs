@@ -7,8 +7,12 @@ namespace ProjectAscendant.Map
     // Bootstrap GameObject in the Boot scene (DontDestroyOnLoad). Bootstrap (Core, order -100)
     // registers the core services; this (order -50) builds the run layer that Bootstrap can't
     // reference across the Core↔Map asmdef boundary: it constructs a RunController from the
-    // RunContentCatalog, wires its dispatcher to the live GameStateMachine, and registers it in
-    // Services. A "New Run" UI (Epic 13) will call Run.StartRun(); the dev flag auto-walks one now.
+    // RunContentCatalog, wires its dispatcher to the live GameStateMachine, and registers it +
+    // itself in Services.
+    //
+    // Per gap #43 — boot does NOT auto-start or auto-resume. It builds a fresh, idle run (Map == null)
+    // and the Main Menu (MapViewUI) drives the choice: ContinueSavedRun() (load the autosave) or
+    // BeginNewRun() (fresh) → starter-select. The dev flag still auto-walks a run headlessly.
     //
     // Thin composition/wiring MonoBehaviour — holds no game logic (logic is RunController/RunContext).
     [DefaultExecutionOrder(-50)]
@@ -30,6 +34,10 @@ namespace ProjectAscendant.Map
         public RunController Run { get; private set; }
         public RunContext Context { get; private set; }
 
+        // Built once from the catalog (+ Hub difficulty choices); resolves saved SO refs on Continue.
+        private RunContentRegistry _registry;
+        private PokemonInstanceFactory _factory;
+
         private void Start()
         {
             if (_catalog == null)
@@ -44,49 +52,32 @@ namespace ProjectAscendant.Map
             }
 
             GameStateMachine hsm = Services.Get<GameStateMachine>();
-            PokemonInstanceFactory factory = Services.Get<PokemonInstanceFactory>();
+            _factory = Services.Get<PokemonInstanceFactory>();
 
-            // Per §9.8.1 + gap #43 — try to resume an in-progress run from disk. The registry resolves
-            // every saved SO reference (run-state + team) back to the authored assets; it is built from
-            // the catalog plus the Hub difficulty choices (which the catalog does not own).
-            RunContentRegistry registry = RunContentRegistry.FromCatalog(_catalog);
-            registry.RegisterDifficultyModifiers(RunBootstrapper.BuildDifficultyChoices());
-            RunSaveData saved = SaveSystem.LoadRun(registry, factory);
-            bool resuming = saved != null && saved.Run != null;
+            // Per gap #43 — registry resolves saved SO refs (run-state + team) back to authored assets;
+            // built from the catalog + Hub difficulty choices (which the catalog does not own).
+            _registry = RunContentRegistry.FromCatalog(_catalog);
+            _registry.RegisterDifficultyModifiers(RunBootstrapper.BuildDifficultyChoices());
 
-            RunStateSO run = resuming ? saved.Run : ScriptableObject.CreateInstance<RunStateSO>();
-            if (!resuming) run.RunSeed = _runSeed;
+            // Build a fresh, IDLE run (Map == null). The Main Menu picks Continue vs New Run.
+            RunStateSO run = ScriptableObject.CreateInstance<RunStateSO>();
+            run.RunSeed = _runSeed;
             Services.Register(run);
 
-            // Per §9.7.2 — seed the RNG streams from the run seed (the SAVED seed when resuming, so the
-            // deterministic map regenerates identically; Bootstrap registers a seed-0 stub otherwise).
+            // Per §9.7.2 — seed the RNG streams from the run seed.
             RNGStreams streams = new RNGStreams((uint)run.RunSeed);
             Services.Register(streams);
 
             Run = RunBootstrapper.CreateRunController(
-                _catalog, run, factory, streams, evt => hsm.HandleEvent(evt), out RunContext ctx);
+                _catalog, run, _factory, streams, evt => hsm.HandleEvent(evt), out RunContext ctx);
             Context = ctx;
             Services.Register(Run);
             Services.Register(ctx);
-            Services.Register(_catalog); // so the Map View can offer the starter choices
+            Services.Register(_catalog);   // so the Map View can offer the starter choices
+            Services.Register(this);       // so MapViewUI can drive Continue / New Run
 
-            if (resuming)
-            {
-                // Reinstall the saved Box (team) into the live RunContext, then resume into Map View.
-                ctx.Box.Members.Clear();
-                if (saved.Box != null) ctx.Box.Members.AddRange(saved.Box);
-                if (saved.BoxCapacity > 0) ctx.Box.Capacity = saved.BoxCapacity;
-                Run.Resume();
-                Debug.Log($"[RunLauncher] Resumed run (seed {run.RunSeed}) at " +
-                          $"L{run.CurrentLayerIndex}/Lane{run.CurrentLaneIndex} — team={ctx.Box.Count}, " +
-                          $"₽={run.PokeDollars}, relics={run.HeldRelics?.Count ?? 0}.");
-                return;
-            }
-
-            // Starter is NOT seeded here — the player picks one on the starter-select screen
-            // (MapViewUI), which calls RunBootstrapper.SeedStarter then Run.StartRun().
-            Debug.Log($"[RunLauncher] Run wired (seed {_runSeed}). RunController + Catalog registered; " +
-                      "awaiting starter selection + StartRun (UI).");
+            Debug.Log($"[RunLauncher] Run wired (seed {_runSeed}). Idle — awaiting Main Menu choice " +
+                      $"(saved run present: {HasSavedRun()}).");
 
             if (_devAutoRunOnBoot)
             {
@@ -99,5 +90,44 @@ namespace ProjectAscendant.Map
                           $"₽={run.PokeDollars}, relics={run.HeldRelics?.Count ?? 0}, badges={run.EarnedBadges?.Count ?? 0}.");
             }
         }
+
+        // Per gap #43 — does a resumable in-progress save exist? Drives the Main Menu's Continue button.
+        public bool HasSavedRun() => SaveSystem.HasRun();
+
+        // Per gap #43 — load the autosave into the live RunContext (run-state in place + Box) and resume
+        // into Map View. Returns false if no/corrupt save. Called by the Main Menu's Continue.
+        public bool ContinueSavedRun()
+        {
+            if (Run == null || Context?.Run == null) return false;
+            if (!SaveSystem.LoadRunInto(Context.Run, _registry, _factory,
+                    out System.Collections.Generic.List<PokemonInstance> box, out int cap))
+                return false;
+
+            Context.Box.Members.Clear();
+            if (box != null) Context.Box.Members.AddRange(box);
+            if (cap > 0) Context.Box.Capacity = cap;
+
+            Run.Resume();
+            Debug.Log($"[RunLauncher] Continued run (seed {Context.Run.RunSeed}) at " +
+                      $"L{Context.Run.CurrentLayerIndex}/Lane{Context.Run.CurrentLaneIndex} — team={Context.Box.Count}.");
+            return true;
+        }
+
+        // Per gap #43 — discard any in-progress save and reset the live RunContext to a clean, idle run
+        // (fresh seed) so starter-select shows. StartRun() is called by MapViewUI after the starter pick.
+        public void BeginNewRun()
+        {
+            if (Run == null || Context?.Run == null) return;
+            SaveSystem.DeleteRun();
+
+            int seed = NewSeed();
+            Context.Run.ResetToNewRun(seed);
+            Context.Box.Members.Clear();
+            Context.Streams = new RNGStreams((uint)seed); // RegisterBuilders/StartRun read ctx.Streams at call time
+            Debug.Log($"[RunLauncher] New run prepared (seed {seed}) — awaiting starter selection.");
+        }
+
+        // A fresh, varied seed per New Run (stored on RunState, so the run stays fully deterministic).
+        private static int NewSeed() => unchecked((int)(System.DateTime.UtcNow.Ticks ^ (System.DateTime.UtcNow.Ticks >> 32)));
     }
 }

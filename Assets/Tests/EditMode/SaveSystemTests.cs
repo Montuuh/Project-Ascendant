@@ -351,6 +351,62 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(va1); Object.DestroyImmediate(va2);
         }
 
+        // Per gap #43 — HasRun reflects whether a valid in-progress save exists (drives Continue).
+        [Test]
+        public void SaveSystem_HasRun_TrueAfterSave_FalseAfterDelete()
+        {
+            Assert.That(SaveSystem.HasRun(), Is.False, "No save yet.");
+            RunStateSO run = ScriptableObject.CreateInstance<RunStateSO>();
+            SaveSystem.SaveRun(run, null, 6);
+            Assert.That(SaveSystem.HasRun(), Is.True, "Save written.");
+            SaveSystem.DeleteRun();
+            Assert.That(SaveSystem.HasRun(), Is.False, "Save deleted.");
+            Object.DestroyImmediate(run);
+        }
+
+        // Per gap #43 — LoadRunInto applies the save onto an EXISTING RunStateSO (identity preserved).
+        [Test]
+        public void SaveSystem_LoadRunInto_AppliesOntoExistingInstance()
+        {
+            RunStateSO original = ScriptableObject.CreateInstance<RunStateSO>();
+            original.RunSeed = 4242;
+            original.PokeDollars = 90;
+            SaveSystem.SaveRun(original, null, 6);
+
+            RunStateSO target = ScriptableObject.CreateInstance<RunStateSO>();
+            bool ok = SaveSystem.LoadRunInto(target, new RunContentRegistry(), new PokemonInstanceFactory(),
+                out System.Collections.Generic.List<PokemonInstance> box, out int cap);
+
+            Assert.That(ok, Is.True);
+            Assert.That(target.RunSeed, Is.EqualTo(4242)); // same instance, mutated in place
+            Assert.That(target.PokeDollars, Is.EqualTo(90));
+            Assert.That(cap, Is.EqualTo(6));
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(target);
+        }
+
+        // Per gap #43 — ResetToNewRun clears run state in place but keeps the new seed + instance.
+        [Test]
+        public void RunStateSO_ResetToNewRun_ClearsStateKeepsSeed()
+        {
+            RunStateSO run = ScriptableObject.CreateInstance<RunStateSO>();
+            run.RunSeed = 1; run.PokeDollars = 500; run.CurrentLayerIndex = 5; run.LeadIndex = 2;
+            run.HeldRelics = new System.Collections.Generic.List<RelicSO> { ScriptableObject.CreateInstance<RelicSO>() };
+            run.ActiveTeamIndices = new System.Collections.Generic.List<int> { 0, 1 };
+
+            run.ResetToNewRun(7777);
+
+            Assert.That(run.RunSeed, Is.EqualTo(7777));
+            Assert.That(run.PokeDollars, Is.EqualTo(0));
+            Assert.That(run.CurrentLayerIndex, Is.EqualTo(0));
+            Assert.That(run.LeadIndex, Is.EqualTo(0));
+            Assert.That(run.HeldRelics, Is.Null);
+            Assert.That(run.ActiveTeamIndices, Is.Null);
+
+            Object.DestroyImmediate(run);
+        }
+
         // ── Checksum ──────────────────────────────────────────────────────────────
 
         [Test]

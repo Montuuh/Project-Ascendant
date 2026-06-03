@@ -3,6 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using ProjectAscendant.Core;
 using ProjectAscendant.Map;
@@ -40,6 +41,9 @@ namespace ProjectAscendant.UI
         private InventoryPanelUI _inventoryPanel;
         private StartingRelicPanelUI _startingRelicPanel;
         private HubPanelUI _hubPanel;
+        private MainMenuUI _mainMenu;
+        private PauseMenuUI _pauseMenu;
+        private RunLauncher _launcher;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
 
@@ -56,6 +60,7 @@ namespace ProjectAscendant.UI
             _state = Services.Has<RunStateSO>() ? Services.Get<RunStateSO>() : null;
             _ctx = Services.Has<RunContext>() ? Services.Get<RunContext>() : null;
             _catalog = Services.Has<RunContentCatalogSO>() ? Services.Get<RunContentCatalogSO>() : null;
+            _launcher = Services.Has<RunLauncher>() ? Services.Get<RunLauncher>() : null;
 
             _combat = new GameObject("CombatScreen").AddComponent<CombatScreenUI>();
             _combat.transform.SetParent(transform, false);
@@ -81,6 +86,12 @@ namespace ProjectAscendant.UI
             _startingRelicPanel = new GameObject("StartingRelicPanel").AddComponent<StartingRelicPanelUI>();
             _startingRelicPanel.transform.SetParent(transform, false);
 
+            _mainMenu = new GameObject("MainMenu").AddComponent<MainMenuUI>();
+            _mainMenu.transform.SetParent(transform, false);
+
+            _pauseMenu = new GameObject("PauseMenu").AddComponent<PauseMenuUI>();
+            _pauseMenu.transform.SetParent(transform, false);
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
             _cheats.transform.SetParent(transform, false);
@@ -89,6 +100,63 @@ namespace ProjectAscendant.UI
 
             BuildChrome();
             Refresh();
+
+            // Per gap #43 — boot into the Main Menu when the run is idle (no map yet) and the dev
+            // auto-run didn't already start one. Otherwise (dev auto-run, or no launcher) fall through
+            // to the rendered map / legacy starter-select.
+            if (_launcher != null && _run != null && _run.Map == null && !_run.RunOver)
+                ShowMainMenu();
+        }
+
+        // ── Main Menu / Pause (gap #43) ───────────────────────────────────────
+
+        private void Update()
+        {
+            Keyboard kb = Keyboard.current;
+            if (kb == null || !kb.escapeKey.wasPressedThisFrame) return;
+
+            // ESC closes an open pause (= resume); never pauses over the main menu or combat.
+            if (_mainMenu != null && _mainMenu.IsOpen) return;
+            if (_pauseMenu != null && _pauseMenu.IsOpen) { _pauseMenu.Close(); return; }
+            if (_combat != null && _combat.IsActive) return;
+            if (_run == null || _run.Map == null || _run.RunOver) return;
+
+            _pauseMenu.Open(onResume: () => { }, onQuitToMenu: ShowMainMenu);
+        }
+
+        private void ShowMainMenu()
+        {
+            if (_mainMenu == null) return;
+            _mainMenu.Open(
+                hasSave: _launcher != null && _launcher.HasSavedRun(),
+                onContinue: OnMenuContinue,
+                onNewRun: OnMenuNewRun,
+                onQuit: OnMenuQuit);
+        }
+
+        // Resume the in-memory run if one is live (e.g. after Quit-to-Menu); otherwise load the autosave.
+        private void OnMenuContinue()
+        {
+            if (_run != null && _run.Map != null && !_run.RunOver) { Refresh(); return; }
+            if (_launcher != null && _launcher.ContinueSavedRun()) AppendLog("Continued saved run.");
+            Refresh();
+        }
+
+        // Reset to a clean run (the confirm dialog already gated abandoning a save) → starter-select.
+        private void OnMenuNewRun()
+        {
+            _launcher?.BeginNewRun();
+            AppendLog("New run — choose your starter.");
+            Refresh();
+        }
+
+        private void OnMenuQuit()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
 
         // ── Static chrome ─────────────────────────────────────────────────────
