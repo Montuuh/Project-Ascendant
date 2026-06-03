@@ -34,10 +34,6 @@ namespace ProjectAscendant.UI
 
         private Text _header;
         private Text _log;
-        private GameObject _teamButton;
-        private GameObject _tmButton;
-        private GameObject _hubButton;
-        private GameObject _bagButton;
         private InventoryPanelUI _inventoryPanel;
         private StartingRelicPanelUI _startingRelicPanel;
         private HubPanelUI _hubPanel;
@@ -121,7 +117,13 @@ namespace ProjectAscendant.UI
             if (_combat != null && _combat.IsActive) return;
             if (_run == null || _run.Map == null || _run.RunOver) return;
 
-            _pauseMenu.Open(onResume: () => { }, onQuitToMenu: ShowMainMenu);
+            // Per gap #43 — between-node management (Team / Bag / TMs) lives in the Pause menu now.
+            _pauseMenu.Open(
+                onResume: () => { },
+                onTeam: OpenTeamPanel,
+                onBag: OpenInventoryPanel,
+                onTMs: OpenTMPanel,
+                onQuitToMenu: ShowMainMenu);
         }
 
         private void ShowMainMenu()
@@ -131,7 +133,32 @@ namespace ProjectAscendant.UI
                 hasSave: _launcher != null && _launcher.HasSavedRun(),
                 onContinue: OnMenuContinue,
                 onNewRun: OnMenuNewRun,
+                onHub: OnMenuHub,
                 onQuit: OnMenuQuit);
+        }
+
+        // §6.4 — open the Trainer Hub from the Main Menu. The menu closes first (the Hub canvas sorts
+        // below it); Hub CLOSE returns to the menu, Hub START RUN begins a new run with the chosen
+        // difficulty applied.
+        private void OnMenuHub()
+        {
+            if (_hubPanel == null || _ctx == null) { ShowMainMenu(); return; }
+            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, _ctx.DifficultyChoices,
+                onStartRun: StartRunFromHub,
+                onClosed: ShowMainMenu);
+        }
+
+        // §6.8 — Hub START RUN: reset to a fresh run, apply the picked difficulty, then starter-select.
+        private void StartRunFromHub(DifficultyModifierSO selected)
+        {
+            _launcher?.BeginNewRun(); // resets run-state (clears difficulty) → apply AFTER
+            if (_state != null)
+                _state.ActiveDifficultyModifiers = selected != null
+                    ? new System.Collections.Generic.List<DifficultyModifierSO> { selected }
+                    : null;
+            _mainMenu?.Close();
+            AppendLog("New run via Hub — choose your starter.");
+            Refresh();
         }
 
         // Resume the in-memory run if one is live (e.g. after Quit-to-Menu); otherwise load the autosave.
@@ -182,26 +209,10 @@ namespace ProjectAscendant.UI
             _header = MakeText(canvas.transform, "", 26, Color.white);
             Anchor(_header.rectTransform, Top(), Top(), new Vector2(0, -96), new Vector2(1500, 38));
 
-            // Per §2.3 — open the Active-Team loadout manager (between nodes; hidden on starter-select
-            // and at run end). Visibility is toggled in Refresh.
-            _teamButton = MakeButton(canvas.transform, new Vector2(800, 470), new Vector2(200, 56), "⛉  TEAM",
-                new Color(0.30f, 0.42f, 0.58f), true, OpenTeamPanel).gameObject;
-            _teamButton.SetActive(false);
-
-            // §5.4.1 — TM application entry point (Task 10.6.1). Toggled with the run like TEAM.
-            _tmButton = MakeButton(canvas.transform, new Vector2(575, 470), new Vector2(200, 56), "🎒  TMs",
-                new Color(0.40f, 0.36f, 0.24f), true, OpenTMPanel).gameObject;
-            _tmButton.SetActive(false);
-
-            // §6.4 — Trainer Hub entry (Task 11.2). Shown only OUTSIDE an active run (pre/post-run).
-            _hubButton = MakeButton(canvas.transform, new Vector2(575, 470), new Vector2(200, 56), "🏛  HUB",
-                new Color(0.30f, 0.34f, 0.52f), true, OpenHubPanel).gameObject;
-            _hubButton.SetActive(false);
-
-            // §8.6 — Inventory + equip (Task 12.9). Shown during a run, like TEAM/TMs.
-            _bagButton = MakeButton(canvas.transform, new Vector2(350, 470), new Vector2(200, 56), "📦  BAG",
-                new Color(0.36f, 0.32f, 0.44f), true, OpenInventoryPanel).gameObject;
-            _bagButton.SetActive(false);
+            // Per gap #43 — TEAM / BAG / TMs moved to the ESC Pause menu, Trainer HUB to the Main Menu;
+            // the map chrome stays uncluttered. An on-map hint reminds the player of the ESC shortcut.
+            Text escHint = MakeText(canvas.transform, "ESC — Pause  ·  Team / Bag / TMs", 20, new Color(0.6f, 0.66f, 0.76f));
+            Anchor(escHint.rectTransform, Top(), Top(), new Vector2(0, -134), new Vector2(1200, 28));
 
             GameObject g = new("Graph", typeof(RectTransform));
             g.transform.SetParent(canvas.transform, false);
@@ -221,11 +232,6 @@ namespace ProjectAscendant.UI
 
             if (_run == null) { _header.text = "<no RunController wired — is RunLauncher in the Boot scene?>"; return; }
             UpdateHeader();
-            bool inRun = _run.Map != null && !_run.RunOver;
-            if (_teamButton != null) _teamButton.SetActive(inRun);
-            if (_tmButton != null) _tmButton.SetActive(inRun);
-            if (_bagButton != null) _bagButton.SetActive(inRun);
-            if (_hubButton != null) _hubButton.SetActive(!inRun); // §6.4 — Hub is a pre/post-run space
 
             if (_run.Map == null)
             {
@@ -494,25 +500,6 @@ namespace ProjectAscendant.UI
             if (_teamPanel == null || _ctx?.Box == null || _ctx.Loadout == null) return;
             if (_run == null || _run.Map == null || _run.RunOver) return;
             _teamPanel.Open(_ctx.Box, _state, _ctx.Loadout, Refresh, OnEvolveRequested, _ctx.Economy);
-        }
-
-        // §6.4 / Task 11.2 — open the Trainer Hub (only outside an active run). Start Run closes the
-        // Hub → reveals starter-select (the pre-run screen); the player then picks a starter + StartRun.
-        private void OpenHubPanel()
-        {
-            if (_hubPanel == null || _ctx == null) return;
-            if (_run != null && _run.Map != null && !_run.RunOver) return; // not during a run
-            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, _ctx.DifficultyChoices, OnHubStartRun, Refresh);
-        }
-
-        // §6.8 / Task 11.6 — apply the Hub's difficulty pick to the run before the player starts it.
-        private void OnHubStartRun(DifficultyModifierSO selected)
-        {
-            if (_state != null)
-                _state.ActiveDifficultyModifiers = selected != null
-                    ? new System.Collections.Generic.List<DifficultyModifierSO> { selected }
-                    : null;
-            Refresh();
         }
 
         // §8.6 / Task 12.9 — open the Inventory + Held-Item equip panel (between nodes).

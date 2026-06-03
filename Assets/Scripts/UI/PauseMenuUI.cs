@@ -4,20 +4,24 @@ using UnityEngine.UI;
 
 namespace ProjectAscendant.UI
 {
-    // Per gap #43 + Epic 13 — in-run pause overlay (ESC). Resume / Quit to Main Menu. The run autosaves
-    // at the start of every node, so quitting to the menu loses nothing past the last node checkpoint —
-    // no explicit "save" action is needed. View-layer only; MapViewUI owns the callbacks.
+    // Per gap #43 + Epic 13 — in-run pause overlay (ESC). Resume / Team / Bag / TMs / Quit to Main
+    // Menu. The between-node management actions (Team loadout, Inventory+equip, TM application) live
+    // here so the map stays uncluttered. The run autosaves at the start of every node, so quitting to
+    // the menu loses nothing past the last node checkpoint. View-layer only; MapViewUI owns callbacks.
     public sealed class PauseMenuUI : MonoBehaviour
     {
         private Font _font;
         private GameObject _root;
-        private Action _onResume, _onQuitToMenu;
+        private Action _onResume, _onTeam, _onBag, _onTMs, _onQuitToMenu;
 
         public bool IsOpen => _root != null;
 
-        public void Open(Action onResume, Action onQuitToMenu)
+        public void Open(Action onResume, Action onTeam, Action onBag, Action onTMs, Action onQuitToMenu)
         {
             _onResume = onResume;
+            _onTeam = onTeam;
+            _onBag = onBag;
+            _onTMs = onTMs;
             _onQuitToMenu = onQuitToMenu;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (_root != null) Destroy(_root);
@@ -26,17 +30,23 @@ namespace ProjectAscendant.UI
             CanvasScaler s = _root.AddComponent<CanvasScaler>(); s.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; s.referenceResolution = new Vector2(1920, 1080);
             _root.AddComponent<GraphicRaycaster>();
 
-            Image bg = Img(_root.transform, new Color(0.04f, 0.05f, 0.08f, 0.85f)); Stretch(bg.rectTransform);
+            Image bg = Img(_root.transform, new Color(0.04f, 0.05f, 0.08f, 0.9f)); Stretch(bg.rectTransform);
 
-            Txt(_root.transform, "PAUSED", 56, new Color(0.85f, 0.95f, 0.7f), new Vector2(0, 170), new Vector2(900, 80));
+            Txt(_root.transform, "PAUSED", 56, new Color(0.85f, 0.95f, 0.7f), new Vector2(0, 240), new Vector2(900, 80));
 
-            Btn(_root.transform, new Vector2(0, 40), new Vector2(420, 64), "▶  RESUME",
+            Btn(_root.transform, new Vector2(0, 140), new Vector2(420, 60), "▶  RESUME",
                 new Color(0.26f, 0.5f, 0.34f), () => { Close(); _onResume?.Invoke(); });
-            Btn(_root.transform, new Vector2(0, -44), new Vector2(420, 64), "⌂  QUIT TO MAIN MENU",
+            Btn(_root.transform, new Vector2(0, 68), new Vector2(420, 60), "⛉  TEAM",
+                new Color(0.30f, 0.42f, 0.58f), () => { Close(); _onTeam?.Invoke(); });
+            Btn(_root.transform, new Vector2(0, -4), new Vector2(420, 60), "📦  BAG",
+                new Color(0.36f, 0.32f, 0.44f), () => { Close(); _onBag?.Invoke(); });
+            Btn(_root.transform, new Vector2(0, -76), new Vector2(420, 60), "🎒  TMs",
+                new Color(0.40f, 0.36f, 0.24f), () => { Close(); _onTMs?.Invoke(); });
+            Btn(_root.transform, new Vector2(0, -160), new Vector2(420, 60), "⌂  QUIT TO MAIN MENU",
                 new Color(0.42f, 0.34f, 0.30f), () => { Close(); _onQuitToMenu?.Invoke(); });
 
             Txt(_root.transform, "Progress is autosaved at the start of every node.", 17,
-                new Color(0.6f, 0.65f, 0.75f), new Vector2(0, -130), new Vector2(1000, 28));
+                new Color(0.6f, 0.65f, 0.75f), new Vector2(0, -236), new Vector2(1000, 28));
         }
 
         public void Close()

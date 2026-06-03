@@ -13,15 +13,16 @@ namespace ProjectAscendant.UI
         private Font _font;
         private GameObject _root;
         private bool _hasSave;
-        private Action _onContinue, _onNewRun, _onQuit;
+        private Action _onContinue, _onNewRun, _onHub, _onQuit;
 
         public bool IsOpen => _root != null;
 
-        public void Open(bool hasSave, Action onContinue, Action onNewRun, Action onQuit)
+        public void Open(bool hasSave, Action onContinue, Action onNewRun, Action onHub, Action onQuit)
         {
             _hasSave = hasSave;
             _onContinue = onContinue;
             _onNewRun = onNewRun;
+            _onHub = onHub;
             _onQuit = onQuit;
             Build();
         }
@@ -47,19 +48,22 @@ namespace ProjectAscendant.UI
             Txt(_root.transform, "Region 1 — Verdant Route", 26, new Color(0.7f, 0.8f, 0.9f), new Vector2(0, 185), new Vector2(1400, 36));
 
             // Continue — only when a resumable save exists.
-            Btn(_root.transform, new Vector2(0, 60), new Vector2(420, 64),
+            Btn(_root.transform, new Vector2(0, 78), new Vector2(420, 62),
                 _hasSave ? "▶  CONTINUE" : "CONTINUE  (no save)",
                 _hasSave ? new Color(0.26f, 0.5f, 0.34f) : new Color(0.22f, 0.24f, 0.28f),
                 _hasSave, () => { Close(); _onContinue?.Invoke(); });
 
-            Btn(_root.transform, new Vector2(0, -24), new Vector2(420, 64), "✦  NEW RUN",
+            Btn(_root.transform, new Vector2(0, 4), new Vector2(420, 62), "✦  NEW RUN",
                 new Color(0.30f, 0.42f, 0.58f), true, OnNewRunClicked);
 
-            Btn(_root.transform, new Vector2(0, -108), new Vector2(420, 64), "✕  QUIT",
+            Btn(_root.transform, new Vector2(0, -70), new Vector2(420, 62), "🏛  TRAINER HUB",
+                new Color(0.30f, 0.34f, 0.52f), true, () => { Close(); _onHub?.Invoke(); });
+
+            Btn(_root.transform, new Vector2(0, -144), new Vector2(420, 62), "✕  QUIT",
                 new Color(0.42f, 0.30f, 0.32f), true, () => { Close(); _onQuit?.Invoke(); });
 
             Txt(_root.transform, "Autosaves at the start of every node — quitting mid-run is safe.", 17,
-                new Color(0.55f, 0.6f, 0.7f), new Vector2(0, -220), new Vector2(1200, 28));
+                new Color(0.55f, 0.6f, 0.7f), new Vector2(0, -240), new Vector2(1200, 28));
         }
 
         private void OnNewRunClicked()
