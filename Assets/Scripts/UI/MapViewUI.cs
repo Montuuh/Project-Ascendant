@@ -154,8 +154,9 @@ namespace ProjectAscendant.UI
         private void OnMenuContinue()
         {
             if (_run != null && _run.Map != null && !_run.RunOver) { Refresh(); return; }
-            if (_launcher != null && _launcher.ContinueSavedRun()) AppendLog("Continued saved run.");
-            Refresh();
+            if (_launcher != null && _launcher.ContinueSavedRun()) { AppendLog("Continued saved run."); Refresh(); return; }
+            // No/corrupt save (e.g. teamless) — discarded by the launcher; return to the Main Menu.
+            ShowMainMenu();
         }
 
         // §6.8 + gap #43 — New Run: the abandon-save confirm (if any) already fired inside MainMenuUI;
@@ -387,6 +388,16 @@ namespace ProjectAscendant.UI
 
         private void OnNodeClicked(MapNode node)
         {
+            // Defensive (gap #43) — never enter a combat node with an empty team: combat can't build, so
+            // the node would silently auto-resolve. Should not happen now that New Run resets the
+            // controller and teamless saves are rejected, but guard anyway.
+            bool combatNode = node.NodeType is NodeType.Wild or NodeType.Trainer or NodeType.Elite or NodeType.Gym;
+            if (combatNode && BuildPlayerTeam(out _).Count == 0)
+            {
+                AppendLog("No Pokémon in your team — cannot enter a battle.");
+                return;
+            }
+
             _run.EnterNode(node);
             NodeController active = _run.ActiveNode;
 

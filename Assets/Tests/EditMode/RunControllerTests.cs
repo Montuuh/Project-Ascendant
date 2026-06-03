@@ -385,6 +385,26 @@ namespace ProjectAscendant.Tests
                 "Run end must delete the in-progress save (§9.8.1).");
         }
 
+        // Per gap #43 — New Run must clear the controller's Map/position, not just RunState/Box, or the
+        // Map View keeps rendering the old run (starter-select never shows; team-0 → nodes auto-resolve).
+        [Test]
+        public void ResetForNewRun_ClearsMapAndPosition()
+        {
+            RunController rc = MakeRunController(123u, out _, out _);
+            rc.StartRun();
+            rc.EnterNode(rc.Map.Entry);
+            ResolveActive(rc);
+            rc.CompleteActiveNode();
+            Assert.That(rc.Map, Is.Not.Null, "Run is in progress.");
+
+            rc.ResetForNewRun();
+
+            Assert.That(rc.Map, Is.Null, "Map cleared so Refresh shows starter-select.");
+            Assert.That(rc.CurrentNode, Is.Null);
+            Assert.That(rc.ActiveNode, Is.Null);
+            Assert.That(rc.RunOver, Is.False);
+        }
+
         [Test]
         public void FullRun_Deterministic_SameSeedSamePath()
         {

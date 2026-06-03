@@ -107,6 +107,19 @@ namespace ProjectAscendant.Map
             if (box != null) Context.Box.Members.AddRange(box);
             if (cap > 0) Context.Box.Capacity = cap;
 
+            // Reject a corrupt teamless save — a legit mid-run always has >=1 Box member (the starter is
+            // seeded before the first node autosave). Without this, Continue loads an empty team and
+            // every combat node silently auto-resolves. Discard it so the player isn't stuck.
+            bool hasTeam = false;
+            for (int i = 0; i < Context.Box.Members.Count; i++)
+                if (Context.Box.Members[i] != null) { hasTeam = true; break; }
+            if (!hasTeam)
+            {
+                SaveSystem.DeleteRun();
+                Debug.LogWarning("[RunLauncher] Saved run had no team (corrupt) — discarded.");
+                return false;
+            }
+
             // Per gap #43 — reseed the RNG streams from the LOADED seed so the deterministic map
             // regenerates identically to the saved run (boot seeded streams from the idle placeholder
             // seed). NOTE gap #45: per-stream cursors aren't persisted, so node CONTENTS past the
@@ -129,6 +142,7 @@ namespace ProjectAscendant.Map
             Context.Run.ResetToNewRun(seed);
             Context.Box.Members.Clear();
             Context.Streams = new RNGStreams((uint)seed); // RegisterBuilders/StartRun read ctx.Streams at call time
+            Run.ResetForNewRun(); // CRITICAL: clear the controller's Map/position so Refresh shows starter-select
             Debug.Log($"[RunLauncher] New run prepared (seed {seed}) — awaiting starter selection.");
         }
 

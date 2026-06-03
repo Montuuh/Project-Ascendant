@@ -43,6 +43,19 @@ namespace ProjectAscendant.Map
             _dispatch = dispatch ?? throw new ArgumentNullException(nameof(dispatch));
         }
 
+        // Per gap #43 — clear the controller back to a pre-run (idle) state so the Map View shows
+        // starter-select again. RunLauncher.BeginNewRun calls this; resetting RunState/Box alone is not
+        // enough — the controller's Map/position must also clear or Refresh keeps rendering the old run.
+        public void ResetForNewRun()
+        {
+            Map = null;
+            CurrentNode = null;
+            ActiveNode = null;
+            RunOver = false;
+            Outcome = null;
+            LastSummary = null;
+        }
+
         // Generates the Region map from the MapRNG stream and boots the run into Map View.
         public void StartRun(int regionIndex = 0)
         {
