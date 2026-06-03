@@ -35,14 +35,21 @@ namespace ProjectAscendant.Map
         }
 
         // Per §9.8.1 — save on EVERY node entry (Epic 9 DoD). Idempotent: a second Enter() is a no-op.
-        public void Enter()
+        // The save callback is supplied by the run layer (RunController.EnterNode) so the full run —
+        // run-state PLUS the live Box (team) — is persisted; it cannot be captured here because the
+        // base controller doesn't own the Box. When no callback is passed (tests / standalone use),
+        // it falls back to a run-state-only save. The save fires BEFORE OnEnter so the checkpoint is
+        // the node's entry state, before any resolution mutates it.
+        public void Enter(Action<RunStateSO> save = null)
         {
             if (IsEntered) return;
             IsEntered = true;
 
-            // Record current position so a resumed save lands the player back on this layer.
-            RunState.CurrentLayerIndex = Node.Layer;
-            SaveSystem.SaveRun(RunState);
+            // Record current position so a resumed save lands the player back on this exact node.
+            RunState.CurrentLayerIndex      = Node.Layer;
+            RunState.CurrentLaneIndex       = Node.Lane;
+            RunState.CurrentNodeIndexInLane = Node.IndexInLane;
+            (save ?? SaveSystem.SaveRun)(RunState);
 
             // Publish AFTER the save so subscribers (UI/analytics) observe committed state.
             EventBus.Publish(new NodeEnteredContext(NodeType, Node.Layer, Node.Lane));

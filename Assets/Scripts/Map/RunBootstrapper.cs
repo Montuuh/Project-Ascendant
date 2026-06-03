@@ -117,7 +117,9 @@ namespace ProjectAscendant.Map
         // authored assets aren't catalog-wired yet; same default-instance pattern as MetaConfig).
         // XP multipliers per §6.8.2. Mechanical effects: One Path (routes) is live; Dense Fog (hide
         // intents) + Iron Will (enemy HP) are flagged for the combat-threading follow-up (gap #44).
-        private static List<DifficultyModifierSO> BuildDifficultyChoices()
+        // Public so the resume path (RunLauncher) can register these in the RunContentRegistry —
+        // saved ActiveDifficultyModifiers are resolved by ID against this same authored set.
+        public static List<DifficultyModifierSO> BuildDifficultyChoices()
         {
             return new List<DifficultyModifierSO>
             {

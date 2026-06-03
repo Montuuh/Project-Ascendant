@@ -41,6 +41,16 @@ namespace ProjectAscendant.Core
             return instance;
         }
 
+        // Per §9.8 gap #43 — rent a cleared instance for save-restore. The caller (PokemonInstanceDTO
+        // .Rebuild) sets every field explicitly from the saved snapshot, so no species seeding is done
+        // here; Reset() guarantees no stale state leaks from a pooled instance.
+        public PokemonInstance RentEmpty()
+        {
+            PokemonInstance instance = _pool.Rent();
+            instance.Reset();
+            return instance;
+        }
+
         public void Release(PokemonInstance instance)
         {
             instance.Reset();

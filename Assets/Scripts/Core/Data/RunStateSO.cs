@@ -16,6 +16,11 @@ namespace ProjectAscendant.Core
         public int RunSeed;
         public int CurrentRegionIndex;
         public int CurrentLayerIndex;
+        // Per gap #43 — lane + index-in-lane of the current node, paired with CurrentLayerIndex so a
+        // resumed run lands on the EXACT node (the map itself is regenerated deterministically from
+        // RunSeed). A (layer, lane) can hold more than one node, so IndexInLane disambiguates.
+        public int CurrentLaneIndex;
+        public int CurrentNodeIndexInLane;
 
         [Header("Active Team")]
         // Per §9.3.2.4 — indices into Box (managed by PokemonInstanceFactory at runtime).

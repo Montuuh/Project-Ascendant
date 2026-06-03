@@ -55,6 +55,44 @@ namespace ProjectAscendant.Map
             _dispatch(new GameEvent(GameEventType.StartNewRun));
         }
 
+        // Per §9.8.1 + gap #43 — resume an in-progress run from a loaded save. The caller (RunLauncher)
+        // has already installed the saved RunState + Box into the RunContext; this regenerates the
+        // deterministic map from the seed and restores the player's position to the saved node, then
+        // enters Map View. The player continues forward from the restored node (the node that was
+        // entered-but-not-yet-resolved at save time is treated as standing-on; utility nodes remain
+        // re-enterable). NOTE: per-stream RNG cursors are not persisted (gap follow-up), so encounters
+        // beyond the restored node re-roll deterministically from the seed rather than continuing the
+        // exact pre-save sequence.
+        public bool Resume()
+        {
+            if (_ctx.Run == null) return false;
+
+            int regionIndex = _ctx.Run.CurrentRegionIndex;
+            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex);
+            RunOver = false;
+            Outcome = null;
+            ActiveNode = null;
+            _ctx.Loadout?.Unlock(); // between nodes the player may re-loadout
+            CurrentNode = FindNode(
+                _ctx.Run.CurrentLayerIndex, _ctx.Run.CurrentLaneIndex, _ctx.Run.CurrentNodeIndexInLane);
+
+            _dispatch(new GameEvent(GameEventType.StartNewRun));
+            return true;
+        }
+
+        // Locate the regenerated map node matching a saved (layer, lane, indexInLane). Falls back to
+        // the first node in the lane, then the first node in the layer (defensive against drift).
+        private MapNode FindNode(int layer, int lane, int indexInLane)
+        {
+            if (Map == null || layer < 0 || layer >= Map.LayerCount) return null;
+            List<MapNode> nodes = Map.Layers[layer];
+            for (int i = 0; i < nodes.Count; i++)
+                if (nodes[i].Lane == lane && nodes[i].IndexInLane == indexInLane) return nodes[i];
+            for (int i = 0; i < nodes.Count; i++)
+                if (nodes[i].Lane == lane) return nodes[i];
+            return nodes.Count > 0 ? nodes[0] : null;
+        }
+
         // Per §2.1.2 — nodes reachable from the current position: the forced Layer-0 entry before the
         // first step, then the current node's forward connections. Empty once the run is over.
         public IReadOnlyList<MapNode> SelectableNodes()
@@ -97,7 +135,9 @@ namespace ProjectAscendant.Map
 
             _ctx.Loadout?.Lock();
             ActiveNode = _factory.Build(node, _ctx.Run);
-            ActiveNode.Enter();
+            // Per §9.8.1 + gap #43 — save-on-entry persists run-state AND the live Box (team). The
+            // callback is supplied here because this is the layer that owns the RunContext.Box.
+            ActiveNode.Enter(run => SaveSystem.SaveRun(run, _ctx.Box?.Members, _ctx.Box?.Capacity ?? 0));
             CurrentNode = node;
 
             _dispatch(new GameEvent(GameEventType.NodeConfirmed));
@@ -126,6 +166,10 @@ namespace ProjectAscendant.Map
                 int layersCleared = CurrentNode != null ? CurrentNode.Layer : 0;
                 LastSummary = RunEndService.Finalize(
                     _ctx.Run, _ctx.Box, _ctx.Meta, _ctx.MetaConfig, Outcome.Value, layersCleared, _ctx.Bestiary);
+
+                // Per §9.8.1 + gap #43 — the run is finished: clear the in-progress save so a saved
+                // file always denotes a resumable run (nothing to continue after victory/defeat).
+                SaveSystem.DeleteRun();
             }
             else
                 _ctx.Loadout?.Unlock();

@@ -46,13 +46,22 @@ namespace ProjectAscendant.Map
             GameStateMachine hsm = Services.Get<GameStateMachine>();
             PokemonInstanceFactory factory = Services.Get<PokemonInstanceFactory>();
 
-            // Per §9.7.2 — seed the RNG streams from the run seed (Bootstrap registers a seed-0 stub).
-            RNGStreams streams = new RNGStreams((uint)_runSeed);
-            Services.Register(streams);
+            // Per §9.8.1 + gap #43 — try to resume an in-progress run from disk. The registry resolves
+            // every saved SO reference (run-state + team) back to the authored assets; it is built from
+            // the catalog plus the Hub difficulty choices (which the catalog does not own).
+            RunContentRegistry registry = RunContentRegistry.FromCatalog(_catalog);
+            registry.RegisterDifficultyModifiers(RunBootstrapper.BuildDifficultyChoices());
+            RunSaveData saved = SaveSystem.LoadRun(registry, factory);
+            bool resuming = saved != null && saved.Run != null;
 
-            RunStateSO run = ScriptableObject.CreateInstance<RunStateSO>();
-            run.RunSeed = _runSeed;
+            RunStateSO run = resuming ? saved.Run : ScriptableObject.CreateInstance<RunStateSO>();
+            if (!resuming) run.RunSeed = _runSeed;
             Services.Register(run);
+
+            // Per §9.7.2 — seed the RNG streams from the run seed (the SAVED seed when resuming, so the
+            // deterministic map regenerates identically; Bootstrap registers a seed-0 stub otherwise).
+            RNGStreams streams = new RNGStreams((uint)run.RunSeed);
+            Services.Register(streams);
 
             Run = RunBootstrapper.CreateRunController(
                 _catalog, run, factory, streams, evt => hsm.HandleEvent(evt), out RunContext ctx);
@@ -60,6 +69,19 @@ namespace ProjectAscendant.Map
             Services.Register(Run);
             Services.Register(ctx);
             Services.Register(_catalog); // so the Map View can offer the starter choices
+
+            if (resuming)
+            {
+                // Reinstall the saved Box (team) into the live RunContext, then resume into Map View.
+                ctx.Box.Members.Clear();
+                if (saved.Box != null) ctx.Box.Members.AddRange(saved.Box);
+                if (saved.BoxCapacity > 0) ctx.Box.Capacity = saved.BoxCapacity;
+                Run.Resume();
+                Debug.Log($"[RunLauncher] Resumed run (seed {run.RunSeed}) at " +
+                          $"L{run.CurrentLayerIndex}/Lane{run.CurrentLaneIndex} — team={ctx.Box.Count}, " +
+                          $"₽={run.PokeDollars}, relics={run.HeldRelics?.Count ?? 0}.");
+                return;
+            }
 
             // Starter is NOT seeded here — the player picks one on the starter-select screen
             // (MapViewUI), which calls RunBootstrapper.SeedStarter then Run.StartRun().

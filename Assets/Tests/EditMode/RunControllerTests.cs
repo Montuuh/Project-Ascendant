@@ -301,6 +301,90 @@ namespace ProjectAscendant.Tests
             Assert.That(_events[_events.Count - 1], Is.EqualTo(GameEventType.GameOver));
         }
 
+        // Per §9.8.1 + gap #43 — save-on-entry persists run-state + the live Box (team); a fresh
+        // RunController built from the same seed can Resume() to the exact saved node with the team
+        // restored, resolving every SO ref by ID through the registry.
+        [Test]
+        public void Resume_RestoresPositionAndTeam_FromSavedRun()
+        {
+            // ── Session A: start, walk one node, then enter a second node (the crash point) ──
+            RunController rcA = MakeRunController(2024u, out RunStateSO runA, out RunContext ctxA);
+
+            PokemonSpeciesSO starterSpecies = MakeSpecies("starter");
+            PokemonInstance starter = ctxA.PokemonFactory.Create(starterSpecies, 5);
+            starter.CurrentXP = 33; starter.TraumaStacks = 1;
+            ctxA.Box.Members.Add(starter);
+            runA.ActiveTeamIndices = new List<int> { 0 };
+            runA.LeadIndex = 0;
+            runA.PokeDollars = 175;
+
+            rcA.StartRun();
+            rcA.EnterNode(rcA.Map.Entry);
+            ResolveActive(rcA);
+            rcA.CompleteActiveNode();
+            MapNode second = rcA.SelectableNodes()[0];
+            rcA.EnterNode(second); // save-on-entry writes the crash-point checkpoint (run + box)
+
+            MapNode expected = rcA.CurrentNode;
+            Assert.That(File.Exists(Path.Combine(_tempDir, "run-current.dat")), Is.True);
+
+            // ── Reload: resolve the saved file via a registry that knows the team's species ──
+            RunContentRegistry registry = new();
+            registry.RegisterSpeciesGraph(starterSpecies);
+            RunSaveData saved = SaveSystem.LoadRun(registry, new PokemonInstanceFactory());
+            Assert.That(saved, Is.Not.Null);
+            Assert.That(saved.Run, Is.Not.Null);
+            Assert.That(saved.Box, Has.Count.EqualTo(1));
+
+            // ── Session B: a fresh controller (same seed) installs the save + resumes ──
+            RunContext ctxB = BuildContext(2024u, out _);
+            ctxB.Run = saved.Run;
+            ctxB.Loadout = new LoadoutManager(saved.Run, ctxB.Box);
+            ctxB.Box.Members.Clear();
+            ctxB.Box.Members.AddRange(saved.Box);
+            ctxB.Box.Capacity = saved.BoxCapacity > 0 ? saved.BoxCapacity : ctxB.Box.Capacity;
+            NodeControllerFactory factoryB = new();
+            ctxB.RegisterBuilders(factoryB);
+            RunController rcB = new(ctxB, factoryB, evt => _events.Add(evt.Type));
+
+            Assert.That(rcB.Resume(), Is.True);
+
+            // Position restored to the EXACT saved node (deterministic map regen + layer/lane/index).
+            Assert.That(rcB.CurrentNode, Is.Not.Null);
+            Assert.That(rcB.CurrentNode.Layer, Is.EqualTo(expected.Layer));
+            Assert.That(rcB.CurrentNode.Lane, Is.EqualTo(expected.Lane));
+            Assert.That(rcB.CurrentNode.IndexInLane, Is.EqualTo(expected.IndexInLane));
+            Assert.That(rcB.CurrentNode.NodeType, Is.EqualTo(expected.NodeType));
+            Assert.That(rcB.RunOver, Is.False);
+
+            // Run-state + team restored.
+            Assert.That(saved.Run.PokeDollars, Is.EqualTo(175));
+            Assert.That(saved.Run.ActiveTeamIndices, Is.EquivalentTo(new[] { 0 }));
+            Assert.That(ctxB.Box.Members[0].Species, Is.SameAs(starterSpecies));
+            Assert.That(ctxB.Box.Members[0].CurrentXP, Is.EqualTo(33));
+            Assert.That(ctxB.Box.Members[0].TraumaStacks, Is.EqualTo(1));
+
+            Object.DestroyImmediate(saved.Run);
+        }
+
+        // Per §9.8.1 + gap #43 — finishing a run (victory/defeat) clears the in-progress save so a
+        // saved file always denotes a resumable run.
+        [Test]
+        public void RunEnd_DeletesInProgressSave()
+        {
+            RunController rc = MakeRunController(123u, out _, out _);
+            rc.StartRun();
+            rc.EnterNode(rc.Map.Entry);
+            Assert.That(File.Exists(Path.Combine(_tempDir, "run-current.dat")), Is.True);
+
+            ((WildAreaNodeController)rc.ActiveNode).ResolveCombat(CombatController.CombatOutcome.Defeat, null, finalLeadIndex: 0);
+            rc.CompleteActiveNode();
+
+            Assert.That(rc.RunOver, Is.True);
+            Assert.That(File.Exists(Path.Combine(_tempDir, "run-current.dat")), Is.False,
+                "Run end must delete the in-progress save (§9.8.1).");
+        }
+
         [Test]
         public void FullRun_Deterministic_SameSeedSamePath()
         {

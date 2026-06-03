@@ -1,6 +1,7 @@
 using System.IO;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Tests
@@ -140,12 +141,86 @@ namespace ProjectAscendant.Tests
             original.RunSeed = 12345;
             SaveSystem.SaveRun(original);
 
-            RunStateSO loaded = SaveSystem.LoadRun();
+            RunSaveData saved = SaveSystem.LoadRun(new RunContentRegistry(), new PokemonInstanceFactory());
+            Assert.That(saved, Is.Not.Null);
+            Assert.That(saved.Run, Is.Not.Null);
+            Assert.That(saved.Run.RunSeed, Is.EqualTo(12345));
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(saved.Run);
+        }
+
+        // Per §9.8 + gap #43 — nested SO references must survive a save round-trip. JsonUtility
+        // serializes them as unstable instanceIDs; SaveRun/LoadRun route through RunStateDTO so they
+        // persist as stable IDs and re-resolve via the registry to the SAME authored assets.
+        [Test]
+        public void SaveSystem_RunRoundTrip_ResolvesSOReferencesById()
+        {
+            RelicSO relic = ScriptableObject.CreateInstance<RelicSO>();
+            relic.Id = "coin_pouch";
+            ConsumableSO potion = ScriptableObject.CreateInstance<ConsumableSO>();
+            potion.Id = "potion";
+            BadgeSO badge = ScriptableObject.CreateInstance<BadgeSO>();
+            badge.BadgeId = "boulder";
+            DifficultyModifierSO diff = ScriptableObject.CreateInstance<DifficultyModifierSO>();
+            diff.ModifierId = "ironman";
+
+            RunStateSO original = ScriptableObject.CreateInstance<RunStateSO>();
+            original.RunSeed = 999;
+            original.PokeDollars = 250;
+            original.HeldRelics = new System.Collections.Generic.List<RelicSO> { relic };
+            original.Inventory = new System.Collections.Generic.List<ConsumableSO> { potion };
+            original.EarnedBadges = new System.Collections.Generic.List<BadgeSO> { badge };
+            original.ActiveDifficultyModifiers = new System.Collections.Generic.List<DifficultyModifierSO> { diff };
+            SaveSystem.SaveRun(original);
+
+            RunContentRegistry registry = new();
+            registry.RegisterRelic(relic);
+            registry.RegisterConsumable(potion);
+            registry.RegisterBadge(badge);
+            registry.RegisterDifficultyModifier(diff);
+
+            RunStateSO loaded = SaveSystem.LoadRun(registry, new PokemonInstanceFactory()).Run;
+
             Assert.That(loaded, Is.Not.Null);
-            Assert.That(loaded.RunSeed, Is.EqualTo(12345));
+            Assert.That(loaded.RunSeed, Is.EqualTo(999));
+            Assert.That(loaded.PokeDollars, Is.EqualTo(250));
+            // Resolved back to the SAME asset instances, not broken instanceID clones.
+            Assert.That(loaded.HeldRelics, Has.Count.EqualTo(1));
+            Assert.That(loaded.HeldRelics[0], Is.SameAs(relic));
+            Assert.That(loaded.Inventory[0], Is.SameAs(potion));
+            Assert.That(loaded.EarnedBadges[0], Is.SameAs(badge));
+            Assert.That(loaded.ActiveDifficultyModifiers[0], Is.SameAs(diff));
 
             Object.DestroyImmediate(original);
             Object.DestroyImmediate(loaded);
+            Object.DestroyImmediate(relic);
+            Object.DestroyImmediate(potion);
+            Object.DestroyImmediate(badge);
+            Object.DestroyImmediate(diff);
+        }
+
+        // Per gap #43 — a saved ID absent from the registry must drop gracefully (logged), not crash
+        // the load. A missing item is recoverable; a forfeited run is not.
+        [Test]
+        public void SaveSystem_RunRoundTrip_UnknownIdDropsGracefully()
+        {
+            RelicSO relic = ScriptableObject.CreateInstance<RelicSO>();
+            relic.Id = "ghost_relic";
+            RunStateSO original = ScriptableObject.CreateInstance<RunStateSO>();
+            original.HeldRelics = new System.Collections.Generic.List<RelicSO> { relic };
+            SaveSystem.SaveRun(original);
+
+            // Empty registry — the ID cannot resolve.
+            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("ghost_relic"));
+            RunStateSO loaded = SaveSystem.LoadRun(new RunContentRegistry(), new PokemonInstanceFactory()).Run;
+
+            Assert.That(loaded, Is.Not.Null);
+            Assert.That(loaded.HeldRelics, Has.Count.EqualTo(0));
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(loaded);
+            Object.DestroyImmediate(relic);
         }
 
         [Test]
@@ -156,9 +231,124 @@ namespace ProjectAscendant.Tests
             SaveSystem.SaveRun(run);
             File.WriteAllText(Path.Combine(_testDir, "run-current.dat"), "CORRUPTED");
 
-            RunStateSO loaded = SaveSystem.LoadRun();
+            RunSaveData loaded = SaveSystem.LoadRun(new RunContentRegistry(), new PokemonInstanceFactory());
             Assert.That(loaded, Is.Null);
             Object.DestroyImmediate(run);
+        }
+
+        // ── Team / Box round-trip (gap #43 team persistence) ────────────────────────
+
+        // Per §9.8 + §2.3 + gap #43 — the live team (Box of PokemonInstances) must survive a save
+        // round-trip with every SO ref (species/moves/ability/held/branch) re-resolved to the SAME
+        // authored asset, and all runtime state (HP/XP/level/trauma/stages/status/stage) preserved.
+        [Test]
+        public void SaveSystem_RunRoundTrip_RestoresTeamFromBox()
+        {
+            MoveSO tackle = ScriptableObject.CreateInstance<MoveSO>();   tackle.MoveId = "tackle";
+            MoveSO vine   = ScriptableObject.CreateInstance<MoveSO>();   vine.MoveId   = "vine_whip";
+            MoveSO mastery= ScriptableObject.CreateInstance<MoveSO>();   mastery.MoveId= "solar_mastery";
+            MoveSO razor  = ScriptableObject.CreateInstance<MoveSO>();   razor.MoveId  = "razor_leaf"; // branch new move
+            AbilitySO overgrow = ScriptableObject.CreateInstance<AbilitySO>(); overgrow.AbilityId = "overgrow";
+            HeldItemSO leftovers = ScriptableObject.CreateInstance<HeldItemSO>(); leftovers.Id = "leftovers";
+
+            EvolutionBranchSO branch = ScriptableObject.CreateInstance<EvolutionBranchSO>();
+            branch.BranchId = "ivysaur_vanguard";
+            branch.NewMoves = new System.Collections.Generic.List<MoveSO> { razor };
+
+            PokemonSpeciesSO bulbasaur = ScriptableObject.CreateInstance<PokemonSpeciesSO>();
+            bulbasaur.SpeciesId = "bulbasaur";
+            bulbasaur.BaseLearnset = new System.Collections.Generic.List<MoveSO> { tackle, vine };
+            bulbasaur.PrimaryAbility = overgrow;
+            bulbasaur.MasteryMove = mastery;
+            bulbasaur.Branches = new System.Collections.Generic.List<EvolutionBranchSO> { branch };
+
+            PokemonInstanceFactory factory = new();
+            PokemonInstance mon = factory.RentEmpty();
+            mon.Species = bulbasaur; mon.Level = 7; mon.CurrentHP = 18; mon.CurrentXP = 42; mon.TraumaStacks = 2;
+            mon.CurrentMoves.Add(tackle); mon.CurrentMoves.Add(vine);
+            mon.LearnedMoves.Add(tackle); mon.LearnedMoves.Add(vine); mon.LearnedMoves.Add(razor);
+            mon.MasteryMove = mastery; mon.Ability = overgrow; mon.HeldItem = leftovers;
+            mon.StatStages[Stat.Attack] = 1;
+            mon.PrimaryStatus = StatusCondition.Burn; mon.PrimaryStatusTurnsRemaining = int.MaxValue;
+            mon.CurrentStage = EvolutionStage.Basic; mon.SelectedBranch = branch;
+
+            RunStateSO run = ScriptableObject.CreateInstance<RunStateSO>();
+            run.RunSeed = 7; run.LeadIndex = 0;
+            run.ActiveTeamIndices = new System.Collections.Generic.List<int> { 0 };
+
+            var box = new System.Collections.Generic.List<PokemonInstance> { mon };
+            SaveSystem.SaveRun(run, box, boxCapacity: 6);
+
+            RunContentRegistry registry = new();
+            registry.RegisterSpeciesGraph(bulbasaur); // pulls moves/ability/mastery/branch+newmoves
+            registry.RegisterHeldItem(leftovers);
+
+            RunSaveData saved = SaveSystem.LoadRun(registry, factory);
+
+            Assert.That(saved, Is.Not.Null);
+            Assert.That(saved.BoxCapacity, Is.EqualTo(6));
+            Assert.That(saved.Run.ActiveTeamIndices[0], Is.EqualTo(0));
+            Assert.That(saved.Box, Has.Count.EqualTo(1));
+
+            PokemonInstance r = saved.Box[0];
+            Assert.That(r.Species, Is.SameAs(bulbasaur));
+            Assert.That(r.Level, Is.EqualTo(7));
+            Assert.That(r.CurrentHP, Is.EqualTo(18));
+            Assert.That(r.CurrentXP, Is.EqualTo(42));
+            Assert.That(r.TraumaStacks, Is.EqualTo(2));
+            Assert.That(r.CurrentMoves, Is.EquivalentTo(new[] { tackle, vine }));
+            Assert.That(r.LearnedMoves, Is.EquivalentTo(new[] { tackle, vine, razor }));
+            Assert.That(r.MasteryMove, Is.SameAs(mastery));
+            Assert.That(r.Ability, Is.SameAs(overgrow));
+            Assert.That(r.HeldItem, Is.SameAs(leftovers));
+            Assert.That(r.SelectedBranch, Is.SameAs(branch));
+            Assert.That(r.StatStages[Stat.Attack], Is.EqualTo(1));
+            Assert.That(r.PrimaryStatus, Is.EqualTo(StatusCondition.Burn));
+            Assert.That(r.PrimaryStatusTurnsRemaining, Is.EqualTo(int.MaxValue));
+            Assert.That(r.CurrentStage, Is.EqualTo(EvolutionStage.Basic));
+
+            Object.DestroyImmediate(run); Object.DestroyImmediate(saved.Run);
+            Object.DestroyImmediate(tackle); Object.DestroyImmediate(vine);
+            Object.DestroyImmediate(mastery); Object.DestroyImmediate(razor);
+            Object.DestroyImmediate(overgrow); Object.DestroyImmediate(leftovers);
+            Object.DestroyImmediate(branch); Object.DestroyImmediate(bulbasaur);
+        }
+
+        // Per §5.3.5 + gap #43 — final-form sub-branch builds (e.g. Blastoise A1/A2) intentionally
+        // share a SpeciesId; the unique SelectedBranch disambiguates them. Resolution must restore the
+        // EXACT evolved-form asset via the branch, not whichever shares the colliding SpeciesId.
+        [Test]
+        public void SaveSystem_RunRoundTrip_EvolvedForm_DisambiguatesByBranch()
+        {
+            // Two distinct final-form species assets that SHARE a SpeciesId (mirrors authored data).
+            PokemonSpeciesSO blastoiseA1 = ScriptableObject.CreateInstance<PokemonSpeciesSO>(); blastoiseA1.SpeciesId = "blastoise";
+            PokemonSpeciesSO blastoiseA2 = ScriptableObject.CreateInstance<PokemonSpeciesSO>(); blastoiseA2.SpeciesId = "blastoise";
+            EvolutionBranchSO va1 = ScriptableObject.CreateInstance<EvolutionBranchSO>(); va1.BranchId = "wartortle_va1"; va1.EvolvedSpecies = blastoiseA1;
+            EvolutionBranchSO va2 = ScriptableObject.CreateInstance<EvolutionBranchSO>(); va2.BranchId = "wartortle_va2"; va2.EvolvedSpecies = blastoiseA2;
+
+            PokemonInstanceFactory factory = new();
+            PokemonInstance mon = factory.RentEmpty();
+            mon.Species = blastoiseA1; mon.Level = 36; mon.CurrentHP = 1; mon.SelectedBranch = va1; // chose A1
+            mon.CurrentStage = EvolutionStage.Stage2;
+
+            RunStateSO run = ScriptableObject.CreateInstance<RunStateSO>();
+            SaveSystem.SaveRun(run, new System.Collections.Generic.List<PokemonInstance> { mon }, 6);
+
+            RunContentRegistry registry = new();
+            registry.RegisterSpecies(blastoiseA2); // A2 registered LAST under "blastoise" (would win an id lookup)
+            registry.RegisterSpecies(blastoiseA1);
+            registry.RegisterBranch(va1);
+            registry.RegisterBranch(va2);
+
+            RunSaveData saved = SaveSystem.LoadRun(registry, factory);
+
+            // Branch-first resolution restores the A1 asset, not the id-colliding A2.
+            Assert.That(saved.Box[0].Species, Is.SameAs(blastoiseA1));
+            Assert.That(saved.Box[0].SelectedBranch, Is.SameAs(va1));
+
+            Object.DestroyImmediate(run); Object.DestroyImmediate(saved.Run);
+            Object.DestroyImmediate(blastoiseA1); Object.DestroyImmediate(blastoiseA2);
+            Object.DestroyImmediate(va1); Object.DestroyImmediate(va2);
         }
 
         // ── Checksum ──────────────────────────────────────────────────────────────

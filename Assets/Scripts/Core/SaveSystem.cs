@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -60,21 +61,52 @@ namespace ProjectAscendant.Core
             return bestiary;
         }
 
-        // Per §9.8.1 — save RunStateSO after every Node entry.
+        // Per §9.8.1 + gap #43 — save run-state only (no team). Back-compat convenience; the live run
+        // uses the Box-aware overload so the team persists too.
         public static void SaveRun(RunStateSO run)
         {
-            AtomicWrite(RunPath, bakPath: null, JsonUtility.ToJson(run));
+            SaveRun(run, box: null, boxCapacity: 0);
         }
 
-        // Per §9.8.1 — load RunStateSO. Returns null if missing or corrupt (run is forfeited).
-        public static RunStateSO LoadRun()
+        // Per §9.8.1 + gap #43 — save RunStateSO + the full Box (team) after every Node entry.
+        // Serialized through RunSaveDTO so every nested SO reference persists as a stable ID, not an
+        // unstable instanceID. Box is the run's live roster (RunContext.Box.Members).
+        public static void SaveRun(RunStateSO run, IReadOnlyList<PokemonInstance> box, int boxCapacity)
+        {
+            RunSaveDTO dto = new()
+            {
+                Run         = RunStateDTO.Capture(run),
+                Box         = PokemonInstanceDTO.CaptureBox(box),
+                BoxCapacity = boxCapacity,
+            };
+            AtomicWrite(RunPath, bakPath: null, JsonUtility.ToJson(dto));
+        }
+
+        // Per §9.8.1 + gap #43 — load the full run save. SO references (run-state + team) are resolved
+        // back from their stored IDs via the registry (built from the run's RunContentCatalogSO);
+        // Box instances are rebuilt via the factory pool. Returns null if missing or corrupt (run is
+        // forfeited).
+        public static RunSaveData LoadRun(RunContentRegistry registry, PokemonInstanceFactory factory)
         {
             string dataJson = AtomicRead(RunPath, bakPath: null);
             if (dataJson == null) return null;
 
-            RunStateSO runState = ScriptableObject.CreateInstance<RunStateSO>();
-            JsonUtility.FromJsonOverwrite(dataJson, runState);
-            return runState;
+            RunSaveDTO dto = JsonUtility.FromJson<RunSaveDTO>(dataJson);
+            if (dto == null) return null;
+
+            return new RunSaveData
+            {
+                Run         = dto.Run?.Rebuild(registry),
+                Box         = PokemonInstanceDTO.RebuildBox(dto.Box, registry, factory),
+                BoxCapacity = dto.BoxCapacity,
+            };
+        }
+
+        // Per §9.8.1 — delete the in-progress run save. Called at run end (victory/defeat) so a saved
+        // file always denotes a resumable in-progress run.
+        public static void DeleteRun()
+        {
+            if (File.Exists(RunPath)) File.Delete(RunPath);
         }
 
         // Per §9.8.1 — save Settings as JSON on change.
