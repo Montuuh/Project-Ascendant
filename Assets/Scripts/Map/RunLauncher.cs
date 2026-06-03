@@ -107,6 +107,11 @@ namespace ProjectAscendant.Map
             if (box != null) Context.Box.Members.AddRange(box);
             if (cap > 0) Context.Box.Capacity = cap;
 
+            // Per gap #43 — reseed the RNG streams from the LOADED seed so the deterministic map
+            // regenerates identically to the saved run (boot seeded streams from the idle placeholder
+            // seed). NOTE gap #45: per-stream cursors aren't persisted, so node CONTENTS past the
+            // resume point re-roll from each stream's start; the map topology + node types are stable.
+            Context.Streams = new RNGStreams((uint)Context.Run.RunSeed);
             Run.Resume();
             Debug.Log($"[RunLauncher] Continued run (seed {Context.Run.RunSeed}) at " +
                       $"L{Context.Run.CurrentLayerIndex}/Lane{Context.Run.CurrentLaneIndex} — team={Context.Box.Count}.");

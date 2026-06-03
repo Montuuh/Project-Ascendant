@@ -39,6 +39,7 @@ namespace ProjectAscendant.UI
         private HubPanelUI _hubPanel;
         private MainMenuUI _mainMenu;
         private PauseMenuUI _pauseMenu;
+        private DifficultySelectUI _difficultySelect;
         private RunLauncher _launcher;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
@@ -87,6 +88,9 @@ namespace ProjectAscendant.UI
 
             _pauseMenu = new GameObject("PauseMenu").AddComponent<PauseMenuUI>();
             _pauseMenu.transform.SetParent(transform, false);
+
+            _difficultySelect = new GameObject("DifficultySelect").AddComponent<DifficultySelectUI>();
+            _difficultySelect.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -137,28 +141,13 @@ namespace ProjectAscendant.UI
                 onQuit: OnMenuQuit);
         }
 
-        // §6.4 — open the Trainer Hub from the Main Menu. The menu closes first (the Hub canvas sorts
-        // below it); Hub CLOSE returns to the menu, Hub START RUN begins a new run with the chosen
-        // difficulty applied.
+        // §6.4 — open the Trainer Hub (Trainer Card + achievements) from the Main Menu. View-only now:
+        // difficulty selection moved to the New Run flow (§6.8). The menu closes first (the Hub canvas
+        // sorts below it); Hub CLOSE returns to the menu.
         private void OnMenuHub()
         {
             if (_hubPanel == null || _ctx == null) { ShowMainMenu(); return; }
-            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, _ctx.DifficultyChoices,
-                onStartRun: StartRunFromHub,
-                onClosed: ShowMainMenu);
-        }
-
-        // §6.8 — Hub START RUN: reset to a fresh run, apply the picked difficulty, then starter-select.
-        private void StartRunFromHub(DifficultyModifierSO selected)
-        {
-            _launcher?.BeginNewRun(); // resets run-state (clears difficulty) → apply AFTER
-            if (_state != null)
-                _state.ActiveDifficultyModifiers = selected != null
-                    ? new System.Collections.Generic.List<DifficultyModifierSO> { selected }
-                    : null;
-            _mainMenu?.Close();
-            AppendLog("New run via Hub — choose your starter.");
-            Refresh();
+            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, onClosed: ShowMainMenu);
         }
 
         // Resume the in-memory run if one is live (e.g. after Quit-to-Menu); otherwise load the autosave.
@@ -169,11 +158,25 @@ namespace ProjectAscendant.UI
             Refresh();
         }
 
-        // Reset to a clean run (the confirm dialog already gated abandoning a save) → starter-select.
+        // §6.8 + gap #43 — New Run: the abandon-save confirm (if any) already fired inside MainMenuUI;
+        // now choose difficulty, THEN begin the run + starter-select. Back returns to the Main Menu.
         private void OnMenuNewRun()
         {
-            _launcher?.BeginNewRun();
-            AppendLog("New run — choose your starter.");
+            if (_difficultySelect == null) { BeginRunWithDifficulty(null); return; }
+            _difficultySelect.Open(_ctx?.DifficultyChoices, BeginRunWithDifficulty, onBack: ShowMainMenu);
+        }
+
+        // Reset to a clean run, apply the chosen difficulty (after the reset, which clears it), then
+        // reveal starter-select.
+        private void BeginRunWithDifficulty(DifficultyModifierSO selected)
+        {
+            _launcher?.BeginNewRun(); // resets run-state (clears difficulty) → apply AFTER
+            if (_state != null)
+                _state.ActiveDifficultyModifiers = selected != null
+                    ? new System.Collections.Generic.List<DifficultyModifierSO> { selected }
+                    : null;
+            _mainMenu?.Close();
+            AppendLog($"New run — difficulty: {(selected != null ? (selected.DisplayName ?? selected.ModifierId) : "None")}. Choose your starter.");
             Refresh();
         }
 
