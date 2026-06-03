@@ -138,12 +138,12 @@ namespace ProjectAscendant.Map
         {
             if (RunOver || node == null) return false;
 
-            // Per §7.6 + Bug R2-2 — allow RE-ENTERING the CURRENT utility node (Center / Shop / Mystery)
-            // while the player is still parked on it (before advancing a layer). Utility services are
-            // repeatable / idempotent, so re-entry is safe. Combat nodes are NEVER re-enterable (no
-            // reward re-farming): the current node is not in its own SelectableNodes, so a combat
-            // CurrentNode fails the IsSelectable gate below.
-            bool reentry = node == CurrentNode && IsUtilityNode(node.NodeType);
+            // Per §7.6 + Bug R2-2 — allow RE-ENTERING the CURRENT REPEATABLE utility node (Center / Shop)
+            // while parked on it (before advancing a layer). Those services are repeatable/idempotent
+            // (heal is a no-op when already full; shop purchases deduct ₽), so re-entry is safe. MYSTERY
+            // (§7.9) is a ONE-SHOT event — re-entry would re-farm its reward — so it is excluded once
+            // resolved. Combat nodes are never re-enterable (the current node fails IsSelectable below).
+            bool reentry = node == CurrentNode && IsReenterable(node.NodeType);
             if (!reentry && !IsSelectable(node)) return false;
 
             _ctx.Loadout?.Lock();
@@ -157,9 +157,11 @@ namespace ProjectAscendant.Map
             return true;
         }
 
-        // Non-combat nodes whose current-node re-entry is allowed (§7.6 / §7.7 / §7.9).
-        private static bool IsUtilityNode(NodeType t)
-            => t == NodeType.Center || t == NodeType.Shop || t == NodeType.Mystery;
+        // Per §7.6 — REPEATABLE utility nodes whose current-node re-entry is allowed. Mystery (§7.9) is
+        // a one-shot event and is intentionally excluded to prevent reward re-farming; combat nodes are
+        // never re-enterable. Public so the Map View renders the current node clickable iff re-enterable.
+        public static bool IsReenterable(NodeType t)
+            => t == NodeType.Center || t == NodeType.Shop;
 
         // Routes the resolved active node to the next macro state. The caller must have resolved the
         // node first (so ActiveNode.IsCompleted is true). RunEnded/GameOver end the run; otherwise the

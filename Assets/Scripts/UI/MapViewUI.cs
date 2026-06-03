@@ -289,11 +289,11 @@ namespace ProjectAscendant.UI
                 bool isVisited = _visited.Contains(node);
                 // Per §7.6 + §7.2 + Bug R2-2 — a node is interactable if:
                 //   1. It's in the forward-reachable set (SelectableNodes), OR
-                //   2. It's the current node (player is still parked on it, has NOT advanced a layer yet).
-                // Re-entry of the current node lets the player revisit utility nodes (Center / Shop) freely
-                // while still on the node, without layer advancement locking them out (even if Cleared).
-                // Already-passed nodes (visited but not current) are locked.
-                bool isReach = !_run.RunOver && (reachable.Contains(node) || isCurrent);
+                //   2. It's the current node AND re-enterable (Center / Shop only — repeatable services).
+                // Mystery (§7.9) is one-shot: once resolved, the current Mystery is NOT re-enterable, so
+                // it's not clickable (matches RunController.IsReenterable). Combat/visited nodes are locked.
+                bool isReach = !_run.RunOver && (reachable.Contains(node)
+                    || (isCurrent && RunController.IsReenterable(node.NodeType)));
 
                 Color baseCol = NodeColor(node.NodeType);
                 Color col = isVisited && !isCurrent ? baseCol * 0.75f : isReach || isCurrent ? baseCol : baseCol * 0.4f;
@@ -398,7 +398,9 @@ namespace ProjectAscendant.UI
                 return;
             }
 
-            _run.EnterNode(node);
+            // EnterNode refuses unreachable nodes + non-re-enterable current nodes (e.g. a resolved
+            // one-shot Mystery). Bail out so we don't fall through to a stale/null ActiveNode.
+            if (!_run.EnterNode(node)) return;
             NodeController active = _run.ActiveNode;
 
             // Combat node → open the interactive combat screen; utility node → auto-resolve.

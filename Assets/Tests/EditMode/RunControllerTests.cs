@@ -405,6 +405,20 @@ namespace ProjectAscendant.Tests
             Assert.That(rc.RunOver, Is.False);
         }
 
+        // Per §7.9 — a one-shot Mystery must NOT be re-enterable (reward re-farm exploit); repeatable
+        // services (Center / Shop) stay re-enterable; combat nodes are never re-enterable.
+        [Test]
+        public void IsReenterable_MysteryOneShot_Blocked_RepeatableAllowed()
+        {
+            Assert.That(RunController.IsReenterable(NodeType.Center), Is.True);
+            Assert.That(RunController.IsReenterable(NodeType.Shop), Is.True);
+            Assert.That(RunController.IsReenterable(NodeType.Mystery), Is.False, "Mystery is one-shot — no re-farming.");
+            Assert.That(RunController.IsReenterable(NodeType.Wild), Is.False);
+            Assert.That(RunController.IsReenterable(NodeType.Trainer), Is.False);
+            Assert.That(RunController.IsReenterable(NodeType.Elite), Is.False);
+            Assert.That(RunController.IsReenterable(NodeType.Gym), Is.False);
+        }
+
         [Test]
         public void FullRun_Deterministic_SameSeedSamePath()
         {
