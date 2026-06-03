@@ -16,13 +16,15 @@
 
 | # | Summary | Owner hint |
 |---|---------|------------|
-| 43 | Save-resume SO refs serialize as unstable instance IDs | lead-programmer |
+| ~~43~~ | ✅ DONE (`0cdae4d`) — save/resume + full team persistence (DTO + ID-registry) | lead-programmer |
 | 44 | Dense Fog (intent hide) + Iron Will (+enemy HP) combat effects | lead-programmer |
+| 45 | Resume doesn't persist per-stream RNG cursors (encounters re-roll from seed) | lead-programmer |
+| 46 | Duplicate final-form SpeciesId (Blastoise/Charizard/Venusaur A1≡A2) | content-designer |
 | — | 5 achievement combat/timer trigger hooks | lead-programmer + qa-lead |
 
 ## Verification Baseline
 
-- EditMode suite: **938/938** at last full green (`6410898`)
+- EditMode suite: **988/988** at last full green (`0cdae4d`)
 - Unity: **6000.4.6f1**, Coplay MCP for compile + tests
 - Bridge freezes after many domain reloads → restart editor
 
