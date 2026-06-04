@@ -24,11 +24,13 @@ namespace ProjectAscendant.Map
             public int AchievementsUnlocked; // §6.7 — newly-completed this run-end
             // §6.3 / §6.5.2 / §6.6.1 — Trainer-Level milestones unlocked by this run's level-up(s).
             public System.Collections.Generic.List<TrainerLevelMilestone> LevelUnlocks;
+            // §6.9 — Pokédex completion milestones newly claimed at this run-end.
+            public System.Collections.Generic.List<PokedexCompletionMilestone> PokedexUnlocks;
         }
 
         public static RunSummary Finalize(RunStateSO run, Box box, MetaProgressionSO meta,
                                           MetaProgressionConfigSO cfg, RunOutcome outcome, int layersCleared,
-                                          BestiaryProgressSO bestiary = null)
+                                          BestiaryProgressSO bestiary = null, int pokedexTotal = 0)
         {
             RunSummary s = default;
             if (run == null) return s;
@@ -66,6 +68,10 @@ namespace ProjectAscendant.Map
                 // §6.3 / §6.5.2 / §6.6.1 — leveling up grants milestone content unlocks
                 // (new starters / relic-pool entries). This is what Trainer XP "serves".
                 s.LevelUnlocks = TrainerProgression.GrantLevelUnlocks(meta, cfg, r.OldLevel, r.NewLevel);
+
+                // §6.9 — Pokédex completion-% milestones (tokens / relics / starters), claimed once.
+                s.PokedexUnlocks = PokedexRewardService.GrantCompletionMilestones(
+                    meta, cfg, bestiary != null ? bestiary.SeenSpeciesCount() : 0, pokedexTotal);
 
                 meta.TotalRunsAttempted += 1;
                 if (outcome == RunOutcome.Victory) meta.TotalRunsCompleted += 1;

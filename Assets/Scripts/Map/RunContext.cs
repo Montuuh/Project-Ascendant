@@ -28,6 +28,7 @@ namespace ProjectAscendant.Map
         public MetaProgressionSO Meta;             // §6.10 — persistent cross-run state (run-end commit target)
         public MetaProgressionConfigSO MetaConfig; // §6.3 — Trainer XP/Level/Token tuning
         public BestiaryProgressSO Bestiary;        // §6.9 — per-species kill counts + tiers (Task 11.8)
+        public int PokedexTotalSpecies;            // §6.9 — total roster size (completion-% denominator)
         public IReadOnlyList<DifficultyModifierSO> DifficultyChoices; // §6.8 — selectable at the Hub (Task 11.6)
 
         // ── Wild (9.3) ───────────────────────────────────────────────────────

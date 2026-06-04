@@ -23,6 +23,27 @@ namespace ProjectAscendant.Core
         public string Description;
     }
 
+    // Per §6.9 — what reaching a Pokédex completion percentage grants. Data-driven so content (which
+    // % grants which reward) is authored in the config asset. Claimed once (tracked on MetaProgressionSO).
+    [Serializable]
+    public sealed class PokedexCompletionMilestone
+    {
+        [Tooltip("Grant when the seen-species percentage reaches/exceeds this (0–100).")]
+        [Range(0, 100)] public int PercentThreshold = 25;
+
+        [Tooltip("Bonus Trainer Tokens granted (Completion → Tokens).")]
+        public int TrainerTokens;
+
+        [Tooltip("§6.6.1 — relic ids added to the meta-unlock pool.")]
+        public List<string> RelicIds = new();
+
+        [Tooltip("§6.5.2 — meta-starter SpeciesIds unlocked.")]
+        public List<string> StarterIds = new();
+
+        [Tooltip("Player-facing description of what this milestone grants.")]
+        public string Description;
+    }
+
     // Per §6.3 (Topic 6) + Epic 11 Task 11.3 — persistent Trainer-XP / Level / Token tuning. Distinct
     // from in-run ProgressionConfigSO (§5.2, per-Pokémon). All values data-driven (systems-designer
     // recalibrates without code). Trainer XP is META — accrued during a run, committed at run-end (§6.3.4).
@@ -52,6 +73,11 @@ namespace ProjectAscendant.Core
         [Tooltip("Reaching a milestone's Level grants its starter/relic ids (committed at run-end). " +
                  "Authored per save in the inspector; empty = no level-gated unlocks yet.")]
         public List<TrainerLevelMilestone> LevelMilestones = new();
+
+        [Header("§6.9 — Pokédex completion-% milestone rewards (authored content)")]
+        [Tooltip("Reaching a seen-% threshold grants its tokens/relics/starters once (claimed on the " +
+                 "save). Authored per save in the inspector; empty = no completion rewards yet.")]
+        public List<PokedexCompletionMilestone> PokedexMilestones = new();
 
         [Header("§6.3.4 — Trainer Token conversion (per run)")]
         public int TokenXPDivisor = 100;    // 1 Token per 100 Trainer XP earned this run

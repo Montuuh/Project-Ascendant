@@ -36,6 +36,10 @@ namespace ProjectAscendant.Core
         // Per §6.7 — Hub upgrade flags. Key = upgrade ID, Value = upgrade level.
         public List<StringIntPair> HubUpgrades;
 
+        // Per §6.9 — Pokédex completion milestones already claimed (by PercentThreshold), so each
+        // grants its reward exactly once across all runs.
+        public List<int> ClaimedPokedexMilestones;
+
         [Header("Run History")]
         public int TotalRunsCompleted;
         public int TotalRunsAttempted;
