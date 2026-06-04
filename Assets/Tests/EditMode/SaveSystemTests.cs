@@ -60,6 +60,24 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(loaded);
         }
 
+        // Per §4.3.9.2 — unlocked Mastery moves persist across runs in meta.dat.
+        [Test]
+        public void SaveSystem_Meta_UnlockedMasteries_RoundTrip()
+        {
+            MetaProgressionSO original = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            Assert.That(original.IsMasteryUnlocked("wartortle_mastery"), Is.False);
+            Assert.That(original.UnlockMastery("wartortle_mastery"), Is.True);
+            Assert.That(original.UnlockMastery("wartortle_mastery"), Is.False, "Idempotent.");
+            Assert.That(original.IsMasteryUnlocked("wartortle_mastery"), Is.True);
+            SaveSystem.SaveMeta(original);
+
+            MetaProgressionSO loaded = SaveSystem.LoadMeta();
+            Assert.That(loaded.IsMasteryUnlocked("wartortle_mastery"), Is.True);
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(loaded);
+        }
+
         [Test]
         public void SaveSystem_SaveMeta_Twice_CreatesBackup()
         {

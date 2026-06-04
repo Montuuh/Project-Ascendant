@@ -90,6 +90,11 @@ namespace ProjectAscendant.Combat
             // Optional; null/empty = no badges. Currently consumed for the
             // Boulder Badge's Lead incoming-damage reduction (§4.4.5.1).
             public List<BadgeSO> ActiveBadges;
+
+            // Per §4.3.9.2 — Mastery MoveIds unlocked in meta (MetaProgressionSO.UnlockedMasteryMoveIds).
+            // A Pokémon's Mastery card is built into the Skill Deck only if its MoveId is here.
+            // Null/empty ⇒ no Mastery cards (locked).
+            public ICollection<string> UnlockedMasteryIds;
         }
 
         // Runtime state — fully describes the encounter. Public mutable for
@@ -185,6 +190,9 @@ namespace ProjectAscendant.Combat
             // Never null after construction.
             public List<BadgeSO> ActiveBadges = new();
 
+            // Per §4.3.9.2 — unlocked Mastery MoveIds for this combat's deck build. Never null.
+            public HashSet<string> UnlockedMasteryIds = new();
+
             // Per §3.3.5 + Bug #10 — when the Lead faints, the controller pauses
             // mid-HandleAnyFaints and exposes the replacement candidates here.
             // UI shows a picker modal; player clicks; UI calls ApplyLeadReplacement(index).
@@ -253,6 +261,9 @@ namespace ProjectAscendant.Combat
                 ActiveBadges = setup.ActiveBadges != null
                     ? new List<BadgeSO>(setup.ActiveBadges)
                     : new List<BadgeSO>(),
+                UnlockedMasteryIds = setup.UnlockedMasteryIds != null
+                    ? new HashSet<string>(setup.UnlockedMasteryIds)
+                    : new HashSet<string>(),
             };
             State.Consumables.Build(State.ConsumableInventory);
             // Per Epic 5 Task 5.4.1 — extracted play pipeline. Wired with a
@@ -267,7 +278,7 @@ namespace ProjectAscendant.Combat
             State.CurrentPhase = Phase.Start;
             // Per Epic 5 Task 5.1.1 — SkillDeck.Build clears + repopulates
             // and ConsumablePile.Build resets the per-combat used-list.
-            State.Deck.Build(State.PlayerTeam);
+            State.Deck.Build(State.PlayerTeam, State.UnlockedMasteryIds);
             State.Consumables.Build(State.ConsumableInventory);
             State.TurnNumber = 0;
             State.CombatLog.Clear(); // Per R4-4 — fresh log each combat

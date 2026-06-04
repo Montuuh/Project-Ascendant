@@ -193,14 +193,18 @@ namespace ProjectAscendant.Tests
             PokemonSpeciesSO sp = MakeSpecies(40, 50, 50, PokemonType.Normal);
             MoveSO basic = MakeMove(PokemonType.Normal, 40);
             MoveSO mastery = MakeMove(PokemonType.Normal, 90);
+            mastery.MoveId = "mastery_test";
             PokemonInstance p = MakeMon(sp, basic);
             p.MasteryMove = mastery;
 
-            CombatController c = new(BuildSetup(p, MakeMon(sp, basic), 1u), new FirstCardAgent());
+            // Per §4.3.9.2 — the Mastery card appears only when unlocked in meta.
+            CombatController.CombatSetup setup = BuildSetup(p, MakeMon(sp, basic), 1u);
+            setup.UnlockedMasteryIds = new HashSet<string> { "mastery_test" };
+            CombatController c = new(setup, new FirstCardAgent());
             c.Start();
 
             Assert.That(c.State.Deck.DeckCount, Is.EqualTo(2),
-                "Deck should contain 1 base move + 1 Mastery Move.");
+                "Deck should contain 1 base move + 1 (unlocked) Mastery Move.");
         }
 
         // ── Bucket 2: Draw phase (Task 4.1.3) ────────────────────────────────

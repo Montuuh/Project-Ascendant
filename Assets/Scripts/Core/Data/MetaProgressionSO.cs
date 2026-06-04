@@ -23,6 +23,11 @@ namespace ProjectAscendant.Core
         // Stored as relic IDs; Epic 6 resolves to RelicSO refs.
         public List<string> UnlockedRelicIds;
 
+        // Per §4.3.9.2 — Mastery Moves unlocked via meta-progression (MoveId strings). A Pokémon's
+        // Mastery card is only added to the Skill Deck once its MoveId is unlocked here. Permanent +
+        // cross-run (persisted in meta.dat). VS unlock path: evolving a Pokémon unlocks its form's Mastery.
+        public List<string> UnlockedMasteryMoveIds;
+
         // Per §6.7 — Hub upgrade flags. Key = upgrade ID, Value = upgrade level.
         public List<StringIntPair> HubUpgrades;
 
@@ -41,5 +46,20 @@ namespace ProjectAscendant.Core
         [Header("Currency")]
         // Per §6.3 — Trainer Tokens spent at Hub kiosks.
         public int TrainerTokens;
+
+        // Per §4.3.9.2 — is this Mastery Move (by MoveId) unlocked for the Skill Deck?
+        public bool IsMasteryUnlocked(string moveId)
+            => !string.IsNullOrEmpty(moveId) && UnlockedMasteryMoveIds != null && UnlockedMasteryMoveIds.Contains(moveId);
+
+        // Per §4.3.9.2 — permanently unlock a Mastery Move. Returns true if newly unlocked (caller
+        // should persist via SaveSystem.SaveMeta). Idempotent.
+        public bool UnlockMastery(string moveId)
+        {
+            if (string.IsNullOrEmpty(moveId)) return false;
+            UnlockedMasteryMoveIds ??= new List<string>();
+            if (UnlockedMasteryMoveIds.Contains(moveId)) return false;
+            UnlockedMasteryMoveIds.Add(moveId);
+            return true;
+        }
     }
 }

@@ -603,6 +603,13 @@ namespace ProjectAscendant.UI
             if (_evolutionPanel == null || mon == null) return;
             _evolutionPanel.Open(mon, _state, () =>
             {
+                // Per §4.3.9.2 — evolving permanently unlocks the evolved form's Mastery move in meta
+                // (persists across runs). This is the VS meta-unlock path; the gate lives in SkillDeck.
+                if (mon.MasteryMove != null && _ctx?.Meta != null && _ctx.Meta.UnlockMastery(mon.MasteryMove.MoveId))
+                {
+                    SaveSystem.SaveMeta(_ctx.Meta);
+                    AppendLog($"Mastery unlocked: {mon.MasteryMove.DisplayName ?? mon.MasteryMove.MoveId}!");
+                }
                 if (!_run.RunOver) AutoFillTeam(); // species/stat changes — re-confirm the active team
                 Refresh();
             });
@@ -698,6 +705,7 @@ namespace ProjectAscendant.UI
             setup.Economy = _ctx.Economy; // §6.2 / 11.1.8 — Trauma-aware EffectiveMaxHP for DoT + HP-bar max
             setup.Bestiary = _ctx.Bestiary; // §6.9 / 11.8.2 — enemy faints record kills
             setup.ActiveRelics = _state?.HeldRelics; // §8.3 / 12.3 — RelicResolver dispatch
+            setup.UnlockedMasteryIds = _ctx.Meta?.UnlockedMasteryMoveIds; // §4.3.9.2 — gate Mastery cards
             return new CombatController(setup, new UIPlayerAgent());
         }
 

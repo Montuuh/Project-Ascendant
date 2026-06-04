@@ -37,6 +37,7 @@ namespace ProjectAscendant.Tests
         {
             MoveSO m = ScriptableObject.CreateInstance<MoveSO>();
             m.name = name;
+            m.MoveId = name;
             m.Type = PokemonType.Normal;
             m.BasePower = 40;
             m.APCost = 1;
@@ -69,19 +70,18 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Build_OneMastered_AddsOneFlaggedCard()
+        public void Build_OneMastered_Unlocked_AddsOneFlaggedCard()
         {
-            // Per §3.4 + §4.3.9 — "Each mastered Pokémon adds one Mastery Move
-            //   (+1 per mastered Pokémon, max 15 cards at full mastery)."
+            // Per §3.4 + §4.3.9.2 — a mastered Pokémon adds its Mastery card ONLY when the move is
+            // unlocked in meta. Here it is unlocked, so the card appears + IsMasteryMove == true.
             SkillDeck deck = new();
             MoveSO mastery = MakeMove("M-mastery");
             List<PokemonInstance> team = new()
             {
                 MakePokemon(4, mastery), MakePokemon(4), MakePokemon(4),
             };
-            deck.Build(team);
+            deck.Build(team, new HashSet<string> { "M-mastery" });
             Assert.That(deck.DeckCount, Is.EqualTo(13));
-            // The Mastery card is in the deck and IsMasteryMove == true.
             int masteryCount = 0;
             for (int i = 0; i < deck.DeckView.Count; i++)
                 if (deck.DeckView[i].IsMasteryMove) masteryCount++;
@@ -89,9 +89,21 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Build_AllThreeMastered_FifteenCards()
+        public void Build_Mastered_ButLocked_ExcludesMasteryCard()
         {
-            // Per §3.4 — max 15 cards at full mastery.
+            // Per §4.3.9.2 — a mastery that is NOT unlocked (default) is never built into the deck.
+            SkillDeck deck = new();
+            List<PokemonInstance> team = new() { MakePokemon(4, MakeMove("M-mastery")) };
+            deck.Build(team);                  // no unlocked set → locked
+            Assert.That(deck.DeckCount, Is.EqualTo(4), "Only the 4 CurrentMoves; mastery is locked.");
+            for (int i = 0; i < deck.DeckView.Count; i++)
+                Assert.That(deck.DeckView[i].IsMasteryMove, Is.False);
+        }
+
+        [Test]
+        public void Build_AllThreeMastered_Unlocked_FifteenCards()
+        {
+            // Per §3.4 — max 15 cards at full mastery (all three unlocked).
             SkillDeck deck = new();
             List<PokemonInstance> team = new()
             {
@@ -99,7 +111,7 @@ namespace ProjectAscendant.Tests
                 MakePokemon(4, MakeMove("M2")),
                 MakePokemon(4, MakeMove("M3")),
             };
-            deck.Build(team);
+            deck.Build(team, new HashSet<string> { "M1", "M2", "M3" });
             Assert.That(deck.DeckCount, Is.EqualTo(15));
         }
 

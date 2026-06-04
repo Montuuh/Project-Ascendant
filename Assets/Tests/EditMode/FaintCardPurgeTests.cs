@@ -64,6 +64,7 @@ namespace ProjectAscendant.Tests
         {
             MoveSO m = ScriptableObject.CreateInstance<MoveSO>();
             m.name = id;
+            m.MoveId = id;
             m.Type = PokemonType.Normal;
             m.BasePower = power;
             m.APCost = 1;
@@ -98,6 +99,12 @@ namespace ProjectAscendant.Tests
 
         private CombatController Build(List<PokemonInstance> team, PokemonInstance enemy)
         {
+            // Per §4.3.9.2 — unlock every team mastery so this fixture's mastered mons get their card.
+            HashSet<string> masteries = new();
+            foreach (PokemonInstance p in team)
+                if (p?.MasteryMove != null && !string.IsNullOrEmpty(p.MasteryMove.MoveId))
+                    masteries.Add(p.MasteryMove.MoveId);
+
             CombatController.CombatSetup setup = new()
             {
                 PlayerTeam = team,
@@ -107,6 +114,7 @@ namespace ProjectAscendant.Tests
                 InitialField = FieldState.Empty,
                 Config = _config,
                 Rng = new GameRNG(seed: 0xFA1),
+                UnlockedMasteryIds = masteries,
             };
             CombatController c = new(setup, new EndAgent());
             c.Start();

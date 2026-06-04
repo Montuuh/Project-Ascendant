@@ -51,7 +51,11 @@ namespace ProjectAscendant.Deck
         // Releases any prior cards via factory, then walks each non-null
         // Pokémon's CurrentMoves (4 slots) + optional MasteryMove.
         // Skipped slots: null move references and null Pokémon.
-        public void Build(IList<PokemonInstance> activeTeam)
+        // `unlockedMasteryIds`: the MoveIds the player has unlocked via meta-progression (§4.3.9.2).
+        // A Pokémon's Mastery card is added ONLY if its MoveId is in this set — null/empty ⇒ no
+        // Mastery cards (locked by default). Wired from MetaProgressionSO.UnlockedMasteryMoveIds.
+        public void Build(IList<PokemonInstance> activeTeam,
+            System.Collections.Generic.ICollection<string> unlockedMasteryIds = null)
         {
             Clear();
             if (activeTeam == null) return;
@@ -65,14 +69,9 @@ namespace ProjectAscendant.Deck
                     if (move == null) continue;
                     _deck.Add(_factory.Create(move, p, isMasteryMove: false));
                 }
-                if (p.MasteryMove != null)
-                {
-                    // Per §4.3.9 — Mastery Move flagged so UI / relics can
-                    // differentiate. Immutable per §4.3.9.2 (TMs/Tutors can't
-                    // replace it) — that's enforced at progression time, not
-                    // here; the Deck builder just transcribes it.
+                // Per §4.3.9.2 — the Mastery card is drawn only once the move is unlocked in meta.
+                if (p.MasteryMove != null && unlockedMasteryIds != null && unlockedMasteryIds.Contains(p.MasteryMove.MoveId))
                     _deck.Add(_factory.Create(p.MasteryMove, p, isMasteryMove: true));
-                }
             }
         }
 
