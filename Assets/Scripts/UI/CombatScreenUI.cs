@@ -226,9 +226,7 @@ namespace ProjectAscendant.UI
             if (!over && enemy != null && enemy.CurrentHP > 0 && s.EnemyIntents.Count > 0)
             {
                 Intent it = s.EnemyIntents[0];
-                _enemyIntent.text = it.Move != null && it.Kind == IntentKind.Attack
-                    ? $"⚔ Intent: {it.Move.DisplayName ?? it.Move.name}  →  {SlotLabel(it.EffectiveTargetSlot(s.LeadIndex), s)}"
-                    : $"Intent: {it.Kind}";
+                _enemyIntent.text = FormatIntent(it, s, enemy);
             }
 
             BuildHand(s, over);
@@ -279,6 +277,37 @@ namespace ProjectAscendant.UI
             string stages = FormatStatStages(p);
 
             info.text = $"{who}:  {p.Species.DisplayName ?? p.Species.name}   Lv{p.Level}\nHP {p.CurrentHP} / {max}{status}{stages}";
+        }
+
+        // Per §4.3.2 / Bug #5 — render an enemy intent. Damage/debuff/status point at a player
+        // slot; self-buffs (Buff/Stall) point at the enemy itself ("→ Self"), never the Lead.
+        private static string FormatIntent(Intent it, CombatController.CombatState s, PokemonInstance enemy)
+        {
+            if (it.Move == null) return $"Intent: {it.Kind}";
+            string move = it.Move.DisplayName ?? it.Move.name;
+            string icon = it.Kind switch
+            {
+                IntentKind.Attack or IntentKind.Cleave or IntentKind.Backstrike => "⚔",
+                IntentKind.Buff or IntentKind.Stall => "▲",
+                IntentKind.Debuff => "▼",
+                IntentKind.Status => "✦",
+                _ => "•",
+            };
+            string target;
+            if (it.TargetsSelf)
+            {
+                string self = enemy?.Species != null ? (enemy.Species.DisplayName ?? enemy.Species.name) : "itself";
+                target = $"Self ({self})";
+            }
+            else if (it.TargetsSlot)
+            {
+                target = SlotLabel(it.EffectiveTargetSlot(s.LeadIndex), s);
+            }
+            else
+            {
+                return $"{icon} Intent: {move}";
+            }
+            return $"{icon} Intent: {move}  →  {target}";
         }
 
         // Per §4.3.2 — intents target POSITIONS (slots), not Pokémon. Translate a raw slot index to

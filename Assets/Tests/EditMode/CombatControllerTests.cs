@@ -265,6 +265,119 @@ namespace ProjectAscendant.Tests
             Assert.That(c.State.EnemyIntents[0].Move, Is.SameAs(m));
         }
 
+        // ── Bucket 3b: Enemy buff/debuff AI (Bug #2 / #5) ────────────────────
+        // A 0-power BuffSelf move must classify as a self-targeted Buff (not an
+        // Attack on the Lead); a DebuffTarget move as a Lead-targeted Debuff.
+
+        private MoveSO MakeBuffSelfMove(Stat stat, int stage)
+        {
+            MoveSO m = ScriptableObject.CreateInstance<MoveSO>();
+            m.Type = PokemonType.Normal;
+            m.BasePower = 0;
+            m.APCost = 1;
+            m.RangeModifierMultiplier = 1f;
+            BuffSelfEffectSO eff = ScriptableObject.CreateInstance<BuffSelfEffectSO>();
+            eff.TargetStat = stat;
+            eff.StageChange = stage;
+            m.Effects = new List<MoveEffectSO> { eff };
+            _disposables.Add(eff);
+            _disposables.Add(m);
+            return m;
+        }
+
+        private MoveSO MakeDebuffTargetMove(Stat stat, int stage)
+        {
+            MoveSO m = ScriptableObject.CreateInstance<MoveSO>();
+            m.Type = PokemonType.Normal;
+            m.BasePower = 0;
+            m.APCost = 1;
+            m.RangeModifierMultiplier = 1f;
+            DebuffTargetEffectSO eff = ScriptableObject.CreateInstance<DebuffTargetEffectSO>();
+            eff.TargetStat = stat;
+            eff.StageChange = stage;
+            m.Effects = new List<MoveEffectSO> { eff };
+            _disposables.Add(eff);
+            _disposables.Add(m);
+            return m;
+        }
+
+        [Test]
+        public void IntentPhase_EnemyBuffSelfMove_ClassifiedAsBuff_TargetsSelf()
+        {
+            // Per Bug #5 — Harden-style move points at the enemy itself, not the Lead.
+            PokemonSpeciesSO sp = MakeSpecies(40, 50, 50, PokemonType.Normal);
+            PokemonInstance p = MakeMon(sp, MakeMove(PokemonType.Normal, 40));
+            PokemonInstance e = MakeMon(sp, MakeBuffSelfMove(Stat.Defense, +1));
+
+            CombatController c = new(BuildSetup(p, e, 1u), new FirstCardAgent());
+            c.Start();
+            c.DrawPhase();
+            c.IntentPhase();
+
+            Intent it = c.State.EnemyIntents[0];
+            Assert.That(it.Kind, Is.EqualTo(IntentKind.Buff));
+            Assert.That(it.TargetsSelf, Is.True);
+            Assert.That(it.TargetsSlot, Is.False);
+        }
+
+        [Test]
+        public void Resolution_EnemyBuffSelfMove_RaisesEnemyOwnStat()
+        {
+            // Per Bug #5 — the buff must land on the ENEMY (its own Defense), not the player.
+            PokemonSpeciesSO sp = MakeSpecies(40, 50, 50, PokemonType.Normal);
+            PokemonInstance p = MakeMon(sp, MakeMove(PokemonType.Normal, 40));
+            PokemonInstance e = MakeMon(sp, MakeBuffSelfMove(Stat.Defense, +1));
+
+            CombatController c = new(BuildSetup(p, e, 1u), new PassiveAgent());
+            c.Start();
+            c.DrawPhase();
+            c.IntentPhase();
+            c.ActionPhase();
+            c.ResolutionPhase();
+
+            Assert.That(StatStageManager.GetStage(e, Stat.Defense), Is.EqualTo(1));
+            Assert.That(StatStageManager.GetStage(p, Stat.Defense), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void IntentPhase_EnemyDebuffMove_ClassifiedAsDebuff_TargetsLead()
+        {
+            // Per Bug #2 — Growl-style move classifies as a Lead-targeted Debuff.
+            PokemonSpeciesSO sp = MakeSpecies(40, 50, 50, PokemonType.Normal);
+            PokemonInstance p = MakeMon(sp, MakeMove(PokemonType.Normal, 40));
+            PokemonInstance e = MakeMon(sp, MakeDebuffTargetMove(Stat.Attack, -1));
+
+            CombatController c = new(BuildSetup(p, e, 1u), new FirstCardAgent());
+            c.Start();
+            c.DrawPhase();
+            c.IntentPhase();
+
+            Intent it = c.State.EnemyIntents[0];
+            Assert.That(it.Kind, Is.EqualTo(IntentKind.Debuff));
+            Assert.That(it.TargetsSlot, Is.True);
+            Assert.That(it.TargetsSelf, Is.False);
+            Assert.That(it.TargetsLead, Is.True);
+        }
+
+        [Test]
+        public void Resolution_EnemyDebuffMove_LowersPlayerLeadStat()
+        {
+            // Per Bug #2 — the debuff must actually land on the player's Lead Attack.
+            PokemonSpeciesSO sp = MakeSpecies(40, 50, 50, PokemonType.Normal);
+            PokemonInstance p = MakeMon(sp, MakeMove(PokemonType.Normal, 40));
+            PokemonInstance e = MakeMon(sp, MakeDebuffTargetMove(Stat.Attack, -1));
+
+            CombatController c = new(BuildSetup(p, e, 1u), new PassiveAgent());
+            c.Start();
+            c.DrawPhase();
+            c.IntentPhase();
+            c.ActionPhase();
+            c.ResolutionPhase();
+
+            Assert.That(StatStageManager.GetStage(p, Stat.Attack), Is.EqualTo(-1));
+            Assert.That(StatStageManager.GetStage(e, Stat.Attack), Is.EqualTo(0));
+        }
+
         // ── Bucket 4: Full round-trip — Victory (Task 4.1.9) ─────────────────
 
         [Test]

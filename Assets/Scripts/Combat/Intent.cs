@@ -9,9 +9,10 @@ namespace ProjectAscendant.Combat
         Attack,      // single-target damage to TargetSlot (Lead or bench)
         Cleave,      // damages all occupied non-fainted slots (§4.3.4.1)
         Backstrike,  // specific bench slot; fizzles on empty (§4.3.4.1)
-        Buff,        // attacker raises its own stat by one stage
-        Stall,       // attacker applies defensive effect to itself
+        Buff,        // attacker raises its OWN stat (self-target) — e.g. Harden
+        Stall,       // attacker applies a defensive/heal effect to itself (self-target)
         Status,      // applies AppliedStatus to TargetSlot's occupant
+        Debuff,      // lowers a stat of TargetSlot's occupant (the player) — e.g. Growl
         Unknown      // hidden intent — ❓ displayed (§4.3.5)
     }
 
@@ -33,7 +34,7 @@ namespace ProjectAscendant.Combat
         public IntentKind Kind;
         public MoveSO Move;                // null only for Unknown
         public int TargetSlot;             // 0..2 for slot-targeted; -1 otherwise
-        public Stat BuffStat;              // only meaningful when Kind == Buff
+        public Stat BuffStat;              // stat raised (Buff) or lowered (Debuff)
         public StatusCondition AppliedStatus; // only meaningful when Kind == Status
         public IntentReveal Reveal;
 
@@ -54,6 +55,13 @@ namespace ProjectAscendant.Combat
         public bool TargetsSlot =>
             Kind == IntentKind.Attack ||
             Kind == IntentKind.Backstrike ||
-            Kind == IntentKind.Status;
+            Kind == IntentKind.Status ||
+            Kind == IntentKind.Debuff;
+
+        // Per §4.3.2 — Buff/Stall act on the attacker itself; the UI renders
+        // these as "→ Self" rather than a player slot.
+        public bool TargetsSelf =>
+            Kind == IntentKind.Buff ||
+            Kind == IntentKind.Stall;
     }
 }

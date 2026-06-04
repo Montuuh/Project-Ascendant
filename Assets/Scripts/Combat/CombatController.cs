@@ -477,11 +477,94 @@ namespace ProjectAscendant.Combat
                 }
         }
 
+        // Per §4.3.2 / Bug #2 + #5 — classify a single enemy move into the intent
+        // kind that matches its effect, so a buff/debuff/status move telegraphs and
+        // resolves correctly (a self-buff points at the enemy itself, not the Lead).
+        //   • BasePower > 0                         → Attack (Lead-targeted)
+        //   • BuffSelfEffectSO (StageChange > 0)    → Buff   (self-targeted)
+        //   • DebuffTargetEffectSO                  → Debuff (Lead-targeted)
+        //   • StatusRiderEffectSO (!ApplyToSelf)    → Status (Lead-targeted)
+        //   • HealEffectSO (HealSelf)               → Stall  (self-targeted)
+        //   • otherwise                             → Attack fallback
+        private Intent ClassifyEnemyMove(MoveSO m)
+        {
+            Intent leadAttack = new()
+            {
+                Kind = IntentKind.Attack,
+                Move = m,
+                TargetSlot = State.LeadIndex,
+                TargetsLead = true, // re-resolves to the current Lead at resolution (§4.3.2 / Pillar 2)
+                Reveal = IntentReveal.Witnessed,
+            };
+
+            // Damaging moves are always Attacks; their Effects[] riders fire on hit.
+            if (m.BasePower > 0) return leadAttack;
+
+            if (m.Effects != null)
+            {
+                for (int e = 0; e < m.Effects.Count; e++)
+                {
+                    if (m.Effects[e] is BuffSelfEffectSO buff && buff.StageChange > 0)
+                        return new Intent
+                        {
+                            Kind = IntentKind.Buff,
+                            Move = m,
+                            TargetSlot = -1,
+                            TargetsLead = false, // self-target — UI shows "→ Self"
+                            BuffStat = buff.TargetStat,
+                            Reveal = IntentReveal.Witnessed,
+                        };
+                }
+                for (int e = 0; e < m.Effects.Count; e++)
+                {
+                    if (m.Effects[e] is DebuffTargetEffectSO debuff)
+                        return new Intent
+                        {
+                            Kind = IntentKind.Debuff,
+                            Move = m,
+                            TargetSlot = State.LeadIndex,
+                            TargetsLead = true,
+                            BuffStat = debuff.TargetStat,
+                            Reveal = IntentReveal.Witnessed,
+                        };
+                }
+                for (int e = 0; e < m.Effects.Count; e++)
+                {
+                    if (m.Effects[e] is StatusRiderEffectSO rider && !rider.ApplyToSelf)
+                        return new Intent
+                        {
+                            Kind = IntentKind.Status,
+                            Move = m,
+                            TargetSlot = State.LeadIndex,
+                            TargetsLead = true,
+                            AppliedStatus = rider.StatusToApply,
+                            Reveal = IntentReveal.Witnessed,
+                        };
+                }
+                for (int e = 0; e < m.Effects.Count; e++)
+                {
+                    if (m.Effects[e] is HealEffectSO heal && heal.HealSelf)
+                        return new Intent
+                        {
+                            Kind = IntentKind.Stall,
+                            Move = m,
+                            TargetSlot = -1,
+                            TargetsLead = false,
+                            Reveal = IntentReveal.Witnessed,
+                        };
+                }
+            }
+
+            // 0-power move with no recognised support effect — treat as a (weak) Attack.
+            return leadAttack;
+        }
+
         // Builds the candidate intents this enemy could declare this turn,
-        // then picks one via §4.3.3 scoring. VS scope: each move becomes a
-        // single-target Attack on the player's Lead. (Cleave/Backstrike/Buff
-        // declaration requires move-level metadata not yet authored on
-        // MoveSO; the Intent struct supports those kinds when content lands.)
+        // then picks one via §4.3.3 scoring. Each move is classified by its
+        // BasePower + Effects[] into the matching IntentKind so the AI can
+        // telegraph and execute self-buffs (Harden), player debuffs (Growl),
+        // and status moves — not just damage. (Cleave/Backstrike still require
+        // move-level metadata not yet authored on MoveSO.)
         private Intent BuildIntentForEnemy(PokemonInstance enemy)
         {
             List<Intent> candidates = new();
@@ -489,26 +572,10 @@ namespace ProjectAscendant.Combat
             {
                 MoveSO m = enemy.CurrentMoves[i];
                 if (m == null) continue;
-                candidates.Add(new Intent
-                {
-                    Kind = IntentKind.Attack,
-                    Move = m,
-                    TargetSlot = State.LeadIndex,
-                    TargetsLead = true, // re-resolves to the current Lead at resolution (§4.3.2 / Pillar 2)
-                    Reveal = IntentReveal.Witnessed,
-                });
+                candidates.Add(ClassifyEnemyMove(m));
             }
             if (enemy.MasteryMove != null)
-            {
-                candidates.Add(new Intent
-                {
-                    Kind = IntentKind.Attack,
-                    Move = enemy.MasteryMove,
-                    TargetSlot = State.LeadIndex,
-                    TargetsLead = true,
-                    Reveal = IntentReveal.Witnessed,
-                });
-            }
+                candidates.Add(ClassifyEnemyMove(enemy.MasteryMove));
 
             if (candidates.Count == 0)
                 return new Intent { Kind = IntentKind.Stall, Reveal = IntentReveal.Witnessed };
@@ -844,12 +911,20 @@ namespace ProjectAscendant.Combat
                     break;
                 }
                 case IntentKind.Buff:
-                    StatStageManager.Modify(enemy, intent.BuffStat, +1);
-                    break;
                 case IntentKind.Stall:
-                    // Stall effects are content-driven; the controller has no
-                    // generic action here. TODO Epic 7 — author Stall riders.
+                    // Per §3.2.4 / Bug #5 — self-targeted setup. BuffSelf/Heal
+                    // riders route to the enemy itself (no player target).
+                    ApplyEnemyMoveEffects(enemy, intent.Move, null);
                     break;
+                case IntentKind.Debuff:
+                {
+                    // Per §3.2.4 / Bug #2 — lowers a stat of WHOEVER is the Lead
+                    // now (§4.3.2 / Pillar 2). DebuffTarget riders route to them.
+                    PokemonInstance dt = IntentTargeting.ResolveSlotOccupant(
+                        intent.EffectiveTargetSlot(State.LeadIndex), State.PlayerTeam);
+                    ApplyEnemyMoveEffects(enemy, intent.Move, dt);
+                    break;
+                }
                 case IntentKind.Unknown:
                     // Should never reach resolution still Unknown — intents
                     // are revealed by Witnessed at minimum during Resolution.
@@ -861,6 +936,74 @@ namespace ProjectAscendant.Combat
             // (success/fizzle is irrelevant — the AI committed the choice).
             if (intent.Move != null && intent.Move.CooldownTurns > 0)
                 enemy.SetMoveCooldown(intent.Move, intent.Move.CooldownTurns);
+        }
+
+        // Per §3.2.4 / Bug #2 + #5 — enemy-side mirror of CardPlayService.ResolveEffects:
+        // applies a (non-damage) move's secondary effects from the ENEMY's perspective.
+        //   • BuffSelf   → enemy (raises its own stat)
+        //   • DebuffTarget / StatusRider(!ApplyToSelf) → playerTarget (the Lead occupant)
+        //   • Heal       → enemy if HealSelf, else playerTarget
+        // playerTarget may be null for pure self-buff/heal moves.
+        private void ApplyEnemyMoveEffects(PokemonInstance enemy, MoveSO move, PokemonInstance playerTarget)
+        {
+            if (move == null || move.Effects == null) return;
+
+            for (int i = 0; i < move.Effects.Count; i++)
+            {
+                MoveEffectSO effect = move.Effects[i];
+                if (effect == null) continue;
+
+                if (effect is BuffSelfEffectSO buff)
+                {
+                    if (enemy != null && enemy.CurrentHP > 0)
+                    {
+                        StatStageManager.Modify(enemy, buff.TargetStat, buff.StageChange);
+                        string sign = buff.StageChange >= 0 ? "+" : "";
+                        State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.EnemyAction,
+                            $"{enemy.Species?.DisplayName} {buff.TargetStat} {sign}{buff.StageChange}"));
+                    }
+                }
+                else if (effect is DebuffTargetEffectSO debuff)
+                {
+                    if (playerTarget != null && playerTarget.CurrentHP > 0)
+                    {
+                        StatStageManager.Modify(playerTarget, debuff.TargetStat, debuff.StageChange);
+                        string sign = debuff.StageChange >= 0 ? "+" : "";
+                        State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.EnemyAction,
+                            $"{playerTarget.Species?.DisplayName} {debuff.TargetStat} {sign}{debuff.StageChange}"));
+                    }
+                }
+                else if (effect is StatusRiderEffectSO rider)
+                {
+                    PokemonInstance statusTarget = rider.ApplyToSelf ? enemy : playerTarget;
+                    if (statusTarget != null && statusTarget.CurrentHP > 0
+                        && State.Rng != null && State.Rng.Range01() < rider.ApplicationChance)
+                    {
+                        StatusEffectManager.TryApply(statusTarget, rider.StatusToApply, State.Config);
+                        State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.EnemyAction,
+                            $"{statusTarget.Species?.DisplayName} {rider.StatusToApply} applied"));
+                    }
+                }
+                else if (effect is HealEffectSO heal)
+                {
+                    PokemonInstance healTarget = heal.HealSelf ? enemy : playerTarget;
+                    if (healTarget != null && healTarget.CurrentHP > 0)
+                    {
+                        int hpBefore = healTarget.CurrentHP;
+                        int effectiveMax = State.Economy != null
+                            ? PokemonVitals.EffectiveMaxHP(healTarget, State.Economy)
+                            : PokemonVitals.MaxHP(healTarget);
+                        int healAmount = heal.FlatHealAmount;
+                        if (heal.PercentageOfMaxHP > 0)
+                            healAmount += Mathf.FloorToInt(effectiveMax * heal.PercentageOfMaxHP);
+                        healTarget.CurrentHP = Mathf.Min(effectiveMax, healTarget.CurrentHP + healAmount);
+                        int actualHeal = healTarget.CurrentHP - hpBefore;
+                        if (actualHeal > 0)
+                            State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.EnemyAction,
+                                $"{healTarget.Species?.DisplayName} healed {actualHeal} HP"));
+                    }
+                }
+            }
         }
 
         // Per §4.1.1 — central damage application. Composes:
