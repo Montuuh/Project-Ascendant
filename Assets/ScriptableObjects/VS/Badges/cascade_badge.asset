@@ -16,6 +16,8 @@ MonoBehaviour:
   DisplayName: Cascade Badge
   GymSource: R1-Gym2
   Icon: {fileID: 0}
-  GrantedHook: {fileID: 0}
-  EffectDescription: Water-type moves cost 1 less AP (minimum 1).
-  GDDReference: "\xA74.4.5 | Cascade Badge. Water Gym R1. Water AP cost \u22121."
+  GrantedHook: {fileID: 11400000, guid: 27d33afa188725840a49ff181b0ae62e, type: 2}
+  LeadIncomingDamageReduction: 0
+  EffectDescription: After a MANUAL Lead swap, draw 1 extra skill card this turn.
+  GDDReference: "\xA74.4.5.1 | Cascade Badge. Water Gym R1. Manual swap \u2192 +1
+    card."

@@ -94,6 +94,14 @@ namespace ProjectAscendant.Combat
             // this method, so they correctly don't set this flag.
             state.DefensiveSwapDiscountAvailable = true;
 
+            // Per §4.4.5.1 — Cascade Badge: manual swap → +1 skill card draw
+            // this turn. Set the flag so DrawPhase can apply it. (Unlike
+            // DefensiveSwapDiscountAvailable which is consumed on first
+            // Defensive card play, the Cascade draw is a one-time bonus at
+            // DrawPhase start, so we track a separate flag and consume it there.)
+            if (HoldsBadge(state.ActiveBadges, "cascade_badge"))
+                state.CascadeBadgeDrawPending = true;
+
             // §8.3.3 Defense Curl Charm — every 3rd manual swap, +1 Defense on the new Lead.
             if (RelicResolver.Holds(state.ActiveRelics, "defense_curl_charm")
                 && state.ManualSwapsThisCombat % 3 == 0
@@ -108,6 +116,16 @@ namespace ProjectAscendant.Combat
 
             AbilityResolver.ApplyLeadEntryEffects(state); // §5.5.3.5 Intimidate
             return true;
+        }
+
+        // Per §4.4.5.1 — true iff the player holds the named badge (case-sensitive id).
+        private static bool HoldsBadge(System.Collections.Generic.IReadOnlyList<BadgeSO> badges, string badgeId)
+        {
+            if (badges == null) return false;
+            for (int i = 0; i < badges.Count; i++)
+                if (badges[i] != null && badges[i].BadgeId == badgeId)
+                    return true;
+            return false;
         }
     }
 }

@@ -16,8 +16,9 @@ MonoBehaviour:
   DisplayName: Hive Badge
   GymSource: R1-Gym3
   Icon: {fileID: 0}
-  GrantedHook: {fileID: 0}
-  EffectDescription: Bug- and Grass-type status moves apply their effect 100% of
-    the time.
-  GDDReference: "\xA74.4.5 | Hive Badge. Bug Gym R1. Bug/Grass status riders always
-    apply."
+  GrantedHook: {fileID: 11400000, guid: d02e5d3e2cb712a46978b295472ffdc0, type: 2}
+  LeadIncomingDamageReduction: 0
+  EffectDescription: "When a card cycles discard\u2192deck, 20% to make a free copy
+    next turn."
+  GDDReference: "\xA74.4.5.1 | Hive Badge. Bug Gym R1. Cycle proc \u2192 20% free
+    copy."

@@ -16,7 +16,8 @@ MonoBehaviour:
   DisplayName: Normal Badge
   GymSource: R1-Gym4
   Icon: {fileID: 0}
-  GrantedHook: {fileID: 0}
-  EffectDescription: Normal-type moves deal STAB damage regardless of the user's
-    type.
-  GDDReference: "\xA74.4.5 | Normal Badge. Normal Gym R1. Universal Normal STAB."
+  GrantedHook: {fileID: 11400000, guid: 947c738da9938964fac1c0ddd846f92c, type: 2}
+  LeadIncomingDamageReduction: 0
+  EffectDescription: Base stats treated +10% for damage dealt AND received.
+  GDDReference: "\xA74.4.5.1 | Normal Badge. Normal Gym R1. +10% base stats (dmg
+    dealt+rcvd)."

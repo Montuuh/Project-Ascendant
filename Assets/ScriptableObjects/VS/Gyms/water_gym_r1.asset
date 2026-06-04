@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23339b34558611741b7be98eff59dc94, type: 3}
+  m_Name: water_gym_r1
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.GymLeaderSO
+  GymLeaderId: water_gym_r1
+  DisplayName: Water Gym Leader
+  GymType: 2
+  TrainerSprite: {fileID: 0}
+  TacticalIdentity: "Single-type Water identity. Squirtle opens with Aqua Jet aggression;
+    Wartortle ace evolves to Blastoise at 50% HP, gains Sturdy last-stand (\u226420%
+    HP), and survives one lethal hit at 1 HP."
+  Composition:
+  - Species: {fileID: 11400000, guid: a5daa42abd8de2f48b990e62883762fa, type: 2}
+    Level: 13
+    PhaseCount: 2
+    IsAce: 0
+    HasSturdy: 0
+    MidFightEvolution: {fileID: 0}
+  - Species: {fileID: 11400000, guid: eebea80048e52154db6ed538b128cf6b, type: 2}
+    Level: 15
+    PhaseCount: 3
+    IsAce: 1
+    HasSturdy: 1
+    MidFightEvolution: {fileID: 11400000, guid: 6677a0d41e22d2a42a2ddc9922ed954a, type: 2}
+  BadgeReward: {fileID: 11400000, guid: 2467817d9b2d2c24eb1a9707add0b8bb, type: 2}
+  GuaranteedRareRelic: {fileID: 11400000, guid: 11efe1c9ab05a1d41923b80cea9ac42a, type: 2}
+  TrainerXPReward: 50
+  PokeDollarReward: 500
+  GDDReference: "\xA74.4.4 / design/map-redesign-gyms.md | R1 Water Gym. Squirtle
+    L13 + Wartortle\u2192Blastoise L15 ace. Reward: Cascade Badge + Rare relic +
+    50 XP + 500\u20BD."

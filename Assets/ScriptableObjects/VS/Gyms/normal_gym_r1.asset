@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23339b34558611741b7be98eff59dc94, type: 3}
+  m_Name: normal_gym_r1
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.GymLeaderSO
+  GymLeaderId: normal_gym_r1
+  DisplayName: Normal Gym Leader
+  GymType: 0
+  TrainerSprite: {fileID: 0}
+  TacticalIdentity: Single-type Normal identity. Pidgey opens with Gust poke; Pidgeotto
+    ace evolves to Pidgeot at 50% HP, gains Sturdy last-stand, and survives one lethal
+    hit at 1 HP.
+  Composition:
+  - Species: {fileID: 11400000, guid: efc5571bf4edfc34eac2d4473360a590, type: 2}
+    Level: 13
+    PhaseCount: 2
+    IsAce: 0
+    HasSturdy: 0
+    MidFightEvolution: {fileID: 0}
+  - Species: {fileID: 11400000, guid: 262430a8c293ae84298046d92ee493aa, type: 2}
+    Level: 16
+    PhaseCount: 3
+    IsAce: 1
+    HasSturdy: 1
+    MidFightEvolution: {fileID: 11400000, guid: 753ab00f4b3819e4f96578876c9967df, type: 2}
+  BadgeReward: {fileID: 11400000, guid: 3be73f131a80a9c44a8cc572655f293b, type: 2}
+  GuaranteedRareRelic: {fileID: 11400000, guid: 16a32c24622d03f4987f032a0bbe4ffb, type: 2}
+  TrainerXPReward: 50
+  PokeDollarReward: 500
+  GDDReference: "\xA74.4.4 / design/map-redesign-gyms.md | R1 Normal Gym. Pidgey
+    L13 + Pidgeotto\u2192Pidgeot L16 ace. Reward: Normal Badge + Rare relic + 50
+    XP + 500\u20BD."

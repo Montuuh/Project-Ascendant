@@ -148,6 +148,16 @@ namespace ProjectAscendant.Combat
             // at DrawPhase. Consumed by the first Defensive card play that
             // matches CardPlayValidator.ShouldConsumeDefensiveDiscount.
             public bool DefensiveSwapDiscountAvailable;
+
+            // Per §4.4.5.1 — Cascade Badge: manual swap → +1 skill card draw
+            // this turn. Set by SwapManager on manual swap; consumed + reset at DrawPhase.
+            public bool CascadeBadgeDrawPending;
+
+            // Per §4.4.5.1 — Hive Badge: cards cycling discard→deck have 20%
+            // to spawn a free copy next turn. This queue accumulates pending
+            // copies during TurnEnd (reshuffle); DrawPhase adds them to hand.
+            public List<MoveCardInstance> HiveBadgePendingCopies = new();
+
             public int TurnNumber;
             public FieldState Field;
             public List<Intent> EnemyIntents = new();
@@ -319,6 +329,31 @@ namespace ProjectAscendant.Combat
                 State.PlayerTeam, State.Field, State.TurnNumber, State.Config);
             // §8.3.3 Quick Draw relic — +1 skill draw on turn 1.
             skillTarget += RelicResolver.QuickDrawBonus(State.ActiveRelics, State.TurnNumber);
+
+            // Per §4.4.5.1 — Cascade Badge: manual swap last turn → +1 skill draw.
+            if (State.CascadeBadgeDrawPending)
+            {
+                skillTarget += 1;
+                State.CascadeBadgeDrawPending = false;
+                State.CombatLog.Add(new CombatLogEntry(
+                    CombatLogCategory.TurnEvent, "Cascade Badge: +1 card"));
+            }
+
+            // Per §4.4.5.1 — Hive Badge: add pending free copies from last turn's
+            // 20% cycle procs. These bypass normal draw (directly to hand).
+            if (State.HiveBadgePendingCopies.Count > 0)
+            {
+                for (int i = 0; i < State.HiveBadgePendingCopies.Count; i++)
+                {
+                    MoveCardInstance copy = State.HiveBadgePendingCopies[i];
+                    State.SkillHand.Add(copy);
+                    State.CombatLog.Add(new CombatLogEntry(
+                        CombatLogCategory.TurnEvent,
+                        $"Hive Badge: free {copy.Move.DisplayName} copy"));
+                }
+                State.HiveBadgePendingCopies.Clear();
+            }
+
             DrawSkillCards(skillTarget);
             DrawConsumableCards(consumableTarget);
 
@@ -348,11 +383,52 @@ namespace ProjectAscendant.Combat
         {
             // SkillDeck.Draw handles reshuffle inline + returns null when both
             // deck and discard are empty.
+            // Per §4.4.5.1 — Hive Badge: detect reshuffles and proc 20% on each
+            // cycled card to create a free copy next turn.
             for (int i = 0; i < count; i++)
             {
+                int preDeckCount = State.Deck.DeckCount;
+                int preDiscardCount = State.Deck.DiscardCount;
                 MoveCardInstance card = State.Deck.Draw(State.Rng);
                 if (card == null) break;
                 State.SkillHand.Add(card);
+
+                // Detect reshuffle: deck was 0, discard > 0, now deck > 0, discard == 0.
+                bool reshuffleOccurred = (preDeckCount == 0 && preDiscardCount > 0
+                    && State.Deck.DeckCount > 0 && State.Deck.DiscardCount == 0);
+                if (reshuffleOccurred)
+                    ProcessHiveBadgeOnReshuffle(preDiscardCount);
+            }
+        }
+
+        // Per §4.4.5.1 — Hive Badge: when discard pile reshuffles into deck,
+        // each card has a 20% chance to spawn a free copy next turn.
+        // cycledCount = number of cards that just moved discard→deck.
+        private void ProcessHiveBadgeOnReshuffle(int cycledCount)
+        {
+            if (!HoldsBadge(State.ActiveBadges, "hive_badge")) return;
+            if (cycledCount <= 0) return;
+
+            // The cycled cards are now shuffled into the deck (inaccessible).
+            // We can't inspect them directly, but we CAN snapshot the DeckView
+            // and roll 20% for each. To avoid duplicating cards that might be
+            // drawn this same turn, we defer the copies to a pending queue that
+            // DrawPhase will add to hand at the START of the next turn.
+            // For the VS, we'll roll once per cycled card and pick a random card
+            // from the current deck to copy (approximation — the real logic would
+            // need per-card tracking, which is deferred to Epic 12 hook wiring).
+            System.Collections.Generic.IReadOnlyList<MoveCardInstance> deckSnapshot = State.Deck.DeckView;
+            for (int c = 0; c < cycledCount; c++)
+            {
+                // Per §4.4.5.1 — 20% proc. Use State.Rng (seeded).
+                if (State.Rng.Range(0, 100) < 20)
+                {
+                    // Pick a random card from the current deck to copy.
+                    if (deckSnapshot.Count == 0) continue;
+                    MoveCardInstance template = deckSnapshot[State.Rng.Range(0, deckSnapshot.Count)];
+                    MoveCardInstance copy = _cardFactory.Create(template.Move, template.Owner, template.IsMasteryMove);
+                    State.HiveBadgePendingCopies.Add(copy);
+                }
             }
         }
 
@@ -793,7 +869,12 @@ namespace ProjectAscendant.Combat
             CritResult crit = CritResolver.Resolve(critIn, State.Rng);
 
             MoveContext ctx = new(attacker, target, move, State.Config, crit.IsCrit);
-            DamageBreakdown dmg = DamageCalculator.Compute(ctx);
+            // Per §4.4.5.1 — Normal Badge boosts only the PLAYER's Pokémon. Pass the player's badges to
+            // the attacker side only when the attacker is player-owned, and to the target side only when
+            // the target is player-owned — so an enemy's Atk/Def is never buffed by a player badge.
+            var atkBadges = State.PlayerTeam != null && State.PlayerTeam.Contains(attacker) ? State.ActiveBadges : null;
+            var defBadges = State.PlayerTeam != null && State.PlayerTeam.Contains(target) ? State.ActiveBadges : null;
+            DamageBreakdown dmg = DamageCalculator.Compute(ctx, atkBadges, defBadges);
 
             float fieldMul = FieldEffectResolver.GetDamageMultiplier(
                 State.Field, move.Type, target, State.Config);
@@ -905,6 +986,16 @@ namespace ProjectAscendant.Combat
                     sum += b.LeadIncomingDamageReduction;
             }
             return sum;
+        }
+
+        // Per §4.4.5.1 — true iff the player holds the named badge (case-sensitive id).
+        private bool HoldsBadge(System.Collections.Generic.IReadOnlyList<BadgeSO> badges, string badgeId)
+        {
+            if (badges == null) return false;
+            for (int i = 0; i < badges.Count; i++)
+                if (badges[i] != null && badges[i].BadgeId == badgeId)
+                    return true;
+            return false;
         }
 
         // Per §4.4.3 / §4.4.4.3 + Task 8.5 — boss phase-transition director.

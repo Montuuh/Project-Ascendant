@@ -46,10 +46,11 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Library_HasExactlyOneGymForVS()
+        public void Library_HasFourR1GymsForVS()
         {
-            Assert.That(LoadAll().Length, Is.EqualTo(1),
-                "Per §7.13 the VS ships exactly one R1 Gym Leader.");
+            // Per §7.2 v2 + design/map-redesign-gyms.md — R1 has a 4-gym pool.
+            Assert.That(LoadAll().Length, Is.EqualTo(4),
+                "Per §7.2 v2 the VS ships 4 R1 Gym Leaders (Rock/Water/Bug/Normal).");
         }
 
         [Test]
@@ -122,20 +123,21 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Gym_AwardsBoulderBadge_WithIncomingDamageReduction()
+        public void Gym_AwardsBadge_EitherHookOrDamageReduction()
         {
-            // Per §4.4.5.1 + Task 8.5.7 — Badge reward set and the Boulder
-            // effect is actually wired (LeadIncomingDamageReduction > 0).
+            // Per §4.4.5.1 — each Gym awards a Badge. Boulder uses
+            // LeadIncomingDamageReduction; others use GrantedHook.
             var bad = new List<string>();
             foreach (GymLeaderSO g in LoadAll())
             {
                 if (g.BadgeReward == null) { bad.Add($"{g.GymLeaderId} no BadgeReward"); continue; }
-                if (g.BadgeReward.LeadIncomingDamageReduction <= 0)
-                    bad.Add($"{g.GymLeaderId} badge {g.BadgeReward.BadgeId} reduction="
-                        + g.BadgeReward.LeadIncomingDamageReduction);
+                bool hasDamageReduction = g.BadgeReward.LeadIncomingDamageReduction > 0;
+                bool hasHook = g.BadgeReward.GrantedHook != null;
+                if (!hasDamageReduction && !hasHook)
+                    bad.Add($"{g.GymLeaderId} badge {g.BadgeReward.BadgeId} has neither hook nor dmg reduction");
             }
             Assert.That(bad, Is.Empty,
-                "Per §4.4.5.1 the Gym's Badge must reduce Lead incoming damage.\n  "
+                "Per §4.4.5.1 each Badge must have either a GrantedHook or LeadIncomingDamageReduction.\n  "
                 + string.Join("\n  ", bad));
         }
 

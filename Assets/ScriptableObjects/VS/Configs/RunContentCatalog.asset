@@ -19,6 +19,7 @@ MonoBehaviour:
   MysteryConfig: {fileID: 11400000, guid: 262d4651d7ebd9f47b19164cb75ee364, type: 2}
   BattleConfig: {fileID: 11400000, guid: 5f785a5143796ed47802924ed2501e6a, type: 2}
   ProgressionConfig: {fileID: 11400000, guid: 97a4efe08175966418718c2145b52882, type: 2}
+  MetaProgressionConfig: {fileID: 0}
   Pokeball: {fileID: 11400000, guid: ac33e7b6df06bd148a5d09b787aa0d25, type: 2}
   Potion: {fileID: 11400000, guid: 783619d0328dc384badc1785f81c1663, type: 2}
   Archetypes:
@@ -27,6 +28,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 968089b2d9e448d49815fd53ae06372d, type: 2}
   - {fileID: 11400000, guid: 39dd3126e7666294e9f1f73824273091, type: 2}
   Elite: {fileID: 11400000, guid: 5b65b62b9f18fc048a43a335c91f8989, type: 2}
+  GymPool:
+  - {fileID: 11400000, guid: b72354f1957721b4194cc3695f812086, type: 2}
+  - {fileID: 11400000, guid: ad3d6ba8e09ec7d40a8287f93fc2e2a8, type: 2}
+  - {fileID: 11400000, guid: 1c5067fbe20414948b26b5a4251a00b9, type: 2}
+  - {fileID: 11400000, guid: 91292087e44c6a247a54dcce6167256f, type: 2}
   Gym: {fileID: 11400000, guid: b72354f1957721b4194cc3695f812086, type: 2}
   MysteryEvents:
   - {fileID: 11400000, guid: f6373771effc199479fd7fee70a86beb, type: 2}

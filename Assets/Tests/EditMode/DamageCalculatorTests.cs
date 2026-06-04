@@ -517,6 +517,40 @@ namespace ProjectAscendant.Tests
             UnityEngine.Object.DestroyImmediate(move);
         }
 
+        // Per §4.4.5.1 — Normal Badge: +10% base stats, but ONLY for the side the player owns. The
+        // caller (CombatController) passes the player's badges to the attacker side iff the attacker is
+        // player-owned, and the target side iff the target is player-owned — so a player badge never
+        // buffs an enemy's Atk/Def.
+        [Test]
+        public void Compute_NormalBadge_BoostsOnlyTheSideItIsPassedTo()
+        {
+            var atkSpec = MakeSpecies(PokemonType.Normal, null, 50, 50);
+            var defSpec = MakeSpecies(PokemonType.Normal, null, 50, 50);
+            var move = MakeMove(PokemonType.Water, 50);
+            var ctx = new MoveContext(MakeInstance(atkSpec), MakeInstance(defSpec), move, _config, false);
+
+            BadgeSO normal = ScriptableObject.CreateInstance<BadgeSO>();
+            normal.BadgeId = "normal_badge";
+            var badges = new System.Collections.Generic.List<BadgeSO> { normal };
+
+            var none = DamageCalculator.Compute(ctx);
+            Assert.That(none.EffectiveAttack, Is.EqualTo(50));
+            Assert.That(none.EffectiveDefense, Is.EqualTo(50));
+
+            var atkOnly = DamageCalculator.Compute(ctx, attackerBadges: badges, targetBadges: null);
+            Assert.That(atkOnly.EffectiveAttack, Is.EqualTo(55), "+10% to the player attacker.");
+            Assert.That(atkOnly.EffectiveDefense, Is.EqualTo(50), "Enemy target Def NOT buffed by a player badge.");
+
+            var defOnly = DamageCalculator.Compute(ctx, attackerBadges: null, targetBadges: badges);
+            Assert.That(defOnly.EffectiveAttack, Is.EqualTo(50), "Enemy attacker Atk NOT buffed by a player badge.");
+            Assert.That(defOnly.EffectiveDefense, Is.EqualTo(55), "+10% to the player defender.");
+
+            UnityEngine.Object.DestroyImmediate(atkSpec);
+            UnityEngine.Object.DestroyImmediate(defSpec);
+            UnityEngine.Object.DestroyImmediate(move);
+            UnityEngine.Object.DestroyImmediate(normal);
+        }
+
         [Test]
         public void Compute_AttackerStage_Plus99_ClampedToPlus6()
         {
