@@ -1,7 +1,28 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectAscendant.Core
 {
+    // Per §6.3 / §6.5.2 / §6.6.1 — what reaching a Trainer Level grants. Data-driven so content
+    // (which starters/relics unlock at which level) is authored in the config asset, not code.
+    // Unlocked ids accumulate into MetaProgressionSO.UnlockedStarterIds / UnlockedRelicIds at run-end.
+    [Serializable]
+    public sealed class TrainerLevelMilestone
+    {
+        [Tooltip("Trainer Level at which these unlocks are granted (1-based).")]
+        public int Level = 2;
+
+        [Tooltip("§6.5.2 — meta-starter SpeciesIds unlocked as playable starters at this level.")]
+        public List<string> StarterIds = new();
+
+        [Tooltip("§6.6.1 — relic ids added to the run-pool meta-unlock set at this level.")]
+        public List<string> RelicIds = new();
+
+        [Tooltip("Player-facing description of what this milestone grants (Hub / run-summary).")]
+        public string Description;
+    }
+
     // Per §6.3 (Topic 6) + Epic 11 Task 11.3 — persistent Trainer-XP / Level / Token tuning. Distinct
     // from in-run ProgressionConfigSO (§5.2, per-Pokémon). All values data-driven (systems-designer
     // recalibrates without code). Trainer XP is META — accrued during a run, committed at run-end (§6.3.4).
@@ -26,6 +47,11 @@ namespace ProjectAscendant.Core
         public int LevelCurveBase = 500;
         public float LevelCurveExponent = 1.6f;
         public int MaxTrainerLevel = 30;    // §6.3.3 prestige cap
+
+        [Header("§6.3 / §6.5.2 / §6.6.1 — Trainer-Level milestone unlocks (authored content)")]
+        [Tooltip("Reaching a milestone's Level grants its starter/relic ids (committed at run-end). " +
+                 "Authored per save in the inspector; empty = no level-gated unlocks yet.")]
+        public List<TrainerLevelMilestone> LevelMilestones = new();
 
         [Header("§6.3.4 — Trainer Token conversion (per run)")]
         public int TokenXPDivisor = 100;    // 1 Token per 100 Trainer XP earned this run

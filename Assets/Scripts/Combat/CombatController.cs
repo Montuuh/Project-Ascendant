@@ -76,6 +76,9 @@ namespace ProjectAscendant.Combat
             public EconomyConfigSO Economy;
             // Per §6.9 / Task 11.8 — optional Bestiary; enemy faints record a kill into it.
             public BestiaryProgressSO Bestiary;
+            // Per §4.3.9.1 — optional Meta; reaching the Bestiary Master tier for a defeated
+            // species unlocks that species' Mastery Move into Meta.UnlockedMasteryMoveIds.
+            public MetaProgressionSO Meta;
             // Per §8.3 / Task 12.3 — the run's held Trainer Relics (RelicResolver dispatch). Optional.
             public List<RelicSO> ActiveRelics;
             public GameRNG Rng;
@@ -176,6 +179,8 @@ namespace ProjectAscendant.Combat
             public EconomyConfigSO Economy;
             // Per §6.9 / Task 11.8 — Bestiary that enemy faints record into (nullable in tests).
             public BestiaryProgressSO Bestiary;
+            // Per §4.3.9.1 — Meta receiving Bestiary-driven Mastery unlocks (nullable in tests).
+            public MetaProgressionSO Meta;
             // Per §8.3 / Task 12.3 — held Trainer Relics active this combat (RelicResolver). Never null.
             public List<RelicSO> ActiveRelics = new();
             public GameRNG Rng;
@@ -252,6 +257,7 @@ namespace ProjectAscendant.Combat
                 Config = setup.Config,
                 Economy = setup.Economy,
                 Bestiary = setup.Bestiary,
+                Meta = setup.Meta,
                 ActiveRelics = setup.ActiveRelics != null
                     ? new List<RelicSO>(setup.ActiveRelics)
                     : new List<RelicSO>(),
@@ -1285,7 +1291,15 @@ namespace ProjectAscendant.Combat
                     PokemonInstance e = State.EnemyTeam[i];
                     if (e == null || e.CurrentHP > 0 || e.Species == null) continue;
                     if (_recordedEnemyKills.Add(e))
+                    {
                         State.Bestiary.RecordKill(e.Species.SpeciesId, e.Species.WildRarity);
+
+                        // Per §4.3.9.1 — reaching the Bestiary Master tier for a species
+                        // unlocks its Mastery Move permanently (the Bestiary grind payoff).
+                        if (BestiaryMasteryUnlock.TryUnlockMastery(State.Bestiary, State.Meta, e.Species))
+                            State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                                $"Mastered {e.Species.DisplayName}! Mastery Move unlocked."));
+                    }
                 }
             }
 

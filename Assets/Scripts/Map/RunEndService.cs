@@ -22,6 +22,8 @@ namespace ProjectAscendant.Map
             public int NewLevel;
             public bool LeveledUp;
             public int AchievementsUnlocked; // §6.7 — newly-completed this run-end
+            // §6.3 / §6.5.2 / §6.6.1 — Trainer-Level milestones unlocked by this run's level-up(s).
+            public System.Collections.Generic.List<TrainerLevelMilestone> LevelUnlocks;
         }
 
         public static RunSummary Finalize(RunStateSO run, Box box, MetaProgressionSO meta,
@@ -60,6 +62,10 @@ namespace ProjectAscendant.Map
                 s.OldLevel = r.OldLevel;
                 s.NewLevel = r.NewLevel;
                 s.LeveledUp = r.LeveledUp;
+
+                // §6.3 / §6.5.2 / §6.6.1 — leveling up grants milestone content unlocks
+                // (new starters / relic-pool entries). This is what Trainer XP "serves".
+                s.LevelUnlocks = TrainerProgression.GrantLevelUnlocks(meta, cfg, r.OldLevel, r.NewLevel);
 
                 meta.TotalRunsAttempted += 1;
                 if (outcome == RunOutcome.Victory) meta.TotalRunsCompleted += 1;

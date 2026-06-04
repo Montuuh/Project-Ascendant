@@ -51,6 +51,66 @@ namespace ProjectAscendant.Tests
             Assert.That(TrainerProgression.LevelForXP(1515, _cfg), Is.EqualTo(3));
         }
 
+        // ── §6.3 / §6.5.2 / §6.6.1 — Trainer-Level milestone unlocks (#9) ────
+
+        private void AddMilestone(int level, string starterId = null, string relicId = null)
+        {
+            TrainerLevelMilestone m = new() { Level = level };
+            if (starterId != null) m.StarterIds.Add(starterId);
+            if (relicId != null) m.RelicIds.Add(relicId);
+            _cfg.LevelMilestones.Add(m);
+        }
+
+        [Test]
+        public void GrantLevelUnlocks_LevelReached_GrantsStarterAndRelic()
+        {
+            AddMilestone(2, starterId: "eevee", relicId: "lucky_egg");
+
+            var granted = TrainerProgression.GrantLevelUnlocks(_meta, _cfg, oldLevel: 1, newLevel: 2);
+
+            Assert.That(granted.Count, Is.EqualTo(1));
+            Assert.That(_meta.UnlockedStarterIds, Does.Contain("eevee"));
+            Assert.That(_meta.UnlockedRelicIds, Does.Contain("lucky_egg"));
+        }
+
+        [Test]
+        public void GrantLevelUnlocks_LevelNotYetReached_GrantsNothing()
+        {
+            AddMilestone(5, starterId: "eevee");
+
+            var granted = TrainerProgression.GrantLevelUnlocks(_meta, _cfg, oldLevel: 1, newLevel: 3);
+
+            Assert.That(granted, Is.Empty);
+            Assert.That(_meta.UnlockedStarterIds == null || _meta.UnlockedStarterIds.Count == 0, Is.True);
+        }
+
+        [Test]
+        public void GrantLevelUnlocks_MultiLevelJump_GrantsAllSpannedMilestones()
+        {
+            AddMilestone(2, starterId: "eevee");
+            AddMilestone(3, relicId: "soothe_bell");
+            AddMilestone(6, starterId: "pikachu"); // beyond the jump → not granted
+
+            var granted = TrainerProgression.GrantLevelUnlocks(_meta, _cfg, oldLevel: 1, newLevel: 4);
+
+            Assert.That(granted.Count, Is.EqualTo(2));
+            Assert.That(_meta.UnlockedStarterIds, Does.Contain("eevee"));
+            Assert.That(_meta.UnlockedRelicIds, Does.Contain("soothe_bell"));
+            Assert.That(_meta.UnlockedStarterIds, Does.Not.Contain("pikachu"));
+        }
+
+        [Test]
+        public void GrantLevelUnlocks_AlreadyUnlocked_IsIdempotent()
+        {
+            AddMilestone(2, starterId: "eevee");
+
+            TrainerProgression.GrantLevelUnlocks(_meta, _cfg, 1, 2);
+            var second = TrainerProgression.GrantLevelUnlocks(_meta, _cfg, 1, 2);
+
+            Assert.That(second, Is.Empty, "Re-granting the same milestone must add nothing new.");
+            Assert.That(_meta.UnlockedStarterIds.FindAll(s => s == "eevee").Count, Is.EqualTo(1));
+        }
+
         [Test]
         public void LevelForXP_ClampsToMaxLevel()
         {

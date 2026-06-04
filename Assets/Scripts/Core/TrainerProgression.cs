@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectAscendant.Core
@@ -54,6 +55,47 @@ namespace ProjectAscendant.Core
                 ? 0
                 : Mathf.Max(0, config.CumulativeXPForLevel(newLevel + 1) - meta.TrainerXP);
             return r;
+        }
+
+        // §6.3 / §6.5.2 / §6.6.1 — grant the milestone unlocks for every Trainer Level newly reached in
+        // (oldLevel, newLevel]. Adds starter/relic ids to the Meta unlock sets (idempotent) and returns
+        // the milestones granted this commit (for the run-summary / Hub readout). Pure; caller persists.
+        // Crossing multiple levels at once (a big run) grants all spanned milestones.
+        public static List<TrainerLevelMilestone> GrantLevelUnlocks(
+            MetaProgressionSO meta, MetaProgressionConfigSO config, int oldLevel, int newLevel)
+        {
+            List<TrainerLevelMilestone> granted = new();
+            if (meta == null || config == null || config.LevelMilestones == null) return granted;
+            if (newLevel <= oldLevel) return granted;
+
+            meta.UnlockedStarterIds ??= new List<string>();
+            meta.UnlockedRelicIds ??= new List<string>();
+
+            for (int i = 0; i < config.LevelMilestones.Count; i++)
+            {
+                TrainerLevelMilestone m = config.LevelMilestones[i];
+                if (m == null || m.Level <= oldLevel || m.Level > newLevel) continue;
+
+                bool any = AddNew(meta.UnlockedStarterIds, m.StarterIds);
+                any |= AddNew(meta.UnlockedRelicIds, m.RelicIds);
+                if (any) granted.Add(m);
+            }
+            return granted;
+        }
+
+        // Adds each non-empty id from src into dest if absent. Returns true iff at least one was added.
+        private static bool AddNew(List<string> dest, List<string> src)
+        {
+            if (src == null) return false;
+            bool added = false;
+            for (int i = 0; i < src.Count; i++)
+            {
+                string id = src[i];
+                if (string.IsNullOrEmpty(id) || dest.Contains(id)) continue;
+                dest.Add(id);
+                added = true;
+            }
+            return added;
         }
     }
 }

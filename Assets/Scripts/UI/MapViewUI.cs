@@ -704,6 +704,7 @@ namespace ProjectAscendant.UI
             if (setup.EnemyTeam == null || setup.EnemyTeam.Count == 0) return null;
             setup.Economy = _ctx.Economy; // §6.2 / 11.1.8 — Trauma-aware EffectiveMaxHP for DoT + HP-bar max
             setup.Bestiary = _ctx.Bestiary; // §6.9 / 11.8.2 — enemy faints record kills
+            setup.Meta = _ctx.Meta; // §4.3.9.1 — Bestiary Master tier unlocks the species' Mastery Move
             setup.ActiveRelics = _state?.HeldRelics; // §8.3 / 12.3 — RelicResolver dispatch
             setup.UnlockedMasteryIds = _ctx.Meta?.UnlockedMasteryMoveIds; // §4.3.9.2 — gate Mastery cards
             return new CombatController(setup, new UIPlayerAgent());

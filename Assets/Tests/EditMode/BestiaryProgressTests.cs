@@ -149,6 +149,83 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(so);
         }
 
+        // ── §4.3.9.1 — Bestiary Master tier → Mastery Move unlock (#9) ──────
+
+        private MoveSO MakeMastery(string moveId)
+        {
+            MoveSO m = ScriptableObject.CreateInstance<MoveSO>();
+            m.MoveId = moveId;
+            return m;
+        }
+
+        private PokemonSpeciesSO MakeSpeciesWithMastery(string speciesId, MoveSO mastery)
+        {
+            PokemonSpeciesSO sp = ScriptableObject.CreateInstance<PokemonSpeciesSO>();
+            sp.SpeciesId = speciesId;
+            sp.MasteryMove = mastery;
+            return sp;
+        }
+
+        [Test]
+        public void TryUnlockMastery_BelowMasterTier_DoesNotUnlock()
+        {
+            // Rare thresholds: Familiar 2 / Veteran 5 / Master 10. 9 kills = Veteran (not Master).
+            BestiaryProgressSO bestiary = MakeSO();
+            for (int i = 0; i < 9; i++) bestiary.RecordKill("rare_mon", RarityTier.Rare);
+            MetaProgressionSO meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            PokemonSpeciesSO sp = MakeSpeciesWithMastery("rare_mon", MakeMastery("rare_mastery"));
+
+            Assert.That(bestiary.TierFor("rare_mon"), Is.EqualTo(BestiaryMasteryTier.Veteran));
+            Assert.That(BestiaryMasteryUnlock.TryUnlockMastery(bestiary, meta, sp), Is.False);
+            Assert.That(meta.IsMasteryUnlocked("rare_mastery"), Is.False);
+
+            Object.DestroyImmediate(sp); Object.DestroyImmediate(meta); Object.DestroyImmediate(bestiary);
+        }
+
+        [Test]
+        public void TryUnlockMastery_AtMasterTier_UnlocksMasteryMove()
+        {
+            BestiaryProgressSO bestiary = MakeSO();
+            for (int i = 0; i < 10; i++) bestiary.RecordKill("rare_mon", RarityTier.Rare); // → Master
+            MetaProgressionSO meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            PokemonSpeciesSO sp = MakeSpeciesWithMastery("rare_mon", MakeMastery("rare_mastery"));
+
+            Assert.That(bestiary.TierFor("rare_mon"), Is.EqualTo(BestiaryMasteryTier.Master));
+            Assert.That(BestiaryMasteryUnlock.TryUnlockMastery(bestiary, meta, sp), Is.True);
+            Assert.That(meta.IsMasteryUnlocked("rare_mastery"), Is.True);
+
+            Object.DestroyImmediate(sp); Object.DestroyImmediate(meta); Object.DestroyImmediate(bestiary);
+        }
+
+        [Test]
+        public void TryUnlockMastery_AlreadyUnlocked_IsIdempotent()
+        {
+            BestiaryProgressSO bestiary = MakeSO();
+            for (int i = 0; i < 10; i++) bestiary.RecordKill("rare_mon", RarityTier.Rare);
+            MetaProgressionSO meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            PokemonSpeciesSO sp = MakeSpeciesWithMastery("rare_mon", MakeMastery("rare_mastery"));
+
+            Assert.That(BestiaryMasteryUnlock.TryUnlockMastery(bestiary, meta, sp), Is.True);
+            Assert.That(BestiaryMasteryUnlock.TryUnlockMastery(bestiary, meta, sp), Is.False,
+                "Second call must report no NEW unlock (idempotent).");
+            Assert.That(meta.UnlockedMasteryMoveIds.Count, Is.EqualTo(1));
+
+            Object.DestroyImmediate(sp); Object.DestroyImmediate(meta); Object.DestroyImmediate(bestiary);
+        }
+
+        [Test]
+        public void TryUnlockMastery_SpeciesWithoutMasteryMove_NoUnlock()
+        {
+            BestiaryProgressSO bestiary = MakeSO();
+            for (int i = 0; i < 10; i++) bestiary.RecordKill("rare_mon", RarityTier.Rare);
+            MetaProgressionSO meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            PokemonSpeciesSO sp = MakeSpeciesWithMastery("rare_mon", null);
+
+            Assert.That(BestiaryMasteryUnlock.TryUnlockMastery(bestiary, meta, sp), Is.False);
+
+            Object.DestroyImmediate(sp); Object.DestroyImmediate(meta); Object.DestroyImmediate(bestiary);
+        }
+
         // ── 7.9.1 — Wild species registered in BestiaryProgressSO ───────────
 
         [Test]
