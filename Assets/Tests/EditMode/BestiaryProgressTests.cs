@@ -275,6 +275,38 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(sp); Object.DestroyImmediate(meta); Object.DestroyImmediate(bestiary);
         }
 
+        // ── §4.3.9.1 — Veteran tier → Shiny variant unlock ─────────────────
+
+        [Test]
+        public void TryUnlockShiny_BelowVeteran_DoesNotUnlock()
+        {
+            // Rare: Familiar 2 / Veteran 5. 4 kills = Familiar (not Veteran).
+            BestiaryProgressSO bestiary = MakeSO();
+            for (int i = 0; i < 4; i++) bestiary.RecordKill("rare_mon", RarityTier.Rare);
+            MetaProgressionSO meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            PokemonSpeciesSO sp = MakeSpeciesWithMastery("rare_mon", null);
+
+            Assert.That(BestiaryShinyUnlock.TryUnlockShiny(bestiary, meta, sp), Is.False);
+            Assert.That(meta.IsShinyUnlocked("rare_mon"), Is.False);
+            Object.DestroyImmediate(sp); Object.DestroyImmediate(meta); Object.DestroyImmediate(bestiary);
+        }
+
+        [Test]
+        public void TryUnlockShiny_AtVeteran_UnlocksShinyVariant()
+        {
+            BestiaryProgressSO bestiary = MakeSO();
+            for (int i = 0; i < 5; i++) bestiary.RecordKill("rare_mon", RarityTier.Rare); // → Veteran
+            MetaProgressionSO meta = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            PokemonSpeciesSO sp = MakeSpeciesWithMastery("rare_mon", null);
+
+            Assert.That(bestiary.TierFor("rare_mon"), Is.EqualTo(BestiaryMasteryTier.Veteran));
+            Assert.That(BestiaryShinyUnlock.TryUnlockShiny(bestiary, meta, sp), Is.True);
+            Assert.That(meta.IsShinyUnlocked("rare_mon"), Is.True);
+            // Idempotent.
+            Assert.That(BestiaryShinyUnlock.TryUnlockShiny(bestiary, meta, sp), Is.False);
+            Object.DestroyImmediate(sp); Object.DestroyImmediate(meta); Object.DestroyImmediate(bestiary);
+        }
+
         // ── 7.9.1 — Wild species registered in BestiaryProgressSO ───────────
 
         [Test]

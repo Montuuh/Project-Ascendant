@@ -28,6 +28,11 @@ namespace ProjectAscendant.Core
         // cross-run (persisted in meta.dat). VS unlock path: evolving a Pokémon unlocks its form's Mastery.
         public List<string> UnlockedMasteryMoveIds;
 
+        // Per §4.3.9.1 (Veteran tier) — species (SpeciesId strings) whose Shiny variant is unlocked.
+        // Retroactive + species-wide: once unlocked, every owned Pokémon of that species shows Shiny.
+        // Permanent + cross-run.
+        public List<string> ShinyUnlockedSpeciesIds;
+
         // Per §6.7 — Hub upgrade flags. Key = upgrade ID, Value = upgrade level.
         public List<StringIntPair> HubUpgrades;
 
@@ -59,6 +64,21 @@ namespace ProjectAscendant.Core
             UnlockedMasteryMoveIds ??= new List<string>();
             if (UnlockedMasteryMoveIds.Contains(moveId)) return false;
             UnlockedMasteryMoveIds.Add(moveId);
+            return true;
+        }
+
+        // Per §4.3.9.1 — is this species' Shiny variant unlocked (Veteran tier reward)?
+        public bool IsShinyUnlocked(string speciesId)
+            => !string.IsNullOrEmpty(speciesId) && ShinyUnlockedSpeciesIds != null && ShinyUnlockedSpeciesIds.Contains(speciesId);
+
+        // Per §4.3.9.1 — permanently unlock a species' Shiny variant. Returns true if newly unlocked
+        // (caller should persist via SaveSystem.SaveMeta). Idempotent.
+        public bool UnlockShiny(string speciesId)
+        {
+            if (string.IsNullOrEmpty(speciesId)) return false;
+            ShinyUnlockedSpeciesIds ??= new List<string>();
+            if (ShinyUnlockedSpeciesIds.Contains(speciesId)) return false;
+            ShinyUnlockedSpeciesIds.Add(speciesId);
             return true;
         }
     }

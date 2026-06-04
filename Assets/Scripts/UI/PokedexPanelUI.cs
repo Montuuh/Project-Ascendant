@@ -115,7 +115,10 @@ namespace ProjectAscendant.UI
             }
 
             string name = sp.DisplayName ?? sp.name;
-            Txt(row.transform, $"{num}  {name}", 24, new Color(0.93f, 0.96f, 1f),
+            // §4.3.9.1 (Veteran) — Shiny variant unlocked → ✨ next to the name.
+            bool shiny = meta != null && meta.IsShinyUnlocked(id);
+            Txt(row.transform, shiny ? $"{num}  {name} ✨" : $"{num}  {name}", 24,
+                shiny ? new Color(1f, 0.95f, 0.6f) : new Color(0.93f, 0.96f, 1f),
                 new Vector2(-400, 14), new Vector2(540, 34), TextAnchor.MiddleLeft);
 
             // Counts.

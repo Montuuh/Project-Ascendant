@@ -1307,8 +1307,11 @@ namespace ProjectAscendant.Combat
                     {
                         State.Bestiary.RecordKill(e.Species.SpeciesId, e.Species.WildRarity);
 
-                        // Per §4.3.9.1 — reaching the Bestiary Master tier for a species
-                        // unlocks its Mastery Move permanently (the Bestiary grind payoff).
+                        // Per §4.3.9.1 — Pokédex tier-reward ladder. Veteran → Shiny variant unlock;
+                        // Master → Mastery Move unlock. Both permanent (the Pokédex grind payoff).
+                        if (BestiaryShinyUnlock.TryUnlockShiny(State.Bestiary, State.Meta, e.Species))
+                            State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                                $"✨ {e.Species.DisplayName} can now be Shiny!"));
                         if (BestiaryMasteryUnlock.TryUnlockMastery(State.Bestiary, State.Meta, e.Species))
                             State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
                                 $"Mastered {e.Species.DisplayName}! Mastery Move unlocked."));
