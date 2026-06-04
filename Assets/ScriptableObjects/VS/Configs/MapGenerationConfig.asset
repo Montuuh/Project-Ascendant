@@ -12,93 +12,139 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8af1af0ba7456745b3f17e5f10e92e6, type: 3}
   m_Name: MapGenerationConfig
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.MapGenerationConfigSO
-  LayerCount: 8
-  DefaultMaxBranches: 2
+  LayerCount: 12
+  GymForkLayer: 9
+  MaxInDegree: 2
+  DefaultMaxBranches: 3
   ConstraintRetryCap: 8
   Layers:
   - Layer: 0
-    NodesInLayer: 1
-    ForceMode: 1
-    ForcedType: 0
-  - Layer: 1
     NodesInLayer: 3
     ForceMode: 0
+    ForcedType: 1
+  - Layer: 1
+    NodesInLayer: 4
+    ForceMode: 2
     ForcedType: 0
   - Layer: 2
     NodesInLayer: 5
     ForceMode: 0
-    ForcedType: 0
+    ForcedType: 1
   - Layer: 3
+    NodesInLayer: 5
+    ForceMode: 0
+    ForcedType: 1
+  - Layer: 4
+    NodesInLayer: 4
+    ForceMode: 0
+    ForcedType: 1
+  - Layer: 5
+    NodesInLayer: 4
+    ForceMode: 0
+    ForcedType: 1
+  - Layer: 6
+    NodesInLayer: 3
+    ForceMode: 0
+    ForcedType: 1
+  - Layer: 7
     NodesInLayer: 3
     ForceMode: 2
     ForcedType: 6
-  - Layer: 4
+  - Layer: 8
+    NodesInLayer: 3
+    ForceMode: 0
+    ForcedType: 1
+  - Layer: 9
     NodesInLayer: 2
     ForceMode: 0
-    ForcedType: 0
-  - Layer: 5
-    NodesInLayer: 1
+    ForcedType: 1
+  - Layer: 10
+    NodesInLayer: 2
     ForceMode: 1
     ForcedType: 2
-  - Layer: 6
+  - Layer: 11
     NodesInLayer: 2
-    ForceMode: 0
-    ForcedType: 0
-  - Layer: 7
-    NodesInLayer: 1
     ForceMode: 1
     ForcedType: 5
   LayerWeights:
   - Layer: 0
     WildWeight: 1
-    TrainerWeight: 0
-    CenterWeight: 0
-    ShopWeight: 0
-    MysteryWeight: 0
-    GymWeight: 0
-  - Layer: 1
-    WildWeight: 1
     TrainerWeight: 2
     CenterWeight: 0
-    ShopWeight: 1
+    ShopWeight: 0
+    MysteryWeight: 1
+    GymWeight: 0
+  - Layer: 1
+    WildWeight: 2
+    TrainerWeight: 2
+    CenterWeight: 0
+    ShopWeight: 0
     MysteryWeight: 1
     GymWeight: 0
   - Layer: 2
     WildWeight: 1
-    TrainerWeight: 2
-    CenterWeight: 1
+    TrainerWeight: 3
+    CenterWeight: 0
     ShopWeight: 1
     MysteryWeight: 1
     GymWeight: 0
   - Layer: 3
-    WildWeight: 1
-    TrainerWeight: 2
+    WildWeight: 0
+    TrainerWeight: 3
     CenterWeight: 0
     ShopWeight: 0
     MysteryWeight: 1
     GymWeight: 0
   - Layer: 4
-    WildWeight: 1
-    TrainerWeight: 2
+    WildWeight: 0
+    TrainerWeight: 3
     CenterWeight: 0
     ShopWeight: 1
     MysteryWeight: 1
     GymWeight: 0
   - Layer: 5
     WildWeight: 0
+    TrainerWeight: 3
+    CenterWeight: 0
+    ShopWeight: 0
+    MysteryWeight: 1
+    GymWeight: 0
+  - Layer: 6
+    WildWeight: 0
+    TrainerWeight: 3
+    CenterWeight: 0
+    ShopWeight: 0
+    MysteryWeight: 1
+    GymWeight: 0
+  - Layer: 7
+    WildWeight: 0
+    TrainerWeight: 2
+    CenterWeight: 0
+    ShopWeight: 0
+    MysteryWeight: 1
+    GymWeight: 0
+  - Layer: 8
+    WildWeight: 0
+    TrainerWeight: 3
+    CenterWeight: 0
+    ShopWeight: 1
+    MysteryWeight: 1
+    GymWeight: 0
+  - Layer: 9
+    WildWeight: 0
+    TrainerWeight: 2
+    CenterWeight: 0
+    ShopWeight: 0
+    MysteryWeight: 1
+    GymWeight: 0
+  - Layer: 10
+    WildWeight: 0
     TrainerWeight: 0
     CenterWeight: 1
     ShopWeight: 0
     MysteryWeight: 0
     GymWeight: 0
-  - Layer: 6
-    WildWeight: 1
-    TrainerWeight: 2
-    CenterWeight: 0
-    ShopWeight: 1
-    MysteryWeight: 1
-    GymWeight: 0
-  - Layer: 7
+  - Layer: 11
     WildWeight: 0
     TrainerWeight: 0
     CenterWeight: 0

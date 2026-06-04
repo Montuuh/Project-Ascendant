@@ -102,6 +102,7 @@ namespace ProjectAscendant.Map
                     TutorPlaceholder = catalog.Potion,
                 },
                 GymSO = catalog.Gym,
+                GymPool = catalog.GymPool ?? new List<GymLeaderSO>(),
             };
         }
 

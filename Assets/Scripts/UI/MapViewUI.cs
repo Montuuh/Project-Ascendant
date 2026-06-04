@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -743,8 +744,9 @@ namespace ProjectAscendant.UI
         // Thin rotated Image between two local points; highlighted if it's part of the taken path.
         private void MakeLine(MapNode from, Vector2 a, Vector2 b, HashSet<MapNode> reachable)
         {
-            bool active = _visited.Contains(from) || from == _run.CurrentNode ||
-                          (_run.CurrentNode == null && from == _run.Map.Entry);
+            // Per §7.2 v2 — entry is now a list; check if 'from' is one of the entry nodes.
+            bool isEntry = _run.CurrentNode == null && _run.Map.EntryNodes.Contains(from);
+            bool active = _visited.Contains(from) || from == _run.CurrentNode || isEntry;
             Color col = active ? new Color(0.92f, 0.9f, 0.55f, 0.9f) : new Color(0.5f, 0.55f, 0.65f, 0.4f);
 
             GameObject go = new("Line", typeof(RectTransform));

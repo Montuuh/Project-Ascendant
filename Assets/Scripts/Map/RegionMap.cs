@@ -17,6 +17,13 @@ namespace ProjectAscendant.Map
 
         public NodeType NodeType;
 
+        // Per §7.2 v2 — for Gym nodes, which gym from the pool (0-based index). -1 for non-Gym nodes.
+        public int GymIndex = -1;
+
+        // Per §7.2 v2 — transient generation flag: this node's type was force-stamped (Wild entry,
+        // Elite, Center, Gym) and must not be rerolled by the no-adjacent-same-type pass. Not persisted.
+        public bool Forced;
+
         // Per §7.2.3 — forward connections into the next layer (1..DefaultMaxBranches).
         public readonly List<MapNode> Next = new();
 
@@ -31,7 +38,7 @@ namespace ProjectAscendant.Map
         public override string ToString() => $"L{Layer}/Lane{Lane}#{IndexInLane}:{NodeType}";
     }
 
-    // Per §7.2.1 / §7.11 — a generated Region map: an 8-layer branching ladder.
+    // Per §7.2 v2 — a generated Region map: a 12-layer branching tree with gym fork.
     // Deterministic for a given (RunSeed, RegionIndex). Pure data — owned by RunState, never by a view.
     public sealed class RegionMap
     {
@@ -40,18 +47,22 @@ namespace ProjectAscendant.Map
         // Layers[layer] = the nodes in that layer, ordered (lane, indexInLane).
         public readonly List<List<MapNode>> Layers;
 
-        public RegionMap(int regionIndex, List<List<MapNode>> layers)
+        // Per §7.2 v2 — the 2 gyms chosen from the pool for this map. Index matches MapNode.GymIndex.
+        public readonly List<GymLeaderSO> ChosenGyms;
+
+        public RegionMap(int regionIndex, List<List<MapNode>> layers, List<GymLeaderSO> chosenGyms = null)
         {
             RegionIndex = regionIndex;
             Layers      = layers;
+            ChosenGyms  = chosenGyms ?? new List<GymLeaderSO>();
         }
 
         public int LayerCount => Layers.Count;
 
-        // The single forced Starter node (Layer 0). Per §7.2.1 always a Wild Pokémon Area.
-        public MapNode Entry => Layers[0][0];
+        // Per §7.2 v2 — L0 entry nodes (multiple possible starting points).
+        public IReadOnlyList<MapNode> EntryNodes => Layers[0];
 
-        // Per §7.2.1 — the Gym nodes (Layer LayerCount-1), one per lane.
+        // Per §7.2 v2 — the Gym nodes (Layer LayerCount-1), one per lane (2 total after fork).
         public IReadOnlyList<MapNode> GymNodes => Layers[LayerCount - 1];
 
         public IEnumerable<MapNode> AllNodes()

@@ -28,7 +28,13 @@ namespace ProjectAscendant.Core
         [Header("Encounters")]
         public List<TrainerArchetypeSO> Archetypes;
         public EliteTrainerSO Elite;
+
+        [Tooltip("Per §7.2 v2 — gym pool for 2-gym fork. Falls back to single Gym if <2 entries.")]
+        public List<GymLeaderSO> GymPool;
+
+        [Tooltip("Fallback single gym (backward compat). Used if GymPool has <2 entries.")]
         public GymLeaderSO Gym;
+
         public List<MysteryEventSO> MysteryEvents;
 
         [Header("Item Pools")]

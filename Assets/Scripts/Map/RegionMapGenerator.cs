@@ -5,22 +5,27 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Map
 {
-    // Per §7.11 (+ gap #39 design override) — deterministic Region map seeding. Pure C#.
+    // Per §7.2 v2 — deterministic Region map seeding with 12-layer gym-fork topology. Pure C#.
     //
-    // Flat, variable-width layers (each layer has its own node count) wired into a partial
-    // StS-style net: every node links to its proportional child in the next layer plus an optional
-    // near neighbour (≤ DefaultMaxBranches), and every child is guaranteed a parent. The final layer
-    // is a single Gym, so all routes converge to it — giving a "choose-your-route" web rather than a
-    // fully-connected mesh. Same (RunSeed, RegionIndex) ⇒ identical map (Engineering Pillar 3).
+    // V2 structure:
+    //   L0:     ~3 entry nodes (varied types, guarantee ≥1 Wild within L1-L2)
+    //   L1-L8:  trunk (branching tree, 1-3 fwd edges, in-degree ≤2, 1 Elite in late trunk)
+    //   L9:     gym fork — splits into 2 independent sub-lanes
+    //   L10:    per-lane; guaranteed Pokemon Center in each sub-lane
+    //   L11:    terminal Gym nodes (2 total, one per sub-lane with distinct gym assignments)
+    //
+    // Same (RunSeed, RegionIndex) ⇒ identical map (Engineering Pillar 3).
     public static class RegionMapGenerator
     {
-        public static RegionMap Generate(MapGenerationConfigSO config, uint runSeed, int regionIndex = 0)
+        public static RegionMap Generate(MapGenerationConfigSO config, uint runSeed, int regionIndex,
+            IReadOnlyList<GymLeaderSO> gymPool = null)
         {
             uint seed = runSeed ^ RNGStreams.FNV1a("MapRNG") ^ (uint)regionIndex;
-            return Generate(config, new GameRNG(seed), regionIndex);
+            return Generate(config, new GameRNG(seed), regionIndex, gymPool);
         }
 
-        public static RegionMap Generate(MapGenerationConfigSO config, GameRNG rng, int regionIndex = 0)
+        public static RegionMap Generate(MapGenerationConfigSO config, GameRNG rng, int regionIndex,
+            IReadOnlyList<GymLeaderSO> gymPool = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (rng == null) throw new ArgumentNullException(nameof(rng));
@@ -31,7 +36,8 @@ namespace ProjectAscendant.Map
             List<List<MapNode>> layers = BuildSkeleton(config, specs, rng);
             EnforceNoAdjacentSameType(config, layers, rng);
             WireConnections(config, layers, rng);
-            return new RegionMap(regionIndex, layers);
+            List<GymLeaderSO> chosenGyms = AssignGyms(layers, gymPool, rng);
+            return new RegionMap(regionIndex, layers, chosenGyms);
         }
 
         // ── Skeleton + forced types ──────────────────────────────────────────
@@ -40,6 +46,8 @@ namespace ProjectAscendant.Map
             MapGenerationConfigSO config, Dictionary<int, MapLayerSpec> specs, GameRNG rng)
         {
             List<List<MapNode>> layers = new();
+            int forkLayer = config.GymForkLayer >= 0 ? config.GymForkLayer : int.MaxValue;
+
             for (int layer = 0; layer < config.LayerCount; layer++)
             {
                 if (!specs.TryGetValue(layer, out MapLayerSpec spec))
@@ -48,11 +56,17 @@ namespace ProjectAscendant.Map
                 int count = Math.Max(1, spec.NodesInLayer);
                 IList<(NodeType value, float weight)> options = BuildWeightedOptions(config, layer);
 
+                // Per §7.2 v2 — after fork, nodes belong to lanes. Pre-fork = lane 0.
+                bool postFork = layer >= forkLayer;
+                int laneCount = postFork ? 2 : 1;
+
                 List<MapNode> nodes = new(count);
                 for (int i = 0; i < count; i++)
                 {
                     NodeType sampled = options.Count > 0 ? rng.PickWeighted(options) : NodeType.Trainer;
-                    nodes.Add(new MapNode(layer, 0, i, sampled));
+                    int lane = postFork ? (i % laneCount) : 0; // distribute evenly across lanes
+                    int indexInLane = postFork ? (i / laneCount) : i;
+                    nodes.Add(new MapNode(layer, lane, indexInLane, sampled));
                 }
 
                 StampForcedTypes(spec, nodes, rng);
@@ -66,10 +80,12 @@ namespace ProjectAscendant.Map
             switch (spec.ForceMode)
             {
                 case LayerForceMode.AllNodes:
-                    for (int i = 0; i < nodes.Count; i++) nodes[i].NodeType = spec.ForcedType;
+                    for (int i = 0; i < nodes.Count; i++) { nodes[i].NodeType = spec.ForcedType; nodes[i].Forced = true; }
                     break;
                 case LayerForceMode.OneNodeInLayer:
-                    nodes[rng.Range(0, nodes.Count)].NodeType = spec.ForcedType;
+                    MapNode chosen = nodes[rng.Range(0, nodes.Count)];
+                    chosen.NodeType = spec.ForcedType;
+                    chosen.Forced = true;
                     break;
             }
         }
@@ -86,22 +102,43 @@ namespace ProjectAscendant.Map
                 IList<(NodeType value, float weight)> options = BuildWeightedOptions(config, layer);
                 List<MapNode> nodes = layers[layer];
 
-                for (int attempt = 0; attempt < config.ConstraintRetryCap; attempt++)
+                // AllNodes-forced layers (e.g. L10 Centers, L11 Gyms) are intentionally same-type — skip.
+                if (spec.ForceMode == LayerForceMode.AllNodes) continue;
+
+                // Per §7.2 v2 — check adjacency within each lane separately. A node is locked only if it
+                // is THE force-stamped node (node.Forced) — not merely sharing the forced type.
+                for (int lane = 0; lane < 2; lane++)
                 {
-                    bool clean = true;
-                    for (int i = 1; i < nodes.Count; i++)
+                    List<MapNode> laneNodes = GetLaneNodes(nodes, lane);
+                    if (laneNodes.Count < 2) continue;
+
+                    for (int attempt = 0; attempt < config.ConstraintRetryCap; attempt++)
                     {
-                        if (nodes[i].NodeType != nodes[i - 1].NodeType) continue;
-                        clean = false;
-                        MapNode reroll = !IsForced(nodes[i], spec) ? nodes[i]
-                                       : !IsForced(nodes[i - 1], spec) ? nodes[i - 1] : null;
-                        if (reroll == null) continue;
-                        reroll.NodeType = PickDifferent(options, nodes[i - 1].NodeType,
-                            i + 1 < nodes.Count ? nodes[i + 1].NodeType : (NodeType?)null, rng, reroll.NodeType);
+                        bool clean = true;
+                        for (int i = 1; i < laneNodes.Count; i++)
+                        {
+                            if (laneNodes[i].NodeType != laneNodes[i - 1].NodeType) continue;
+                            clean = false;
+                            MapNode reroll = !laneNodes[i].Forced ? laneNodes[i]
+                                           : !laneNodes[i - 1].Forced ? laneNodes[i - 1] : null;
+                            if (reroll == null) continue; // both forced same type (rare) — accept
+                            reroll.NodeType = PickDifferent(options, laneNodes[i - 1].NodeType,
+                                i + 1 < laneNodes.Count ? laneNodes[i + 1].NodeType : (NodeType?)null, rng, reroll.NodeType);
+                        }
+                        if (clean) break;
                     }
-                    if (clean) break;
                 }
             }
+        }
+
+        private static List<MapNode> GetLaneNodes(List<MapNode> nodes, int lane)
+        {
+            List<MapNode> result = new();
+            for (int i = 0; i < nodes.Count; i++)
+                if (nodes[i].Lane == lane) result.Add(nodes[i]);
+            // Sort by IndexInLane for adjacency checking.
+            result.Sort((a, b) => a.IndexInLane.CompareTo(b.IndexInLane));
+            return result;
         }
 
         private static NodeType PickDifferent(
@@ -120,42 +157,136 @@ namespace ProjectAscendant.Map
             return filtered.Count > 0 ? rng.PickWeighted(filtered) : current;
         }
 
-        // ── Connection wiring (partial StS net) ──────────────────────────────
+        // ── Connection wiring (v2: branching tree + fork) ────────────────────
 
         private static void WireConnections(MapGenerationConfigSO config, List<List<MapNode>> layers, GameRNG rng)
         {
             int maxFwd = Math.Max(1, config.DefaultMaxBranches);
+            int maxInDegree = Math.Max(1, config.MaxInDegree);
+            int forkLayer = config.GymForkLayer >= 0 ? config.GymForkLayer : int.MaxValue;
+
             for (int layer = 0; layer < layers.Count - 1; layer++)
-                ConnectLayers(layers[layer], layers[layer + 1], maxFwd, rng);
+            {
+                bool isFork = layer + 1 == forkLayer;
+                if (isFork)
+                {
+                    // Fork: every trunk node connects to both lane gateways (the Gym choice).
+                    ConnectFork(layers[layer], layers[layer + 1]);
+                }
+                else if (layer + 1 > forkLayer)
+                {
+                    // Post-fork: wire within each lane independently.
+                    ConnectPostFork(layers[layer], layers[layer + 1], maxFwd, maxInDegree, rng);
+                }
+                else
+                {
+                    // Pre-fork trunk: branching tree.
+                    ConnectLayersBranching(layers[layer], layers[layer + 1], maxFwd, maxInDegree, rng);
+                }
+            }
         }
 
-        // Each parent links to its proportional child + (≤ maxFwd) an optional near neighbour; then
-        // every child is guaranteed a parent. Feed-forward, so every node reaches the single Gym.
-        private static void ConnectLayers(List<MapNode> parents, List<MapNode> children, int maxFwd, GameRNG rng)
+        // Pre-fork / per-lane: branching tree. GUARANTEES (the load-bearing connectivity invariants):
+        //   • every parent gets ≥1 forward edge (no dead ends → every node reaches the gym),
+        //   • every child gets ≥1 parent (no orphans → every node reachable from an entry),
+        //   • in-degree ≤ maxInDegree (branchy, not a convergent mesh).
+        // The authored layer widths keep total capacity (C × maxInDegree) ≥ P, so the caps never block
+        // a mandatory edge.
+        private static void ConnectLayersBranching(List<MapNode> parents, List<MapNode> children, int maxFwd, int maxInDegree, GameRNG rng)
         {
             int P = parents.Count, C = children.Count;
             if (P == 0 || C == 0) return;
 
+            Dictionary<MapNode, int> inDegree = new();
+            for (int i = 0; i < C; i++) inDegree[children[i]] = 0;
+
+            // Pass A — every parent gets ≥1 forward edge. Prefer the proportional child; if it is at the
+            // in-degree cap, take the nearest child with spare capacity.
             for (int i = 0; i < P; i++)
             {
                 int baseChild = Proportional(i, P, C);
-                AddEdge(parents[i], children[baseChild]);
-
-                // ~50% add a single adjacent neighbour for route variety, capped at maxFwd.
-                if (maxFwd > 1 && C > 1 && parents[i].Next.Count < maxFwd && rng.Range(0, 2) == 0)
-                {
-                    int off = rng.Range(0, 2) == 0 ? -1 : 1;
-                    int nb = Mathf.Clamp(baseChild + off, 0, C - 1);
-                    AddEdge(parents[i], children[nb]);
-                }
+                int t = NearestChildWithSpare(children, inDegree, baseChild, maxInDegree);
+                ConnectChild(parents[i], children[t < 0 ? baseChild : t], inDegree);
             }
 
-            // Coverage: any child with no parent is connected from its nearest proportional parent.
+            // Pass B — a little extra branching for route variety (respect both caps).
+            for (int i = 0; i < P; i++)
+            {
+                if (rng.Range(0, 2) != 0) continue; // ~50% of parents get a second edge
+                if (parents[i].Next.Count >= maxFwd) continue;
+                int baseChild = Proportional(i, P, C);
+                int off = rng.Range(0, 2) == 0 ? -1 : 1;
+                int nb = Mathf.Clamp(baseChild + off, 0, C - 1);
+                if (inDegree[children[nb]] < maxInDegree && !parents[i].Next.Contains(children[nb]))
+                    ConnectChild(parents[i], children[nb], inDegree);
+            }
+
+            // Pass C — coverage: every child gets ≥1 parent (in-degree 0 → 1, within cap).
             for (int j = 0; j < C; j++)
             {
-                if (HasParent(parents, children[j])) continue;
-                int pi = Proportional(j, C, P);
-                AddEdge(parents[pi], children[j]);
+                if (inDegree[children[j]] > 0) continue;
+                int pref = Proportional(j, C, P);
+                int pi = NearestParentWithRoom(parents, pref, maxFwd, children[j]);
+                ConnectChild(parents[pi < 0 ? pref : pi], children[j], inDegree);
+            }
+        }
+
+        // Nearest child index to 'start' (expanding ring) whose in-degree < cap; -1 if none has spare.
+        private static int NearestChildWithSpare(List<MapNode> children, Dictionary<MapNode, int> inDegree, int start, int cap)
+        {
+            int C = children.Count;
+            for (int d = 0; d < C; d++)
+            {
+                int lo = start - d, hi = start + d;
+                if (lo >= 0 && inDegree[children[lo]] < cap) return lo;
+                if (hi < C && hi != lo && inDegree[children[hi]] < cap) return hi;
+            }
+            return -1;
+        }
+
+        // Nearest parent index to 'start' with out-degree < maxFwd not already linked to 'child'; -1 none.
+        private static int NearestParentWithRoom(List<MapNode> parents, int start, int maxFwd, MapNode child)
+        {
+            int P = parents.Count;
+            for (int d = 0; d < P; d++)
+            {
+                int lo = start - d, hi = start + d;
+                if (lo >= 0 && parents[lo].Next.Count < maxFwd && !parents[lo].Next.Contains(child)) return lo;
+                if (hi < P && hi != lo && parents[hi].Next.Count < maxFwd && !parents[hi].Next.Contains(child)) return hi;
+            }
+            return -1;
+        }
+
+        private static void ConnectChild(MapNode parent, MapNode child, Dictionary<MapNode, int> inDegree)
+        {
+            if (parent.Next.Contains(child)) return;
+            parent.Next.Add(child);
+            inDegree[child] = inDegree.TryGetValue(child, out int d) ? d + 1 : 1;
+        }
+
+        // Fork (last trunk layer → fork layer): EVERY trunk node connects to one gateway per lane, so
+        // wherever the player stands they get the Gym choice at the fork. The fork gateways are the one
+        // intentional convergence point (in-degree = trunk width) and are exempt from the in-degree cap.
+        private static void ConnectFork(List<MapNode> parents, List<MapNode> gateways)
+        {
+            if (parents.Count == 0 || gateways.Count == 0) return;
+            List<MapNode> lane0 = GetLaneNodes(gateways, 0);
+            List<MapNode> lane1 = GetLaneNodes(gateways, 1);
+            for (int i = 0; i < parents.Count; i++)
+            {
+                if (lane0.Count > 0) AddEdge(parents[i], lane0[0]);
+                if (lane1.Count > 0) AddEdge(parents[i], lane1[0]);
+            }
+        }
+
+        // Post-fork: wire within each lane independently (per-lane branching tree, in-degree ≤ cap).
+        private static void ConnectPostFork(List<MapNode> parents, List<MapNode> children, int maxFwd, int maxInDegree, GameRNG rng)
+        {
+            for (int lane = 0; lane < 2; lane++)
+            {
+                List<MapNode> laneParents = GetLaneNodes(parents, lane);
+                List<MapNode> laneChildren = GetLaneNodes(children, lane);
+                ConnectLayersBranching(laneParents, laneChildren, maxFwd, maxInDegree, rng);
             }
         }
 
@@ -167,16 +298,58 @@ namespace ProjectAscendant.Map
             return Mathf.Clamp(v, 0, toCount - 1);
         }
 
-        private static bool HasParent(List<MapNode> parents, MapNode child)
-        {
-            for (int i = 0; i < parents.Count; i++)
-                if (parents[i].Next.Contains(child)) return true;
-            return false;
-        }
-
         private static void AddEdge(MapNode parent, MapNode child)
         {
             if (!parent.Next.Contains(child)) parent.Next.Add(child);
+        }
+
+        // ── Gym assignment ────────────────────────────────────────────────────
+
+        // Per §7.2 v2 — pick 2 distinct gyms from the pool and assign to the terminal Gym nodes.
+        private static List<GymLeaderSO> AssignGyms(List<List<MapNode>> layers, IReadOnlyList<GymLeaderSO> gymPool, GameRNG rng)
+        {
+            List<GymLeaderSO> chosenGyms = new();
+            if (layers.Count == 0) return chosenGyms;
+
+            List<MapNode> gymNodes = layers[layers.Count - 1];
+            List<MapNode> gyms = new();
+            for (int i = 0; i < gymNodes.Count; i++)
+                if (gymNodes[i].NodeType == NodeType.Gym) gyms.Add(gymNodes[i]);
+
+            if (gyms.Count == 0) return chosenGyms;
+
+            // Pick 2 distinct gyms from the pool (or fallback to single/duplicate if pool insufficient).
+            if (gymPool == null || gymPool.Count == 0)
+            {
+                // No pool: leave gym indices as -1 (caller must handle fallback).
+                return chosenGyms;
+            }
+
+            List<int> indices = new();
+            for (int i = 0; i < gymPool.Count; i++) indices.Add(i);
+
+            // Fisher-Yates shuffle.
+            for (int i = indices.Count - 1; i > 0; i--)
+            {
+                int j = rng.Range(0, i + 1);
+                (indices[i], indices[j]) = (indices[j], indices[i]);
+            }
+
+            int gym0Idx = indices[0];
+            int gym1Idx = indices.Count > 1 ? indices[1] : indices[0];
+
+            chosenGyms.Add(gymPool[gym0Idx]);
+            if (gym1Idx != gym0Idx || gymPool.Count == 1)
+                chosenGyms.Add(gymPool[gym1Idx]);
+            else if (chosenGyms.Count < 2)
+                chosenGyms.Add(gymPool[gym0Idx]); // duplicate if only 1 gym in pool
+
+            // Assign gym indices to nodes (sorted by lane to match fork structure).
+            gyms.Sort((a, b) => a.Lane != b.Lane ? a.Lane.CompareTo(b.Lane) : a.IndexInLane.CompareTo(b.IndexInLane));
+            for (int i = 0; i < gyms.Count && i < 2; i++)
+                gyms[i].GymIndex = i;
+
+            return chosenGyms;
         }
 
         // ── Helpers ──────────────────────────────────────────────────────────

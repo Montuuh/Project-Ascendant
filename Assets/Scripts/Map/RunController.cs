@@ -49,6 +49,7 @@ namespace ProjectAscendant.Map
         public void ResetForNewRun()
         {
             Map = null;
+            _ctx.CurrentMap = null;
             CurrentNode = null;
             ActiveNode = null;
             RunOver = false;
@@ -59,7 +60,8 @@ namespace ProjectAscendant.Map
         // Generates the Region map from the MapRNG stream and boots the run into Map View.
         public void StartRun(int regionIndex = 0)
         {
-            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex);
+            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex, _ctx.GymPool);
+            _ctx.CurrentMap = Map; // Per §7.2 v2 — context needs map to resolve gyms.
             _ctx.Run.CurrentRegionIndex = regionIndex;
             CurrentNode = null;
             ActiveNode = null;
@@ -81,7 +83,8 @@ namespace ProjectAscendant.Map
             if (_ctx.Run == null) return false;
 
             int regionIndex = _ctx.Run.CurrentRegionIndex;
-            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex);
+            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex, _ctx.GymPool);
+            _ctx.CurrentMap = Map; // Per §7.2 v2 — context needs map to resolve gyms.
             RunOver = false;
             Outcome = null;
             ActiveNode = null;
@@ -106,12 +109,12 @@ namespace ProjectAscendant.Map
             return nodes.Count > 0 ? nodes[0] : null;
         }
 
-        // Per §2.1.2 — nodes reachable from the current position: the forced Layer-0 entry before the
+        // Per §7.2 v2 — nodes reachable from the current position: the L0 entry nodes before the
         // first step, then the current node's forward connections. Empty once the run is over.
         public IReadOnlyList<MapNode> SelectableNodes()
         {
             if (RunOver || Map == null) return Array.Empty<MapNode>();
-            if (CurrentNode == null) return new List<MapNode> { Map.Entry };
+            if (CurrentNode == null) return Map.EntryNodes;
 
             // §6.8.2 One Path — difficulty can cap the route branches shown at each junction (Task 11.6).
             int cap = DifficultyModifiers.MaxRouteBranches(_ctx.Run.ActiveDifficultyModifiers);

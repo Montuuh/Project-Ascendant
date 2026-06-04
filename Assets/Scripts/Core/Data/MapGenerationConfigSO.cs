@@ -15,13 +15,19 @@ namespace ProjectAscendant.Core
     public class MapGenerationConfigSO : ScriptableObject
     {
         [Header("Topology")]
-        [Tooltip("Number of layers, including Layer 0 (Starter) and the final Gym layer.")]
-        public int LayerCount = 8;
+        [Tooltip("Number of layers, including Layer 0 (entry) and the final Gym layer.")]
+        public int LayerCount = 12;
+
+        [Tooltip("Per §7.2 v2 — layer where the map forks into 2 gym lanes. -1 to disable fork (converge to 1 gym).")]
+        public int GymForkLayer = 9;
+
+        [Tooltip("Per §7.2 v2 — maximum in-degree (parent connections) per node. Caps fan-in for readability.")]
+        public int MaxInDegree = 2;
 
         // Per §7.2.3 — every node connects to 1..N nodes in the next layer. Keep small for a clean
         // partial net (StS-style); a node usually links to 1–2 nearby children.
         [Tooltip("Maximum forward connections per node. Overridden by DifficultyModifierSO.")]
-        public int DefaultMaxBranches = 2;
+        public int DefaultMaxBranches = 3;
 
         [Tooltip("Max re-roll iterations when satisfying the no-adjacent-same-type constraint.")]
         public int ConstraintRetryCap = 8;

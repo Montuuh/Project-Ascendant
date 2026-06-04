@@ -57,28 +57,36 @@ namespace ProjectAscendant.Tests
         private MapGenerationConfigSO MakeMapConfig()
         {
             MapGenerationConfigSO c = Make<MapGenerationConfigSO>();
-            c.LayerCount = 8; c.DefaultMaxBranches = 2; c.ConstraintRetryCap = 8;
+            c.LayerCount = 12; c.GymForkLayer = 9; c.DefaultMaxBranches = 3; c.MaxInDegree = 2; c.ConstraintRetryCap = 8;
             c.Layers = new List<MapLayerSpec>
             {
-                new() { Layer = 0, NodesInLayer = 1, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Wild },
-                new() { Layer = 1, NodesInLayer = 3, ForceMode = LayerForceMode.None },
+                new() { Layer = 0, NodesInLayer = 3, ForceMode = LayerForceMode.OneNodeInLayer, ForcedType = NodeType.Wild },
+                new() { Layer = 1, NodesInLayer = 4, ForceMode = LayerForceMode.None },
                 new() { Layer = 2, NodesInLayer = 5, ForceMode = LayerForceMode.None },
-                new() { Layer = 3, NodesInLayer = 3, ForceMode = LayerForceMode.OneNodeInLayer, ForcedType = NodeType.Elite },
-                new() { Layer = 4, NodesInLayer = 2, ForceMode = LayerForceMode.None },
-                new() { Layer = 5, NodesInLayer = 1, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Center },
-                new() { Layer = 6, NodesInLayer = 2, ForceMode = LayerForceMode.None },
-                new() { Layer = 7, NodesInLayer = 1, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Gym },
+                new() { Layer = 3, NodesInLayer = 5, ForceMode = LayerForceMode.None },
+                new() { Layer = 4, NodesInLayer = 4, ForceMode = LayerForceMode.None },
+                new() { Layer = 5, NodesInLayer = 4, ForceMode = LayerForceMode.None },
+                new() { Layer = 6, NodesInLayer = 3, ForceMode = LayerForceMode.None },
+                new() { Layer = 7, NodesInLayer = 3, ForceMode = LayerForceMode.OneNodeInLayer, ForcedType = NodeType.Elite },
+                new() { Layer = 8, NodesInLayer = 3, ForceMode = LayerForceMode.None },
+                new() { Layer = 9, NodesInLayer = 2, ForceMode = LayerForceMode.None },
+                new() { Layer = 10, NodesInLayer = 2, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Center },
+                new() { Layer = 11, NodesInLayer = 2, ForceMode = LayerForceMode.AllNodes, ForcedType = NodeType.Gym },
             };
             c.LayerWeights = new List<NodeLayerWeights>
             {
-                new() { Layer = 0, WildWeight = 1 },
-                new() { Layer = 1, WildWeight = 1, TrainerWeight = 2, ShopWeight = 1, MysteryWeight = 1 },
+                new() { Layer = 0, WildWeight = 1, TrainerWeight = 1 },
+                new() { Layer = 1, WildWeight = 1, TrainerWeight = 2, MysteryWeight = 1 },
                 new() { Layer = 2, WildWeight = 1, TrainerWeight = 2, ShopWeight = 1, MysteryWeight = 1 },
-                new() { Layer = 3, WildWeight = 1, TrainerWeight = 2, MysteryWeight = 1 },
-                new() { Layer = 4, WildWeight = 1, TrainerWeight = 2, MysteryWeight = 1 },
-                new() { Layer = 5, WildWeight = 1, TrainerWeight = 2, ShopWeight = 1, MysteryWeight = 1 },
-                new() { Layer = 6, WildWeight = 1, TrainerWeight = 2, MysteryWeight = 1 },
-                new() { Layer = 7, GymWeight = 1 },
+                new() { Layer = 3, TrainerWeight = 2, MysteryWeight = 1 },
+                new() { Layer = 4, TrainerWeight = 2, MysteryWeight = 1 },
+                new() { Layer = 5, TrainerWeight = 2, MysteryWeight = 1 },
+                new() { Layer = 6, TrainerWeight = 2, MysteryWeight = 1 },
+                new() { Layer = 7, TrainerWeight = 2, MysteryWeight = 1 },
+                new() { Layer = 8, TrainerWeight = 2, ShopWeight = 1, MysteryWeight = 1 },
+                new() { Layer = 9, TrainerWeight = 2, MysteryWeight = 1 },
+                new() { Layer = 10, CenterWeight = 1 },
+                new() { Layer = 11, GymWeight = 1 },
             };
             return c;
         }
@@ -148,6 +156,16 @@ namespace ProjectAscendant.Tests
             gym.BadgeReward = Make<BadgeSO>(); gym.GuaranteedRareRelic = Make<RelicSO>();
             gym.TrainerXPReward = 50; gym.PokeDollarReward = 500;
 
+            GymLeaderSO gym2 = Make<GymLeaderSO>();
+            gym2.GymLeaderId = "water_gym_r1"; gym2.GymType = PokemonType.Water;
+            gym2.Composition = new List<GymPokemonSlot>
+            {
+                new() { Species = MakeSpecies("staryu"), Level = 14, PhaseCount = 2 },
+                new() { Species = MakeSpecies("starmie"), Level = 16, PhaseCount = 3, IsAce = true },
+            };
+            gym2.BadgeReward = Make<BadgeSO>(); gym2.GuaranteedRareRelic = Make<RelicSO>();
+            gym2.TrainerXPReward = 50; gym2.PokeDollarReward = 500;
+
             return new RunContext
             {
                 Run = run,
@@ -168,6 +186,7 @@ namespace ProjectAscendant.Tests
                 MysteryConfig = mysteryConfig,
                 MysteryItems = new MysteryEventNodeController.MysteryItemRefs { Potion = Make<ConsumableSO>() },
                 GymSO = gym,
+                GymPool = new List<GymLeaderSO> { gym, gym2 },
             };
         }
 
@@ -203,7 +222,7 @@ namespace ProjectAscendant.Tests
             RunController rc = MakeRunController(123u, out _, out _);
             rc.StartRun();
             Assert.That(rc.Map, Is.Not.Null);
-            Assert.That(rc.Map.LayerCount, Is.EqualTo(8));
+            Assert.That(rc.Map.LayerCount, Is.EqualTo(12), "v2 has 12 layers");
             Assert.That(_events, Has.Member(GameEventType.StartNewRun));
         }
 
@@ -213,13 +232,13 @@ namespace ProjectAscendant.Tests
             RunController rc = MakeRunController(123u, out _, out _);
             rc.StartRun();
             IReadOnlyList<MapNode> first = rc.SelectableNodes();
-            Assert.That(first.Count, Is.EqualTo(1));
-            Assert.That(first[0], Is.SameAs(rc.Map.Entry));
+            Assert.That(first.Count, Is.EqualTo(3), "v2 has 3 entry nodes");
+            Assert.That(first, Contains.Item(rc.Map.EntryNodes[0]));
 
-            rc.EnterNode(rc.Map.Entry);
+            rc.EnterNode(rc.Map.EntryNodes[0]);
             ResolveActive(rc);
             rc.CompleteActiveNode();
-            Assert.That(rc.SelectableNodes(), Is.EquivalentTo(rc.Map.Entry.Next));
+            Assert.That(rc.SelectableNodes(), Is.EquivalentTo(rc.Map.EntryNodes[0].Next));
         }
 
         [Test]
@@ -227,7 +246,7 @@ namespace ProjectAscendant.Tests
         {
             RunController rc = MakeRunController(123u, out _, out RunContext ctx);
             rc.StartRun();
-            rc.EnterNode(rc.Map.Entry);
+            rc.EnterNode(rc.Map.EntryNodes[0]);
 
             Assert.That(ctx.Loadout.IsLocked, Is.True, "Loadout locks on node entry (§2.3).");
             Assert.That(File.Exists(Path.Combine(_tempDir, "run-current.dat")), Is.True, "Save on node entry (§9.8.1).");
@@ -251,7 +270,7 @@ namespace ProjectAscendant.Tests
         {
             RunController rc = MakeRunController(123u, out _, out RunContext ctx);
             rc.StartRun();
-            rc.EnterNode(rc.Map.Entry); // Wild
+            rc.EnterNode(rc.Map.EntryNodes[0]); // Wild
             ResolveActive(rc);
             rc.CompleteActiveNode();
 
@@ -292,7 +311,7 @@ namespace ProjectAscendant.Tests
             // Per §3.3.6 — a combat loss wipes the team and ends the run as a Defeat (GameOver).
             RunController rc = MakeRunController(123u, out _, out _);
             rc.StartRun();
-            rc.EnterNode(rc.Map.Entry); // forced Wild at Layer 0
+            rc.EnterNode(rc.Map.EntryNodes[0]); // forced Wild at Layer 0
             ((WildAreaNodeController)rc.ActiveNode).ResolveCombat(CombatController.CombatOutcome.Defeat, null, finalLeadIndex: 0);
             rc.CompleteActiveNode();
 
@@ -319,13 +338,16 @@ namespace ProjectAscendant.Tests
             runA.PokeDollars = 175;
 
             rcA.StartRun();
-            rcA.EnterNode(rcA.Map.Entry);
+            rcA.EnterNode(rcA.Map.EntryNodes[0]);
             ResolveActive(rcA);
             rcA.CompleteActiveNode();
             MapNode second = rcA.SelectableNodes()[0];
             rcA.EnterNode(second); // save-on-entry writes the crash-point checkpoint (run + box)
 
             MapNode expected = rcA.CurrentNode;
+            // Capture ₽ at save time — the first node's resolution may have awarded ₽ (entry is no
+            // longer a forced no-reward Wild in map v2); the save must round-trip whatever it was.
+            int expectedDollars = runA.PokeDollars;
             Assert.That(File.Exists(Path.Combine(_tempDir, "run-current.dat")), Is.True);
 
             // ── Reload: resolve the saved file via a registry that knows the team's species ──
@@ -358,7 +380,7 @@ namespace ProjectAscendant.Tests
             Assert.That(rcB.RunOver, Is.False);
 
             // Run-state + team restored.
-            Assert.That(saved.Run.PokeDollars, Is.EqualTo(175));
+            Assert.That(saved.Run.PokeDollars, Is.EqualTo(expectedDollars));
             Assert.That(saved.Run.ActiveTeamIndices, Is.EquivalentTo(new[] { 0 }));
             Assert.That(ctxB.Box.Members[0].Species, Is.SameAs(starterSpecies));
             Assert.That(ctxB.Box.Members[0].CurrentXP, Is.EqualTo(33));
@@ -374,7 +396,7 @@ namespace ProjectAscendant.Tests
         {
             RunController rc = MakeRunController(123u, out _, out _);
             rc.StartRun();
-            rc.EnterNode(rc.Map.Entry);
+            rc.EnterNode(rc.Map.EntryNodes[0]);
             Assert.That(File.Exists(Path.Combine(_tempDir, "run-current.dat")), Is.True);
 
             ((WildAreaNodeController)rc.ActiveNode).ResolveCombat(CombatController.CombatOutcome.Defeat, null, finalLeadIndex: 0);
@@ -392,7 +414,7 @@ namespace ProjectAscendant.Tests
         {
             RunController rc = MakeRunController(123u, out _, out _);
             rc.StartRun();
-            rc.EnterNode(rc.Map.Entry);
+            rc.EnterNode(rc.Map.EntryNodes[0]);
             ResolveActive(rc);
             rc.CompleteActiveNode();
             Assert.That(rc.Map, Is.Not.Null, "Run is in progress.");

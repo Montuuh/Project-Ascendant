@@ -17,6 +17,9 @@ namespace ProjectAscendant.Map
         public PokemonInstanceFactory PokemonFactory;
         public RNGStreams Streams;
 
+        // Per §7.2 v2 — the generated map (set by RunController after generation). Needed to resolve gyms.
+        public RegionMap CurrentMap;
+
         // ── Global config ────────────────────────────────────────────────────
         public EconomyConfigSO Economy;
         public MapGenerationConfigSO MapConfig;
@@ -46,7 +49,29 @@ namespace ProjectAscendant.Map
         public MysteryEventNodeController.MysteryItemRefs MysteryItems;
 
         // ── Gym (9.8) ────────────────────────────────────────────────────────
+        [System.Obsolete("Use GymPool for v2 multi-gym support. Kept for backward compat.")]
         public GymLeaderSO GymSO;
+
+        // Per §7.2 v2 — gym pool for 2-gym fork. Resolved per-node via Map.ChosenGyms.
+        public IReadOnlyList<GymLeaderSO> GymPool;
+
+        // Per §7.2 v2 — resolve the gym for a given node from the generated map's chosen gyms.
+        // Falls back to the single GymSO if GymPool is insufficient or node has no valid gym index.
+        private GymLeaderSO ResolveGym(MapNode node)
+        {
+            if (CurrentMap != null && CurrentMap.ChosenGyms != null && node.GymIndex >= 0 && node.GymIndex < CurrentMap.ChosenGyms.Count)
+                return CurrentMap.ChosenGyms[node.GymIndex];
+
+            // Fallback: single gym (backward compat).
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (GymSO != null) return GymSO;
+#pragma warning restore CS0618
+
+            // Last fallback: GymPool[0] if available.
+            if (GymPool != null && GymPool.Count > 0) return GymPool[0];
+
+            return null; // Caller must handle null gym.
+        }
 
         // Registers a builder for every NodeType. Each closure captures the deps this context owns,
         // so the HSM/RunController can resolve a node without a hardcoded switch (§9.6).
@@ -70,8 +95,11 @@ namespace ProjectAscendant.Map
             factory.Register(NodeType.Mystery, (node, run) => new MysteryEventNodeController(
                 node, run, MysteryPool, MysteryConfig, Streams.MysteryRNG, MysteryItems, Box, Economy));
 
-            factory.Register(NodeType.Gym, (node, run) => new GymNodeController(
-                node, run, GymSO, PokemonFactory, Economy));
+            factory.Register(NodeType.Gym, (node, run) => {
+                // Per §7.2 v2 — resolve gym from the map's chosen gyms via node.GymIndex.
+                GymLeaderSO gym = ResolveGym(node);
+                return new GymNodeController(node, run, gym, PokemonFactory, Economy);
+            });
         }
     }
 }
