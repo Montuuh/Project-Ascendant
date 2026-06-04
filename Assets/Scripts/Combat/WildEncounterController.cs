@@ -103,7 +103,8 @@ namespace ProjectAscendant.Combat
             List<ConsumableSO> baseInventory,
             FieldState initialField,
             BattleConfigSO config,
-            GameRNG combatRng)
+            GameRNG combatRng,
+            int pokeballCount = 0)
         {
             List<PokemonInstance> enemyTeam = new();
             if (chosenSpecies != null && _pokemonFactory != null)
@@ -125,13 +126,15 @@ namespace ProjectAscendant.Combat
                 enemyTeam.Add(wild);
             }
 
-            // Per Task 8.1.3 — inject Pokéball into a fresh copy of the
-            // inventory. Inserting into `baseInventory` directly would mutate
-            // the caller's persistent list across combats; copy first.
-            List<ConsumableSO> combatInventory = baseInventory != null
-                ? new List<ConsumableSO>(baseInventory)
-                : new List<ConsumableSO>();
-            if (_pokeballSO != null) combatInventory.Add(_pokeballSO);
+            // Copy the inventory (never mutate the caller's persistent list), excluding any Pokéball —
+            // §7.3.4 Option 1 replaces the old free-per-encounter / non-expendable-inventory model with
+            // a counted resource: the Pokéball card is injected iff the run still has balls (pokeballCount
+            // > 0), giving exactly one catch attempt this combat (spent post-combat on CatchAttempted).
+            List<ConsumableSO> combatInventory = new();
+            if (baseInventory != null)
+                foreach (ConsumableSO c in baseInventory)
+                    if (c != null && c != _pokeballSO) combatInventory.Add(c);
+            if (_pokeballSO != null && pokeballCount > 0) combatInventory.Add(_pokeballSO);
 
             return new CombatController.CombatSetup
             {

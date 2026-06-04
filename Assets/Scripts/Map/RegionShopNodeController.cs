@@ -127,8 +127,12 @@ namespace ProjectAscendant.Map
             switch (slot.Kind)
             {
                 case ShopSlotKind.Consumable:
-                case ShopSlotKind.Pokeball:
                     (RunState.Inventory ??= new List<ConsumableSO>()).Add((ConsumableSO)slot.Item);
+                    break;
+                case ShopSlotKind.Pokeball:
+                    // §7.3.4 (Option 1) — a bought Pokéball adds to the counted resource, not the
+                    // (non-expendable) consumable inventory; it is spent on a catch attempt.
+                    RunState.PokeballCount++;
                     break;
                 case ShopSlotKind.CommonRelic:
                 case ShopSlotKind.UncommonRelic:

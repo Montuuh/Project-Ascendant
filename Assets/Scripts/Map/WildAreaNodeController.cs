@@ -82,7 +82,8 @@ namespace ProjectAscendant.Map
             int level = RollWildLevel();
             return _wild.BuildCombatSetup(
                 chosen, level, playerTeam, initialLeadIndex,
-                baseInventory, initialField, battleConfig, combatRng);
+                baseInventory, initialField, battleConfig, combatRng,
+                RunState != null ? RunState.PokeballCount : 0); // §7.3.4 (Option 1) — gate the catch card
         }
 
         // Interprets the combat result and routes the recruit into the Box (§2.3.1), then Completes.

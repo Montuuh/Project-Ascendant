@@ -27,6 +27,7 @@ namespace ProjectAscendant.Core
         public List<string> HeldRelicIds;
         public List<string> InventoryIds;
         public int PokeDollars;
+        public int PokeballCount; // §7.3.4 (Option 1) — counted Pokéball resource
         public List<string> EarnedBadgeIds;
         public List<string> OwnedHeldItemIds;
         public List<string> OwnedTMIds;
@@ -65,6 +66,7 @@ namespace ProjectAscendant.Core
             dto.HeldRelicIds          = Ids(run.HeldRelics,          so => so.Id);
             dto.InventoryIds          = Ids(run.Inventory,           so => so.Id);
             dto.PokeDollars           = run.PokeDollars;
+            dto.PokeballCount         = run.PokeballCount;
             dto.EarnedBadgeIds        = Ids(run.EarnedBadges,        so => so.BadgeId);
             dto.OwnedHeldItemIds      = Ids(run.OwnedHeldItems,      so => so.Id);
             dto.OwnedTMIds            = Ids(run.OwnedTMs,            so => so.Id);
@@ -112,6 +114,7 @@ namespace ProjectAscendant.Core
             run.HeldRelics          = Resolve(HeldRelicIds,          id => registry?.ResolveRelic(id));
             run.Inventory           = Resolve(InventoryIds,          id => registry?.ResolveConsumable(id));
             run.PokeDollars         = PokeDollars;
+            run.PokeballCount       = PokeballCount;
             run.EarnedBadges        = Resolve(EarnedBadgeIds,        id => registry?.ResolveBadge(id));
             run.OwnedHeldItems      = Resolve(OwnedHeldItemIds,      id => registry?.ResolveHeldItem(id));
             run.OwnedTMs            = Resolve(OwnedTMIds,            id => registry?.ResolveTM(id));

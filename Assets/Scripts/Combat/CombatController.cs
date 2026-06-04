@@ -191,6 +191,10 @@ namespace ProjectAscendant.Combat
             // "Victory by catch" from "Victory by KO". Cleared at CombatEnd.
             public PokemonInstance CaughtTarget;
 
+            // Per §7.3.4 (Option 1) — true once a Pokéball is thrown this combat (success OR fail; a
+            // thrown ball is always spent, §7.3.4.1 step 5). The run layer decrements PokeballCount by 1.
+            public bool CatchAttempted;
+
             // Per §4.4.5 + Task 8.5.7 — run-wide Badges active this combat.
             // Never null after construction.
             public List<BadgeSO> ActiveBadges = new();
@@ -814,6 +818,9 @@ namespace ProjectAscendant.Combat
         // CaughtTarget + clear EnemyTeam so the IsAllFainted Victory path fires. Failed/non-wild = no-op.
         private void DispatchCatch(CatchConsumableEffectSO catchEffect)
         {
+            // §7.3.4 (Option 1) — the ball is thrown the moment the card is played: spent regardless of
+            // outcome (the run layer decrements PokeballCount). A successful catch additionally recruits.
+            State.CatchAttempted = true;
             PokemonInstance wild = ResolveEnemySlot(0);
             if (wild == null || !WildCatchResolver.IsCatchable(wild, catchEffect)) return;
             State.CaughtTarget = wild;

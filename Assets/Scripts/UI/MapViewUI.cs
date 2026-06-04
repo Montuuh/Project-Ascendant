@@ -538,6 +538,9 @@ namespace ProjectAscendant.UI
             PokemonInstance caught = cc.State.CaughtTarget;
             // §6.9 — Pokédex: record the recruit (enemy "seen" is recorded combat-side in Start).
             if (caught?.Species != null) _ctx?.Bestiary?.RecordRecruit(caught.Species.SpeciesId);
+            // §7.3.4 (Option 1) — a thrown Pokéball is spent (success or fail).
+            if (cc.State.CatchAttempted && _state != null)
+                _state.PokeballCount = Mathf.Max(0, _state.PokeballCount - 1);
             // Per R3-5 — persist the final combat LeadIndex so team order survives node→MapView.
             int finalLeadIndex = cc.State.LeadIndex;
             ResolveCombatNode(active, caught, outcome, finalLeadIndex);
@@ -800,13 +803,14 @@ namespace ProjectAscendant.UI
         private void UpdateHeader()
         {
             int d = _state != null ? _state.PokeDollars : 0;
+            int balls = _state != null ? _state.PokeballCount : 0;
             int b = _state?.EarnedBadges?.Count ?? 0;
             int r = _state?.HeldRelics?.Count ?? 0;
             int team = _state?.ActiveTeamIndices?.Count ?? 0;
             int box = _ctx?.Box?.Members.Count ?? 0;
             string where = _run.Map == null ? "press Start" : _run.RunOver ? "run complete"
                 : _run.CurrentNode == null ? "choose your first node" : $"Layer {_run.CurrentNode.Layer} — choose your route";
-            _header.text = $"₽ {d}    Team {team}/3    Box {box}    Badges {b}    Relics {r}     {where}";
+            _header.text = $"₽ {d}    ◓ {balls}    Team {team}/3    Box {box}    Badges {b}    Relics {r}     {where}";
         }
 
         private void AppendLog(string line)

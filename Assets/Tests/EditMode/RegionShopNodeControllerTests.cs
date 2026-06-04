@@ -186,6 +186,23 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void Buy_Pokeball_IncrementsPokeballCount_NotInventory()
+        {
+            // §7.3.4 (Option 1) — a bought Pokéball adds to the counted resource, not the inventory.
+            RunStateSO run = MakeRun(1000);
+            RegionShopNodeController c = Make(run, FullPools());
+            c.Enter();
+            int idx = -1;
+            for (int i = 0; i < c.Slots.Count; i++)
+                if (c.Slots[i].Kind == RegionShopNodeController.ShopSlotKind.Pokeball) idx = i;
+
+            Assert.That(c.Buy(idx), Is.True);
+            Assert.That(run.PokeballCount, Is.EqualTo(1));
+            Assert.That(run.Inventory == null || run.Inventory.Count == 0, Is.True,
+                "Pokéball must not land in the non-expendable consumable inventory.");
+        }
+
+        [Test]
         public void Buy_Unaffordable_NoChange()
         {
             RunStateSO run = MakeRun(10); // can't afford anything but maybe a cheap consumable? consumables >=30

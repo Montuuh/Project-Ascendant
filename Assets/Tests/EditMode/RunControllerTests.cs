@@ -227,6 +227,15 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void StartRun_GrantsStartingPokeballs()
+        {
+            // §7.3.4 (Option 1) — region 0 sets the starting Pokéball stock.
+            RunController rc = MakeRunController(123u, out RunStateSO run, out RunContext ctx);
+            rc.StartRun();
+            Assert.That(run.PokeballCount, Is.EqualTo(ctx.Economy.StartingPokeballs));
+        }
+
+        [Test]
         public void SelectableNodes_StartsAtEntry_ThenForwardConnections()
         {
             RunController rc = MakeRunController(123u, out _, out _);

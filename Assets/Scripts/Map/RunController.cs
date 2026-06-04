@@ -63,6 +63,11 @@ namespace ProjectAscendant.Map
             Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex, _ctx.GymPool);
             _ctx.CurrentMap = Map; // Per §7.2 v2 — context needs map to resolve gyms.
             _ctx.Run.CurrentRegionIndex = regionIndex;
+            // §7.3.4 (Option 1) — Pokéball grant: starting stock on region 0, +PerRegion on later regions.
+            if (_ctx.Economy != null)
+                _ctx.Run.PokeballCount = regionIndex == 0
+                    ? _ctx.Economy.StartingPokeballs
+                    : _ctx.Run.PokeballCount + _ctx.Economy.PokeballsPerRegion;
             CurrentNode = null;
             ActiveNode = null;
             RunOver = false;

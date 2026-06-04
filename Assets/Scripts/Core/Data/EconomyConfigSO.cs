@@ -44,6 +44,15 @@ namespace ProjectAscendant.Core
         [Tooltip("Base Box capacity. Per §2.3 — 6 by default; relic/meta raise it to 8 at runtime.")]
         public int BoxCapacity = 6;
 
+        [Header("Pokéball Economy — §7.3.4 (Option 1: scarcity, playtest 2026-06-05)")]
+        // Playtest override of §7.3.4.1 (which gave a free ball per encounter): Pokéballs are now a
+        // scarce counted resource — a starting stock + a per-region grant + shop purchases, spent on
+        // each catch attempt. GDD §7.3.4 to be updated to match.
+        [Tooltip("Pokéballs the player starts a run with. Per §7.3.4 (Option 1).")]
+        public int StartingPokeballs = 3;
+        [Tooltip("Pokéballs granted on entering each region. Per §7.3.4 (Option 1).")]
+        public int PokeballsPerRegion = 1;
+
         [Header("Pokémon Center — §7.6.1 / §6.2.4")]
         // Per §6.2.4 — Therapy removes 1 Trauma stack for TherapyBaseCost × (1 + stack count).
         [Tooltip("Base Trauma-therapy cost. Total = this × (1 + current stacks). Per §6.2.4 — 100.")]

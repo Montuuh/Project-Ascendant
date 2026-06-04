@@ -177,10 +177,11 @@ namespace ProjectAscendant.Tests
 
             WildEncounterController wild = new(biome, ball, new PokemonInstanceFactory(), new GameRNG(1u));
             List<ConsumableSO> baseInv = new();
+            // §7.3.4 (Option 1) — ball injected only when the run still holds Pokéballs.
             CombatController.CombatSetup setup = wild.BuildCombatSetup(
                 sp, wildLevel: 5,
                 new List<PokemonInstance>(), 0,
-                baseInv, FieldState.Empty, _config, new GameRNG(1u));
+                baseInv, FieldState.Empty, _config, new GameRNG(1u), pokeballCount: 1);
 
             Assert.That(setup.EnemyTeam.Count, Is.EqualTo(1));
             // Per §7.3.4.1 step 1 — wild enters at full HP.
@@ -189,10 +190,26 @@ namespace ProjectAscendant.Tests
             Assert.That(w.Species, Is.SameAs(sp));
             Assert.That(w.CurrentMoves, Has.Member(tackle));
 
-            // Pokéball injected into per-combat inventory snapshot.
+            // Pokéball injected into per-combat inventory snapshot (count > 0).
             Assert.That(setup.ConsumableInventory, Has.Member(ball));
             // Caller's baseInv must not have been mutated.
             Assert.That(baseInv, Is.Empty);
+        }
+
+        [Test]
+        public void BuildCombatSetup_NoPokeballs_DoesNotInjectBall()
+        {
+            // §7.3.4 (Option 1) — with 0 balls in the run, no catch card appears.
+            PokemonSpeciesSO sp = MakeSpecies(50, PokemonType.Normal);
+            BiomeSO biome = MakeBiome(new[] { sp });
+            ConsumableSO ball = MakePokeball(0.5f, true);
+            WildEncounterController wild = new(biome, ball, new PokemonInstanceFactory(), new GameRNG(1u));
+
+            CombatController.CombatSetup setup = wild.BuildCombatSetup(
+                sp, 5, new List<PokemonInstance>(), 0,
+                new List<ConsumableSO>(), FieldState.Empty, _config, new GameRNG(1u), pokeballCount: 0);
+
+            Assert.That(setup.ConsumableInventory, Has.No.Member(ball));
         }
 
         [Test]

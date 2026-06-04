@@ -33,6 +33,9 @@ namespace ProjectAscendant.Core
         public List<RelicSO> HeldRelics;
         public List<ConsumableSO> Inventory;
         public int PokeDollars;
+        // Per §7.3.4 (Option 1 scarcity) — counted Pokéball resource: starting stock + per-region grant
+        // + shop purchases, decremented on each catch attempt. Gates whether the catch card appears.
+        public int PokeballCount;
         public List<BadgeSO> EarnedBadges;
 
         // Per §7.7.1 + Epic 9 Task 9.6 — Region Shop "special slot" purchases. Held Items are
@@ -84,6 +87,7 @@ namespace ProjectAscendant.Core
             HeldRelics = null;
             Inventory = null;
             PokeDollars = 0;
+            PokeballCount = 0;
             EarnedBadges = null;
             OwnedHeldItems = null;
             OwnedTMs = null;
