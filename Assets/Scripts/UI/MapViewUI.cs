@@ -32,6 +32,9 @@ namespace ProjectAscendant.UI
         private TeamPanelUI _teamPanel;
         private EvolutionPanelUI _evolutionPanel;
         private TMPanelUI _tmPanel;
+        private XpRewardPanelUI _xpPanel;
+        // §5.2 / #7 — per-Pokémon XP gains captured during AwardXpAndLevelUp, replayed by the XP panel.
+        private readonly List<XpRewardPanelUI.XpGainRecord> _lastXpRecords = new();
 
         private Text _header;
         private Text _log;
@@ -74,6 +77,9 @@ namespace ProjectAscendant.UI
 
             _tmPanel = new GameObject("TMPanel").AddComponent<TMPanelUI>();
             _tmPanel.transform.SetParent(transform, false);
+
+            _xpPanel = new GameObject("XpRewardPanel").AddComponent<XpRewardPanelUI>();
+            _xpPanel.transform.SetParent(transform, false);
 
             _hubPanel = new GameObject("HubPanel").AddComponent<HubPanelUI>();
             _hubPanel.transform.SetParent(transform, false);
@@ -521,18 +527,45 @@ namespace ProjectAscendant.UI
                       (caught != null ? $" — recruited {caught.Species?.DisplayName ?? caught.Species?.name}!" : "") +
                       levelLog);
             Refresh();
+
+            // §5.2 / #7 — celebratory post-combat XP screen: animate each member's bar (level-up flash).
+            // Pure visual overlay over the already-updated map; dismissed via CONTINUE.
+            if (outcome == CombatController.CombatOutcome.Victory && _xpPanel != null
+                && _lastXpRecords.Count > 0 && _ctx?.ProgressionConfig != null)
+            {
+                ProgressionConfigSO pc = _ctx.ProgressionConfig;
+                _xpPanel.Show(_lastXpRecords, pc.XPToNext, null);
+            }
         }
 
         // §5.2.1 / §5.2.2 — award the cleared node's tier XP to the Active Team that fought, then
         // process between-node level-ups. Returns a log fragment ("+N XP  ▲ Name → LvX ...").
         private string AwardXpAndLevelUp(NodeType nodeType)
         {
+            _lastXpRecords.Clear();
             if (_ctx?.ProgressionConfig == null) return "";
             List<PokemonInstance> team = BuildPlayerTeam(out _);
             int xp = _ctx.ProgressionConfig.XPForNode(nodeType);
             if (xp <= 0 || team.Count == 0) return "";
             // §8.3.3 Lucky Egg Token — in-run XP ×1.15.
             xp = RelicResolver.ApplyXpMultiplier(xp, _state?.HeldRelics, _ctx.ProgressionConfig);
+
+            // §5.2 / #7 — snapshot each member's pre-award level + XP (parallel to `credited`) so the
+            // XP panel can replay the fill after the award + level-ups apply.
+            List<PokemonInstance> credited = new();
+            for (int i = 0; i < team.Count; i++)
+            {
+                if (team[i] == null) continue;
+                credited.Add(team[i]);
+                _lastXpRecords.Add(new XpRewardPanelUI.XpGainRecord
+                {
+                    Name = team[i].Species != null ? (team[i].Species.DisplayName ?? team[i].Species.name) : "?",
+                    LevelBefore = team[i].Level,
+                    XpBefore = team[i].CurrentXP,
+                    XpGained = xp,
+                });
+            }
+
             XPAwarder.Award(team, xp);
             // §8.3.3 Exp Share — Box (non-active) Pokémon earn a fraction of Active Team XP.
             if (RelicHeld("exp_share") && _ctx.Box?.Members != null)
@@ -544,12 +577,14 @@ namespace ProjectAscendant.UI
             }
 
             StringBuilder sb = new();
-            for (int i = 0; i < team.Count; i++)
+            for (int k = 0; k < credited.Count; k++)
             {
-                LevelUpResolver.Result r = LevelUpResolver.Process(team[i], _ctx.ProgressionConfig);
+                LevelUpResolver.Result r = LevelUpResolver.Process(credited[k], _ctx.ProgressionConfig);
+                XpRewardPanelUI.XpGainRecord rec = _lastXpRecords[k];
+                rec.EvolutionReady = r.EvolutionUnlocked;
+                _lastXpRecords[k] = rec;
                 if (r.LevelsGained <= 0) continue;
-                string name = team[i].Species != null ? (team[i].Species.DisplayName ?? team[i].Species.name) : "?";
-                sb.Append($"   ▲ {name} → Lv{r.NewLevel}");
+                sb.Append($"   ▲ {rec.Name} → Lv{r.NewLevel}");
                 if (r.EvolutionUnlocked) sb.Append(" (ready to evolve!)");
             }
             return $"   +{xp} XP{sb}";
