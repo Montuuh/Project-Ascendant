@@ -197,7 +197,9 @@ namespace ProjectAscendant.Core
         public float BerryPouchHealMultiplier = 1.20f;     // Berry Pouch — healing consumables +20%
         public float SmokeBallDamageMultiplier = 0.80f;    // Smoke Ball — first enemy attack −20% (VS: per-combat)
         public int MoveEchoMoveThreshold = 3;              // Move Echo — distinct moves from one mon in a turn
-        public int MoveEchoBonusAP = 2;                    // Move Echo — AP granted next turn
+        // Playtest 2026-06-04: was +2 (GDD §8.3) but a recurring +2 AP doubled the card-economy relic
+        // family norm (~+1 AP/turn) and snowballed; tuned to +1. GDD §8.3 to be updated to match.
+        public int MoveEchoBonusAP = 1;                    // Move Echo — AP granted next turn
 
         // Per §5.5.3 / §5.8 — Shell Armor: flat incoming-damage reduction while this Pokémon is Lead
         // (stacks with the Boulder Badge reduction, §4.4.5.1).

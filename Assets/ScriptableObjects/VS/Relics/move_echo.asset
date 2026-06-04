@@ -16,7 +16,7 @@ MonoBehaviour:
   DisplayName: Move Echo
   Icon: {fileID: 0}
   EffectDescription: Play 3 different moves from the same Pokemon in one turn to
-    gain +2 AP next turn.
+    gain +1 AP next turn.
   Rarity: 1
   MetaTier: 1
   Categories: 01000000

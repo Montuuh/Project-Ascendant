@@ -78,6 +78,14 @@ namespace ProjectAscendant.UI
 
         private void Continue()
         {
+            // Per §4.4.3.1 — end-of-combat cleanup (stat stages + status cleared, hand released) must run
+            // exactly once before we leave. The EndTurn path calls CombatEnd, but a mid-Action killing
+            // card or a catch reaches Victory without it — without this guard, buffs/debuffs and status
+            // would leak into the next combat. Idempotent via the phase check.
+            if (_cc.State.Outcome != CombatController.CombatOutcome.InProgress
+                && _cc.State.CurrentPhase != CombatController.Phase.CombatEnd)
+                _cc.CombatEnd();
+
             CombatController.CombatOutcome outcome = _cc.State.Outcome;
             if (_root != null) Destroy(_root);
             _onComplete?.Invoke(outcome);
