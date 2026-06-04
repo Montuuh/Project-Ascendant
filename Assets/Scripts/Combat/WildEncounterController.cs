@@ -168,6 +168,11 @@ namespace ProjectAscendant.Combat
             if (caughtTarget == null)
                 return WildEncounterResult.MakeWildFainted();
 
+            // Per design — a recruited Pokémon joins the Box at full HP. It was deliberately weakened
+            // (< 50% HP, §7.3.4) to be caught; healing on recruit avoids a fresh teammate entering
+            // crippled. Fresh captures have 0 Trauma, so MaxHP == EffectiveMaxHP here.
+            caughtTarget.CurrentHP = PokemonVitals.MaxHP(caughtTarget);
+
             // From here: Outcome.Victory + CaughtTarget != null = Caught.
             // Box handling per §2.3.1.
             if (currentBox == null) currentBox = new List<PokemonInstance>();

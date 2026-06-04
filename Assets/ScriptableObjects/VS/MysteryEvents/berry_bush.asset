@@ -18,10 +18,10 @@ MonoBehaviour:
   NarrativeText: "A wild berry bush bursts with ripe berries \u2014 but thorny vines
     block the path."
   Choices:
+  - ChoiceText: Eat the berries now
+    OutcomeText: "Your team devours the berries on the spot — everyone looks refreshed!"
+    OutcomeMechanicsNote: Restore 30% max HP to all Box Pokemon.
   - ChoiceText: Harvest the berries
-    OutcomeText: "You gather a handful of sweet berries. Your Pok\xE9mon look refreshed!"
-    OutcomeMechanicsNote: Restore 15 HP to all active party members.
-  - ChoiceText: Push through quickly
-    OutcomeText: "The thorns scratch your Lead Pok\xE9mon on the way through."
-    OutcomeMechanicsNote: "Lead Pok\xE9mon loses 5 HP (non-faint minimum: 1 HP)."
+    OutcomeText: "You pack a stash of berries to brew into Potions later."
+    OutcomeMechanicsNote: Gain 3 Potions.
   GDDReference: "\xA73.1.14 | Heal all or take minor damage."
