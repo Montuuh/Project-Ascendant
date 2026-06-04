@@ -58,6 +58,13 @@ namespace ProjectAscendant.Map
             Box box = new(catalog.Economy.BoxCapacity);
             List<RelicSO> relics = catalog.Relics ?? new List<RelicSO>();
 
+            // The Region Shop has a dedicated Pokéball slot (§7.7.1), so exclude the Pokéball from the
+            // general consumable pool — otherwise it double-lists (a Consumable slot AND the Pokéball slot).
+            List<ConsumableSO> shopConsumables = new();
+            if (catalog.Consumables != null)
+                foreach (ConsumableSO c in catalog.Consumables)
+                    if (c != null && c != catalog.Pokeball && c.Id != "pokeball") shopConsumables.Add(c);
+
             return new RunContext
             {
                 Run = run,
@@ -86,7 +93,7 @@ namespace ProjectAscendant.Map
                 ShopConfig = catalog.ShopConfig,
                 ShopPools = new RegionShopNodeController.ShopItemPools
                 {
-                    Consumables = catalog.Consumables,
+                    Consumables = shopConsumables,
                     CommonRelics = Filter(relics, RarityTier.Common),
                     UncommonRelics = Filter(relics, RarityTier.Uncommon),
                     Pokeball = catalog.Pokeball,
