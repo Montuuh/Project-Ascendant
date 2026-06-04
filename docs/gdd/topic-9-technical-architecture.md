@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-24T00:11:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:51:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-24 (locked — SO schemas, Event Bus, HSM, Factory, RNG, save, addressables, testing)
+**Last Updated:** 2026-05-24 (SO schemas, Event Bus, HSM, Factory, RNG, save, addressables, testing)
 
 
 **Cross-references:** Topic 1 (§1.3.2 Engineering Pillars), Topic 3 (combat phase events), Topic 4 (damage formula inputs), Topic 6 (MetaProgressionSO), Topic 8 (item SOs), every other Topic.

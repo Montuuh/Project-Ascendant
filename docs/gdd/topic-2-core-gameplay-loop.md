@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-24T00:15:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:41:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
 **Last Updated:** 2026-05-15 (migrated from Drive; HP Economy patch applied)
@@ -189,7 +189,7 @@ _Gym types per Region are seeded-randomly drawn from a tiered pool (4 types per 
 # §2.6 Trauma System Reference (added 2026-05-24 — pointer to §6.2)
 
 
-Topic 2 §2.4.4 hooks the Trauma System. The full mechanic specification, application rules, clearing sources, and edge cases are LOCKED in Topic 6 §6.2. Summary anchor:
+Topic 2 §2.4.4 hooks the Trauma System. The full mechanic specification, application rules, clearing sources, and edge cases are specified in Topic 6 §6.2. Summary anchor:
 
 - **Stack:** +1 per faint, multiplicatively reduces Effective Max HP by 5%, soft-capped at 5 stacks (-25%).
 - **Persistence:** Across combats, nodes, Cities. Cleared at run end OR via Trauma Salve relic / Therapy service / Daycare Mystery Event.

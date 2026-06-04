@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-29T17:00:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:46:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
 **Last Updated:** 2026-05-24 (full lock — node specs, biome pools, catching, mystery events, shops, map seeding)
@@ -28,7 +28,37 @@ Defines every node type the player encounters on the branching Region map (and a
 Per §2.1.2, each Region is a branching ladder. Topic 7 locks the exact dimensions and topology.
 
 
-## §7.2.1 Per-Region Topology
+## §7.2 v2 — Region Map (DESIGN OVERRIDE, user-directed 2026-06-04)
+
+
+Supersedes the §7.2.1 fixed-lane table and the gap #39 single-Gym override. Restores and upgrades the §4.4.4 branch-to-two-Gyms design. The map is a **seeded branching tree** (DAG) that forks into two Gym routes near the end; the player counter-picks which Gym to face.
+
+
+**Dimensions:** 12 layers per Region (L0 entry → L11 Gym). Seed-deterministic (Engineering Pillar 3): same (RunSeed, RegionIndex) ⇒ identical topology, node types, and Gym pair (save/load stable).
+
+
+**Structure:**
+
+- **L0 — Entry (choice, not forced):** the player picks 1 of **3** entry nodes of varied type. No forced Wild. A Wild Pokémon Area is **guaranteed reachable within L1–L2** so early recruitment stays viable.
+- **L1–L8 — Trunk:** a branching tree. Each node links to 1–3 children; **fan-in capped at ≤2 parents/node** (branchy, not a convergent mesh); edges do not cross. Distributed Wild / Trainer / Shop / Mystery per the per-layer weights. **1 Elite guaranteed** in the late trunk (≈L7), replacing the old fixed "Elite at L3."
+- **L9 — Gym Fork:** the trunk splits into **two independent sub-lanes**, one per Gym. Each route **telegraphs its destination Gym's type + Badge** (Pillar 1). The choice is committed: the unchosen Gym is abandoned for the run (§4.4.4).
+- **L9–L10 — Sub-lanes:** each lane has a **guaranteed Pokémon Center** before its Gym (pre-Gym restore, replacing the old fixed "Center at L6").
+- **L11 — Gyms:** two terminal Gym nodes; the player fights only the one their route reaches.
+
+**Gym pool + seeded selection (§4.4.4.2):**
+
+- Each Region defines a pool of **4 Gym types**. R1 pool = **Rock, Water, Bug, Normal** (§7.10.1).
+- At generation, the MapRNG seed picks **2 distinct** types and assigns one to each terminal Gym node. "No two paths within a Region share the same type."
+- Stored as `RunContentCatalogSO.GymPool` (4 `GymLeaderSO`); each terminal Gym node carries its resolved Gym identity.
+- **§6.4 "One Path" difficulty:** both fork routes show the **same** Gym type (no informed choice). Reconcile: the current build models One Path as a route-count cap — systems-designer to align it to "same Gym both branches."
+
+**Connection rules (v2):** every node links to 1–3 next-layer nodes; in-degree ≤ 2; no two adjacent nodes in a layer share a type; both sub-lanes have equal node count; all routes reach the fork (no dead ends before L9).
+
+
+**Per-region content guarantees:** ≥1 early Wild (L1–2), 1 Elite (late trunk), 1 Center per Gym sub-lane, plus weighted Trainer/Wild/Shop/Mystery.
+
+
+## §7.2.1 Per-Region Topology (SUPERSEDED by §7.2 v2 — historical)
 
 
 | Layer | Content                                                      | Notes                                                                      |
@@ -65,8 +95,7 @@ Across both lanes (12 standard nodes per Region after Layer 0, before Gym):
 
 **Seeding determinism:** Per Engineering Pillar 3 (§1.3.2), the map is generated from the run seed. Same seed = same map every time.
 
-> ⚠️ OPEN (Claude Code, 2026-05-29): §7.2.1 specifies the Layer-4 branch's two lanes "diverge to different Gyms," but the VS authors only one Gym (`rock_gym_r1`, Rock). The Epic 9 Task 9.1 generator builds both L7 Gym slots faithfully (topology-pure).
-> Blocked: which Gym asset each lane's L7 node resolves to. VS resolution: both L7 Gym nodes route to `rock_gym_r1` (node-content wiring at Task 9.8). See BACKLOG gap #34.
+> ✅ RESOLVED 2026-06-04 (§7.2 v2): each Region defines a 4-Gym pool; the seed picks 2 distinct types assigned to the two terminal Gym nodes (R1 pool: Rock / Water / Bug / Normal). Closes gap #34 and the gap #39 single-Gym override.
 
 ## §7.2.3 Connection Rules
 
@@ -137,7 +166,7 @@ Illustrative pool assignment for the launch ~30 evolution lines:
 **Multi-pool species (e.g., Pidgey in Meadow + Sky):** identical species, different seasonal flavor.
 
 
-## §7.3.4 Catching Mechanic — LOCKED
+## §7.3.4 Catching Mechanic
 
 
 Per the open question logged in Topic 7's scaffold, catching is a **mini-combat** governed by Telegraphed-Tactics rules — not a probability roll.
@@ -146,13 +175,13 @@ Per the open question logged in Topic 7's scaffold, catching is a **mini-combat*
 ### §7.3.4.1 Catching encounter flow
 
 1. The wild Pokémon appears at full HP. Player Active Team enters at current HP (per §2.4 — HP persists).
-2. Combat begins. **Pokéball is added as a free single-use consumable card** in the player's Consumable Pile for this combat only.
+2. Combat begins. If the run holds at least one Pokéball (`RunStateSO.PokeballCount` > 0), **a Pokéball card is added to the Consumable Pile** for this combat (Option 1 counted scarcity — see §7.3.4 note). With zero balls, no catch card appears.
 3. Combat plays out normally. The wild Pokémon does NOT attempt to flee.
 4. To catch: the player must:
     - Reduce the wild Pokémon's HP below 50% AND
     - Apply the **Pokéball** consumable.
 5. Pokéball success rule (deterministic, no RNG):
-    - **HP ≥ 50%** at time of throw: **catch fails**, Pokéball is consumed, combat continues. (Pokéball returns to hand next turn unless this was the only one — note: free Pokéball is 1-use; additional Pokéballs from the Shop are usable here.)
+    - **HP ≥ 50%** at time of throw: **catch fails**, the Pokéball is still spent (`PokeballCount` − 1), combat continues. Each catch attempt costs one ball whether it succeeds or fails.
     - **HP < 50%, no status condition:** **catch succeeds**, combat ends.
     - **HP < 50% + any status condition on wild Pokémon:** **catch succeeds at any HP** (status condition expands the catch window).
     - **HP ≤ 0:** the wild Pokémon faints. The recruit is lost.
@@ -226,7 +255,7 @@ Standard combat encounters featuring a human trainer fielding 1–2 Pokémon, se
 
 When a Trainer Battle node spawns, the seed picks one archetype from the Region's eligible list. Archetype eligibility expands per Region — Bug Catcher is R1-only; Rocket Grunt R2-R3; Ace Trainer R3-only.
 
-> ⚠️ OPEN (Claude Code, 2026-05-29): §7.4.3 specifies per-Region archetype eligibility in prose, but `TrainerArchetypeSO` carries no field encoding it — the Region map's trainer-pool filter has no data to enforce "R1-only" etc.
+> 📝 Design note (2026-05-29): per-Region archetype eligibility (§7.4.3) is prose-only; `TrainerArchetypeSO` has no eligibility field yet. The VS draws from the R1 archetype pool directly; a data field for multi-Region filtering is post-VS.
 > Blocked: an explicit `RegionEligibility` field on `TrainerArchetypeSO` (deferred post-VS — the VS ships only the 4 R1 archetypes, so eligibility is currently enforced by curation + `TrainerArchetypeAuditTests` roster/level-band checks). See BACKLOG gap #30.
 
 ---
@@ -244,7 +273,7 @@ Distinct from Gym Leaders. One Elite per Region (always Layer 3).
 - **Difficulty:** between Trainer Battle and Gym Leader. A real mid-Region threat.
 - **Reward:** 1 guaranteed Uncommon relic + Trainer XP bonus + Poké Dollar windfall (~300₽).
 - **Trainer archetype:** drawn from the Ace Trainer pool, or a Region-flavor archetype (e.g., "Rocket Lieutenant" in R3).
-> ⚠️ OPEN (Claude Code, 2026-05-29): §7.5.1 sources the Elite from the "Ace Trainer pool," but Ace Trainer is R3-only (§7.4.3) and out of VS scope (§7.13) — so the R1 Elite's identity/roster is unspecified.
+> 📝 Design note (2026-05-29): §7.5.1's Ace-Trainer source is R3-only / out of VS scope, so the R1 Elite uses a dedicated VS Elite roster (`EliteTrainerSO`) instead. Multi-Region Elite sourcing is post-VS.
 > Blocked: the canonical R1 Elite archetype + roster. VS stub: a bespoke R1 "Ace Trainer" (no type lock per this section) fielding 2 VS-roster Pokémon — Pidgeotto(12) + Ivysaur(13), each 2-phase. See BACKLOG gap #31.
 - **No type lock:** Elite Trainers do NOT have a single-type identity (that's reserved for Gym Leaders). This makes them a different kind of test than the Gym ahead.
 
@@ -505,6 +534,7 @@ Per §2.1.2, the three Regions are aesthetically themed. Topic 7 locks the surfa
 
 # §7.11 Map Generation Algorithm
 
+> ⚠️ SUPERSEDED by §7.2 v2 (2026-06-04): the 8-layer ladder pseudocode below is historical. The live generator builds a 12-layer branching tree with a Gym fork + seeded 4-Gym pool (in-degree ≤ 2, choice-of-3 entry, no forced Wild). Pseudocode refresh tracked with the Epic 9 rework.
 
 Pseudocode for deterministic map seeding (Topic 9 owns implementation):
 
@@ -566,18 +596,19 @@ Aggregated reward tables for every node type. Single source for systems-designer
 # §7.13 Vertical Slice Carve-Out
 
 
-| System                        | In VS                                                                         | Out of VS                                       |
-| ----------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------- |
-| Region 1 map (Layers 0–7)     | ✅ Full                                                                        | —                                               |
-| Wild Pokémon Areas + 3 biomes | ✅ Meadow + Cave + River                                                       | Sea, Power Plant, Sky, etc.                     |
-| Catching mechanic             | ✅ Pokéball v1                                                                 | Great/Ultra Ball tiers                          |
-| Trainer Battle nodes          | ✅ 4 archetypes (Bug Catcher, Lass, Hiker, Sailor)                             | Engineer, Hex Maniac, Ace Trainer, Rocket Grunt |
-| Elite Trainer node            | ✅ 1 archetype                                                                 | —                                               |
-| Region Pokémon Center         | ✅ Full                                                                        | —                                               |
-| Region Shop                   | ✅ Full + re-roll                                                              | —                                               |
-| Mystery Events                | ✅ 4 launch events (Mysterious Stone, Berry Bush, Wandering Tutor, Slot Booth) | Full 12-event catalog                           |
-| City interstitial             | ❌ Not in VS (VS ends at Gym 1)                                                | —                                               |
-| Map generation algorithm      | ✅ Single-region                                                               | Cross-region pacing tuning                      |
+| System                                                | In VS                                                                         | Out of VS                                       |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------- |
+| Region 1 map (Layers 0–11, branching tree + Gym fork) | ✅ Full                                                                        | —                                               |
+| Wild Pokémon Areas + 3 biomes                         | ✅ Meadow + Cave + River                                                       | Sea, Power Plant, Sky, etc.                     |
+| Catching mechanic                                     | ✅ Pokéball v1                                                                 | Great/Ultra Ball tiers                          |
+| Trainer Battle nodes                                  | ✅ 4 archetypes (Bug Catcher, Lass, Hiker, Sailor)                             | Engineer, Hex Maniac, Ace Trainer, Rocket Grunt |
+| Elite Trainer node                                    | ✅ 1 archetype                                                                 | —                                               |
+| Region Pokémon Center                                 | ✅ Full                                                                        | —                                               |
+| Region Shop                                           | ✅ Full + re-roll                                                              | —                                               |
+| Mystery Events                                        | ✅ 4 launch events (Mysterious Stone, Berry Bush, Wandering Tutor, Slot Booth) | Full 12-event catalog                           |
+| City interstitial                                     | ❌ Not in VS (VS ends at Gym 1)                                                | —                                               |
+| Map generation algorithm                              | ✅ Single-region                                                               | Cross-region pacing tuning                      |
 
-> ⚠️ OPEN (Claude Code, 2026-05-29): two VS Mystery Event choices (§7.9.2) reference systems not built in the slice — **Mysterious Stone (a)** "random Evolution Item" (no Evolution Item system exists) and **Wandering Tutor (a)** "free Move Tutor" (ties to §5.10 Learned Move Pool, not implemented — gap #36).
+> 📝 Design note (2026-05-29): two §7.9.2 Mystery choices reference post-VS systems — **Mysterious Stone (a)** "random Evolution Item" and **Wandering Tutor (a)** "free Move Tutor." The VS substitutes a Potion grant; full Evolution-Item + Move-Tutor wiring is post-VS (gap #36).
 > Blocked: the canonical effects for those two choices. VS resolution (user-confirmed 2026-05-29): Mysterious Stone (a) grants a random relic from a configured pool; Wandering Tutor (a) grants a placeholder consumable. Swap to the real effects once the Evolution-Item and Move-Pool systems land. See BACKLOG gap #37.
+> ✅ Adopted (2026-06-05) — **§7.3.4 catching uses Option 1 (counted scarcity)**, superseding the original free-Pokéball-per-encounter model (steps 2 & 5 above are written for Option 1). Pokéballs are now a counted run resource: starting stock (`EconomyConfigSO.StartingPokeballs = 3`) + per-region grant (`PokeballsPerRegion = 1`) + shop purchases (each +1 to the count, no longer added to the non-expendable consumable inventory), spent **1 per catch attempt** (consumed on success OR fail). The catch card appears in a wild combat **only when the run holds ≥1 ball** (`RunStateSO.PokeballCount`); the map HUD shows the count (◓ N).

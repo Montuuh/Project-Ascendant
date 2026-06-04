@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-31T17:11:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:45:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
 **Last Updated:** 2026-05-25 (Move Pool system + Mastery progression redesign — §5.3.3, §5.3.5, §5.4.1, §5.4.2, §5.6 rewritten; new §5.10–5.11 added)
@@ -50,7 +50,7 @@ Progression in Project Ascendant operates on two levels:
 - Pokémon reach first evolution threshold around end of Region 1 / start of Region 2.
 - Pokémon reach second (final) evolution threshold around end of Region 2 / start of Region 3.
 - Single-stage Pokémon (no evolution) receive enhanced stat growth per level to compensate.
-> ⚠️ OPEN (Claude Code, 2026-05-31): §5.2 specifies tier-scaled XP + custom growth curves but no concrete numbers, and no per-species evolution level is recorded in the GDD. Epic 10 commit 1 seeds INTERIM values in `ProgressionConfigSO` (XP-per-tier Wild/Trainer/Elite/Gym; XP→level curve Base+(L−1)·Slope) + a new `PokemonSpeciesSO.EvolveLevel`. See BACKLOG gap #41.
+> ✅ Adopted (2026-05-31): §5.2 XP is data-driven — `ProgressionConfigSO` holds the XP-per-tier (Wild/Trainer/Elite/Gym) and the XP→level curve `Base+(L−1)·Slope`; per-species `PokemonSpeciesSO.EvolveLevel` records the evolution level. The config is the source of truth and is tuned via playtest.
 > Blocked: final XP / level-curve / per-species evolution-threshold calibration (systems-designer). The interim values are placeholders, not balance-approved.
 
 ---
@@ -614,5 +614,5 @@ The Lv3 Mastery's unique effect should reflect the player's deep investment in t
 - All 6 Mastery Lv1 move assets are authored in their base-form species SOs.
 - Lv2 and Lv3 move assets are authored for all VS species; achievement unlock gates are stubbed.
 - The full achievement catalog (all launched species) is a post-VS content task.
-> ⚠️ OPEN (Claude Code, 2026-05-29): §5.10 specifies an additive Learned Move Pool (moves accumulate; active 4 configured separately), but `PokemonInstance` implements only the 4 `CurrentMoves` slots + the immutable Mastery slot — there is no Learned Move Pool at runtime.
+> ✅ Resolved (R4-3): the additive Learned Move Pool + per-Pokémon Move Manager are implemented (§5.10) — learned moves accumulate; the active 4 are configured separately; the Mastery slot remains immutable.
 > Blocked: the Pokémon Center Move Tutor (Epic 9 Task 9.5.3) and TM/Tutor learning generally. VS resolution (user-confirmed 2026-05-29): the Move Tutor REPLACES a chosen `CurrentMoves` slot (Mastery untouched per §4.3.9.2) instead of adding to a pool. Build the §5.10 additive pool post-VS and revisit Tutor/TM learning then. See BACKLOG gap #36.

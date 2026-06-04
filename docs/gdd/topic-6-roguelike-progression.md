@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-01T09:00:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:51:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-24 (Trauma System locked Option E + cap; meta-progression spec authored; starter unlocks, relic pool, difficulty, achievements defined)
+**Last Updated:** 2026-05-24 (Trauma System Option E + cap; meta-progression spec authored; starter unlocks, relic pool, difficulty, achievements defined)
 
 
 **Cross-references:** Topic 1 (§1.6 starter unlocks, §1.7 difficulty modifiers), Topic 2 (§2.4.4 Trauma penalty hook, §2.4.2 healing formula), Topic 4 (§4.3.9 Bestiary tiers — adjacent system), Topic 5 (§5.2 XP & Leveling — in-run XP is separate), Topic 8 (Trauma Salve relic, Type Plates for starter unlocks).
@@ -28,7 +28,7 @@ Anti-pattern explicitly rejected: "permanent stat upgrades" that gradually trivi
 ---
 
 
-# §6.2 Trauma System — LOCKED (Option E: Hybrid Stacks + Soft Cap)
+# §6.2 Trauma System (Option E: Hybrid Stacks + Soft Cap)
 
 
 Locks the open decision tabled in §2.4.4 and the BACKLOG Trauma Options. Decision rationale and rejected options preserved in §6.2.7 for archival traceability.
@@ -62,7 +62,7 @@ EffectiveMaxHP = floor( BaseMaxHP × (1 − 0.05 × min(TraumaStacks, 5)) )
 **Soft cap rationale:** Beyond 5 stacks, additional faints accrue no further penalty. This prevents an "unrecoverable spiral" anti-pattern — a Pokémon that has fainted six times is functionally indistinguishable from one that has fainted five.
 
 
-## §6.2.2 Application Timing — LOCKED
+## §6.2.2 Application Timing
 
 
 Trauma stacks **apply instantly at the moment of faint**, during the Resolution Phase, immediately after the faint resolution defined in §3.3.5.
@@ -83,7 +83,7 @@ Trauma stacks **apply instantly at the moment of faint**, during the Resolution 
 - **Recruitment:** A newly recruited wild Pokémon starts with 0 Trauma stacks regardless of how many faints occurred in the run prior. Trauma is per-instance, not run-cumulative.
 - **Evolution interaction:** Trauma stacks **carry through evolution** (Squirtle → Wartortle keeps its Trauma stacks). Rationale: evolution is identity continuity. The new BaseMaxHP is multiplied by the same Trauma factor. Net Effective Max HP still increases because the evolution stat gain dwarfs the multiplicative loss.
 
-## §6.2.4 Trauma Clearing Sources — LOCKED
+## §6.2.4 Trauma Clearing Sources
 
 
 Three explicit paths to remove Trauma stacks within a run. All three are scarcity-gated to preserve the in-run consequence:
@@ -282,7 +282,7 @@ Surface for both pride and goal-setting. No mechanical effect — pure profile.
 # §6.5 Starter Pokémon Unlocks
 
 
-Promised in §1.6: 6 starters total (3 default + 3 meta-unlocked). Locked specifications:
+Promised in §1.6: 6 starters total (3 default + 3 meta-unlocked). Specifications:
 
 
 ## §6.5.1 Default Starters (Available from Run 1)
@@ -473,7 +473,7 @@ The Bestiary system is fully defined in §4.3.9 (Combat). Topic 6 specifies:
 - **Bestiary persistence:** Tracked across all runs, persists per-account. Stored as a single `BestiaryProgressSO` runtime instance, serialized to disk via the SaveSystem (Topic 9).
 - **Trainer XP awards:** Bestiary tier promotions (§4.3.9.1) award one-time XP per §6.3.2.
 - **PC Terminal surface:** Bestiary is the primary content of the PC Terminal kiosk. Browsable by species, filterable by tier (Unfamiliar / Familiar / Veteran / Master).
-- **Mastery Move authoring scope — LOCKED:** Launch ships Mastery Moves for the ~30 implemented evolution lines. Mastery Move design and writing is **out of vertical slice scope** but is a launch requirement. Mastery tier (Master, the 50/25/10 kill threshold) is the gating mechanism for these unlocks — i.e., Mastery Moves exist as content but are post-VS earning content.
+- **Mastery Move authoring scope:** Launch ships Mastery Moves for the ~30 implemented evolution lines. Mastery Move design and writing is **out of vertical slice scope** but is a launch requirement. Mastery tier (Master, the 50/25/10 kill threshold) is the gating mechanism for these unlocks — i.e., Mastery Moves exist as content but are post-VS earning content.
 
 ---
 

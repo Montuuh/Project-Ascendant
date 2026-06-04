@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-24T00:14:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:51:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-24 (locked — full style guide, combat screen spec, iconography, audio bible, accessibility)
+**Last Updated:** 2026-05-24 (full style guide, combat screen spec, iconography, audio bible, accessibility)
 
 
 **Cross-references:** Topic 1 (cheerful core + regional flavor pillar), Topic 3 (combat phases, Lead/bench), Topic 4 (intent display, status icons, type effectiveness UI), Topic 6 (Trauma UI), Topic 7 (Region palettes), Topic 9 (UI Toolkit architecture).
@@ -13,7 +13,7 @@
 ---
 
 
-# §10.1 Visual Style — Locked
+# §10.1 Visual Style
 
 
 ## §10.1.1 Art Style Statement
@@ -91,7 +91,7 @@ All type colors verified for WCAG AA contrast against `--bg-primary` and `--bg-s
 ---
 
 
-# §10.2 Combat Screen Layout — Locked
+# §10.2 Combat Screen Layout
 
 
 ## §10.2.1 Master Layout (1920×1080 reference)

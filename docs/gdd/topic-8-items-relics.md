@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-24T00:09:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:51:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-24 (locked — full Consumables, 50-relic catalog, Held Items system, TM list)
+**Last Updated:** 2026-05-24 (full Consumables, 50-relic catalog, Held Items system, TM list)
 
 
 **Cross-references:** Topic 1 (§1.6 50 relics target), Topic 3 (§3.5 consumable rules), Topic 4 (§4.2.7 status cures, §4.5.1.1 rare relic drops), Topic 5 (§5.4.1 TMs, §5.5.4 Lead Aura), Topic 6 (§6.6 relic tier unlocks, §6.5 starter unlock relics), Topic 7 (§7.7 Region Shop, §7.8.2 City Shop).
@@ -16,7 +16,7 @@
 # §8.1 Three-System Taxonomy
 
 
-Project Ascendant has three distinct item categories. Boundaries are LOCKED here:
+Project Ascendant has three distinct item categories. Boundaries are defined here:
 
 
 | System                    | Scope                                | Lifespan                     | Inventory Slot                            | Authoring      |
@@ -173,7 +173,7 @@ Five categories. Each relic is tagged with one primary + up to one secondary cat
 | -------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------- |
 | **Choice Specs**     | Card-Economy | First Ranged move each turn costs 0 AP; subsequent Ranged moves cost +1                                           |
 | **Choice Band**      | Card-Economy | First Melee move each turn costs 0 AP; subsequent Melee moves cost +1                                             |
-| **Move Echo**        | Card-Economy | Playing 3 different moves from the same Pokémon in one turn: gain +2 AP next turn                                 |
+| **Move Echo**        | Card-Economy | Playing 3 different moves from the same Pokémon in one turn: gain +1 AP next turn                                 |
 | **Type Resonance**   | Combat       | Active Team members sharing a primary type buff each other's matching moves by +10% per shared member             |
 | **Adrenal Surge**    | Combat       | When a Pokémon faints, all remaining Active Team Pokémon: +1 Attack stage                                         |
 | **Reactor Core**     | Card-Economy | Max hand size increased by 1 skill card                                                                           |
@@ -221,7 +221,7 @@ Some relics have explicit interactions. Resolution rules:
 # §8.4 Held Items (18 launch Held Items)
 
 
-## §8.4.1 Held Item Rules — LOCKED
+## §8.4.1 Held Item Rules
 
 - **Slot count:** **One** Held Item per Pokémon. (Resolved from open question.)
 - **Equip mechanic:** Drag-and-drop from inventory to Pokémon portrait in the Map View. The previously equipped item returns to inventory.
@@ -404,3 +404,4 @@ TMSO:
 - **TM relationship** (Topic 8 open Q3): ✅ Resolved — TM is a Consumable subclass with Map-View-only application; not in combat Consumable Pile.
 - **Relic rarity curve** (Topic 8 open Q4): ✅ Resolved (§8.3.1).
 - **Starting Relic pool curation** (Topic 8 open Q5): ✅ Resolved — Common-and-Uncommon only, never Rare (per §6.6.3, reaffirmed here).
+> ✅ Adopted (2026-06-05): **§8.3 Move Echo** grants **+1 AP** next turn (was +2) (trigger unchanged: play 3 different moves from the same Pokémon in one turn). Rationale: a recurring +2 AP doubled the card-economy relic family norm (~+1 AP/turn) and snowballed; +1 keeps it in line with Choice Band/Specs etc. Implementation: `BattleConfigSO.MoveEchoBonusAP = 1` + `move_echo.asset` description.

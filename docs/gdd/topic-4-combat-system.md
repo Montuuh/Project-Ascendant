@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-29T08:33:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:45:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
 **Last Updated:** 2026-05-25 (§4.3.9.2 Mastery Move system redesigned — pool-based meta-progression with per-species achievement unlock tiers)
@@ -21,7 +21,7 @@
 
 ## §4.1.1 Damage Calculation
 
-> ⚠️ OPEN (Claude Code, 2026-05-26) — Epic 4 Tasks 4.2 + 4.3 implementation flagged 6 Sev-3 clarifications. **Not blocking implementation; reasonable defaults adopted in code and listed below for ratification.**
+> ✅ Adopted (2026-05-26) — Epic 4 Tasks 4.2 + 4.3 raised 6 Sev-3 clarifications; the reasonable defaults below are now canonical (adopted in code).
 > **G1 — Algebraic combination of formula variables is not written.** The variables table lists Power, Atk, Def, Divisor, Crit, STAB, TypeEff, Range, but no equation combines them. Code default (matches existing `BattleConfigSO.cs` header comment): `floor( Power × (Atk/Def) × Range × Crit × STAB × TypeEff / Divisor )`.
 > **G2 — RangeModifier ordering is unspecified** (spec only locks Crit-before-STAB-and-TypeEff). Code default: Range is folded into BaseDamage (before Crit), since Range is intrinsic to the move's power profile.
 > **G3 — Floor-only-at-end (task 4.2.4) makes multiplication commutative**, so the Crit-before-STAB-and-TypeEff ordering rule has zero numerical effect. Code default: preserve the ordering in the `DamageBreakdown` struct field order so the breakdown panel reads Power → Crit → STAB → TypeEff → Range — i.e., the rule is treated as presentational, not arithmetic.
@@ -147,7 +147,7 @@ Stat modifiers from status effects, relics, Badges, and move effects are applied
 
 ## §4.2.1 Overview
 
-> ⚠️ OPEN (Claude Code, 2026-05-26) — Epic 4 Task 4.5 raised 4 Sev-3 clarifications. **Not blocking; reasonable defaults adopted in code; listed for ratification.**
+> ✅ Adopted (2026-05-26) — Epic 4 Task 4.5 raised 4 Sev-3 clarifications; the reasonable defaults below are now canonical (adopted in code).
 > **G7 — First DoT tick timing.** §4.2.2.1/§4.2.2.2 say Burn/Poison apply DoT "at end of each Resolution Phase" but don't say whether the application turn counts. **Default:** status applied in turn N takes effect starting turn N+1, consistent with Sleep/Freeze's "the turn after Sleep is applied" wording. Application turn = telegraph only.
 > **G8 — Stat-stage × status-modifier interaction order.** §4.2 doesn't specify how Burn's −25% Atk and Poison's −15% Def combine with the stat-stage ladder. **Default:** stat-stage first, then status multiplier on top, multiplicative: `EffAtk = floor(BaseAtk × StageMul × StatusMul)`.
 > **G9 — Freeze ×1.5 Fire damage window.** §4.2.2.5 says "that turn". **Default:** active while Freeze duration > 0 (the unplayable / position-locked turn), matching G7.
@@ -624,7 +624,7 @@ No two paths within a Region share the same type. 12 total Gym types in the pool
 - **2 Pokémon, sequential.** Second is the ace (3-phase design, mid-fight evolution eligibility at 50% HP).
 - Type identity consistent with the drawn type — full team and moveset reflect that type.
 - A field effect matching their type is set at encounter start and persists for the full fight.
-> ⚠️ OPEN (Claude Code, 2026-05-29): §4.4.4.3 says a type-matching field effect is set + persists for the Gym fight, but the GDD does not define what a TYPE field (e.g. Rock) mechanically does — only Weather (Sunny/Rain) and Terrain (Electric) have defined multipliers (§4.3.8).
+> 📝 Design note (2026-05-29): §4.4.4.3 sets a type-matching field for the Gym fight, but type fields (e.g. Rock) have no damage multiplier defined yet — only Weather (Sunny/Rain) and Terrain (Electric) do (§4.3.8). VS behaviour: the field is set for flavour/telegraph but is mechanically inert until type-field multipliers are designed (post-VS).
 > Blocked: the damage/utility effect of a Gym type field. VS stub (Task 8.5.5): FieldState.GymTypeField is set at encounter start and persists (marker only, no multiplier). See BACKLOG gap #33.
 
 ## §4.4.5 Badge Pool (12 Total)
@@ -962,7 +962,7 @@ _(Note: Previous draft used +10%/+40%. Reduced for balance — playtest may re-t
 # §4.8 Open Sev-2/3 Resolutions (added 2026-05-24)
 
 
-This section resolves remaining BACKLOG-tracked combat-system gaps. Each is now LOCKED.
+This section resolves remaining BACKLOG-tracked combat-system gaps. Each is now part of the canonical spec.
 
 
 ## §4.8.1 Counter-Intel Mode Mechanism — RESOLVED (was BACKLOG gap #9)

@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-24T00:15:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:41:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
 **Last Updated:** 2026-05-15 (migrated from Drive; Faint precedence patch applied)
@@ -223,7 +223,7 @@ The five-phase combat loop is implemented as a sub-state machine under the `Comb
 # §3.9 Consumable Catalog Pointer (added 2026-05-24)
 
 
-The 24 launch consumables (healing, status cures, combat utility, Pokéballs) and tiered upgrade chains are LOCKED in Topic 8 §8.2.
+The 24 launch consumables (healing, status cures, combat utility, Pokéballs) and tiered upgrade chains are specified in Topic 8 §8.2.
 
 
 # §3.10 Trauma Compatibility (added 2026-05-24)

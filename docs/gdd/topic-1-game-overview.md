@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-05-24T00:15:00.000Z -->
+<!-- Last updated from Notion: 2026-06-04T23:39:00.000Z -->
 
-**Status:** 🔒 Locked
+**Status:** 🟢 In Progress
 
 
 **Last Updated:** 2026-05-15 (migrated from Drive)
@@ -201,22 +201,22 @@ This glossary consolidates the most-referenced terms across the GDD. Each entry 
 | Victory Road                 | §2.1.5 / §4.5   | Pre-League prep zone; 3 specialized node types + Summit.                    |
 
 
-# §1.11 Topic-Lock Status — Master Table (updated 2026-05-24)
+# §1.11 Topic Status — Master Table (updated 2026-06-05)
 
 
-All 10 GDD topics are 🔒 Locked as of 2026-05-24. Future modifications require explicit user re-lock acknowledgment per the GDD workflow skill.
+The GDD is a living document throughout development — all 10 topics are 🟢 In Progress and freely editable. When a playtest or implementation decision changes the spec, the canonical Notion text is updated to match the current version of the game.
 
 
-| Topic                      | Status | Lock Date                                          | Owner                               |
+| Topic                      | Status | Last Updated                                       | Owner                               |
 | -------------------------- | ------ | -------------------------------------------------- | ----------------------------------- |
-| 1 — Game Overview          | 🔒     | 2026-05-15 (initial) / 2026-05-24 (glossary added) | game-designer                       |
-| 2 — Core Gameplay Loop     | 🔒     | 2026-05-15                                         | game-designer                       |
-| 3 — Micro Loop             | 🔒     | 2026-05-15                                         | game-designer                       |
-| 4 — Combat System          | 🔒     | 2026-05-15                                         | game-designer + systems-designer    |
-| 5 — Progression            | 🔒     | 2026-05-15                                         | game-designer + content-designer    |
-| 6 — Roguelike Progression  | 🔒     | 2026-05-24                                         | game-designer                       |
-| 7 — Scenario & Nodes       | 🔒     | 2026-05-24                                         | content-designer                    |
-| 8 — Items & Relics         | 🔒     | 2026-05-24                                         | content-designer + systems-designer |
-| 9 — Technical Architecture | 🔒     | 2026-05-24                                         | lead-programmer                     |
-| 10 — Art, UI, Audio        | 🔒     | 2026-05-24                                         | ui-programmer                       |
+| 1 — Game Overview          | 🟢     | 2026-05-15 (initial) / 2026-05-24 (glossary added) | game-designer                       |
+| 2 — Core Gameplay Loop     | 🟢     | 2026-05-15                                         | game-designer                       |
+| 3 — Micro Loop             | 🟢     | 2026-05-15                                         | game-designer                       |
+| 4 — Combat System          | 🟢     | 2026-05-15                                         | game-designer + systems-designer    |
+| 5 — Progression            | 🟢     | 2026-05-15                                         | game-designer + content-designer    |
+| 6 — Roguelike Progression  | 🟢     | 2026-05-24                                         | game-designer                       |
+| 7 — Scenario & Nodes       | 🟢     | 2026-05-24                                         | content-designer                    |
+| 8 — Items & Relics         | 🟢     | 2026-05-24                                         | content-designer + systems-designer |
+| 9 — Technical Architecture | 🟢     | 2026-05-24                                         | lead-programmer                     |
+| 10 — Art, UI, Audio        | 🟢     | 2026-05-24                                         | ui-programmer                       |
 
