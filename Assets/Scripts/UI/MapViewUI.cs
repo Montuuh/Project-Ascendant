@@ -41,6 +41,8 @@ namespace ProjectAscendant.UI
         private InventoryPanelUI _inventoryPanel;
         private StartingRelicPanelUI _startingRelicPanel;
         private HubPanelUI _hubPanel;
+        private PokedexPanelUI _pokedexPanel;
+        private List<PokemonSpeciesSO> _pokedexSpecies; // cached VS roster (built once on first open)
         private MainMenuUI _mainMenu;
         private PauseMenuUI _pauseMenu;
         private DifficultySelectUI _difficultySelect;
@@ -83,6 +85,9 @@ namespace ProjectAscendant.UI
 
             _hubPanel = new GameObject("HubPanel").AddComponent<HubPanelUI>();
             _hubPanel.transform.SetParent(transform, false);
+
+            _pokedexPanel = new GameObject("PokedexPanel").AddComponent<PokedexPanelUI>();
+            _pokedexPanel.transform.SetParent(transform, false);
 
             _inventoryPanel = new GameObject("InventoryPanel").AddComponent<InventoryPanelUI>();
             _inventoryPanel.transform.SetParent(transform, false);
@@ -154,7 +159,27 @@ namespace ProjectAscendant.UI
         private void OnMenuHub()
         {
             if (_hubPanel == null || _ctx == null) { ShowMainMenu(); return; }
-            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, onClosed: ShowMainMenu);
+            _hubPanel.Open(_ctx.Meta, _ctx.MetaConfig, onClosed: ShowMainMenu, onOpenPokedex: OpenPokedex);
+        }
+
+        // §6.9 — open the Pokédex overlay (from the Hub PC Terminal). The VS roster is enumerated once
+        // from the catalog's species graph (starters + wild biomes + every evolution stage) and cached.
+        private void OpenPokedex()
+        {
+            if (_pokedexPanel == null || _ctx == null) return;
+            if (_pokedexSpecies == null)
+            {
+                _pokedexSpecies = new List<PokemonSpeciesSO>();
+                if (_catalog != null)
+                {
+                    RunContentRegistry reg = RunContentRegistry.FromCatalog(_catalog);
+                    foreach (PokemonSpeciesSO s in reg.AllSpecies)
+                        if (s != null) _pokedexSpecies.Add(s);
+                    _pokedexSpecies.Sort((a, b) => string.Compare(
+                        a.DisplayName ?? a.name, b.DisplayName ?? b.name, System.StringComparison.OrdinalIgnoreCase));
+                }
+            }
+            _pokedexPanel.Open(_pokedexSpecies, _ctx.Bestiary, _ctx.Meta, onClosed: null);
         }
 
         // Resume the in-memory run if one is live (e.g. after Quit-to-Menu); otherwise load the autosave.

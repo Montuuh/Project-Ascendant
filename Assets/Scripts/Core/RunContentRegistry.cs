@@ -148,6 +148,10 @@ namespace ProjectAscendant.Core
         public AbilitySO ResolveAbility(string id)                   => Resolve(_abilities, id, "Ability");
         public EvolutionBranchSO ResolveBranch(string id)            => Resolve(_branches, id, "EvolutionBranch");
 
+        // Per §6.9 — every species reachable from the catalog roots (starters + wild biomes + all
+        // evolution stages). Source of truth for the Pokédex roster + completion-% denominator.
+        public IReadOnlyCollection<PokemonSpeciesSO> AllSpecies => _species.Values;
+
         // ── Internals ────────────────────────────────────────────────────────────────
 
         private static void Add<T>(Dictionary<string, T> map, T so, string id) where T : ScriptableObject

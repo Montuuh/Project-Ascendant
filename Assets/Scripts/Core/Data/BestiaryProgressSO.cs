@@ -100,6 +100,32 @@ namespace ProjectAscendant.Core
             return BestiaryMasteryTier.None;
         }
 
+        // Per §4.3.9.1 — defeats required to reach `tier` for a species of `rarity` (Pokédex HUD
+        // progress bars). Returns 0 for None / out-of-range.
+        public int DefeatsForTier(BestiaryMasteryTier tier, RarityTier rarity)
+        {
+            int idx = (int)rarity;
+            switch (tier)
+            {
+                case BestiaryMasteryTier.Familiar: return AtRarity(_familiarThresholdsByRarity, idx);
+                case BestiaryMasteryTier.Veteran:  return AtRarity(_veteranThresholdsByRarity, idx);
+                case BestiaryMasteryTier.Master:   return AtRarity(_masterThresholdsByRarity, idx);
+                default: return 0;
+            }
+        }
+
+        private static int AtRarity(int[] arr, int idx) =>
+            (arr != null && idx >= 0 && idx < arr.Length) ? arr[idx] : 0;
+
+        // Per §4.3.9.1 — how many times this species has been defeated (0 if unseen). HUD progress.
+        public int DefeatsOf(string speciesId)
+        {
+            if (Entries == null || string.IsNullOrEmpty(speciesId)) return 0;
+            foreach (BestiaryEntry e in Entries)
+                if (e.SpeciesId == speciesId) return e.TimesDefeated;
+            return 0;
+        }
+
         // Per §4.3.9.1 — pure function so it can be unit-tested without state.
         public BestiaryMasteryTier EvaluateTier(int defeats, RarityTier rarity)
         {

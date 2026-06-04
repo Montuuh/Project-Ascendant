@@ -177,6 +177,18 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void DefeatsForTier_ReturnsRarityScaledThresholds()
+        {
+            // §4.3.9.1 — Common: Fam 10 / Vet 30 / Mas 50; Rare: Fam 2 / Vet 5 / Mas 10. HUD progress.
+            BestiaryProgressSO so = MakeSO();
+            Assert.That(so.DefeatsForTier(BestiaryMasteryTier.Familiar, RarityTier.Common), Is.EqualTo(10));
+            Assert.That(so.DefeatsForTier(BestiaryMasteryTier.Veteran, RarityTier.Common), Is.EqualTo(30));
+            Assert.That(so.DefeatsForTier(BestiaryMasteryTier.Master, RarityTier.Rare), Is.EqualTo(10));
+            Assert.That(so.DefeatsForTier(BestiaryMasteryTier.None, RarityTier.Common), Is.EqualTo(0));
+            Object.DestroyImmediate(so);
+        }
+
+        [Test]
         public void RecordRecruit_IncrementsRecruit_AndImpliesSeen()
         {
             BestiaryProgressSO so = MakeSO();

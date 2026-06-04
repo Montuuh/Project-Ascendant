@@ -19,6 +19,7 @@ namespace ProjectAscendant.UI
         private MetaProgressionSO _meta;
         private MetaProgressionConfigSO _cfg;
         private Action _onClosed;
+        private Action _onOpenPokedex; // §6.9 — opens the Pokédex overlay (owned by MapViewUI)
         private bool _showAchievements; // §6.7.2 — PC Terminal achievement list view
         private Font _font;
         private GameObject _root;
@@ -28,10 +29,12 @@ namespace ProjectAscendant.UI
 
         // §6.4 — view-only Trainer Hub (Trainer Card + achievements). Difficulty selection moved to the
         // New Run flow (§6.8 / gap #43); the Hub no longer starts runs.
-        public void Open(MetaProgressionSO meta, MetaProgressionConfigSO cfg, Action onClosed)
+        public void Open(MetaProgressionSO meta, MetaProgressionConfigSO cfg, Action onClosed,
+                         Action onOpenPokedex = null)
         {
             _meta = meta; _cfg = cfg; _showAchievements = false;
             _onClosed = onClosed;
+            _onOpenPokedex = onOpenPokedex;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Build();
             RefreshBody();
@@ -96,9 +99,11 @@ namespace ProjectAscendant.UI
             Txt(pc.transform, "PC TERMINAL", 24, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(0, 120), new Vector2(700, 32));
             int doneCount = CompletedCount();
             Txt(pc.transform, $"Achievements  {doneCount} / {AchievementCatalog.All.Count}", 20, new Color(0.85f, 0.9f, 0.95f), Mid(), new Vector2(0, 64), new Vector2(700, 28));
-            Btn(_body, Mid(), new Vector2(360, 188), new Vector2(360, 52), "🏆  VIEW ACHIEVEMENTS",
+            Btn(_body, Mid(), new Vector2(360, 196), new Vector2(360, 50), "🏆  VIEW ACHIEVEMENTS",
                 new Color(0.34f, 0.40f, 0.30f), true, () => { _showAchievements = true; RefreshBody(); });
-            Txt(pc.transform, "Pokédex  ·  Run History  (11.8 / Epic 13)", 17, new Color(0.6f, 0.65f, 0.72f), Mid(), new Vector2(0, -88), new Vector2(700, 24));
+            Btn(_body, Mid(), new Vector2(360, 138), new Vector2(360, 50), "📖  VIEW POKÉDEX",
+                new Color(0.30f, 0.38f, 0.44f), _onOpenPokedex != null, () => _onOpenPokedex?.Invoke());
+            Txt(pc.transform, "Run History  (Epic 13)", 17, new Color(0.6f, 0.65f, 0.72f), Mid(), new Vector2(0, -92), new Vector2(700, 24));
 
             // ── Post-launch kiosks — greyed (§6.4.1) ───────────────────────────
             Btn(_body, Mid(), new Vector2(-360, 20), new Vector2(380, 56), "Daycare Lady  (Post-launch)", new Color(0.3f, 0.3f, 0.34f), false, null);
