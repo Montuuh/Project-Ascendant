@@ -28,13 +28,13 @@ namespace ProjectAscendant.Core
         [Header("Stat Stages — §4.X")]
         // Per §4.X stat stage table: 13 entries mapping stage offset (-6 to +6) to multiplier.
         // Index 0 = stage -6, index 6 = stage 0 (1.0x), index 12 = stage +6.
-        // Default Gen-style curve: -6=0.25, -5=0.29, -4=0.33, -3=0.40, -2=0.50, -1=0.67,
-        //                           0=1.00, +1=1.50, +2=2.00, +3=2.50, +4=3.00, +5=3.50, +6=4.00
+        // Gentle ±10%/stage curve (playtest 2026-06-04 — Gen-style was too swingy): a stage is a nudge,
+        // not a shutdown. -6=0.40 … -1=0.90, 0=1.00, +1=1.10 … +6=1.60.
         public float[] StatStageMultipliers = new float[]
         {
-            0.25f, 0.29f, 0.33f, 0.40f, 0.50f, 0.67f,
+            0.40f, 0.50f, 0.60f, 0.70f, 0.80f, 0.90f,
             1.00f,
-            1.50f, 2.00f, 2.50f, 3.00f, 3.50f, 4.00f
+            1.10f, 1.20f, 1.30f, 1.40f, 1.50f, 1.60f
         };
 
         [Header("AP Economy")]
