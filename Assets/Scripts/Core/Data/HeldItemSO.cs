@@ -14,6 +14,10 @@ namespace ProjectAscendant.Core
         public string DisplayName;
         public Sprite Icon;
 
+        // Per Epic 13 — short player-facing effect summary for inventory/shop tooltips.
+        [TextArea(1, 3)]
+        public string EffectDescription;
+
         [Header("Type-boost (wearer) — §8.4.2")]
         // Per §8.4.2 + Epic 12 Task 12.6 — the WEARER's moves of BoostsType deal ×WearerDamageMultiplier
         // (Charcoal/Mystic Water/Magnet/Miracle Seed = +20%). Multiplier 1.0 = no type boost.

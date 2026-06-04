@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: smoke_ball
   DisplayName: Smoke Ball
   Icon: {fileID: 0}
+  EffectDescription: Once per combat, 30% chance to survive a lethal hit at 1 HP.
   Rarity: 0
   MetaTier: 1
   Categories: 02000000

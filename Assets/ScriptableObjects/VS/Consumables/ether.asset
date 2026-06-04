@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: ether
   DisplayName: Ether
   Icon: {fileID: 0}
+  EffectDescription: Restore +2 AP this turn.
   APCost: 0
   Effect: {fileID: 7507660322326468637}
   Tier: 1

@@ -15,6 +15,10 @@ namespace ProjectAscendant.Core
         public string DisplayName;
         public Sprite Icon;
 
+        // Per Epic 13 — short player-facing effect summary for shop/starter-choice/inventory tooltips.
+        [TextArea(1, 3)]
+        public string EffectDescription;
+
         [Header("Rarity & Tier")]
         public RarityTier Rarity;
 

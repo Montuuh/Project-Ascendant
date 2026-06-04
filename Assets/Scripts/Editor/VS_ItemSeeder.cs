@@ -122,6 +122,18 @@ namespace ProjectAscendant.Editor
             d["awakening"]=awakening;     d["paralyze_heal"]=parHeal;
             d["full_heal"]=fullHeal;      d["ether"]=ether;
             d["x_attack"]=xAttack;        d["pokeball"]=pokeball;
+
+            // Epic 13 — player-facing tooltip text (consumable §refs carry no effect prose).
+            potion.EffectDescription   = "Restore HP to one Pokémon.";
+            superPot.EffectDescription = "Restore a large amount of HP to one Pokémon.";
+            antidote.EffectDescription = "Cure Poison from one Pokémon.";
+            burnHeal.EffectDescription = "Cure Burn from one Pokémon.";
+            awakening.EffectDescription= "Wake one sleeping Pokémon.";
+            parHeal.EffectDescription  = "Cure Paralysis from one Pokémon.";
+            fullHeal.EffectDescription = "Cure all status conditions from one Pokémon.";
+            ether.EffectDescription    = "Restore +2 AP this turn.";
+            xAttack.EffectDescription  = "Raise one Pokémon's Attack by 1 stage.";
+            pokeball.EffectDescription = "Catch a wild Pokémon at under 50% HP (or any HP if it has a status).";
             return d;
         }
 
@@ -778,8 +790,22 @@ namespace ProjectAscendant.Editor
             r.Categories  = new List<SynergyCategory>(categories);
             r.EventHooks  = new List<HookBinding>(); // wired in Epic 4
             r.GDDReference= gdd;
+            r.EffectDescription = EffectFrom(gdd); // Epic 13 — tooltip text from the seeded effect note
             EditorUtility.SetDirty(r);
             return r;
+        }
+
+        // Extracts a clean player-facing effect line from a seeded "§ref | [Effect:] text" string.
+        static string EffectFrom(string gdd)
+        {
+            if (string.IsNullOrEmpty(gdd)) return "";
+            string s = gdd;
+            int bar = s.LastIndexOf('|');
+            if (bar >= 0) s = s.Substring(bar + 1);
+            s = s.Trim();
+            if (s.StartsWith("Effect:", System.StringComparison.OrdinalIgnoreCase))
+                s = s.Substring("Effect:".Length).Trim();
+            return s;
         }
 
         // ── Held Item factory ─────────────────────────────────────────────────
@@ -798,6 +824,7 @@ namespace ProjectAscendant.Editor
             h.GrantsLeadAura        = false;
             h.EventHooks            = new List<HookBinding>();
             h.GDDReference          = gdd;
+            h.EffectDescription     = EffectFrom(gdd); // Epic 13 — tooltip text
             EditorUtility.SetDirty(h);
             return h;
         }

@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: defense_curl_charm
   DisplayName: Defense Curl Charm
   Icon: {fileID: 0}
+  EffectDescription: Whenever a move grants +Defense stage, restore 2 HP to the user.
   Rarity: 0
   MetaTier: 1
   Categories: 02000000

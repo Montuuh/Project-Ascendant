@@ -15,6 +15,10 @@ MonoBehaviour:
   Id: magnet
   DisplayName: Magnet
   Icon: {fileID: 0}
+  EffectDescription: Electric-type moves +10% power while wearer is Lead.
+  BoostsType: 0
+  WearerDamageMultiplier: 1
+  LeftoversRegenDivisor: 0
   GrantsLeadAura: 1
   LeadAuraType: 4
   OnEquipHook: {fileID: 0}

@@ -14,6 +14,10 @@ namespace ProjectAscendant.Core
         public string DisplayName;
         public Sprite Icon;
 
+        // Per Epic 13 — short player-facing effect summary for inventory/shop tooltips.
+        [TextArea(1, 3)]
+        public string EffectDescription;
+
         [Header("Combat Use")]
         [Range(0, 4)]
         public int APCost;

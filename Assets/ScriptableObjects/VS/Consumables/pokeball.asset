@@ -29,6 +29,8 @@ MonoBehaviour:
   Id: pokeball
   DisplayName: "Pok\xE9ball"
   Icon: {fileID: 0}
+  EffectDescription: "Catch a wild Pok\xE9mon at under 50% HP (or any HP if it has
+    a status)."
   APCost: 1
   Effect: {fileID: -6236932010113636830}
   Tier: 1

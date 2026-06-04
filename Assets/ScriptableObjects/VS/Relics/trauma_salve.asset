@@ -15,6 +15,8 @@ MonoBehaviour:
   Id: trauma_salve
   DisplayName: Trauma Salve
   Icon: {fileID: 0}
+  EffectDescription: "At combat end, remove 1 Trauma stack from the most-traumatized
+    Pok\xE9mon."
   Rarity: 1
   MetaTier: 1
   Categories: 04000000

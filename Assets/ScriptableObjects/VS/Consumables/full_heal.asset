@@ -29,6 +29,7 @@ MonoBehaviour:
   Id: full_heal
   DisplayName: Full Heal
   Icon: {fileID: 0}
+  EffectDescription: "Cure all status conditions from one Pok\xE9mon."
   APCost: 0
   Effect: {fileID: -1665817794225692579}
   Tier: 1

@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: berry_pouch
   DisplayName: Berry Pouch
   Icon: {fileID: 0}
+  EffectDescription: Healing consumables restore +5 additional HP.
   Rarity: 0
   MetaTier: 1
   Categories: 0200000001000000

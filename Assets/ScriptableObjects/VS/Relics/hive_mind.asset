@@ -15,6 +15,8 @@ MonoBehaviour:
   Id: hive_mind
   DisplayName: Hive Mind
   Icon: {fileID: 0}
+  EffectDescription: "VS placeholder \u2014 Bug Gym R1 drop. Effect wiring deferred
+    to Epic 12."
   Rarity: 2
   MetaTier: 1
   Categories: 

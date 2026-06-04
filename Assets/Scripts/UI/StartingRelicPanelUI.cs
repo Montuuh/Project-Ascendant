@@ -38,11 +38,13 @@ namespace ProjectAscendant.UI
                     GameObject card = new("Card", typeof(RectTransform)); card.transform.SetParent(_root.transform, false);
                     Image ci = card.AddComponent<Image>(); ci.color = new Color(0.16f, 0.22f, 0.28f, 1f);
                     Place((RectTransform)card.transform, new Vector2(x, 20), new Vector2(480, 240));
-                    Txt(card.transform, r.DisplayName ?? r.Id, 24, new Color(0.92f, 0.96f, 0.8f), new Vector2(0, 70), new Vector2(440, 34));
-                    Txt(card.transform, $"[{r.Rarity}]", 18, new Color(0.8f, 0.85f, 0.95f), new Vector2(0, 30), new Vector2(440, 26));
+                    Txt(card.transform, r.DisplayName ?? r.Id, 24, new Color(0.92f, 0.96f, 0.8f), new Vector2(0, 84), new Vector2(440, 34));
                     string cats = r.Categories != null && r.Categories.Count > 0 ? r.Categories[0].ToString() : "";
-                    Txt(card.transform, cats, 17, new Color(0.7f, 0.75f, 0.8f), new Vector2(0, -2), new Vector2(440, 24));
-                    Btn(card.transform, new Vector2(0, -70), new Vector2(300, 56), "CHOOSE", new Color(0.28f, 0.5f, 0.34f), () => Pick(pick));
+                    Txt(card.transform, $"[{r.Rarity}]  ·  {cats}", 16, new Color(0.78f, 0.83f, 0.92f), new Vector2(0, 52), new Vector2(440, 24));
+                    // Per Epic 13 — explain the relic's effect on the choice screen.
+                    Text desc = Txt(card.transform, r.EffectDescription ?? "", 17, new Color(0.85f, 0.9f, 0.78f), new Vector2(0, -8), new Vector2(420, 90));
+                    desc.horizontalOverflow = HorizontalWrapMode.Wrap; desc.alignment = TextAnchor.UpperCenter;
+                    Btn(card.transform, new Vector2(0, -85), new Vector2(300, 52), "CHOOSE", new Color(0.28f, 0.5f, 0.34f), () => Pick(pick));
                     x += 520f;
                 }
             else

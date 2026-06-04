@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using ProjectAscendant.Core;
 using ProjectAscendant.Map;
 
@@ -23,6 +24,8 @@ namespace ProjectAscendant.UI
         private RectTransform _body;
         private HeldItemSO _equipping; // when set, the panel is in "pick a Pokémon" mode
         private RelicSO _usingSalve;   // §6.2.4 — Trauma Salve target-pick mode
+        private GameObject _tooltip;   // Epic 13 — hover tooltip bar (persists across Refresh)
+        private Text _tooltipText;
 
         public bool IsOpen => _root != null;
 
@@ -57,6 +60,30 @@ namespace ProjectAscendant.UI
             b.transform.SetParent(_root.transform, false);
             _body = (RectTransform)b.transform;
             Place(_body, Mid(), Vector2.zero, new Vector2(1700, 1000));
+
+            // Epic 13 — a fixed tooltip bar at the bottom; hovering an item fills it. Parented to _root
+            // so it survives Refresh() (which clears _body).
+            GameObject tip = new("Tooltip", typeof(RectTransform));
+            tip.transform.SetParent(_root.transform, false);
+            Image tipBg = tip.AddComponent<Image>(); tipBg.color = new Color(0.04f, 0.05f, 0.08f, 0.95f); tipBg.raycastTarget = false;
+            Place((RectTransform)tip.transform, new Vector2(0.5f, 0f), new Vector2(0, 70), new Vector2(1500, 60));
+            _tooltipText = Txt(tip.transform, "", 20, new Color(0.9f, 0.92f, 0.8f), Mid(), Vector2.zero, new Vector2(1460, 56));
+            _tooltipText.raycastTarget = false;
+            _tooltip = tip;
+            _tooltip.SetActive(false);
+        }
+
+        // Epic 13 — show `text` in the tooltip bar while the pointer is over `target`.
+        private void AddHover(GameObject target, string text)
+        {
+            if (target == null || string.IsNullOrEmpty(text) || _tooltip == null) return;
+            EventTrigger trig = target.AddComponent<EventTrigger>();
+            EventTrigger.Entry enter = new() { eventID = EventTriggerType.PointerEnter };
+            enter.callback.AddListener(_ => { if (_tooltipText != null) _tooltipText.text = text; _tooltip.SetActive(true); });
+            trig.triggers.Add(enter);
+            EventTrigger.Entry exit = new() { eventID = EventTriggerType.PointerExit };
+            exit.callback.AddListener(_ => { if (_tooltip != null) _tooltip.SetActive(false); });
+            trig.triggers.Add(exit);
         }
 
         private void Refresh()
@@ -84,37 +111,46 @@ namespace ProjectAscendant.UI
             Btn(_body, Mid(), new Vector2(0, -440), new Vector2(340, 60), "CLOSE  ✕", new Color(0.42f, 0.34f, 0.36f), true, Close);
         }
 
-        private List<string> ConsumableLines()
+        private List<(string label, string tip)> ConsumableLines()
         {
-            List<string> lines = new();
+            List<(string, string)> lines = new();
             Dictionary<string, int> counts = new();
+            Dictionary<string, ConsumableSO> rep = new();
             if (_state?.Inventory != null)
                 foreach (ConsumableSO c in _state.Inventory)
-                    if (c != null) { string n = c.DisplayName ?? c.name; counts[n] = counts.TryGetValue(n, out int v) ? v + 1 : 1; }
-            foreach (KeyValuePair<string, int> kv in counts) lines.Add($"{kv.Key} ×{kv.Value}");
-            if (lines.Count == 0) lines.Add("(none)");
+                    if (c != null)
+                    {
+                        string n = c.DisplayName ?? c.name;
+                        counts[n] = counts.TryGetValue(n, out int v) ? v + 1 : 1;
+                        rep[n] = c;
+                    }
+            foreach (KeyValuePair<string, int> kv in counts)
+                lines.Add(($"{kv.Key} ×{kv.Value}", $"{kv.Key}\n{rep[kv.Key].EffectDescription}"));
+            if (lines.Count == 0) lines.Add(("(none)", null));
             return lines;
         }
 
-        private List<string> RelicLines()
+        private List<(string label, string tip)> RelicLines()
         {
-            List<string> lines = new();
+            List<(string, string)> lines = new();
             if (_state?.HeldRelics != null)
                 foreach (RelicSO r in _state.HeldRelics)
-                    if (r != null) lines.Add($"◆ {r.DisplayName ?? r.name}  [{r.Rarity}]");
-            if (lines.Count == 0) lines.Add("(none)");
+                    if (r != null)
+                        lines.Add(($"◆ {r.DisplayName ?? r.name}  [{r.Rarity}]", $"{r.DisplayName ?? r.name}\n{r.EffectDescription}"));
+            if (lines.Count == 0) lines.Add(("(none)", null));
             return lines;
         }
 
-        private void RenderColumn(string title, float x, List<string> lines)
+        private void RenderColumn(string title, float x, List<(string label, string tip)> lines)
         {
             Txt(_body, title, 24, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(x, 370), new Vector2(480, 32));
             float y = 320f;
-            foreach (string line in lines)
+            foreach ((string label, string tip) in lines)
             {
                 Image row = Img(_body, new Color(0.13f, 0.16f, 0.2f, 1f));
                 Place(row.rectTransform, Mid(), new Vector2(x, y), new Vector2(500, 44));
-                Txt(row.transform, line, 19, new Color(0.88f, 0.9f, 0.94f), Mid(), Vector2.zero, new Vector2(480, 40));
+                Txt(row.transform, label, 19, new Color(0.88f, 0.9f, 0.94f), Mid(), Vector2.zero, new Vector2(480, 40));
+                AddHover(row.gameObject, tip); // Epic 13 — hover to see the effect
                 y -= 52f;
             }
         }
@@ -134,6 +170,7 @@ namespace ProjectAscendant.UI
                     Image row = Img(_body, new Color(0.15f, 0.19f, 0.16f, 1f));
                     Place(row.rectTransform, Mid(), new Vector2(x, y), new Vector2(500, 50));
                     Txt(row.transform, it.DisplayName ?? it.Id, 19, new Color(0.9f, 0.95f, 0.88f), Mid(), new Vector2(-90, 0), new Vector2(300, 44));
+                    AddHover(row.gameObject, $"{it.DisplayName ?? it.Id}\n{it.EffectDescription}"); // Epic 13
                     HeldItemSO captured = it;
                     Btn(_body, Mid(), new Vector2(x + 180, y), new Vector2(120, 44), "EQUIP", new Color(0.28f, 0.46f, 0.34f), true,
                         () => { _equipping = captured; Refresh(); });

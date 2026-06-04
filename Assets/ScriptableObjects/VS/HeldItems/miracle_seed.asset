@@ -15,6 +15,10 @@ MonoBehaviour:
   Id: miracle_seed
   DisplayName: Miracle Seed
   Icon: {fileID: 0}
+  EffectDescription: Grass-type moves +10% power while wearer is Lead.
+  BoostsType: 0
+  WearerDamageMultiplier: 1
+  LeftoversRegenDivisor: 0
   GrantsLeadAura: 1
   LeadAuraType: 3
   OnEquipHook: {fileID: 0}

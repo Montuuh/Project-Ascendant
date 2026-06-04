@@ -15,6 +15,10 @@ MonoBehaviour:
   Id: charcoal
   DisplayName: Charcoal
   Icon: {fileID: 0}
+  EffectDescription: Fire-type moves +10% power while wearer is Lead.
+  BoostsType: 0
+  WearerDamageMultiplier: 1
+  LeftoversRegenDivisor: 0
   GrantsLeadAura: 1
   LeadAuraType: 1
   OnEquipHook: {fileID: 0}

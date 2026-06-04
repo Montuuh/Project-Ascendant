@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: brave_charm
   DisplayName: Brave Charm
   Icon: {fileID: 0}
+  EffectDescription: Lead deals +5% damage while below 50% HP.
   Rarity: 0
   MetaTier: 1
   Categories: 0200000000000000

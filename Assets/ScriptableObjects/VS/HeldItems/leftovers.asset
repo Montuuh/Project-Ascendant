@@ -15,6 +15,10 @@ MonoBehaviour:
   Id: leftovers
   DisplayName: Leftovers
   Icon: {fileID: 0}
+  EffectDescription: At turn end, restore floor(MaxHP/16) HP to the wearer.
+  BoostsType: 0
+  WearerDamageMultiplier: 1
+  LeftoversRegenDivisor: 0
   GrantsLeadAura: 0
   LeadAuraType: 0
   OnEquipHook: {fileID: 0}

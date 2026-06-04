@@ -15,6 +15,8 @@ MonoBehaviour:
   Id: quick_draw
   DisplayName: Quick Draw
   Icon: {fileID: 0}
+  EffectDescription: Once per turn, drawing a Utility card triggers draw +1 more
+    card.
   Rarity: 0
   MetaTier: 1
   Categories: 01000000

@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: choice_band
   DisplayName: Choice Band
   Icon: {fileID: 0}
+  EffectDescription: Melee moves deal +15% damage. Ranged moves cost +1 AP (min 0).
   Rarity: 1
   MetaTier: 1
   Categories: 02000000

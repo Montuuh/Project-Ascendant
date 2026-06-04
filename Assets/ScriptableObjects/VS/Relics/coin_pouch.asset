@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: coin_pouch
   DisplayName: Coin Pouch
   Icon: {fileID: 0}
+  EffectDescription: "Gain +50 Pok\xE9 Dollars per Trainer or Gym victory."
   Rarity: 0
   MetaTier: 1
   Categories: 03000000

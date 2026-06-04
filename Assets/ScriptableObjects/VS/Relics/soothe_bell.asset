@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: soothe_bell
   DisplayName: Soothe Bell
   Icon: {fileID: 0}
+  EffectDescription: Once per turn, the first Utility move played costs 0 AP.
   Rarity: 0
   MetaTier: 1
   Categories: 0400000000000000

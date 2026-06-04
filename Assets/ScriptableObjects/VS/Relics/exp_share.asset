@@ -15,6 +15,8 @@ MonoBehaviour:
   Id: exp_share
   DisplayName: Exp Share
   Icon: {fileID: 0}
+  EffectDescription: "All non-Lead Pok\xE9mon gain 50% of the Lead's earned XP per
+    combat."
   Rarity: 0
   MetaTier: 1
   Categories: 03000000

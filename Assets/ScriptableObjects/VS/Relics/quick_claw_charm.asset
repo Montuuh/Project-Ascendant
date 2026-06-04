@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: quick_claw_charm
   DisplayName: Quick Claw Charm
   Icon: {fileID: 0}
+  EffectDescription: Draw +1 skill card on turn 1 of combat.
   Rarity: 0
   MetaTier: 1
   Categories: 01000000

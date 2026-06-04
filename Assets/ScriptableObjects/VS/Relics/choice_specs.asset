@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: choice_specs
   DisplayName: Choice Specs
   Icon: {fileID: 0}
+  EffectDescription: Ranged moves deal +15% damage. Melee moves cost +1 AP (min 0).
   Rarity: 1
   MetaTier: 1
   Categories: 02000000

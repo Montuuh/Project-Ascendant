@@ -15,6 +15,10 @@ MonoBehaviour:
   Id: mystic_water
   DisplayName: Mystic Water
   Icon: {fileID: 0}
+  EffectDescription: Water-type moves +10% power while wearer is Lead.
+  BoostsType: 0
+  WearerDamageMultiplier: 1
+  LeftoversRegenDivisor: 0
   GrantsLeadAura: 1
   LeadAuraType: 2
   OnEquipHook: {fileID: 0}

@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: awakening
   DisplayName: Awakening
   Icon: {fileID: 0}
+  EffectDescription: "Wake one sleeping Pok\xE9mon."
   APCost: 0
   Effect: {fileID: 4769587932592750622}
   Tier: 1

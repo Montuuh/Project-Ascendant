@@ -29,6 +29,7 @@ MonoBehaviour:
   Id: burn_heal
   DisplayName: Burn Heal
   Icon: {fileID: 0}
+  EffectDescription: "Cure Burn from one Pok\xE9mon."
   APCost: 0
   Effect: {fileID: -2634819401619499477}
   Tier: 1

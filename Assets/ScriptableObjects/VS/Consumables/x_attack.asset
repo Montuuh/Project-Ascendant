@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: x_attack
   DisplayName: X Attack
   Icon: {fileID: 0}
+  EffectDescription: "Raise one Pok\xE9mon's Attack by 1 stage."
   APCost: 1
   Effect: {fileID: 5078685960111826988}
   Tier: 1

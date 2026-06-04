@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: lucky_egg_token
   DisplayName: Lucky Egg Token
   Icon: {fileID: 0}
+  EffectDescription: XP gain +20% from all sources this run.
   Rarity: 0
   MetaTier: 1
   Categories: 03000000

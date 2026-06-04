@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: super_potion
   DisplayName: Super Potion
   Icon: {fileID: 0}
+  EffectDescription: "Restore a large amount of HP to one Pok\xE9mon."
   APCost: 1
   Effect: {fileID: 933556677077350104}
   Tier: 2

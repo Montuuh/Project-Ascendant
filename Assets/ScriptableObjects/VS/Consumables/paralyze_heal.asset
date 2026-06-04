@@ -29,6 +29,7 @@ MonoBehaviour:
   Id: paralyze_heal
   DisplayName: Paralyze Heal
   Icon: {fileID: 0}
+  EffectDescription: "Cure Paralysis from one Pok\xE9mon."
   APCost: 0
   Effect: {fileID: -8895326893408979588}
   Tier: 1

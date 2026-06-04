@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: antidote
   DisplayName: Antidote
   Icon: {fileID: 0}
+  EffectDescription: "Cure Poison from one Pok\xE9mon."
   APCost: 0
   Effect: {fileID: 6017060200601148193}
   Tier: 1
