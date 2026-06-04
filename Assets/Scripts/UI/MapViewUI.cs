@@ -296,19 +296,52 @@ namespace ProjectAscendant.UI
                 bool isReach = !_run.RunOver && (reachable.Contains(node)
                     || (isCurrent && RunController.IsReenterable(node.NodeType)));
 
-                Color baseCol = NodeColor(node.NodeType);
+                // Per §4.4.4 / Pillar 1 — Gym nodes telegraph their type so the fork choice is informed.
+                string gymType = GymTypeForNode(node);
+                Color baseCol = gymType != null ? TypeColor(gymType) : NodeColor(node.NodeType);
                 Color col = isVisited && !isCurrent ? baseCol * 0.75f : isReach || isCurrent ? baseCol : baseCol * 0.4f;
                 col.a = isReach || isCurrent ? 1f : isVisited ? 0.85f : 0.5f;
 
                 string prefix = isCurrent ? "▶ " : isVisited ? "✓ " : "";
+                string label = gymType != null ? $"GYM\n{gymType}" : NodeLabel(node.NodeType);
                 Button b = MakeButton(_graph, kv.Value, new Vector2(NodeW, NodeH),
-                    prefix + NodeLabel(node.NodeType), col, isReach, () => OnNodeClicked(node));
+                    prefix + label, col, isReach, () => OnNodeClicked(node));
 
                 if (isReach) AddOutline(b.gameObject, Color.white);
                 else if (isCurrent) AddOutline(b.gameObject, new Color(1f, 0.85f, 0.3f));
             }
+
+            // Telegraph the fork: a small header above each lane band naming its destination Gym.
+            if (_run.Map.ChosenGyms != null && _run.Map.ChosenGyms.Count >= 2)
+            {
+                AddLaneHeader(0, GraphH * 0.24f + 86f);
+                AddLaneHeader(1, -GraphH * 0.24f - 56f);
+            }
         }
 
+        private void AddLaneHeader(int lane, float y)
+        {
+            MapNode gym = null;
+            foreach (MapNode g in _run.Map.GymNodes) if (g.Lane == lane) { gym = g; break; }
+            string type = GymTypeForNode(gym);
+            if (type == null) return;
+            Text t = MakeText(_graph, $"↳  {type} Gym route", 22, TypeColor(type));
+            Anchor(t.rectTransform, Mid(), Mid(), new Vector2(GraphW * 0.5f - 230f, y), new Vector2(420, 30));
+            t.alignment = TextAnchor.MiddleRight;
+        }
+
+        // Per §10 readability — a distinct tint per Gym type for the fork telegraph.
+        private static Color TypeColor(string type) => type switch
+        {
+            "Rock"   => new Color(0.62f, 0.52f, 0.30f),
+            "Water"  => new Color(0.30f, 0.52f, 0.82f),
+            "Bug"    => new Color(0.55f, 0.70f, 0.25f),
+            "Normal" => new Color(0.70f, 0.68f, 0.58f),
+            _        => new Color(0.78f, 0.46f, 0.20f),
+        };
+
+        // Per §7.2 v2 — lane-aware layout: pre-fork nodes spread normally; post-fork, lane 0 sits in the
+        // top band and lane 1 in the bottom band so the two Gym routes read as distinct, non-crossing lanes.
         private Dictionary<MapNode, Vector2> ComputePositions()
         {
             Dictionary<MapNode, Vector2> pos = new();
@@ -319,12 +352,41 @@ namespace ProjectAscendant.UI
             {
                 List<MapNode> nodes = _run.Map.Layers[layer];
                 float x = -GraphW * 0.5f + layer * colStep;
-                int n = nodes.Count;
-                float rowStep = n > 1 ? Mathf.Min(140f, (GraphH - NodeH) / (n - 1)) : 0f;
-                for (int i = 0; i < n; i++)
-                    pos[nodes[i]] = new Vector2(x, (i - (n - 1) * 0.5f) * rowStep);
+
+                List<MapNode> lane1 = nodes.FindAll(nd => nd.Lane == 1);
+                if (lane1.Count > 0)
+                {
+                    PlaceBand(pos, nodes.FindAll(nd => nd.Lane == 0), x, GraphH * 0.24f);  // top = lane 0
+                    PlaceBand(pos, lane1, x, -GraphH * 0.24f);                              // bottom = lane 1
+                }
+                else
+                {
+                    int n = nodes.Count;
+                    float rowStep = n > 1 ? Mathf.Min(140f, (GraphH - NodeH) / (n - 1)) : 0f;
+                    for (int i = 0; i < n; i++)
+                        pos[nodes[i]] = new Vector2(x, (i - (n - 1) * 0.5f) * rowStep);
+                }
             }
             return pos;
+        }
+
+        private static void PlaceBand(Dictionary<MapNode, Vector2> pos, List<MapNode> band, float x, float centerY)
+        {
+            band.Sort((a, b) => a.IndexInLane.CompareTo(b.IndexInLane));
+            int n = band.Count;
+            float step = n > 1 ? Mathf.Min(90f, 220f / (n - 1)) : 0f;
+            for (int i = 0; i < n; i++)
+                pos[band[i]] = new Vector2(x, centerY + (i - (n - 1) * 0.5f) * step);
+        }
+
+        // Per §4.4.4 / Pillar 1 — the Gym type telegraphed at a terminal node (from the run's chosen pair).
+        private string GymTypeForNode(MapNode node)
+        {
+            if (node == null || node.NodeType != NodeType.Gym || node.GymIndex < 0) return null;
+            List<GymLeaderSO> gyms = _run.Map.ChosenGyms;
+            if (gyms != null && node.GymIndex < gyms.Count && gyms[node.GymIndex] != null)
+                return gyms[node.GymIndex].GymType.ToString();
+            return null;
         }
 
         // Per §2.1.1 — pick a starter before the run begins.
