@@ -102,7 +102,7 @@ When you are invoked, find the row(s) below that match your specialty. **Open th
 ### game-designer
 - **Primary action:** Pillar compliance review for any proposal that adds, modifies, or removes mechanics. Run `pillar-check` skill on any design question.
 - **Cross-Epic mandate:** When a pillar conflict arises in implementation, `game-designer` is the decision point before any code lands.
-- **Always-on:** Read the relevant GDD Topic page before answering. Never invent design that contradicts a locked Topic.
+- **Always-on:** Read the relevant GDD Topic page before answering. Never invent design that contradicts a GDD Topic — and when a decision changes the spec, edit the canonical Notion GDD so it stays current (the GDD is a living document during development).
 
 ---
 
@@ -131,7 +131,7 @@ Examples — by no means exhaustive:
 
 - "Let's also add a Specialist branch for Squirtle while we're at it." → **Post-VS.** Vanguard only.
 - "What if relics had a fusion system?" → **Post-VS.** Not in GDD; not in Epic 12.
-- "Region 2 prototype to see how multi-Region pacing feels." → **Post-VS.** Region 1 must lock first.
+- "Region 2 prototype to see how multi-Region pacing feels." → **Post-VS.** Region 1 must be solid first.
 - "More than 4 Mystery Events because they're easy to author." → **Post-VS.** Easy ≠ in scope.
 - "Sprite polish pass on Charizard." → **Post-VS.** Placeholder art is correct for VS per Epic 7 Task 7.8.
 - "Daily Seed mode demo." → **Post-VS.** Architecture supports it (Epic 2 §9.7.4); UX work deferred.

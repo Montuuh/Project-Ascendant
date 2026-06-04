@@ -1,7 +1,7 @@
 /**
  * export-gdd.js
  * Snapshots all Project Ascendant GDD topic pages from Notion to
- * docs/gdd/topic-N-<slug>.md. Run on demand after a topic locks.
+ * docs/gdd/topic-N-<slug>.md. Run on demand after a topic changes.
  *
  * Usage:
  *   npm install -g notion-to-md @notionhq/client

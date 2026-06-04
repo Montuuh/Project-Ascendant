@@ -19,29 +19,29 @@ All canonical document URLs. Use these with `notion-fetch` and
 
 | # | Topic | Status | URL | Page ID |
 | --- | --- | --- | --- | --- |
-| 1 | Game Overview | 🔒 Locked | https://www.notion.so/3610450715b481a287bdd5c72573b9d7 | 3610450715b481a287bdd5c72573b9d7 |
-| 2 | Core Gameplay Loop | 🔒 Locked | https://www.notion.so/3610450715b481048a3bd46eb1d31a07 | 3610450715b481048a3bd46eb1d31a07 |
-| 3 | Micro Loop | 🔒 Locked | https://www.notion.so/3610450715b481e08404ded0b96924c9 | 3610450715b481e08404ded0b96924c9 |
-| 4 | Combat System | 🔒 Locked | https://www.notion.so/3610450715b4818bb876f6d9fd5d2ab0 | 3610450715b4818bb876f6d9fd5d2ab0 |
-| 5 | Progression | 🔒 Locked | https://www.notion.so/3610450715b4813ea29ae0c992898d01 | 3610450715b4813ea29ae0c992898d01 |
-| 6 | Roguelike Progression | 🔒 Locked | https://www.notion.so/3610450715b4816c83d2c74682cef77c | 3610450715b4816c83d2c74682cef77c |
-| 7 | Scenario & Nodes | 🔒 Locked | https://www.notion.so/3610450715b48146b3a0fe94ca2bd05c | 3610450715b48146b3a0fe94ca2bd05c |
-| 8 | Items & Relics | 🔒 Locked | https://www.notion.so/3610450715b48173bab9e5239b63f813 | 3610450715b48173bab9e5239b63f813 |
-| 9 | Technical Architecture | 🔒 Locked | https://www.notion.so/3610450715b4811b83cae23d6ed2a154 | 3610450715b4811b83cae23d6ed2a154 |
-| 10 | Art, UI, Audio | 🔒 Locked | https://www.notion.so/3610450715b4815192fae42ed745b3d0 | 3610450715b4815192fae42ed745b3d0 |
+| 1 | Game Overview | 🟢 In Progress | https://www.notion.so/3610450715b481a287bdd5c72573b9d7 | 3610450715b481a287bdd5c72573b9d7 |
+| 2 | Core Gameplay Loop | 🟢 In Progress | https://www.notion.so/3610450715b481048a3bd46eb1d31a07 | 3610450715b481048a3bd46eb1d31a07 |
+| 3 | Micro Loop | 🟢 In Progress | https://www.notion.so/3610450715b481e08404ded0b96924c9 | 3610450715b481e08404ded0b96924c9 |
+| 4 | Combat System | 🟢 In Progress | https://www.notion.so/3610450715b4818bb876f6d9fd5d2ab0 | 3610450715b4818bb876f6d9fd5d2ab0 |
+| 5 | Progression | 🟢 In Progress | https://www.notion.so/3610450715b4813ea29ae0c992898d01 | 3610450715b4813ea29ae0c992898d01 |
+| 6 | Roguelike Progression | 🟢 In Progress | https://www.notion.so/3610450715b4816c83d2c74682cef77c | 3610450715b4816c83d2c74682cef77c |
+| 7 | Scenario & Nodes | 🟢 In Progress | https://www.notion.so/3610450715b48146b3a0fe94ca2bd05c | 3610450715b48146b3a0fe94ca2bd05c |
+| 8 | Items & Relics | 🟢 In Progress | https://www.notion.so/3610450715b48173bab9e5239b63f813 | 3610450715b48173bab9e5239b63f813 |
+| 9 | Technical Architecture | 🟢 In Progress | https://www.notion.so/3610450715b4811b83cae23d6ed2a154 | 3610450715b4811b83cae23d6ed2a154 |
+| 10 | Art, UI, Audio | 🟢 In Progress | https://www.notion.so/3610450715b4815192fae42ed745b3d0 | 3610450715b4815192fae42ed745b3d0 |
 
 ---
 
 ## Status Update Protocol
 
-When a topic's status changes, update this table AND the topic page header
-AND the BACKLOG completion status table. Three places, one operation.
+The GDD is a **living document** during development — topics stay editable; there is
+no "locked" state. When a topic's status changes, update this table AND the topic
+page header AND the BACKLOG completion status table. Three places, one operation.
 
 **Status values:**
-- 🔒 Locked — finalized, write-protected
-- 🟢 In Progress — active design or implementation work
-- 🟡 Pending — scoped but not yet started
-- ❌ Blocked — waiting on external dependency
+- 🟢 In Progress — active, editable (the default for every topic during development)
+- 🟡 Pending — scoped but not yet written
+- ❌ Blocked — waiting on an external dependency
 
 ---
 
@@ -70,7 +70,7 @@ Frequently-needed sections for implementation work:
 | Move kit construction | §5.3.6 | Topic 5 |
 | Ability system | §5.5 | Topic 5 |
 | Lead Aura | §5.5.4 | Topic 5 |
-| Trauma System (LOCKED — Option E hybrid) | §6.2 | Topic 6 |
+| Trauma System (Option E hybrid) | §6.2 | Topic 6 |
 | Trainer XP & Hub | §6.3 / §6.4 | Topic 6 |
 | Starter unlocks | §6.5 | Topic 6 |
 | Difficulty modifiers | §6.8 | Topic 6 |

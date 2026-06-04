@@ -52,15 +52,20 @@ in those topic files — not in CLAUDE.md or agent prompts.
 
 ## 3. Write Authority (Notion)
 
-Each GDD topic page carries a status in its header.
+**The GDD is a living document throughout development.** Every topic is freely
+editable in Notion — there is no "locked" status. When a playtest, implementation,
+or design decision changes the spec, **edit the canonical Notion text directly** so
+it permanently reflects the current version of the game. Then re-export the snapshot
+(§6) so `docs/gdd/` matches.
 
-| Status | May do |
+| Status | Meaning |
 | --- | --- |
-| 🔒 Locked | Read local file. Notion: add `> ⚠️ OPEN:` blocks only |
-| 🟢 In Progress | Read/write Notion freely after user confirms |
-| 🟡 Pending | Scaffolding bullets only |
+| 🟢 In Progress | Active, editable. The default for all topics. |
+| 🟡 Pending | Scoped but not yet written — scaffolding bullets only. |
 
-Re-opening Locked requires explicit user instruction.
+Do not add `⚠️ OPEN:` deferral blocks for decisions that are already made — fold the
+decision straight into the spec. Reserve `⚠️ OPEN` only for genuinely unresolved
+questions awaiting a user call (see §4).
 
 ---
 

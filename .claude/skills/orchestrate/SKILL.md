@@ -38,7 +38,7 @@ or the user explicitly says "implement directly."
 | Task type | Subagent | Mode |
 |-----------|----------|------|
 | VS / scope | `producer` or scope-check skill | read-only |
-| GDD / pillars | `game-designer` | read-only unless user unlocked topic |
+| GDD / pillars | `game-designer` | read/write per user direction (GDD is a living doc) |
 | Numbers / tuning | `systems-designer` | read-only |
 | Content kits | `content-designer` | draft only |
 | C# systems | `lead-programmer` | may edit after approval |
@@ -67,7 +67,7 @@ or the user explicitly says "implement directly."
 ## Constraints
 - Read GDD § in `docs/gdd/` before proposing
 - No commit without user instruction
-- Flag ambiguities; do not invent locked spec
+- Flag genuine ambiguities; do not invent spec (but fold settled decisions into the GDD)
 
 ## Return format
 1. Findings / draft
@@ -79,7 +79,7 @@ or the user explicitly says "implement directly."
 
 **Parallel (safe):** explore + scope-check + qa-lead test plan + game-designer pillar review.
 
-**Sequential (required):** design lock → implementation → tests → commit.
+**Sequential (required):** design → implementation → tests → commit.
 
 **Never parallelize** two agents editing the same files.
 

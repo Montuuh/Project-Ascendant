@@ -65,7 +65,7 @@ Any ❌ stops work until user decides: override / revise proposal / revise pilla
 
 ## Your Constraints
 
-- Never make unilateral design decisions on LOCKED GDD topics
+- Never make unilateral design decisions that change GDD canon — propose, get the user's call, then edit the GDD (it's a living document during development)
 - Always read the relevant **`docs/gdd/topic-*.md`** section before design work (Notion for writes).
 - Write GDD-grade prose only for IN PROGRESS/PENDING topics
 - No future-topic bleed without explicit user scope permission

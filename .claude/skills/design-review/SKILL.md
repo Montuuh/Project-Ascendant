@@ -2,19 +2,21 @@
 name: design-review
 description: >
   Review a design proposal, GDD section, or system concept for Project Ascendant.
-  Use when you've written a design spec and want it reviewed before locking it,
-  when a GDD section is ready to move from In Progress to Locked, or when asked
-  to "review this design", "is this ready to lock?", or "check this spec". Runs
-  the full 4-step simulation, pillar check, and gap analysis. Gives a lock/no-lock
-  verdict with specific outstanding issues listed.
+  Use when you've written a design spec and want it reviewed before adopting it
+  into the GDD, when a GDD section is ready to move from Pending to In Progress,
+  or when asked to "review this design", "is this ready to ship?", or "check this
+  spec". Runs the full 4-step simulation, pillar check, and gap analysis. Gives a
+  ready/not-ready verdict with specific outstanding issues listed.
 ---
 
 # Design Review — Project Ascendant
 
 ## Review Purpose
 
-Determines whether a GDD section is ready to move to 🔒 Locked status, or
-what specific issues must be resolved first.
+The GDD is a **living document** during development — sections are always editable,
+never "locked." This review judges whether a section is **solid enough to build on
+and ship**, or what specific issues to resolve first. A passing review means: adopt
+it into the canonical Notion GDD as the current spec.
 
 ## Review Protocol
 
@@ -25,8 +27,8 @@ what specific issues must be resolved first.
 - [ ] Edge cases are explicitly handled (not implicitly assumed)
 
 ### 2. Consistency Check
-- [ ] No contradictions with already-locked topics
-- [ ] Terminology is consistent with existing locked sections
+- [ ] No contradictions with other GDD topics
+- [ ] Terminology is consistent with existing sections
 - [ ] Numbers/values are internally consistent (e.g., AP costs don't add up to impossible hands)
 
 ### 3. 4-Step Simulation (required — not optional)
@@ -40,22 +42,22 @@ Document findings from each.
 
 ### 4. Pillar Check
 Mark each of the 5 pillars: ✅ / ⚠️ / ❌
-Any ❌ = cannot lock. Must resolve first.
+Any ❌ = not ready. Must resolve first.
 
 ### 5. Gap Log Review
 Check the BACKLOG gap log. Are any open gaps in this topic's domain still unresolved?
-Open Sev-1 or Sev-2 gaps = cannot lock.
-Open Sev-3 gaps = can lock with notes.
+Open Sev-1 or Sev-2 gaps = not ready.
+Open Sev-3 gaps = ready, with notes.
 
-## Lock Verdict Format
+## Verdict Format
 
 ```
-LOCK VERDICT: [READY / NOT READY]
+VERDICT: [READY / NOT READY]
 
-Outstanding issues (must resolve before lock):
+Outstanding issues (must resolve first):
 1. [issue] — [what needs to be written/decided]
 
-Advisory notes (can lock with these open):
+Advisory notes (ship with these open):
 - [note]
 
 Recommendation: [specific action to take]

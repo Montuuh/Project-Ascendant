@@ -2,7 +2,7 @@
 name: gdd-sync
 description: >
   Sync the GDD from Notion to local markdown in docs/gdd/. Use when snapshot is
-  stale, before a major sprint, after locking a topic, or when asked to export/
+  stale, before a major sprint, after a major spec change, or when asked to export/
   snapshot/sync GDD. Updates snapshot-status.json. Prefer ensure-gdd-snapshot.js
   for automatic stale detection.
 ---
