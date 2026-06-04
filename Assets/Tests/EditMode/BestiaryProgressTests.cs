@@ -149,6 +149,43 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(so);
         }
 
+        // ── §6.9 — Pokédex discovery: seen / recruited tracking ─────────────
+
+        [Test]
+        public void RecordSeen_MarksSpeciesSeen_AndCountsDistinct()
+        {
+            BestiaryProgressSO so = MakeSO();
+            Assert.That(so.IsSeen("pidgey"), Is.False);
+            so.RecordSeen("pidgey");
+            so.RecordSeen("pidgey"); // second sighting — still one distinct species
+            so.RecordSeen("rattata");
+
+            Assert.That(so.IsSeen("pidgey"), Is.True);
+            Assert.That(so.SeenSpeciesCount(), Is.EqualTo(2));
+            Object.DestroyImmediate(so);
+        }
+
+        [Test]
+        public void RecordKill_AlsoCountsAsSeen()
+        {
+            // A defeated species is implicitly seen even if RecordSeen was never called.
+            BestiaryProgressSO so = MakeSO();
+            so.RecordKill("caterpie", RarityTier.Common);
+            Assert.That(so.IsSeen("caterpie"), Is.True);
+            Assert.That(so.SeenSpeciesCount(), Is.EqualTo(1));
+            Object.DestroyImmediate(so);
+        }
+
+        [Test]
+        public void RecordRecruit_IncrementsRecruit_AndImpliesSeen()
+        {
+            BestiaryProgressSO so = MakeSO();
+            so.RecordRecruit("bulbasaur");
+            Assert.That(so.GetOrCreate("bulbasaur").TimesRecruited, Is.EqualTo(1));
+            Assert.That(so.IsSeen("bulbasaur"), Is.True);
+            Object.DestroyImmediate(so);
+        }
+
         // ── §4.3.9.1 — Bestiary Master tier → Mastery Move unlock (#9) ──────
 
         private MoveSO MakeMastery(string moveId)

@@ -42,6 +42,44 @@ namespace ProjectAscendant.Core
         // defeated enemy. Re-evaluates MasteryTier so reveals stay current.
         // §4.3.9.2 / §5.11 Mastery Move unlocks are tracked separately on
         // MetaProgressionSO and are NOT a side-effect of RecordKill.
+        // Per §6.9 / §4.3.9.1 — Pokédex discovery: the species was encountered (seen) this combat.
+        // Idempotent for "seen at all" (TimesEncountered just counts sightings). Safe to call per combat.
+        public void RecordSeen(string speciesId)
+        {
+            if (string.IsNullOrEmpty(speciesId)) return;
+            GetOrCreate(speciesId).TimesEncountered++;
+        }
+
+        // Per §6.9 / §7.3 — the species was recruited (captured) this run.
+        public void RecordRecruit(string speciesId)
+        {
+            if (string.IsNullOrEmpty(speciesId)) return;
+            BestiaryEntry e = GetOrCreate(speciesId);
+            e.TimesRecruited++;
+            if (e.TimesEncountered == 0) e.TimesEncountered = 1; // a recruit implies a sighting
+        }
+
+        // Per §6.9 — has this species ever been seen (encountered, defeated, or recruited)?
+        // Drives the Pokédex silhouette/discovery state.
+        public bool IsSeen(string speciesId)
+        {
+            if (Entries == null || string.IsNullOrEmpty(speciesId)) return false;
+            foreach (BestiaryEntry e in Entries)
+                if (e.SpeciesId == speciesId)
+                    return e.TimesEncountered > 0 || e.TimesDefeated > 0 || e.TimesRecruited > 0;
+            return false;
+        }
+
+        // Per §6.9 — count of distinct species seen at least once (Pokédex completion numerator).
+        public int SeenSpeciesCount()
+        {
+            if (Entries == null) return 0;
+            int n = 0;
+            foreach (BestiaryEntry e in Entries)
+                if (e.TimesEncountered > 0 || e.TimesDefeated > 0 || e.TimesRecruited > 0) n++;
+            return n;
+        }
+
         public void RecordKill(string speciesId, RarityTier rarity)
         {
             BestiaryEntry entry = GetOrCreate(speciesId);

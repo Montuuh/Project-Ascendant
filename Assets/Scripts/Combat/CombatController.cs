@@ -290,6 +290,19 @@ namespace ProjectAscendant.Combat
             State.CombatLog.Clear(); // Per R4-4 — fresh log each combat
             State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent, "Combat started"));
             AbilityResolver.ApplyLeadEntryEffects(State); // §5.5.3.5 Intimidate — initial Lead enters
+            RecordEnemiesSeen(); // §6.9 — Pokédex discovery: the enemy species are now "seen"
+        }
+
+        // Per §6.9 — mark every current enemy species as seen in the Pokédex (combat start + each
+        // reinforcement wave). No-op when no Bestiary is wired (unit tests).
+        private void RecordEnemiesSeen()
+        {
+            if (State.Bestiary == null || State.EnemyTeam == null) return;
+            for (int i = 0; i < State.EnemyTeam.Count; i++)
+            {
+                PokemonInstance e = State.EnemyTeam[i];
+                if (e != null && e.Species != null) State.Bestiary.RecordSeen(e.Species.SpeciesId);
+            }
         }
 
         // Per §3.2 + Task 4.1.7 — composition of all phases until outcome.
@@ -1390,6 +1403,7 @@ namespace ProjectAscendant.Combat
             if (next == null || next.Count == 0) return false;
             State.EnemyTeam.Clear();
             for (int i = 0; i < next.Count; i++) State.EnemyTeam.Add(next[i]);
+            RecordEnemiesSeen(); // §6.9 — Pokédex discovery for the new wave
 
             // Per §7.4 (OPEN — VS override per playtest R4-1) — rebuild intents
             // for the new team. The reinforcements ACT the turn they spawn (the

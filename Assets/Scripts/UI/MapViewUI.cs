@@ -511,6 +511,8 @@ namespace ProjectAscendant.UI
         private void OnCombatComplete(MapNode node, NodeController active, CombatController cc, CombatController.CombatOutcome outcome)
         {
             PokemonInstance caught = cc.State.CaughtTarget;
+            // §6.9 — Pokédex: record the recruit (enemy "seen" is recorded combat-side in Start).
+            if (caught?.Species != null) _ctx?.Bestiary?.RecordRecruit(caught.Species.SpeciesId);
             // Per R3-5 — persist the final combat LeadIndex so team order survives node→MapView.
             int finalLeadIndex = cc.State.LeadIndex;
             ResolveCombatNode(active, caught, outcome, finalLeadIndex);

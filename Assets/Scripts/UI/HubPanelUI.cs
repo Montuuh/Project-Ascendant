@@ -98,7 +98,7 @@ namespace ProjectAscendant.UI
             Txt(pc.transform, $"Achievements  {doneCount} / {AchievementCatalog.All.Count}", 20, new Color(0.85f, 0.9f, 0.95f), Mid(), new Vector2(0, 64), new Vector2(700, 28));
             Btn(_body, Mid(), new Vector2(360, 188), new Vector2(360, 52), "🏆  VIEW ACHIEVEMENTS",
                 new Color(0.34f, 0.40f, 0.30f), true, () => { _showAchievements = true; RefreshBody(); });
-            Txt(pc.transform, "Bestiary  ·  Run History  (11.8 / Epic 13)", 17, new Color(0.6f, 0.65f, 0.72f), Mid(), new Vector2(0, -88), new Vector2(700, 24));
+            Txt(pc.transform, "Pokédex  ·  Run History  (11.8 / Epic 13)", 17, new Color(0.6f, 0.65f, 0.72f), Mid(), new Vector2(0, -88), new Vector2(700, 24));
 
             // ── Post-launch kiosks — greyed (§6.4.1) ───────────────────────────
             Btn(_body, Mid(), new Vector2(-360, 20), new Vector2(380, 56), "Daycare Lady  (Post-launch)", new Color(0.3f, 0.3f, 0.34f), false, null);
