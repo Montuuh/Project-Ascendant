@@ -12,22 +12,24 @@ node_modules/
 
 # AI tooling
 .cursor/
+.claude/
 CLAUDE.md
+
 # Machine-local Claude Code settings (secrets / permissions)
-.claude/settings.json
-.claude/settings.local.json
+# .claude/settings.json
+# .claude/settings.local.json
 # Shareable agent layer — agents, skills, hooks, docs, rules ARE committed
-.claude/*
-!.claude/agents/
-!.claude/agents/**
-!.claude/skills/
-!.claude/skills/**
-!.claude/hooks/
-!.claude/hooks/**
-!.claude/docs/
-!.claude/docs/**
-!.claude/rules/
-!.claude/rules/**
+# .claude/*
+# !.claude/agents/
+# !.claude/agents/**
+# !.claude/skills/
+# !.claude/skills/**
+# !.claude/hooks/
+# !.claude/hooks/**
+# !.claude/docs/
+# !.claude/docs/**
+# !.claude/rules/
+# !.claude/rules/**
 
 # Dev workflow (internal)
 .editorconfig
