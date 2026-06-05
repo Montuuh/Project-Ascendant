@@ -21,8 +21,8 @@ namespace ProjectAscendant.Core
 
         private static string MetaPath      => Path.Combine(Dir, "meta.dat");
         private static string MetaBakPath   => Path.Combine(Dir, "meta.dat.bak");
-        private static string BestiaryPath  => Path.Combine(Dir, "bestiary.dat");
-        private static string BestiaryBak   => Path.Combine(Dir, "bestiary.dat.bak");
+        private static string PokedexPath  => Path.Combine(Dir, "bestiary.dat");
+        private static string PokedexBak   => Path.Combine(Dir, "bestiary.dat.bak");
         private static string RunPath       => Path.Combine(Dir, "run-current.dat");
         private static string SettingsPath  => Path.Combine(Dir, "settings.json");
 
@@ -43,20 +43,20 @@ namespace ProjectAscendant.Core
             return meta;
         }
 
-        // Per §6.9 / §9.8.1 — persist BestiaryProgressSO (per-species kill counts + tiers). Saved at
+        // Per §6.9 / §9.8.1 — persist PokedexProgressSO (per-species kill counts + tiers). Saved at
         // run-end alongside meta; last-known-good backup retained like meta.
-        public static void SaveBestiary(BestiaryProgressSO bestiary)
+        public static void SavePokedex(PokedexProgressSO bestiary)
         {
-            AtomicWrite(BestiaryPath, BestiaryBak, JsonUtility.ToJson(bestiary));
+            AtomicWrite(PokedexPath, PokedexBak, JsonUtility.ToJson(bestiary));
         }
 
-        // Per §6.9 — load BestiaryProgressSO; falls back to backup on corruption, null if absent.
-        public static BestiaryProgressSO LoadBestiary()
+        // Per §6.9 — load PokedexProgressSO; falls back to backup on corruption, null if absent.
+        public static PokedexProgressSO LoadPokedex()
         {
-            string dataJson = AtomicRead(BestiaryPath, BestiaryBak);
+            string dataJson = AtomicRead(PokedexPath, PokedexBak);
             if (dataJson == null) return null;
 
-            BestiaryProgressSO bestiary = ScriptableObject.CreateInstance<BestiaryProgressSO>();
+            PokedexProgressSO bestiary = ScriptableObject.CreateInstance<PokedexProgressSO>();
             JsonUtility.FromJsonOverwrite(dataJson, bestiary);
             return bestiary;
         }

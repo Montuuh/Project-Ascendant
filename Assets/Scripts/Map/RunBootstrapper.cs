@@ -83,7 +83,7 @@ namespace ProjectAscendant.Map
                 MetaConfig = catalog.MetaProgressionConfig != null
                     ? catalog.MetaProgressionConfig
                     : ScriptableObject.CreateInstance<MetaProgressionConfigSO>(),
-                Bestiary = SaveSystem.LoadBestiary() ?? ScriptableObject.CreateInstance<BestiaryProgressSO>(),
+                Pokedex = SaveSystem.LoadPokedex() ?? ScriptableObject.CreateInstance<PokedexProgressSO>(),
                 // §6.9 — total roster size (starters + wild biomes + every evolution stage) for the
                 // Pokédex completion-% denominator + milestone rewards.
                 PokedexTotalSpecies = RunContentRegistry.FromCatalog(catalog).AllSpecies.Count,

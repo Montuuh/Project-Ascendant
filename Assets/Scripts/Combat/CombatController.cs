@@ -74,9 +74,9 @@ namespace ProjectAscendant.Combat
             // Per §6.2 + Epic 11 Task 11.1.8 — Trauma params source for EffectiveMaxHP (DoT, HP-bar max).
             // Optional: when null, combat falls back to raw MaxHP (e.g. unit tests that don't model Trauma).
             public EconomyConfigSO Economy;
-            // Per §6.9 / Task 11.8 — optional Bestiary; enemy faints record a kill into it.
-            public BestiaryProgressSO Bestiary;
-            // Per §4.3.9.1 — optional Meta; reaching the Bestiary Master tier for a defeated
+            // Per §6.9 / Task 11.8 — optional Pokedex; enemy faints record a kill into it.
+            public PokedexProgressSO Pokedex;
+            // Per §4.3.9.1 — optional Meta; reaching the Pokedex Master tier for a defeated
             // species unlocks that species' Mastery Move into Meta.UnlockedMasteryMoveIds.
             public MetaProgressionSO Meta;
             // Per §8.3 / Task 12.3 — the run's held Trainer Relics (RelicResolver dispatch). Optional.
@@ -177,9 +177,9 @@ namespace ProjectAscendant.Combat
             public BattleConfigSO Config;
             // Per §6.2 / Task 11.1.8 — Trauma-aware EffectiveMaxHP source (nullable; null → raw MaxHP).
             public EconomyConfigSO Economy;
-            // Per §6.9 / Task 11.8 — Bestiary that enemy faints record into (nullable in tests).
-            public BestiaryProgressSO Bestiary;
-            // Per §4.3.9.1 — Meta receiving Bestiary-driven Mastery unlocks (nullable in tests).
+            // Per §6.9 / Task 11.8 — Pokedex that enemy faints record into (nullable in tests).
+            public PokedexProgressSO Pokedex;
+            // Per §4.3.9.1 — Meta receiving Pokedex-driven Mastery unlocks (nullable in tests).
             public MetaProgressionSO Meta;
             // Per §8.3 / Task 12.3 — held Trainer Relics active this combat (RelicResolver). Never null.
             public List<RelicSO> ActiveRelics = new();
@@ -260,7 +260,7 @@ namespace ProjectAscendant.Combat
                 Field = setup.InitialField,
                 Config = setup.Config,
                 Economy = setup.Economy,
-                Bestiary = setup.Bestiary,
+                Pokedex = setup.Pokedex,
                 Meta = setup.Meta,
                 ActiveRelics = setup.ActiveRelics != null
                     ? new List<RelicSO>(setup.ActiveRelics)
@@ -298,14 +298,14 @@ namespace ProjectAscendant.Combat
         }
 
         // Per §6.9 — mark every current enemy species as seen in the Pokédex (combat start + each
-        // reinforcement wave). No-op when no Bestiary is wired (unit tests).
+        // reinforcement wave). No-op when no Pokedex is wired (unit tests).
         private void RecordEnemiesSeen()
         {
-            if (State.Bestiary == null || State.EnemyTeam == null) return;
+            if (State.Pokedex == null || State.EnemyTeam == null) return;
             for (int i = 0; i < State.EnemyTeam.Count; i++)
             {
                 PokemonInstance e = State.EnemyTeam[i];
-                if (e != null && e.Species != null) State.Bestiary.RecordSeen(e.Species.SpeciesId);
+                if (e != null && e.Species != null) State.Pokedex.RecordSeen(e.Species.SpeciesId);
             }
         }
 
@@ -1303,8 +1303,8 @@ namespace ProjectAscendant.Combat
                 }
             }
 
-            // Per §6.9 / Task 11.8.2 — record each defeated enemy in the Bestiary exactly once.
-            if (State.Bestiary != null)
+            // Per §6.9 / Task 11.8.2 — record each defeated enemy in the Pokedex exactly once.
+            if (State.Pokedex != null)
             {
                 for (int i = 0; i < State.EnemyTeam.Count; i++)
                 {
@@ -1312,14 +1312,14 @@ namespace ProjectAscendant.Combat
                     if (e == null || e.CurrentHP > 0 || e.Species == null) continue;
                     if (_recordedEnemyKills.Add(e))
                     {
-                        State.Bestiary.RecordKill(e.Species.SpeciesId, e.Species.WildRarity);
+                        State.Pokedex.RecordKill(e.Species.SpeciesId, e.Species.WildRarity);
 
                         // Per §4.3.9.1 — Pokédex tier-reward ladder. Veteran → Shiny variant unlock;
                         // Master → Mastery Move unlock. Both permanent (the Pokédex grind payoff).
-                        if (BestiaryShinyUnlock.TryUnlockShiny(State.Bestiary, State.Meta, e.Species))
+                        if (PokedexShinyUnlock.TryUnlockShiny(State.Pokedex, State.Meta, e.Species))
                             State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
                                 $"✨ {e.Species.DisplayName} can now be Shiny!"));
-                        if (BestiaryMasteryUnlock.TryUnlockMastery(State.Bestiary, State.Meta, e.Species))
+                        if (PokedexMasteryUnlock.TryUnlockMastery(State.Pokedex, State.Meta, e.Species))
                             State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
                                 $"Mastered {e.Species.DisplayName}! Mastery Move unlocked."));
                     }
@@ -1566,7 +1566,7 @@ namespace ProjectAscendant.Combat
             ResetAllStatStages(State.EnemyTeam);
             // Per §3.5 — consumables are NOT expendable; ConsumablePile.RestoreAll
             // clears the UsedThisCombat list so the full inventory is available
-            // again outside combat. (Bestiary / XP / OnCombatEnded event are
+            // again outside combat. (Pokedex / XP / OnCombatEnded event are
             // downstream — see Epic 10 / 11.)
             State.Consumables.RestoreAll();
             // Release any leftover hand cards back through the factory before

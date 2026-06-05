@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace ProjectAscendant.Core
 {
-    // Per §9.3.2 + Epic 3.2.3 — per-species kill counts and Bestiary mastery tiers.
-    // Serialized as part of meta.dat via SaveSystem. Epic 6 owns Bestiary unlock rewards.
+    // Per §9.3.2 + Epic 3.2.3 — per-species kill counts and Pokedex mastery tiers.
+    // Serialized as part of meta.dat via SaveSystem. Epic 6 owns Pokedex unlock rewards.
     // §4.3.9 is explicitly post-vertical-slice; VS only needs the data shape +
     // RecordKill/EvaluateTier helpers wired so combat-end can later increment.
-    [CreateAssetMenu(menuName = "Project Ascendant/Runtime/Bestiary Progress")]
-    public class BestiaryProgressSO : ScriptableObject
+    [CreateAssetMenu(menuName = "Project Ascendant/Runtime/Pokedex Progress")]
+    public class PokedexProgressSO : ScriptableObject
     {
         // Per-species record. Keyed by SpeciesId for addressable compatibility.
-        public List<BestiaryEntry> Entries;
+        public List<PokedexEntry> Entries;
 
         // Per §4.3.9.1 — thresholds scale by species rarity.
         // Index order matches RarityTier: Common(0), Uncommon(1), Rare(2), Legendary(3).
@@ -26,14 +26,14 @@ namespace ProjectAscendant.Core
         [Header("§4.3.9.1 — Master tier thresholds (defeats by rarity)")]
         [SerializeField] private int[] _masterThresholdsByRarity = { 50, 25, 10, 10 };
 
-        public BestiaryEntry GetOrCreate(string speciesId)
+        public PokedexEntry GetOrCreate(string speciesId)
         {
-            Entries ??= new List<BestiaryEntry>(); // robust for a fresh / JSON-empty instance
-            foreach (BestiaryEntry entry in Entries)
+            Entries ??= new List<PokedexEntry>(); // robust for a fresh / JSON-empty instance
+            foreach (PokedexEntry entry in Entries)
                 if (entry.SpeciesId == speciesId)
                     return entry;
 
-            BestiaryEntry newEntry = new() { SpeciesId = speciesId };
+            PokedexEntry newEntry = new() { SpeciesId = speciesId };
             Entries.Add(newEntry);
             return newEntry;
         }
@@ -54,7 +54,7 @@ namespace ProjectAscendant.Core
         public void RecordRecruit(string speciesId)
         {
             if (string.IsNullOrEmpty(speciesId)) return;
-            BestiaryEntry e = GetOrCreate(speciesId);
+            PokedexEntry e = GetOrCreate(speciesId);
             e.TimesRecruited++;
             if (e.TimesEncountered == 0) e.TimesEncountered = 1; // a recruit implies a sighting
         }
@@ -64,7 +64,7 @@ namespace ProjectAscendant.Core
         public bool IsSeen(string speciesId)
         {
             if (Entries == null || string.IsNullOrEmpty(speciesId)) return false;
-            foreach (BestiaryEntry e in Entries)
+            foreach (PokedexEntry e in Entries)
                 if (e.SpeciesId == speciesId)
                     return e.TimesEncountered > 0 || e.TimesDefeated > 0 || e.TimesRecruited > 0;
             return false;
@@ -75,41 +75,41 @@ namespace ProjectAscendant.Core
         {
             if (Entries == null) return 0;
             int n = 0;
-            foreach (BestiaryEntry e in Entries)
+            foreach (PokedexEntry e in Entries)
                 if (e.TimesEncountered > 0 || e.TimesDefeated > 0 || e.TimesRecruited > 0) n++;
             return n;
         }
 
         public void RecordKill(string speciesId, RarityTier rarity)
         {
-            BestiaryEntry entry = GetOrCreate(speciesId);
+            PokedexEntry entry = GetOrCreate(speciesId);
             entry.TimesDefeated++;
             entry.MasteryTier = EvaluateTier(entry.TimesDefeated, rarity);
             // Per §4.3.9.1 / §6.9 + Task 11.8.3 — reaching Familiar reveals the species' type-chart entry
-            // in the Bestiary. (The §4.3.9 in-combat intent reveal-by-tier is post-VS: the VS shows all
-            // intents per the Telegraphed-Tactics pillar, so the VS-active reveal is this Bestiary unlock.)
-            if (entry.MasteryTier >= BestiaryMasteryTier.Familiar) entry.TypeChartRevealed = true;
+            // in the Pokedex. (The §4.3.9 in-combat intent reveal-by-tier is post-VS: the VS shows all
+            // intents per the Telegraphed-Tactics pillar, so the VS-active reveal is this Pokedex unlock.)
+            if (entry.MasteryTier >= PokedexMasteryTier.Familiar) entry.TypeChartRevealed = true;
         }
 
-        // Per §4.3.9.1 / Task 11.8.3 — the current Bestiary tier for a species (None if unseen).
-        public BestiaryMasteryTier TierFor(string speciesId)
+        // Per §4.3.9.1 / Task 11.8.3 — the current Pokedex tier for a species (None if unseen).
+        public PokedexMasteryTier TierFor(string speciesId)
         {
-            if (Entries == null) return BestiaryMasteryTier.None;
-            foreach (BestiaryEntry e in Entries)
+            if (Entries == null) return PokedexMasteryTier.None;
+            foreach (PokedexEntry e in Entries)
                 if (e.SpeciesId == speciesId) return e.MasteryTier;
-            return BestiaryMasteryTier.None;
+            return PokedexMasteryTier.None;
         }
 
         // Per §4.3.9.1 — defeats required to reach `tier` for a species of `rarity` (Pokédex HUD
         // progress bars). Returns 0 for None / out-of-range.
-        public int DefeatsForTier(BestiaryMasteryTier tier, RarityTier rarity)
+        public int DefeatsForTier(PokedexMasteryTier tier, RarityTier rarity)
         {
             int idx = (int)rarity;
             switch (tier)
             {
-                case BestiaryMasteryTier.Familiar: return AtRarity(_familiarThresholdsByRarity, idx);
-                case BestiaryMasteryTier.Veteran:  return AtRarity(_veteranThresholdsByRarity, idx);
-                case BestiaryMasteryTier.Master:   return AtRarity(_masterThresholdsByRarity, idx);
+                case PokedexMasteryTier.Familiar: return AtRarity(_familiarThresholdsByRarity, idx);
+                case PokedexMasteryTier.Veteran:  return AtRarity(_veteranThresholdsByRarity, idx);
+                case PokedexMasteryTier.Master:   return AtRarity(_masterThresholdsByRarity, idx);
                 default: return 0;
             }
         }
@@ -121,34 +121,34 @@ namespace ProjectAscendant.Core
         public int DefeatsOf(string speciesId)
         {
             if (Entries == null || string.IsNullOrEmpty(speciesId)) return 0;
-            foreach (BestiaryEntry e in Entries)
+            foreach (PokedexEntry e in Entries)
                 if (e.SpeciesId == speciesId) return e.TimesDefeated;
             return 0;
         }
 
         // Per §4.3.9.1 — pure function so it can be unit-tested without state.
-        public BestiaryMasteryTier EvaluateTier(int defeats, RarityTier rarity)
+        public PokedexMasteryTier EvaluateTier(int defeats, RarityTier rarity)
         {
             int idx = (int)rarity;
             if (idx < 0 || idx >= _masterThresholdsByRarity.Length)
-                return BestiaryMasteryTier.None;
+                return PokedexMasteryTier.None;
 
             if (defeats >= _masterThresholdsByRarity[idx])
-                return BestiaryMasteryTier.Master;
+                return PokedexMasteryTier.Master;
             if (defeats >= _veteranThresholdsByRarity[idx])
-                return BestiaryMasteryTier.Veteran;
+                return PokedexMasteryTier.Veteran;
             if (defeats >= _familiarThresholdsByRarity[idx])
-                return BestiaryMasteryTier.Familiar;
-            return BestiaryMasteryTier.None;
+                return PokedexMasteryTier.Familiar;
+            return PokedexMasteryTier.None;
         }
     }
 
-    // Per §4.3.9.1 — Bestiary reveal tiers (separate from §5.11 Mastery Move
+    // Per §4.3.9.1 — Pokedex reveal tiers (separate from §5.11 Mastery Move
     // achievement tiers; those gate the active card, these gate UI reveals).
-    public enum BestiaryMasteryTier { None, Familiar, Veteran, Master }
+    public enum PokedexMasteryTier { None, Familiar, Veteran, Master }
 
     [Serializable]
-    public class BestiaryEntry
+    public class PokedexEntry
     {
         public string SpeciesId;
 
@@ -161,8 +161,8 @@ namespace ProjectAscendant.Core
         [Tooltip("How many times this species has been recruited.")]
         public int TimesRecruited;
 
-        // Per §4.3.9.1 — mastery tier unlocks reveals in the Bestiary UI.
-        public BestiaryMasteryTier MasteryTier;
+        // Per §4.3.9.1 — mastery tier unlocks reveals in the Pokedex UI.
+        public PokedexMasteryTier MasteryTier;
 
         [Tooltip("Whether the full type chart entry has been revealed for this species.")]
         public bool TypeChartRevealed;

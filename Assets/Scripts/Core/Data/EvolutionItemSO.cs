@@ -25,7 +25,7 @@ namespace ProjectAscendant.Core
     }
 
     // Per §5.3 + Epic 10 Task 10.4.5 — fired on EventBus when a Pokémon evolves. Listeners (achievement
-    // tracking, VFX, Bestiary) subscribe; none required for the VS, but the hook is in place.
+    // tracking, VFX, Pokedex) subscribe; none required for the VS, but the hook is in place.
     public readonly struct EvolutionTriggeredContext
     {
         public readonly PokemonInstance Pokemon;

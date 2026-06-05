@@ -116,16 +116,16 @@ namespace ProjectAscendant.Tests
             Assert.That(result, Is.Null);
         }
 
-        // Per §6.9 + Task 11.8.1 — Bestiary persists round-trip with kill counts.
+        // Per §6.9 + Task 11.8.1 — Pokedex persists round-trip with kill counts.
         [Test]
-        public void SaveSystem_BestiaryRoundTrip_PreservesKillCounts()
+        public void SaveSystem_PokedexRoundTrip_PreservesKillCounts()
         {
-            BestiaryProgressSO b = ScriptableObject.CreateInstance<BestiaryProgressSO>();
+            PokedexProgressSO b = ScriptableObject.CreateInstance<PokedexProgressSO>();
             b.RecordKill("pidgey", RarityTier.Common);
             b.RecordKill("pidgey", RarityTier.Common);
-            SaveSystem.SaveBestiary(b);
+            SaveSystem.SavePokedex(b);
 
-            BestiaryProgressSO loaded = SaveSystem.LoadBestiary();
+            PokedexProgressSO loaded = SaveSystem.LoadPokedex();
             Assert.That(loaded, Is.Not.Null);
             Assert.That(loaded.GetOrCreate("pidgey").TimesDefeated, Is.EqualTo(2));
 
@@ -134,9 +134,9 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void SaveSystem_MissingBestiary_ReturnsNull()
+        public void SaveSystem_MissingPokedex_ReturnsNull()
         {
-            Assert.That(SaveSystem.LoadBestiary(), Is.Null);
+            Assert.That(SaveSystem.LoadPokedex(), Is.Null);
         }
 
         // ── Run save / load ──────────────────────────────────────────────────────

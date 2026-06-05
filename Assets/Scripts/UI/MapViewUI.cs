@@ -179,7 +179,7 @@ namespace ProjectAscendant.UI
                         a.DisplayName ?? a.name, b.DisplayName ?? b.name, System.StringComparison.OrdinalIgnoreCase));
                 }
             }
-            _pokedexPanel.Open(_pokedexSpecies, _ctx.Bestiary, _ctx.Meta, onClosed: null);
+            _pokedexPanel.Open(_pokedexSpecies, _ctx.Pokedex, _ctx.Meta, onClosed: null);
         }
 
         // Resume the in-memory run if one is live (e.g. after Quit-to-Menu); otherwise load the autosave.
@@ -537,7 +537,7 @@ namespace ProjectAscendant.UI
         {
             PokemonInstance caught = cc.State.CaughtTarget;
             // §6.9 — Pokédex: record the recruit (enemy "seen" is recorded combat-side in Start).
-            if (caught?.Species != null) _ctx?.Bestiary?.RecordRecruit(caught.Species.SpeciesId);
+            if (caught?.Species != null) _ctx?.Pokedex?.RecordRecruit(caught.Species.SpeciesId);
             // §7.3.4 (Option 1) — a thrown Pokéball is spent (success or fail).
             if (cc.State.CatchAttempted && _state != null)
                 _state.PokeballCount = Mathf.Max(0, _state.PokeballCount - 1);
@@ -768,8 +768,8 @@ namespace ProjectAscendant.UI
             }
             if (setup.EnemyTeam == null || setup.EnemyTeam.Count == 0) return null;
             setup.Economy = _ctx.Economy; // §6.2 / 11.1.8 — Trauma-aware EffectiveMaxHP for DoT + HP-bar max
-            setup.Bestiary = _ctx.Bestiary; // §6.9 / 11.8.2 — enemy faints record kills
-            setup.Meta = _ctx.Meta; // §4.3.9.1 — Bestiary Master tier unlocks the species' Mastery Move
+            setup.Pokedex = _ctx.Pokedex; // §6.9 / 11.8.2 — enemy faints record kills
+            setup.Meta = _ctx.Meta; // §4.3.9.1 — Pokedex Master tier unlocks the species' Mastery Move
             setup.ActiveRelics = _state?.HeldRelics; // §8.3 / 12.3 — RelicResolver dispatch
             setup.UnlockedMasteryIds = _ctx.Meta?.UnlockedMasteryMoveIds; // §4.3.9.2 — gate Mastery cards
             return new CombatController(setup, new UIPlayerAgent());

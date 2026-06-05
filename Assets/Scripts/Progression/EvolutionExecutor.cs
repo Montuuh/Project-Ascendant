@@ -9,7 +9,7 @@ namespace ProjectAscendant.Progression
     // (§5.3.5). Trauma carries through (§6.2.3). Pure C#.
     //
     // Task 10.4.5 — on a successful evolution this publishes EvolutionTriggeredContext on the EventBus
-    // (achievements/VFX/Bestiary may subscribe; no VS listener is required, but the hook is in place).
+    // (achievements/VFX/Pokedex may subscribe; no VS listener is required, but the hook is in place).
     // Not yet wired (post-VS): branch.CritChanceBonus (no PokemonInstance.CritChance field yet) — no-op,
     // flagged for the crit/ability runtime pass (Epic 10 Task 10.9).
     public static class EvolutionExecutor

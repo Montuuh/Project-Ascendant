@@ -7,7 +7,7 @@ using ProjectAscendant.Core;
 namespace ProjectAscendant.UI
 {
     // Per §6.9 / §4.3.9.1 — the Pokédex screen (opened from the Hub PC Terminal). Read-only view of
-    // discovery + mastery progress per species: seen/defeated/recruited counts, the current Bestiary
+    // discovery + mastery progress per species: seen/defeated/recruited counts, the current Pokedex
     // tier with a progress bar to the next tier, and Mastery-unlock status. Unseen species render as
     // "???" silhouettes (classic discovery). View-layer only (gap #38 uGUI; UI-Toolkit polish Epic 13).
     public sealed class PokedexPanelUI : MonoBehaviour
@@ -19,7 +19,7 @@ namespace ProjectAscendant.UI
         public bool IsOpen => _root != null;
 
         // species = full VS roster (RunContentRegistry.AllSpecies); dex = discovery data; meta = mastery unlocks.
-        public void Open(IReadOnlyList<PokemonSpeciesSO> species, BestiaryProgressSO dex,
+        public void Open(IReadOnlyList<PokemonSpeciesSO> species, PokedexProgressSO dex,
                          MetaProgressionSO meta, Action onClosed)
         {
             _onClosed = onClosed;
@@ -35,7 +35,7 @@ namespace ProjectAscendant.UI
             cb?.Invoke();
         }
 
-        private void Build(IReadOnlyList<PokemonSpeciesSO> species, BestiaryProgressSO dex, MetaProgressionSO meta)
+        private void Build(IReadOnlyList<PokemonSpeciesSO> species, PokedexProgressSO dex, MetaProgressionSO meta)
         {
             _root = new GameObject("PokedexCanvas");
             Canvas canvas = _root.AddComponent<Canvas>();
@@ -91,7 +91,7 @@ namespace ProjectAscendant.UI
                 new Color(0.42f, 0.34f, 0.36f), Close);
         }
 
-        private void BuildRow(Transform parent, PokemonSpeciesSO sp, int dexNo, BestiaryProgressSO dex,
+        private void BuildRow(Transform parent, PokemonSpeciesSO sp, int dexNo, PokedexProgressSO dex,
                               MetaProgressionSO meta, float y, float rowH)
         {
             string id = sp != null ? sp.SpeciesId : null;
@@ -122,18 +122,18 @@ namespace ProjectAscendant.UI
                 new Vector2(-400, 14), new Vector2(540, 34), TextAnchor.MiddleLeft);
 
             // Counts.
-            BestiaryEntry e = dex.GetOrCreate(id);
+            PokedexEntry e = dex.GetOrCreate(id);
             Txt(row.transform, $"seen {e.TimesEncountered}  ·  def {e.TimesDefeated}  ·  rec {e.TimesRecruited}", 17,
                 new Color(0.7f, 0.78f, 0.85f), new Vector2(-400, -16), new Vector2(560, 24), TextAnchor.MiddleLeft);
 
             // Tier + progress to next tier.
-            BestiaryMasteryTier tier = dex.TierFor(id);
+            PokedexMasteryTier tier = dex.TierFor(id);
             int defeats = e.TimesDefeated;
             string tierLabel; float frac;
-            if (tier >= BestiaryMasteryTier.Master) { tierLabel = "MASTER ✓"; frac = 1f; }
+            if (tier >= PokedexMasteryTier.Master) { tierLabel = "MASTER ✓"; frac = 1f; }
             else
             {
-                BestiaryMasteryTier next = tier + 1;
+                PokedexMasteryTier next = tier + 1;
                 int need = dex.DefeatsForTier(next, sp.WildRarity);
                 frac = need > 0 ? Mathf.Clamp01((float)defeats / need) : 0f;
                 tierLabel = $"{TierShort(tier)} → {TierShort(next)}  {defeats}/{need}";
@@ -156,12 +156,12 @@ namespace ProjectAscendant.UI
                 new Vector2(610, 0), new Vector2(160, rowH), TextAnchor.MiddleRight);
         }
 
-        private static string TierShort(BestiaryMasteryTier t) => t switch
+        private static string TierShort(PokedexMasteryTier t) => t switch
         {
-            BestiaryMasteryTier.None => "—",
-            BestiaryMasteryTier.Familiar => "Fam",
-            BestiaryMasteryTier.Veteran => "Vet",
-            BestiaryMasteryTier.Master => "Mas",
+            PokedexMasteryTier.None => "—",
+            PokedexMasteryTier.Familiar => "Fam",
+            PokedexMasteryTier.Veteran => "Vet",
+            PokedexMasteryTier.Master => "Mas",
             _ => "—",
         };
 

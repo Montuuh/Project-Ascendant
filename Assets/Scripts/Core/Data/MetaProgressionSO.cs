@@ -5,7 +5,7 @@ namespace ProjectAscendant.Core
 {
     // Per §9.3.2.5 (Topic 6 §6.10) — cross-run persistent meta-progression.
     // Serialized to meta.dat after every run end and Pokémart purchase (§9.8).
-    // Bestiary detail tracked separately in BestiaryProgressSO.
+    // Pokedex detail tracked separately in PokedexProgressSO.
     [CreateAssetMenu(menuName = "Project Ascendant/Runtime/Meta Progression")]
     public class MetaProgressionSO : ScriptableObject
     {

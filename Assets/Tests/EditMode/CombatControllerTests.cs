@@ -402,9 +402,9 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void RunFullCombat_RecordsEnemyKillInBestiary()
+        public void RunFullCombat_RecordsEnemyKillInPokedex()
         {
-            // Per §6.9 / Task 11.8.2 — defeating an enemy records a Bestiary kill (exactly once).
+            // Per §6.9 / Task 11.8.2 — defeating an enemy records a Pokedex kill (exactly once).
             PokemonSpeciesSO playerSp = MakeSpecies(100, 80, 50, PokemonType.Normal);
             PokemonSpeciesSO enemySp = MakeSpecies(1, 10, 1, PokemonType.Normal);
             enemySp.SpeciesId = "rattata";
@@ -414,9 +414,9 @@ namespace ProjectAscendant.Tests
             PokemonInstance player = MakeMon(playerSp, strong);
             PokemonInstance enemy = MakeMon(enemySp, weak);
 
-            BestiaryProgressSO bestiary = ScriptableObject.CreateInstance<BestiaryProgressSO>();
+            PokedexProgressSO bestiary = ScriptableObject.CreateInstance<PokedexProgressSO>();
             CombatController.CombatSetup setup = BuildSetup(player, enemy, 0xCAFE0002u);
-            setup.Bestiary = bestiary;
+            setup.Pokedex = bestiary;
             CombatController c = new(setup, new FirstCardAgent());
             c.RunFullCombat(maxTurns: 5);
 

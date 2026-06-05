@@ -473,7 +473,7 @@ namespace ProjectAscendant.Editor
             string name = t.Name;
             return name == "RunStateSO"          ||
                    name == "MetaProgressionSO"   ||
-                   name == "BestiaryProgressSO"  ||
+                   name == "PokedexProgressSO"  ||
                    name == "SettingsSO"           ||
                    name == "BattleConfigSO"       ||
                    name == "EconomyConfigSO"      ||

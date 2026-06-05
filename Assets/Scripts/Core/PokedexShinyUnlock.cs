@@ -5,20 +5,20 @@ namespace ProjectAscendant.Core
     // unlocks its Shiny variant, so every owned Pokémon of that species displays Shiny.
     //
     // Full ladder (§4.3.9.1):
-    //   Familiar → type-chart reveal (BestiaryProgressSO.TypeChartRevealed)
+    //   Familiar → type-chart reveal (PokedexProgressSO.TypeChartRevealed)
     //   Veteran  → Shiny variant unlock        (here)
-    //   Master   → Mastery Move unlock         (BestiaryMasteryUnlock)
+    //   Master   → Mastery Move unlock         (PokedexMasteryUnlock)
     //
     // Pure C#; the caller persists Meta at the §6.10 trigger (run-end SaveMeta). Idempotent.
-    public static class BestiaryShinyUnlock
+    public static class PokedexShinyUnlock
     {
         // Returns true iff this call newly unlocked the species' Shiny variant (caller should log it).
-        public static bool TryUnlockShiny(BestiaryProgressSO bestiary, MetaProgressionSO meta,
+        public static bool TryUnlockShiny(PokedexProgressSO bestiary, MetaProgressionSO meta,
                                           PokemonSpeciesSO species)
         {
             if (bestiary == null || meta == null || species == null) return false;
             if (string.IsNullOrEmpty(species.SpeciesId)) return false;
-            if (bestiary.TierFor(species.SpeciesId) < BestiaryMasteryTier.Veteran) return false;
+            if (bestiary.TierFor(species.SpeciesId) < PokedexMasteryTier.Veteran) return false;
             return meta.UnlockShiny(species.SpeciesId);
         }
     }
