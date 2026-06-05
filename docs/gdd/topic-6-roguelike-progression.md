@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:51:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -7,7 +7,7 @@
 **Last Updated:** 2026-05-24 (Trauma System Option E + cap; meta-progression spec authored; starter unlocks, relic pool, difficulty, achievements defined)
 
 
-**Cross-references:** Topic 1 (§1.6 starter unlocks, §1.7 difficulty modifiers), Topic 2 (§2.4.4 Trauma penalty hook, §2.4.2 healing formula), Topic 4 (§4.3.9 Bestiary tiers — adjacent system), Topic 5 (§5.2 XP & Leveling — in-run XP is separate), Topic 8 (Trauma Salve relic, Type Plates for starter unlocks).
+**Cross-references:** Topic 1 (§1.6 starter unlocks, §1.7 difficulty modifiers), Topic 2 (§2.4.4 Trauma penalty hook, §2.4.2 healing formula), Topic 4 (§4.3.9 Pokédex tiers — adjacent system), Topic 5 (§5.2 XP & Leveling — in-run XP is separate), Topic 8 (Trauma Salve relic, Type Plates for starter unlocks).
 
 
 ---
@@ -18,7 +18,7 @@
 
 Topic 6 governs everything that persists between runs. Three macro guarantees:
 
-1. **Failure is fuel.** Every run, won or lost, materially improves the player's next run via Trainer XP and Bestiary mastery (Bestiary detailed in §4.3.9).
+1. **Failure is fuel.** Every run, won or lost, materially improves the player's next run via Trainer XP and Pokédex mastery (Pokédex detailed in §4.3.9).
 2. **Unlocks expand the option space, never the power floor.** Meta-unlocks add new Pokémon, relics, and starters — they do not buff base stats, damage, or HP. A first-run player and a 100-hour player face the same numerical baseline; the veteran simply has more _choices_ available.
 3. **Trauma System** (per-run permanent faint penalty) creates the in-run consequence layer that prevents the meta-progression-fuel design from feeling consequence-free.
 
@@ -162,7 +162,7 @@ Trainer XP is the persistent meta-currency. Earned during runs (won or lost). Sp
 | Elite Four (per member)       | 100 XP                   | × 4.                                                            |
 | Champion defeated             | 250 XP                   | Win bonus.                                                      |
 | Run failed bonus              | floor(Run_Progress × 50) | Where Run_Progress is the count of layers cleared. Caps at 400. |
-| Bestiary tier promotion       | 25 / 75 / 200 XP         | Familiar / Veteran / Master per species (one-time).             |
+| Pokédex tier promotion        | 25 / 75 / 200 XP         | Familiar / Veteran / Master per species (one-time).             |
 | Achievement unlock            | 50–500 XP                | See §6.7.                                                       |
 
 
@@ -231,7 +231,7 @@ The Trainer Hub is the post-run / pre-run menu space. It is **not** a 3D explora
 
 | Kiosk                | Function                                                                        | Unlock                                    |
 | -------------------- | ------------------------------------------------------------------------------- | ----------------------------------------- |
-| **PC Terminal**      | View Bestiary, run history, statistics, achievements                            | Available from start                      |
+| **PC Terminal**      | View Pokédex, run history, statistics, achievements                             | Available from start                      |
 | **Trainer Card**     | View Trainer Level, total XP, Tokens, profile stats                             | Available from start                      |
 | **Pokémart Counter** | Spend Trainer Tokens on unlocks (starters, relic pool slots, Hub upgrades)      | Available from start                      |
 | **Daycare Lady**     | Configure starting roster (post-meta-unlock), difficulty modifiers, run options | Trainer Level 3                           |
@@ -248,7 +248,7 @@ Persistent upgrades to the Hub itself, unlocked at the Pokémart for Trainer Tok
 | ---------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------- | ---------------- |
 | **Expanded Box (8 slots)**         | 30            | Default Box capacity 6 → 8 for all future runs                                                                 | Trainer Level 5  |
 | **Curated Starting Relic +1**      | 25            | Run start offers 4 Starting Relics instead of 3                                                                | Trainer Level 4  |
-| **Bestiary Insight**               | 40            | First combat against any unseen species at Familiar tier reveals 1 random intent for free                      | Trainer Level 6  |
+| **Pokédex Insight**                | 40            | First combat against any unseen species at Familiar tier reveals 1 random intent for free                      | Trainer Level 6  |
 | **Apex Pokémon Reveal**            | 50            | Victory Road Apex Pokémon species shown on Region 3 entry                                                      | Trainer Level 8  |
 | **Second Starter Slot (Twin Run)** | 100           | Run start lets you choose TWO starters; Box starts at +1 capacity to absorb. Active Team size is unchanged (3) | Trainer Level 12 |
 | **Difficulty Modifier Slot +1**    | 75            | Allows stacking 2 difficulty modifiers per run (vertical slice ships with 1-slot baseline)                     | Trainer Level 10 |
@@ -268,7 +268,7 @@ The Trainer Card displays:
 - Total runs (won / lost)
 - Fastest run time
 - Highest difficulty cleared
-- Bestiary completion %
+- Pokédex completion %
 - Achievement completion %
 - Total Pokémon recruited / evolved / mastered
 - Favorite Lead (most-Lead-turns species)
@@ -465,14 +465,14 @@ There is no "make the game easier" modifier in Project Ascendant. Easier play = 
 ---
 
 
-# §6.9 Bestiary Integration (cross-ref to §4.3.9)
+# §6.9 Pokédex Integration (cross-ref to §4.3.9)
 
 
-The Bestiary system is fully defined in §4.3.9 (Combat). Topic 6 specifies:
+The Pokédex system is fully defined in §4.3.9 (Combat). Topic 6 specifies:
 
-- **Bestiary persistence:** Tracked across all runs, persists per-account. Stored as a single `BestiaryProgressSO` runtime instance, serialized to disk via the SaveSystem (Topic 9).
-- **Trainer XP awards:** Bestiary tier promotions (§4.3.9.1) award one-time XP per §6.3.2.
-- **PC Terminal surface:** Bestiary is the primary content of the PC Terminal kiosk. Browsable by species, filterable by tier (Unfamiliar / Familiar / Veteran / Master).
+- **Pokédex persistence:** Tracked across all runs, persists per-account. Stored as a single `PokédexProgressSO` runtime instance, serialized to disk via the SaveSystem (Topic 9).
+- **Trainer XP awards:** Pokédex tier promotions (§4.3.9.1) award one-time XP per §6.3.2.
+- **PC Terminal surface:** Pokédex is the primary content of the PC Terminal kiosk. Browsable by species, filterable by tier (Unfamiliar / Familiar / Veteran / Master).
 - **Mastery Move authoring scope:** Launch ships Mastery Moves for the ~30 implemented evolution lines. Mastery Move design and writing is **out of vertical slice scope** but is a launch requirement. Mastery tier (Master, the 50/25/10 kill threshold) is the gating mechanism for these unlocks — i.e., Mastery Moves exist as content but are post-VS earning content.
 
 ---
@@ -493,7 +493,7 @@ Detailed implementation lives in Topic 9. Topic 6 specifies the persistence surf
     - `UnlockedDifficultyModifiers : string[]`
     - `UnlockedHubUpgrades : string[]`
     - `Achievements : Dictionary<string, AchievementProgress>`
-    - `BestiaryProgress : Dictionary<string, SpeciesMastery>`
+    - `PokédexProgress : Dictionary<string, SpeciesMastery>`
     - `Statistics : RunStatisticsSummary`
 - **Save trigger:** At run end (any outcome) AND on every Pokémart purchase.
 - **Format:** Binary serialization with a JSON debug-export option. Versioned schema (a `SchemaVersion` field for forward migration).
@@ -532,7 +532,7 @@ Topic 6 systems in the Region 1 vertical slice:
 | Relic Tier system                      | ✅ Tier 1 (20 relics) only                      | Tier 2 / Tier 3 unlock plumbing                  |
 | Achievement system                     | ✅ ~10 achievements                             | Full 50-achievement scope                        |
 | Difficulty modifiers                   | ✅ 2-3 modifiers wired through                  | Full 10-modifier pool                            |
-| Bestiary                               | ✅ Tracking & Familiar tier reveal              | Veteran/Master rewards (shinies, Mastery Moves)  |
+| Pokédex                                | ✅ Tracking & Familiar tier reveal              | Veteran/Master rewards (shinies, Mastery Moves)  |
 | Save/load                              | ✅ Full meta-persistence                        | Schema migration logic (no v0→v1 to migrate yet) |
 
 

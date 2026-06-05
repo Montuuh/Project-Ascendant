@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:41:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -82,6 +82,7 @@ After defeating Gym 3, the player enters **Victory Road** — a dedicated pre-Le
 
 ## §2.1.6 League Finale
 
+> ⚠️ **DEFERRED (2026-06-05)** — the League finale is parked until the R1 → Victory Road loop is complete (see Topic 4 §4.6/§4.7). Spec retained; not the current build target.
 
 After Victory Road's Summit, the player enters the League — **5 sequential fights** with no map navigation:
 

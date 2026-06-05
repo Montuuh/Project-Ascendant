@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:41:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -21,7 +21,7 @@ Combat is the moment-to-moment expression of Project Ascendant. Every encounter 
 
 A combat resolves to one of two outcomes:
 
-- **Victory:** all enemies defeated.
+- **Victory:** all enemies defeated — or, in a wild encounter, the wild Pokémon is **successfully caught**. A catch ends the combat as a Victory and awards full combat XP (§7.3.4).
 - **Defeat:** all 3 Active Team Pokémon faint.
 
 **There is no draw state.** If the player kills the last enemy with a card play during the Action Phase, combat ends in Victory immediately — the enemy's Resolution Phase actions are cancelled. Victory and Defeat are checked continuously; the first condition met ends the combat.

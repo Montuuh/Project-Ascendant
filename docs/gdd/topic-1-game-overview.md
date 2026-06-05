@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:39:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -164,7 +164,7 @@ This glossary consolidates the most-referenced terms across the GDD. Each entry 
 | AP (Action Points)           | §3.7            | Per-turn budget; 3 baseline, modified by relics/Badges/Region Modifiers.    |
 | Backstrike                   | §4.3.4          | Position-targeted intent bypassing Lead; fizzles on empty slot (§4.3.4.1).  |
 | Badge                        | §4.4.5          | Permanent run-modifier earned from Gym Leaders (12 total; 3 per run base).  |
-| Bestiary                     | §4.3.9          | Cross-run knowledge accumulation; gates Mastery rewards.                    |
+| Pokédex                      | §4.3.9          | Cross-run knowledge accumulation; gates Mastery rewards.                    |
 | Box                          | §2.3            | Persistent run-roster of Pokémon (capacity 6, upgradable to 8).             |
 | Branch (evolution)           | §5.3.3          | Permanent choice at evolution; rewrites move kit.                           |
 | Champion buff                | §4.7.1          | +5% Attack per defeated ally, cap +20%.                                     |
@@ -183,7 +183,7 @@ This glossary consolidates the most-referenced terms across the GDD. Each entry 
 | League                       | §2.1.6          | Final 5 fights: 4 Elite + Champion.                                         |
 | League Boon                  | §4.5.2          | Selected at Victory Road Summit; active only in League.                     |
 | Manual swap cost             | §3.3.1          | 1st=1AP, 2nd=2AP, 3rd=3AP; counter resets per turn.                         |
-| Mastery Move                 | §4.3.9.2        | Immutable 5th move from Bestiary Master tier; evolves with the Pokémon.     |
+| Mastery Move                 | §4.3.9.2        | Immutable 5th move from Pokédex Master tier; evolves with the Pokémon.      |
 | Meta currency                | §6.3            | Trainer XP (drives Level) + Trainer Tokens (manual unlock spend).           |
 | Pokéball                     | §7.3.4          | Catching consumable; deterministic threshold.                               |
 | Region                       | §2.1.2          | One of 3 branching ladders per run.                                         |

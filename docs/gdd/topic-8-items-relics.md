@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:51:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:38:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -131,7 +131,7 @@ Five categories. Each relic is tagged with one primary + up to one secondary cat
 1. **Lead-Economy** — interacts with Lead position, swap counter, swap mechanics.
 2. **Card-Economy** — draw, retention, cycling, hand-size modifiers.
 3. **Combat** — damage, defense, crit, status, immunity.
-4. **Meta-Acquisition** — XP, Poké Dollar, recruitment slots, Bestiary.
+4. **Meta-Acquisition** — XP, Poké Dollar, recruitment slots, Pokédex.
 5. **Status** — applying, curing, prolonging, exploiting status conditions.
 
 ## §8.3.3 Common Relics (25)

@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:51:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:38:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -58,7 +58,7 @@ Assets/Scripts/
 | Category                   | Purpose                                                      | Mutation                            |
 | -------------------------- | ------------------------------------------------------------ | ----------------------------------- |
 | **Definition SO**          | Authored data — species base stats, move data, relic effects | Immutable at runtime                |
-| **Runtime SO (Singleton)** | Per-run state — RunState, MetaProgression, BestiaryProgress  | Mutated heavily; serialized to disk |
+| **Runtime SO (Singleton)** | Per-run state — RunState, MetaProgression, PokedexProgress   | Mutated heavily; serialized to disk |
 
 
 Definition SOs ship as Addressables; Runtime SOs are created at runtime (or loaded from a save file) and registered with the ServiceLocator.

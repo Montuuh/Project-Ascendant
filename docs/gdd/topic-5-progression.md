@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:45:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:38:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -19,7 +19,7 @@
 Progression in Project Ascendant operates on two levels:
 
 - **Within a run:** Pokémon gain XP, level up, and evolve. Evolution is the primary deck-manipulation event — a permanent, irreversible choice that changes a Pokémon's move cards and identity for the rest of the run. TMs and Move Tutors provide secondary mid-run customization. Passive abilities granted by evolution add a third layer of build identity.
-- **Across runs:** Trainer XP, meta-unlocks, and Bestiary mastery (§4.3.9) accumulate persistently. Defined in Topic 6 (Roguelike Progression).
+- **Across runs:** Trainer XP, meta-unlocks, and Pokédex mastery (§4.3.9) accumulate persistently. Defined in Topic 6 (Roguelike Progression).
 
 ---
 

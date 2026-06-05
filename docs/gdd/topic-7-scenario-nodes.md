@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:46:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -185,7 +185,7 @@ Per the open question logged in Topic 7's scaffold, catching is a **mini-combat*
     - **HP < 50%, no status condition:** **catch succeeds**, combat ends.
     - **HP < 50% + any status condition on wild Pokémon:** **catch succeeds at any HP** (status condition expands the catch window).
     - **HP ≤ 0:** the wild Pokémon faints. The recruit is lost.
-6. On successful catch: combat ends; the wild Pokémon enters the Box (or triggers the Swap-or-Skip prompt per §2.3.1).
+6. On successful catch: combat ends **as a Victory** and the Active Team earns **full combat XP** (a catch is never an XP penalty vs. a KO); the wild Pokémon enters the Box (or triggers the Swap-or-Skip prompt per §2.3.1).
 7. On failed combat (Active Team wipe): run-failure event fires per §3.3.6.
 
 ### §7.3.4.2 Tier-2 Pokéballs (post-launch acquisition layer)
@@ -242,12 +242,12 @@ Standard combat encounters featuring a human trainer fielding 1–2 Pokémon, se
 ## §7.4.2 Trainer Rewards
 
 
-| Reward               | Amount                                                                        |
-| -------------------- | ----------------------------------------------------------------------------- |
-| Trainer XP           | 5 XP per cleared trainer node (per §6.3.2)                                    |
-| Poké Dollars         | 50–150₽ based on archetype tier                                               |
-| Loot drop            | 50% Common item / 30% Common relic / 20% Uncommon item — seeded               |
-| Bestiary kill credit | Each defeated trainer Pokémon counts toward Bestiary kill thresholds (§4.3.9) |
+| Reward              | Amount                                                                       |
+| ------------------- | ---------------------------------------------------------------------------- |
+| Trainer XP          | 5 XP per cleared trainer node (per §6.3.2)                                   |
+| Poké Dollars        | 50–150₽ based on archetype tier                                              |
+| Loot drop           | 50% Common item / 30% Common relic / 20% Uncommon item — seeded              |
+| Pokédex kill credit | Each defeated trainer Pokémon counts toward Pokédex kill thresholds (§4.3.9) |
 
 
 ## §7.4.3 Trainer Encounter Generation
@@ -419,7 +419,7 @@ Per §2.1.4: 3 Region Modifiers offered, player picks 1.
 | **Iron Skin**         | All Pokémon take −1 damage from Cleave intents                         | Niche                       |
 | **Pocket Healer**     | First combat per node grants +5% Heal to all team on victory           | Medium                      |
 | **Coin Purse**        | All Poké Dollar drops × 1.5 for next Region                            | Medium                      |
-| **Bestiary Whisper**  | First Unknown intent of each combat is revealed                        | Niche                       |
+| **Pokédex Whisper**   | First Unknown intent of each combat is revealed                        | Niche                       |
 | **Sturdy Lead**       | Lead Pokémon survives one lethal hit at 1 HP per combat (1 use/combat) | Strong                      |
 | **Mass Mobilization** | Step-Forward and Step-Backward effects also draw 1 card                | Niche                       |
 | **Trauma Resistance** | Each Trauma stack reduces MaxHP by 4% instead of 5% (cap unchanged)    | Strong                      |

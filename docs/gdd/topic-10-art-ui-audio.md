@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:51:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -138,7 +138,7 @@ Persistent status row. Always visible. Hover any badge to see full text. Stacks 
 - Intent display: directly above each enemy. Format: `[icon] [magnitude] → [target label]`.
 - HP bar: directly below sprite. Phase markers visible for boss-tier (§4.4.3).
 - Status condition icons: row below HP bar.
-- Bestiary tier badge: top-right corner of enemy frame (Familiar / Veteran / Master).
+- Pokédex tier badge: top-right corner of enemy frame (Familiar / Veteran / Master).
 
 ### §10.2.2.3 Player Active Team Zone (30% height, ~324px)
 
@@ -207,15 +207,15 @@ Always shows: final calculated damage, the breakdown, crit chance, status rider 
 ## §10.2.5 Intent Display Vocabulary
 
 
-| Icon | Intent              | Display                                                      |
-| ---- | ------------------- | ------------------------------------------------------------ |
-| ⚔️   | Attack(N, slot)     | `⚔ N → Lead` or `⚔ N → Bench-L (Squirtle)`                   |
-| ⚔🌐  | Cleave(N)           | `⚔ N → ALL SLOTS` (with sweep arrow visual)                  |
-| 🎯   | Backstrike(N, slot) | `🎯 N → Bench-L (Squirtle)`                                  |
-| ⬆    | Buff(stat)          | `⬆ Atk +1`                                                   |
-| 🛡   | Stall               | `🛡 +1 stage Def`                                            |
-| 💢   | Status(condition)   | `💢 BURN → Lead`                                             |
-| ❓    | Unknown             | `❓` (interactable: tooltip says "Unrevealed — see Bestiary") |
+| Icon | Intent              | Display                                                     |
+| ---- | ------------------- | ----------------------------------------------------------- |
+| ⚔️   | Attack(N, slot)     | `⚔ N → Lead` or `⚔ N → Bench-L (Squirtle)`                  |
+| ⚔🌐  | Cleave(N)           | `⚔ N → ALL SLOTS` (with sweep arrow visual)                 |
+| 🎯   | Backstrike(N, slot) | `🎯 N → Bench-L (Squirtle)`                                 |
+| ⬆    | Buff(stat)          | `⬆ Atk +1`                                                  |
+| 🛡   | Stall               | `🛡 +1 stage Def`                                           |
+| 💢   | Status(condition)   | `💢 BURN → Lead`                                            |
+| ❓    | Unknown             | `❓` (interactable: tooltip says "Unrevealed — see Pokédex") |
 
 
 ---
@@ -239,7 +239,7 @@ Always shows: final calculated damage, the breakdown, crit chance, status rider 
 │   [⚠ Box-3 Trauma]   │  Current location: Layer 2             │
 │   ...                 │                                        │
 ├───────────────────────┴────────────────────────────────────────┤
-│ [Inventory]  [Bestiary]  [Settings]                  [Save&Quit]│
+│ [Inventory]  [Pokédex]  [Settings]                  [Save&Quit]│
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -390,7 +390,7 @@ Architecture commitment: every interactive UI element has a `data-aria-label` an
 
 - Tutorial mode: longer telegraphs, slower pacing for first-run players.
 - "Hint" overlay: optional, suggests strong card plays for that turn. Off by default; can be enabled in Settings without telemetry penalty.
-- Bestiary "study mode": pre-combat preview of enemy intent pool against current Active Team's type matchups.
+- Pokédex "study mode": pre-combat preview of enemy intent pool against current Active Team's type matchups.
 
 ## §10.6.4 Photosensitivity
 
@@ -509,7 +509,7 @@ Full mobile port is a roadmap item, not a launch commitment.
 | Combat screen layout                | ✅ Full                                          | —                                    |
 | Card anatomy + hover damage preview | ✅ Full                                          | —                                    |
 | Map view layout                     | ✅ Region 1 scope                                | City + Victory Road + League screens |
-| Iconography                         | ✅ Full type + status + node icons               | Bestiary mastery visual polish       |
+| Iconography                         | ✅ Full type + status + node icons               | Pokédex mastery visual polish        |
 | Audio bible                         | ✅ Combat stems (R1) + 1 boss track              | R2/R3 themes, full SFX bible polish  |
 | Accessibility                       | ✅ Colorblind modes + reduced motion + rebinding | Screen reader, hint overlay          |
 | UI Toolkit theme system             | ✅ Full                                          | —                                    |

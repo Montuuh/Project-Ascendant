@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-04T23:45:00.000Z -->
+<!-- Last updated from Notion: 2026-06-05T14:34:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -259,7 +259,7 @@ Encoded as a `StatusImmunities[]` array on the `PokemonSpeciesSO` ScriptableObje
 Distinct from status conditions. Tracked in `PokemonInstance.StatModifiers` as a `Dictionary<Stat, float>`. Do not occupy a primary or secondary status slot.
 
 - Applied as **multipliers** on base stats (not additive edits).
-- Stage ladder (Gen I faithful): ×0.25 / ×0.33 / ×0.5 / ×0.66 / **×1.0** / ×1.5 / ×2.0 / ×2.5 / ×3.0. Range: ±6 stages.
+- Stage ladder (**linear**, ±6 stages): −6 → 0.4, then +0.1 per stage up to +6 → 1.6 (0 stages = **1.0**). 13 entries stored in `BattleConfigSO.StatStageMultipliers`. _Updated 2026-06-05 — replaces the former Gen-I ×0.25…×3.0 ladder; gentler, bounded, non-degenerate._
 - Reset at combat end.
 
 ## §4.2.7 Curing Status Conditions
@@ -375,11 +375,11 @@ Score(intent) = BaseWeight
 **Three-tier revelation system:**
 
 
-| Tier           | Trigger                                                  | Scope                                                            |
-| -------------- | -------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Witnessed**  | Enemy uses the move/ability in combat                    | Revealed for rest of this combat; permanently logged in Bestiary |
-| **Scouted**    | Player uses Foresight (move) or Radar Scope (consumable) | All Unknown intents revealed for this combat only                |
-| **Researched** | Keen Eye passive ability or specific relic               | All Unknown intents revealed at combat start for this run        |
+| Tier           | Trigger                                                  | Scope                                                           |
+| -------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| **Witnessed**  | Enemy uses the move/ability in combat                    | Revealed for rest of this combat; permanently logged in Pokédex |
+| **Scouted**    | Player uses Foresight (move) or Radar Scope (consumable) | All Unknown intents revealed for this combat only               |
+| **Researched** | Keen Eye passive ability or specific relic               | All Unknown intents revealed at combat start for this run       |
 
 
 **Usage scope:**
@@ -469,10 +469,10 @@ Field effects are environmental modifiers set at encounter start, persisting for
 **Field effect UI:** active field effects displayed persistently in combat UI. Card hover damage previews account for active field effects automatically.
 
 
-## §4.3.9 Bestiary & Species Mastery (post-vertical-slice)
+## §4.3.9 Pokédex & Species Mastery (post-vertical-slice)
 
 
-The **Bestiary** tracks cumulative experience with each enemy species across all runs. Two functions: knowledge accumulation (reducing Unknown intents on familiar enemies) and mastery rewards.
+The **Pokédex** tracks cumulative experience with each enemy species across all runs. Two functions: knowledge accumulation (reducing Unknown intents on familiar enemies) and mastery rewards.
 
 
 ### §4.3.9.1 Mastery tiers (thresholds scale by species rarity)
@@ -901,6 +901,7 @@ Up to 1 additional Badge per run from rare in-run bonus sources:
 
 # §4.6 Elite Four
 
+> ⚠️ **DEFERRED (2026-06-05)** — League & Champion are not implemented yet. Finish and polish the R1 → City 1 → R2 → City 2 → R3 → Victory Road loop first; the League (and Q10 Boons→relics) will be redesigned afterward. Spec retained for reference — do not build yet.
 
 Four sequential Elite Four encounters forming the League's main gauntlet. No map navigation; **micro-rests between fights restore 30% HP**.
 
@@ -934,6 +935,7 @@ Four sequential Elite Four encounters forming the League's main gauntlet. No map
 
 # §4.7 League Champion
 
+> ⚠️ **DEFERRED (2026-06-05)** — see the §4.6 banner. Champion redesign follows core-loop completion.
 
 The final boss — the most mechanically complex encounter in the game.
 
