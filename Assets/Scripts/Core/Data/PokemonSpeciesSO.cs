@@ -30,8 +30,15 @@ namespace ProjectAscendant.Core
         public int EvolveLevel;
 
         [Header("Learnset")]
-        // Per §9.3.2.1 — 4 moves available at base level.
+        // Per §9.3.2.1 — base-level moves. Pre-CL-006 this was the full 4-move kit; under the
+        // §5.12.1 redesign base forms start with 2 and the rest are gated by LevelUpLearnset.
+        // Retained as the legacy fallback (see KnownMovesAtLevel) until species are re-authored.
         public List<MoveSO> BaseLearnset;
+
+        // Per §5.12.1 (CL-006) — level-gated learnset. A Pokémon knows every entry whose Level is
+        // <= its current level. Empty = legacy behaviour (all BaseLearnset known), so existing
+        // assets are unaffected until re-authored to the 2-start + learn-up curve.
+        public List<LevelUpEntry> LevelUpLearnset;
 
         // Per §5.4.2 — moves available from Move Tutors.
         public List<MoveSO> TutorLearnset;
@@ -56,5 +63,33 @@ namespace ProjectAscendant.Core
 
         [Tooltip("GDD section for this species. Per §9.15.")]
         public string GDDReference;
+
+        // Per §5.12.1 (CL-006) — the moves this species knows at a given level: every
+        // LevelUpLearnset entry with Level <= level, de-duplicated, order-preserved.
+        // Legacy fallback: if no LevelUpLearnset is authored, returns BaseLearnset unchanged
+        // (pre-CL-006 behaviour) so the redesign rolls out per-species without breaking others.
+        // Pure read helper — no mutation; the active-4 cap (min(known,4)) is applied by the deck
+        // builder, not here.
+        public List<MoveSO> KnownMovesAtLevel(int level)
+        {
+            if (LevelUpLearnset == null || LevelUpLearnset.Count == 0)
+                return BaseLearnset != null ? new List<MoveSO>(BaseLearnset) : new List<MoveSO>();
+
+            List<MoveSO> known = new();
+            foreach (LevelUpEntry entry in LevelUpLearnset)
+            {
+                if (entry.Move != null && entry.Level <= level && !known.Contains(entry.Move))
+                    known.Add(entry.Move);
+            }
+            return known;
+        }
+    }
+
+    // Per §5.12.1 (CL-006) — one move learned at a level threshold.
+    [System.Serializable]
+    public struct LevelUpEntry
+    {
+        public int Level;
+        public MoveSO Move;
     }
 }
