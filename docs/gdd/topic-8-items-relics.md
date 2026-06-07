@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-05T14:38:00.000Z -->
+<!-- Last updated from Notion: 2026-06-07T22:33:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -156,7 +156,7 @@ Five categories. Each relic is tagged with one primary + up to one secondary cat
 | **Pink Bow**           | Combat       | Normal-type moves +15% damage                                                                                                            |
 | **Cleanse Tag**        | Status       | First status condition applied to your Pokémon per combat is blocked                                                                     |
 | **Lucky Egg Token**    | Meta         | All in-run XP × 1.15                                                                                                                     |
-| **Exp Share**          | Meta         | Box (non-Active-Team) Pokémon earn 50% of Active Team XP from each combat                                                                |
+| **Exp Share**          | Meta         | Benched Box Pokémon earn 100% combat XP (lifts the 75% baseline to full — see §5.12.5 / CL-010)                                          |
 | **Defense Curl Charm** | Combat       | Every 3 manual swaps: +1 Defense stage on the new Lead                                                                                   |
 | **Quick Draw**         | Card-Economy | First turn of each combat: draw +1 skill card                                                                                            |
 | **Brave Charm**        | Combat       | Pokémon with HP < 50% deal +10% damage                                                                                                   |

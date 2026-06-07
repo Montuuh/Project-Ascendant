@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-05T14:38:00.000Z -->
+<!-- Last updated from Notion: 2026-06-07T22:33:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -616,3 +616,36 @@ The Lv3 Mastery's unique effect should reflect the player's deep investment in t
 - The full achievement catalog (all launched species) is a post-VS content task.
 > ✅ Resolved (R4-3): the additive Learned Move Pool + per-Pokémon Move Manager are implemented (§5.10) — learned moves accumulate; the active 4 are configured separately; the Mastery slot remains immutable.
 > Blocked: the Pokémon Center Move Tutor (Epic 9 Task 9.5.3) and TM/Tutor learning generally. VS resolution (user-confirmed 2026-05-29): the Move Tutor REPLACES a chosen `CurrentMoves` slot (Mastery untouched per §4.3.9.2) instead of adding to a pool. Build the §5.10 additive pool post-VS and revisit Tutor/TM learning then. See BACKLOG gap #36.
+
+---
+
+
+# §5.12 Progression Redesign (2026-06-07) — supersedes affected sections
+
+
+Adopted via the design pass (open-questions Q12–Q16; change-log CL-006…010). Where this section conflicts with §5.2.1, §5.3.3–§5.3.5, §5.3.6.1, §5.5, or §5.10, **this section governs**. Cadence/curve numbers (learn levels, stat deltas, Dojo pricing) are systems-designer tuning via `ProgressionConfigSO` / per-species data — placeholder until calibrated.
+
+
+## §5.12.1 Move acquisition — level-gated learnset (CL-006)
+
+- Base-form Pokémon **start with 2 moves** (not 4). Each species has a **level-up learnset** (ordered `(level, move)`); a Pokémon knows every learnset move with `level ≤ current level`.
+- **Deck contribution =** **`min(known moves, 4)`** per Pokémon — the active-4 cap is unchanged and Mastery remains the immutable 5th. The deck **thickens as you level** (early-R1 ≈ 6 cards across three base-form starters → ≈ 12 by Gym 1).
+- **Recruited wilds** derive their known moves from spawn level, so late recruits stay viable.
+- Moves **beyond the learnset** come from the **Dojo** (off-learnset tutor moves, §7.14), **TMs**, and **evolution**. The lean natural learnset is deliberate — scarcity is what makes those sources matter.
+
+## §5.12.2 Evolution — focused upgrade, free archetype each stage (CL-007)
+
+- At **each** evolution the player chooses an **archetype independently** from the species' available 2–3 (Vanguard / Specialist / Support). Stage 1 no longer locks stage 2 (Vanguard→Specialist is allowed); each pick is permanent.
+- Payload per evolution: **stat upscale + improve 1–2 existing pool moves + maybe +1 new pool move** (the final-evolution new move is the species **signature**). The heavy multi-upgrade + sub-branch (A1/A2) rewrite of §5.3.5 is removed.
+
+## §5.12.3 Abilities — kept, decoupled, earned (CL-008)
+
+- Abilities are **no longer auto-granted by evolution**. One passive slot per Pokémon, **taught at the Dojo** (the ability-learner). The ~30-ability roster (§5.8) stays as content.
+
+## §5.12.4 The Dojo (CL-009 — full spec in Topic 7 §7.14)
+
+- The Move Tutor leaves Pokémon Centers and becomes a standalone **Dojo** map node that teaches off-learnset moves **and** abilities for Poké Dollars. Pokémon Centers now offer heal + Trauma therapy only.
+
+## §5.12.5 XP distribution — whole Box (CL-010)
+
+- All Box Pokémon earn combat XP: **Active 100% / benched 75%** baseline. The **Exp Share** relic (Topic 8 §8.3.3) lifts benched Pokémon to **100%**.

@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
+<!-- Last updated from Notion: 2026-06-07T22:33:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -612,3 +612,23 @@ Aggregated reward tables for every node type. Single source for systems-designer
 > 📝 Design note (2026-05-29): two §7.9.2 Mystery choices reference post-VS systems — **Mysterious Stone (a)** "random Evolution Item" and **Wandering Tutor (a)** "free Move Tutor." The VS substitutes a Potion grant; full Evolution-Item + Move-Tutor wiring is post-VS (gap #36).
 > Blocked: the canonical effects for those two choices. VS resolution (user-confirmed 2026-05-29): Mysterious Stone (a) grants a random relic from a configured pool; Wandering Tutor (a) grants a placeholder consumable. Swap to the real effects once the Evolution-Item and Move-Pool systems land. See BACKLOG gap #37.
 > ✅ Adopted (2026-06-05) — **§7.3.4 catching uses Option 1 (counted scarcity)**, superseding the original free-Pokéball-per-encounter model (steps 2 & 5 above are written for Option 1). Pokéballs are now a counted run resource: starting stock (`EconomyConfigSO.StartingPokeballs = 3`) + per-region grant (`PokeballsPerRegion = 1`) + shop purchases (each +1 to the count, no longer added to the non-expendable consumable inventory), spent **1 per catch attempt** (consumed on success OR fail). The catch card appears in a wild combat **only when the run holds ≥1 ball** (`RunStateSO.PokeballCount`); the map HUD shows the count (◓ N).
+
+---
+
+
+# §7.14 The Dojo — Move & Ability Tutor node (2026-06-07, CL-009)
+
+
+A standalone **non-combat utility node** on the Region map. It **replaces** the Move Tutor service previously offered at Pokémon Centers (§7.6.1 / §7.8.1) — Centers now provide **heal + Trauma therapy only**.
+
+
+**Service.** Pick one of your Pokémon and teach it, for **Poké Dollars** (price scales by power):
+
+- an **off-learnset move** — from the species' stage-aware tutor pool (the moves it would never learn naturally; the scarce, valuable sculpt under the §5.12.1 lean learnset), and/or
+- an **ability** — the **ability-learner** of §5.12.3 / §5.5: set or swap the Pokémon's single passive.
+
+You may teach multiple things in one visit if you can afford them, so the Dojo is the game's main **Poké Dollar sink** and the key deliberate-sculpt stop (Pillar 3). The node is **telegraphed on the map** (Pillar 1).
+
+
+**Frequency:** ≈ 1 per Region (tuning). **Cost tables / exact pricing:** systems-designer, placeholder via the economy config.
+
