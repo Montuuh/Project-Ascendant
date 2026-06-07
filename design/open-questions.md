@@ -161,51 +161,75 @@ is parked with it. → logged **CL-004**.
 
 # Domain F — In-Run Progression
 
-## Q12 — XP to whole Box, not just Active Team? 🔵
+## Q12 — XP distribution (Box vs Active-only) ✅ DECIDED 2026-06-07
 **Owner:** systems-designer + game-designer
-**User:** Should XP go only to the Active Team? My view: **level all Pokémon**, or benched
-ones fall behind and never get used.
-**Decision needed:** XP distribution model (Active-only / full-Box / Active-full + bench-%).
-**Steward note (canon):** today Active-only earns; Exp Share relic = 50% to bench (§5.2.1).
-This is the core of the "Scaling Spine" tension in the systems catalog.
+**User:** Should XP go only to the Active Team? My view: **level all Pokémon**, or benched ones
+fall behind and never get used.
+**✅ Resolution:** **Active Team earns 100%; all other Box Pokémon earn 75% baseline.** The Exp
+Share relic lifts benched Pokémon to **100%** (re-spec from its old +50%). Keeps the Box viable
+(near-pace on stats AND the new level-gated move unlocks, CL-006) while preserving a small reward
+for active use. Trade: team selection loses most of its *progression* cost (now a tactical/type
+decision) — the investment tension lives in Trauma, the Dojo's gold cost, and held items instead.
+→ logged **CL-010**.
 
-## Q13 — Pokémon shouldn't start with 4 moves; scarcer move acquisition 🔵
+## Q13 — Move-acquisition curve (start fewer, earn more) ✅ DECIDED 2026-06-07
 **Owner:** systems-designer + content-designer + game-designer
 **User:** I dislike Pokémon starting R1 with 4 moves. Leveling up should **feel special** —
 gain new moves over time. Scarcer move acquisition makes **Move Tutors and TM shops** more
 meaningful. Redesign the Pokémon learning curves.
-**Decision needed:** starting move count + the level-up / tutor / TM acquisition curve.
-**Steward note (canon):** today base kit = 4 moves = full pool at base; pool grows via
-evolution/TM/Tutor (§5.3.6.1 / §5.10). This reframes early game around *earning* moves.
-Heavily coupled to Q15 (evolution) and Q16 (tutor node).
+**✅ Resolution — Level-gated learnset:**
+- A base-form Pokémon **starts with 2 moves** (Q13a) and learns more at level thresholds via a
+  per-species **level-up learnset** (the classic "leveling unlocks a move" beat).
+- A Pokémon knows all learnset moves with `level ≤ current level`. **Deck contribution =
+  `min(known, 4)`** per Pokémon — active-4 cap **unchanged** (Q13b), Mastery = immutable 5th.
+- So the deck **thickens as you level**: early-R1 ~6 cards (3 base-form starters × 2) → ~12 by
+  Gym 1 (×4). The thin early deck is intentional tutorial simplicity.
+- **Recruited wilds** enter at their Region's level band, so they already know their learnset up
+  to that level (3–4 moves mid/late game) → late recruits stay viable.
+- **Scarcity is the lever:** the natural learnset is lean, so **Tutors (Q16) + TMs** add
+  *off-learnset* moves that genuinely matter, and **evolution (Q15)** adds/upgrades a little.
+- **Cadence** (exact learn levels — e.g. 3rd move mid-R1, 4th by first evolution) is
+  systems-designer tuning via per-species learnset + `ProgressionConfigSO` (placeholder, like the
+  XP curve). → logged **CL-006**.
 
-## Q14 — Are passive abilities necessary? Redesign 🔵
+## Q14 — Passive abilities: keep, decoupled to a learner ✅ DECIDED 2026-06-07
 **Owner:** game-designer
-**User:** Do we need passive abilities at all? Redesign. If we keep them, discuss later.
-Maybe an **ability-learner** (node/system) could help?
-**Decision needed:** keep / cut / rework abilities; if kept, how they're acquired.
-**Steward note (canon):** today ~30 abilities, granted by evolution (§5.5 / §5.8). Cutting
-or gating them via a learner node changes evolution payload + build identity.
+**User:** Do we need passive abilities at all? … If we keep them, discuss later. Maybe an
+**ability-learner** could help?
+**✅ Resolution:** **Keep** abilities (iconic depth — Sturdy/Intimidate/Keen Eye/Levitate…), but
+**decouple from evolution** — they are **earned via an ability-learner**, not auto-granted. One
+passive slot per Pokémon (existing `PokemonInstance.Ability`). This kills the "free rider on
+evolution" + the per-stage passive-combo mess (Q15) and fits the earn/sculpt theme.
+**Deferred (per user):** the learner's *form* — likely **folded into the Move Tutor node (Q16)**
+as a combined "Dojo," with economy/frequency designed there. → logged **CL-008**.
 
-## Q15 — Evolution branching: free archetype per stage + lighter evolutions 🔵
+## Q15 — Evolution: free archetype per stage + lighter payload ✅ DECIDED 2026-06-07
 **Owner:** game-designer + content-designer
-**User:** Could a Pokémon pick **Vanguard on first evolution and Specialist on last**? If
-not, why not let the player choose **again** at last evolution? I think evolutions should
-just: **upscale stats, improve 1–2 moves** of the current species pool, and **maybe add one
-new move** to the species pool.
-**Decision needed:** (a) per-stage independent branch choice vs locked path; (b) the lighter
-evolution payload (stats + 1–2 move upgrades + maybe 1 new move).
-**Steward note (canon):** today the stage-1 branch **locks** the stage-2 direction (one sub-
-choice within it), and evolution is a heavier deck rewrite (§5.3.5). Your model is lighter +
-more player-driven. Tightly coupled to Q13 + Q14.
+**User:** Could a Pokémon pick **Vanguard on first evolution and Specialist on last**? … why not
+let the player choose **again**? Evolutions should just: **upscale stats, improve 1–2 moves**,
+and **maybe add one new move**.
+**✅ Resolution:**
+- **(a) Free archetype each stage (Q15a):** the player picks an archetype **independently at every
+  evolution** from the species' available 2–3 — stage 1 no longer locks stage 2 (Vanguard→Specialist
+  allowed). Strengthens Identity-through-Evolution + Synergy-sculpted; each pick still permanent.
+- **(b) Lighter payload (Q15b):** each evolution = **stat upscale + improve 1–2 existing pool moves
+  + maybe +1 new pool move** (the final-evolution new move = the species **signature**). Replaces
+  the heavy multi-upgrade/sub-branch (A1/A2) rewrite of §5.3.5.
+- Passive ability per archetype is **pending Q14**.
+- Likely **moots/reshapes gap #46** (duplicate final-form SpeciesId from A1≡A2 sub-branches).
+  → logged **CL-007**.
 
-## Q16 — Move Tutor as its own node (remove from Pokémon Center) 🔵
+## Q16 — Move Tutor → standalone "Dojo" node ✅ DECIDED 2026-06-07
 **Owner:** content-designer + game-designer
-**User:** Remove Move Tutor from Pokémon Centers; make it a **unique node**. Redesign what
-that node does.
-**Decision needed:** the Tutor node's identity, offer, cost, frequency.
-**Steward note (canon):** today Tutor is a Center service (§7.6.1 / §7.8.1); VS interim
-*replaces* a move slot (additive pool post-VS, gap #36). Coupled to Q13.
+**User:** Remove Move Tutor from Pokémon Centers; make it a **unique node**. Redesign it.
+**✅ Resolution — "The Dojo"** (non-combat utility node on the Region map):
+- Teaches, per Pokémon: an **off-learnset move** (stage-aware tutor pool) **and/or an ability**
+  (Q16a — this is the home of Q14's ability-learner; teach/swap the one passive).
+- **Poké Dollar cost** (Q16b), scaling by move/ability power — a real economic choice + the
+  game's main **gold sink**; teach multiple if affordable.
+- **Removed from Pokémon Centers** → Centers = heal + Trauma therapy only.
+- Telegraphed on the map (Pillar 1); the key **deliberate-sculpt** stop (Pillar 3); ~1 per Region
+  (frequency = tuning). → logged **CL-009** (also completes Q14's deferred "form").
 
 ---
 
