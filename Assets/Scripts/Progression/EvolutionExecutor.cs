@@ -2,16 +2,20 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Progression
 {
-    // Per §5.3.5 + Epic 10 Task 10.4 — execute a chosen evolution branch on a PokemonInstance. A
-    // permanent, irreversible mutation: the species advances, Learned Move Pool moves upgrade in place
-    // per §5.10 (approved 2026-06-02, pending Notion lock), the branch's ability is granted, the Mastery
-    // card upgrades to the evolved stage (§4.3.9.2), and the archetype path is locked for the next stage
-    // (§5.3.5). Trauma carries through (§6.2.3). Pure C#.
+    // Per §5.12.2 (CL-007) — execute a chosen evolution branch on a PokemonInstance. A permanent,
+    // irreversible mutation: the species advances (stat upscale via the evolved species), Learned Move
+    // Pool moves upgrade in place + optional additions (§5.12.1/§5.10), and the Mastery card upgrades to
+    // the evolved stage (§4.3.9.2). Trauma carries through (§6.2.3). Pure C#.
+    //
+    // CL-007 changes vs the old model:
+    //  • Free archetype per stage — the next stage's options come from the evolved species' Branches
+    //    (EvolutionOptions), so SelectedBranch is a RECORD, not a lock.
+    //  • No ability or crit grant — evolution is a focused upgrade. Abilities are taught at the Dojo
+    //    (§5.12.3 / §7.14, CL-008); branch.GrantedAbility / CritChanceBonus are retained as data but
+    //    intentionally NOT applied here.
     //
     // Task 10.4.5 — on a successful evolution this publishes EvolutionTriggeredContext on the EventBus
     // (achievements/VFX/Pokedex may subscribe; no VS listener is required, but the hook is in place).
-    // Not yet wired (post-VS): branch.CritChanceBonus (no PokemonInstance.CritChance field yet) — no-op,
-    // flagged for the crit/ability runtime pass (Epic 10 Task 10.9).
     public static class EvolutionExecutor
     {
         public struct Result
@@ -53,11 +57,11 @@ namespace ProjectAscendant.Progression
             }
 
             p.Species = evolved;
-            p.SelectedBranch = branch;                          // §5.3.5 — lock the archetype path
+            p.SelectedBranch = branch;                          // §5.12.2 — record only (free per-stage; does NOT lock the next stage)
             p.CurrentStage = NextStage(p.CurrentStage);
             if (evolved.MasteryMove != null) p.MasteryMove = evolved.MasteryMove; // §4.3.9.2 upgrade
-            AbilitySO ability = branch.GrantedAbility != null ? branch.GrantedAbility : evolved.PrimaryAbility;
-            if (ability != null) p.Ability = ability;           // §5.5.1 primary/secondary
+            // Per §5.12.2/§5.12.3 (CL-007) — NO ability or crit grant. Abilities come from the Dojo
+            // (§7.14, CL-008); branch.GrantedAbility / CritChanceBonus are data-only here.
 
             // TraumaStacks carry through unchanged (§6.2.3). Clamp HP into the (now larger) pool.
             int max = PokemonVitals.MaxHP(p);

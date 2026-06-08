@@ -213,7 +213,7 @@ namespace ProjectAscendant.Tests
         [Test]
         // §5.3.5 / §5.10.3 / §4.3.9.2 / §6.2.3 — evolving upgrades active moves in place, advances the
         // species + stage, grants the branch ability, upgrades Mastery, and carries Trauma.
-        public void Evolve_UpgradesMoves_AdvancesStage_GrantsAbility_CarriesTrauma()
+        public void Evolve_UpgradesMoves_AdvancesStage_NoAbilityGrant_CarriesTrauma()
         {
             MoveSO tackle = Make<MoveSO>();
             MoveSO skullBash = Make<MoveSO>();
@@ -249,9 +249,10 @@ namespace ProjectAscendant.Tests
             Assert.That(p.CurrentMoves, Has.Member(skullBash), "Active Tackle upgrades in place.");
             Assert.That(p.CurrentMoves, Has.No.Member(tackle));
             Assert.That(p.CurrentMoves, Has.Member(waterGun), "Unaffected moves are retained.");
-            Assert.That(p.Ability, Is.SameAs(torrent), "Branch ability granted (§5.5.1).");
+            Assert.That(p.Ability, Is.Null,
+                "CL-007 (§5.12.2/§5.12.3) — evolution grants NO ability even though the branch records one; abilities come from the Dojo.");
             Assert.That(p.MasteryMove, Is.SameAs(evolvedMastery), "Mastery upgrades to evolved stage (§4.3.9.2).");
-            Assert.That(p.SelectedBranch, Is.SameAs(branch), "Archetype path locked (§5.3.5).");
+            Assert.That(p.SelectedBranch, Is.SameAs(branch), "Branch recorded (§5.12.2 — record only, no longer a path lock).");
             Assert.That(p.TraumaStacks, Is.EqualTo(2), "Trauma carries through (§6.2.3).");
         }
 
