@@ -41,7 +41,7 @@
 | CL-003 | Q4 | Wild catch = Victory + full XP | T3 §3.1, T7 §7.3.4 | ✅ | ✅* |
 | CL-004 | Q11 | Defer League/Champion (scope) | T2 §2.1.6, T4 §4.6/§4.7 | ✅ | n/a |
 | CL-005 | Q3 | Skill-card hand size 4 → 5 | T3 §3.2.2/§3.7 | n/a¹ | ✅ |
-| CL-006 | Q13 | Move-acquisition: level-gated learnset, start 2 | T5 §5.12.1 | ✅² | ☐ |
+| CL-006 | Q13 | Move-acquisition: level-gated learnset, start 2 | T5 §5.12.1 | ✅² | ✅³ |
 | CL-007 | Q15 | Evolution: free archetype/stage + lighter payload | T5 §5.12.2 | ✅² | ☐ |
 | CL-008 | Q14 | Abilities kept, decoupled to an earned learner | T5 §5.12.3 | ✅² | ☐ |
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ☐ |
@@ -128,12 +128,19 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   recruitment must seed moves from spawn level. Evolution executor + Tutor/TM add to pool.
   Migration: existing 4-move base SOs must be re-authored to 2 + learnset. Cadence (exact levels)
   is `ProgressionConfigSO`-tunable placeholder.
-- Implementation increments: **#1 DONE (2026-06-08)** — `PokemonSpeciesSO.LevelUpLearnset` field
-  + pure `KnownMovesAtLevel(level)` helper (legacy fallback to `BaseLearnset` when unauthored) +
-  4 EditMode tests; **1033/1033 green**, no regressions, no content broken. Remaining: #2 wire deck
-  builder to `min(known, 4)`; #3 trim base kits 4→2 + author per-species learnsets (content); #4
-  recruitment seeds known moves by spawn level.
-- Status: [✅] GDD updated (§5.12.1)   [◑] Code — increment #1 of 4 done
+- Implementation (2026-06-08): **COMPLETE for VS base forms.**
+  - #1 `PokemonSpeciesSO.LevelUpLearnset` + pure `KnownMovesAtLevel(level)` (legacy fallback) + 4 tests.
+  - #2 `PokemonInstanceFactory` seeds the pool from `KnownMovesAtLevel`; player paths (RunBootstrapper
+    starter, WildEncounterController recruit/wild) fill the active 4 from the same source.
+  - #3 `LevelUpResolver` learns newly-crossed moves on level-up (auto-equip while <4 active, else
+    pool-only per §5.10.2) + 2 tests; new `Result.MovesLearned` for future "learned X!" UI.
+  - #4 Authored learnsets for the **6 VS base forms** (Bulbasaur/Charmander/Squirtle/Caterpie/Geodude/
+    Pidgey): 2 moves @ L1, then L8/L11 (tunable). A starter now begins R1 with **2 moves**.
+  - **1035/1035 EditMode green.**
+- ³ VS base forms only. Follow-ups (not blockers): evolved-form move flow lands with CL-007;
+  non-wild enemy controllers (Trainer/Elite/Gym) still copy full `BaseLearnset` (safe via fallback) —
+  unify for consistency later; cadence levels are placeholder/tunable.
+- Status: [✅] GDD updated (§5.12.1)   [✅] Code — VS base forms complete, 1035 green
 
 ### CL-007 — Evolution: free archetype per stage + lighter payload   (resolves Q15)
 - Date: 2026-06-07
