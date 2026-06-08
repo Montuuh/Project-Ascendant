@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-07T22:33:00.000Z -->
+<!-- Last updated from Notion: 2026-06-08T14:20:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -629,7 +629,7 @@ Adopted via the design pass (open-questions Q12–Q16; change-log CL-006…010).
 ## §5.12.1 Move acquisition — level-gated learnset (CL-006)
 
 - Base-form Pokémon **start with 2 moves** (not 4). Each species has a **level-up learnset** (ordered `(level, move)`); a Pokémon knows every learnset move with `level ≤ current level`.
-- **Deck contribution =** **`min(known moves, 4)`** per Pokémon — the active-4 cap is unchanged and Mastery remains the immutable 5th. The deck **thickens as you level** (early-R1 ≈ 6 cards across three base-form starters → ≈ 12 by Gym 1).
+- **Deck contribution =** **`min(known moves, 4)`** per Pokémon — the active-4 cap is unchanged and Mastery remains the immutable 5th. The deck **thickens as you level and recruit**: a run _starts with a single starter_ (a ~2-card skill deck), grows toward ~6 cards as you recruit a full base-form team, and reaches ~12 by Gym 1 as those Pokémon level to their 4-move kits. Learnset levels are **clamped below each species' evolution level** so no move is ever lost to evolving early (validated by a content test).
 - **Recruited wilds** derive their known moves from spawn level, so late recruits stay viable.
 - Moves **beyond the learnset** come from the **Dojo** (off-learnset tutor moves, §7.14), **TMs**, and **evolution**. The lean natural learnset is deliberate — scarcity is what makes those sources matter.
 

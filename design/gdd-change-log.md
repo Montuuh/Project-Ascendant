@@ -135,8 +135,12 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   - #3 `LevelUpResolver` learns newly-crossed moves on level-up (auto-equip while <4 active, else
     pool-only per §5.10.2) + 2 tests; new `Result.MovesLearned` for future "learned X!" UI.
   - #4 Authored learnsets for the **6 VS base forms** (Bulbasaur/Charmander/Squirtle/Caterpie/Geodude/
-    Pidgey): 2 moves @ L1, then L8/L11 (tunable). A starter now begins R1 with **2 moves**.
-  - **1035/1035 EditMode green.**
+    Pidgey): 2 moves @ L1, then later moves **clamped below EvolveLevel** (Squirtle [1,1,8,11];
+    Caterpie [1,1,5,6] @evolve 7; Pidgey [1,1,7,8] @evolve 9). A starter begins R1 with **2 moves**.
+  - **QA iteration (2026-06-08):** added `SpeciesLearnsetContentTests` (content guard: every learnset
+    level < EvolveLevel; ≤2 moves at L1). It caught a v1-cadence bug — Caterpie/Pidgey had moves at
+    L8/L11 ≥ their early EvolveLevel, so those moves were unreachable (red→green fix above). Real-content
+    playtest confirms Squirtle pool = 2/2/3/4/4 at L5/7/8/11/12. **1037/1037 EditMode green.**
 - ³ VS base forms only. Follow-ups (not blockers): evolved-form move flow lands with CL-007;
   non-wild enemy controllers (Trainer/Elite/Gym) still copy full `BaseLearnset` (safe via fallback) —
   unify for consistency later; cadence levels are placeholder/tunable.
