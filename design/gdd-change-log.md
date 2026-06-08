@@ -42,7 +42,7 @@
 | CL-004 | Q11 | Defer League/Champion (scope) | T2 §2.1.6, T4 §4.6/§4.7 | ✅ | n/a |
 | CL-005 | Q3 | Skill-card hand size 4 → 5 | T3 §3.2.2/§3.7 | n/a¹ | ✅ |
 | CL-006 | Q13 | Move-acquisition: level-gated learnset, start 2 | T5 §5.12.1 | ✅² | ✅³ |
-| CL-007 | Q15 | Evolution: free archetype/stage + lighter payload | T5 §5.12.2 | ✅² | ☐ |
+| CL-007 | Q15 | Evolution: free archetype/stage + lighter payload | T5 §5.12.2 | ✅² | ◑ (A done) |
 | CL-008 | Q14 | Abilities kept, decoupled to an earned learner | T5 §5.12.3 | ✅² | ☐ |
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ☐ |
 | CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ☐ |
@@ -160,7 +160,27 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   move upgrades + optional +1. **Likely resolves/reshapes gap #46** (duplicate final-form
   SpeciesId). Content: re-author all evolution payloads lighter; archetype tables per stage.
   Passive grant is gated on Q14's outcome.
-- Status: [ ] GDD updated   [ ] Code adapted
+- **Design decisions (2026-06-08, user-chosen):**
+  - **Archetype model = moves-only, ONE species SO per stage** (Squirtle→Wartortle→Blastoise; the
+    archetype only picks which move-upgrade set applies; shared stats/type/sprite). Cleanest, fully
+    resolves gap #46.
+  - **No ability/crit grant** — removed now (clean); abilities come from the Dojo (CL-008/§7.14).
+  - **Scope this pass = system + full Squirtle line, all 3 archetypes.**
+  - **Squirtle-line kits (locked):** Stage 1 (2 upgrades) — Vanguard {Tackle→Skull Bash, Tail
+    Whip→Aqua Jet}; Specialist {Water Gun→Water Pulse, Tail Whip→Charm}; Support {Withdraw→Iron
+    Defense, Tail Whip→Aqua Ring}. Stage 2 (+1 signature, additive = mix-safe) — Vanguard +Hydro
+    Crash; Specialist +Hydro Pump; Support +Aqua Fortress (self-sustain tank). New move assets:
+    water_pulse, charm, iron_defense, aqua_fortress.
+- **Increment A — DONE (commit, 1037 green):** `EvolutionExecutor` no longer grants ability/crit;
+  `SelectedBranch` is a record, not a path lock. `ProgressionTests` updated (asserts the recorded
+  branch ability is intentionally ignored).
+- **Increment B — TODO (content authoring, next):** create the 4 new effect-bearing move SOs;
+  consolidate `Wartortle_Vanguard`→`Wartortle` and `Blastoise_A1/A2`→one `Blastoise` (unique
+  SpeciesId → closes gap #46); author 6 branch SOs (Squirtle×3 → Wartortle, Wartortle×3 → Blastoise);
+  wire `.Branches`; delete A1/A2 + old VA branches. **Rewrite `SquirtleLineContentTests`** to the
+  new structure + add payload guards (≤2 upgrades, ≤1 new; ≥2 archetypes offered per evolving stage;
+  no duplicate final-form SpeciesId). Then playtest (cross-archetype mix) + GDD §5.12.2 detail.
+- Status: [✅] GDD updated (§5.12.2 high-level)   [◑] Code — increment A done; B (content) next
 
 ### CL-008 — Abilities kept, decoupled to an earned learner   (resolves Q14)
 - Date: 2026-06-07
