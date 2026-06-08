@@ -34,9 +34,9 @@ MonoBehaviour:
     Move: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
   - Level: 1
     Move: {fileID: 11400000, guid: d49e17b92afc8064faf6556797bb0df4, type: 2}
-  - Level: 8
+  - Level: 5
     Move: {fileID: 11400000, guid: be4f22f4df9c02644a0cee67a693e470, type: 2}
-  - Level: 11
+  - Level: 6
     Move: {fileID: 11400000, guid: 125f7ae06f4ed44439d41433a04325ad, type: 2}
   TutorLearnset: []
   TMCompatibility: []
