@@ -111,17 +111,14 @@ namespace ProjectAscendant.Combat
             {
                 PokemonInstance wild = _pokemonFactory.Create(
                     chosenSpecies, wildLevel);
-                // Mirror TrainerBattleController — copy BaseLearnset (4 cap)
-                // into CurrentMoves so the AI has candidate intents to score.
-                if (chosenSpecies.BaseLearnset != null)
+                // Per §5.12.1 (CL-006) — level-gated active 4 (cap 4): serves both the AI's
+                // candidate intents and, if caught, the recruit's starting deck.
+                List<MoveSO> known = chosenSpecies.KnownMovesAtLevel(wildLevel);
+                int max = known.Count < 4 ? known.Count : 4;
+                for (int i = 0; i < max; i++)
                 {
-                    int max = chosenSpecies.BaseLearnset.Count < 4
-                        ? chosenSpecies.BaseLearnset.Count : 4;
-                    for (int i = 0; i < max; i++)
-                    {
-                        MoveSO m = chosenSpecies.BaseLearnset[i];
-                        if (m != null) wild.CurrentMoves.Add(m);
-                    }
+                    MoveSO m = known[i];
+                    if (m != null) wild.CurrentMoves.Add(m);
                 }
                 enemyTeam.Add(wild);
             }

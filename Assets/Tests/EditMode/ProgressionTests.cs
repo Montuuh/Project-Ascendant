@@ -128,6 +128,62 @@ namespace ProjectAscendant.Tests
             Assert.That(r.HPGained, Is.EqualTo(0));
         }
 
+        // ── CL-006 level-gated learnset (§5.12.1) ─────────────────────────────
+
+        [Test]
+        // §5.12.1 — crossing a learnset threshold learns the move into the pool and auto-equips
+        // it while an active slot is free.
+        public void Process_CrossesLearnsetThreshold_LearnsMoveIntoPoolAndActive()
+        {
+            ProgressionConfigSO cfg = Config(); // flat 10 XP/level
+            MoveSO m1 = Make<MoveSO>(), m2 = Make<MoveSO>(), m8 = Make<MoveSO>();
+            PokemonSpeciesSO sp = Species(40, 4, 0, false);
+            sp.LevelUpLearnset = new List<LevelUpEntry>
+            {
+                new LevelUpEntry { Level = 1, Move = m1 },
+                new LevelUpEntry { Level = 1, Move = m2 },
+                new LevelUpEntry { Level = 8, Move = m8 },
+            };
+            PokemonInstance p = Mon(sp, 5);
+            p.LearnedMoves.Add(m1); p.LearnedMoves.Add(m2);   // known-at-L5 (as the factory seeds)
+            p.CurrentMoves.Add(m1); p.CurrentMoves.Add(m2);
+            p.CurrentXP = 30; // 5 -> 8
+
+            LevelUpResolver.Result r = LevelUpResolver.Process(p, cfg);
+
+            Assert.That(p.Level, Is.EqualTo(8));
+            Assert.That(p.LearnedMoves, Has.Member(m8), "learned into the pool");
+            Assert.That(p.CurrentMoves, Has.Member(m8), "auto-equipped (a slot was free)");
+            Assert.That(r.MovesLearned, Is.Not.Null);
+            Assert.That(r.MovesLearned, Has.Member(m8));
+        }
+
+        [Test]
+        // §5.12.1 / §5.10.2 — when the active 4 are full, a newly learned move goes to the pool
+        // only; the player picks it via the Move Manager.
+        public void Process_LearnsBeyondFourActive_GoesToPoolOnly()
+        {
+            ProgressionConfigSO cfg = Config();
+            MoveSO a = Make<MoveSO>(), b = Make<MoveSO>(), c = Make<MoveSO>(), d = Make<MoveSO>(), e = Make<MoveSO>();
+            PokemonSpeciesSO sp = Species(40, 4, 0, false);
+            sp.LevelUpLearnset = new List<LevelUpEntry>
+            {
+                new LevelUpEntry { Level = 1, Move = a }, new LevelUpEntry { Level = 1, Move = b },
+                new LevelUpEntry { Level = 1, Move = c }, new LevelUpEntry { Level = 1, Move = d },
+                new LevelUpEntry { Level = 8, Move = e },
+            };
+            PokemonInstance p = Mon(sp, 5);
+            p.LearnedMoves.AddRange(new[] { a, b, c, d });
+            p.CurrentMoves.AddRange(new[] { a, b, c, d }); // 4 active already
+            p.CurrentXP = 30;
+
+            LevelUpResolver.Process(p, cfg);
+
+            Assert.That(p.LearnedMoves, Has.Member(e), "still learned into the pool");
+            Assert.That(p.CurrentMoves, Has.No.Member(e), "not auto-equipped past 4");
+            Assert.That(p.CurrentMoves.Count, Is.EqualTo(4));
+        }
+
         [Test]
         // §5.3.1 — crossing EvolveLevel flags the Pokémon evolution-eligible (only if it has branches).
         public void Process_CrossingEvolveLevel_FlagsEligible()

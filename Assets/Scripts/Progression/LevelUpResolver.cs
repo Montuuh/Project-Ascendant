@@ -43,6 +43,8 @@ namespace ProjectAscendant.Progression
             public int NewLevel;
             public int HPGained;
             public bool EvolutionUnlocked; // crossed Species.EvolveLevel this pass (§5.3.1)
+            // Per §5.12.1 (CL-006) — moves learned this pass via the level-gated learnset (null if none).
+            public List<MoveSO> MovesLearned;
         }
 
         // Apply all pending level-ups for one Pokémon. Idempotent once CurrentXP < the next threshold.
@@ -69,6 +71,20 @@ namespace ProjectAscendant.Progression
                 // Heal by the HP growth — but never revive a fainted Pokémon.
                 if (delta > 0 && p.CurrentHP > 0) { p.CurrentHP += delta; r.HPGained += delta; }
                 r.LevelsGained++;
+            }
+
+            // Per §5.12.1 (CL-006) — learn any learnset moves now reached. Add to the pool; auto-equip
+            // into the active 4 only while a slot is free (beyond 4, the player picks via the Move
+            // Manager, §5.10.2). Unauthored species fall back to BaseLearnset, which the factory already
+            // seeded, so nothing new is learned — behaviour-preserving until learnsets are authored.
+            List<MoveSO> known = p.Species.KnownMovesAtLevel(p.Level);
+            for (int i = 0; i < known.Count; i++)
+            {
+                MoveSO move = known[i];
+                if (move == null || p.LearnedMoves.Contains(move)) continue;
+                p.LearnedMoves.Add(move);
+                if (p.CurrentMoves.Count < 4) p.CurrentMoves.Add(move);
+                (r.MovesLearned ??= new List<MoveSO>()).Add(move);
             }
 
             r.NewLevel = p.Level;

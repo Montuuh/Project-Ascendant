@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ProjectAscendant.Core
 {
     // Per §9.6.2 — factory for PokemonInstance. Registered with Services in Bootstrap.
@@ -23,12 +25,16 @@ namespace ProjectAscendant.Core
             instance.TraumaStacks = 0;
             instance.CurrentMoves.Clear();
             instance.LearnedMoves.Clear();
-            // Per §5.10 (approved 2026-06-02, pending Notion lock) — seed the Learned Move Pool from
-            // the species' BaseLearnset. The pool grows via evolution/TM/Tutor; never shrinks.
-            if (species?.BaseLearnset != null)
+            // Per §5.12.1 (CL-006) — seed the Learned Move Pool from the species' LEVEL-GATED learnset
+            // (KnownMovesAtLevel; legacy fallback to BaseLearnset when no LevelUpLearnset is authored).
+            // The active 4 (CurrentMoves) are filled by the creating caller from the same source. The
+            // pool grows via level-ups (LevelUpResolver), evolution, TMs, Tutors; never shrinks.
+            if (species != null)
             {
-                for (int i = 0; i < species.BaseLearnset.Count; i++)
-                    if (species.BaseLearnset[i] != null) instance.LearnedMoves.Add(species.BaseLearnset[i]);
+                List<MoveSO> known = species.KnownMovesAtLevel(level);
+                for (int i = 0; i < known.Count; i++)
+                    if (known[i] != null && !instance.LearnedMoves.Contains(known[i]))
+                        instance.LearnedMoves.Add(known[i]);
             }
             instance.MasteryMove = species?.MasteryMove;
             instance.Ability = species?.PrimaryAbility;

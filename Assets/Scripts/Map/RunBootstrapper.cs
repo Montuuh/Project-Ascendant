@@ -39,13 +39,12 @@ namespace ProjectAscendant.Map
             if (context == null || starter == null) return null;
             PokemonInstance inst = context.PokemonFactory.Create(starter, level);
 
-            // Per §3.7 — active 4 moves. Mirror the encounter controllers: copy BaseLearnset (cap 4).
-            if (starter.BaseLearnset != null)
-            {
-                int max = starter.BaseLearnset.Count < 4 ? starter.BaseLearnset.Count : 4;
-                for (int i = 0; i < max; i++)
-                    if (starter.BaseLearnset[i] != null) inst.CurrentMoves.Add(starter.BaseLearnset[i]);
-            }
+            // Per §5.12.1 (CL-006) — active 4 from the level-gated learnset (cap 4). Base forms start
+            // with 2; the pool/active grow as the starter levels (LevelUpResolver).
+            List<MoveSO> known = starter.KnownMovesAtLevel(level);
+            int max = known.Count < 4 ? known.Count : 4;
+            for (int i = 0; i < max; i++)
+                if (known[i] != null) inst.CurrentMoves.Add(known[i]);
 
             context.Box.Members.Add(inst);
             context.Loadout.Confirm(new List<int> { 0 }, 0);

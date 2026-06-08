@@ -29,6 +29,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4e26a9803e6de0241be8d32d53c06225, type: 2}
   - {fileID: 11400000, guid: 43981d5ca0ce13344a477d1ff2e02a39, type: 2}
   - {fileID: 11400000, guid: df4563083d9eb60409c66aa514f9a0f6, type: 2}
+  LevelUpLearnset:
+  - Level: 1
+    Move: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: 4e26a9803e6de0241be8d32d53c06225, type: 2}
+  - Level: 8
+    Move: {fileID: 11400000, guid: 43981d5ca0ce13344a477d1ff2e02a39, type: 2}
+  - Level: 11
+    Move: {fileID: 11400000, guid: df4563083d9eb60409c66aa514f9a0f6, type: 2}
   TutorLearnset: []
   TMCompatibility: []
   PrimaryAbility: {fileID: 0}
