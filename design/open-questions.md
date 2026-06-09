@@ -25,6 +25,7 @@ On a ✅ decision:
 | 🔵 Open | Not yet discussed |
 | 🟣 Discussing | Options on the table, awaiting decision |
 | ✅ Decided | Resolution recorded below + logged for engineering |
+| ⏸ Parked | Deferred; coupled to another decision or out-of-scope for now |
 | 🩹 Canon-drift | Current GDD disagrees with reality — reconcile before/while deciding |
 
 ## Owners (designer team)
@@ -139,14 +140,15 @@ menu of interesting phase archetypes.
 **Steward note (canon):** today Gym ace is 3-phase + evolution-eligible at 50% (§4.4.3.1 /
 §4.4.4.3). This removes Gym mid-evo and reframes Gym threat as raw power + smart phases.
 
-## Q10 — League Boons → just better relics (Epic/Legendary)? 🔵
+## Q10 — League Boons → just better relics (Epic/Legendary)? ⏸ PARKED
 **Owner:** game-designer + content-designer
 **User:** Can League Boons just be **better relics** (EPIC / LEGENDARY rarity)? Unify the
 systems and make the game a bit easier.
 **Decision needed:** collapse Boons into a higher relic-rarity tier, or keep separate.
 **Steward note (canon):** today Boons are a distinct League-only pick (6 pool, 1 of 3,
 §4.5.2); relics are 3 rarities (§8.3.1). Unifying simplifies but loses League-scoped flavor.
-*(Coupled with Q11 — League is deferred, so this is a "design-ahead" note.)*
+**⏸ Parked with Q11 / CL-004 (2026-06-05):** League is deferred until R1→Victory Road loop
+is solid. Revisit when League/Champion design reopens. No change log entry needed until then.
 
 ## Q11 — Defer League + Champion ✅ DECIDED 2026-06-05
 **Owner:** producer
@@ -310,10 +312,16 @@ done *after* the gameplay questions above settle, so the UI reflects final mecha
 
 ## Suggested processing order (producer recommendation)
 
-1. **Quick reconciliations first** (clear the drift): Q4, Q5, Q6, Q11 — fast ✅/sync.
-2. **Core gameplay identity** (these cascade into everything): Q3 (hand), Q13 (move curves)
-   → Q15 (evolution) → Q14 (abilities) → Q16 (tutor node) → Q12 (XP distribution).
-3. **Combat feel:** Q7 (unknown intents), Q8 (fields), Q9 (gym phases), Q22 (catching).
-4. **Meta & economy:** Q17 (trauma), Q18 (battle pass) → Q19 (achievements), Q1/Q2/Q21
-   (city, region mods, biomes), Q10 (boons — parked w/ league).
-5. **Documentation:** Q20 (save/load doc), then **Q23 (full UI)** last, on settled mechanics.
+*Updated 2026-06-10. Q3/Q4/Q5/Q6/Q11/Q12/Q13/Q14/Q15/Q16 are ✅ DECIDED and in the change log.
+Q10 is ⏸ PARKED with League. Remaining open work:*
+
+1. **CL-010 unblock** (XP Box 75%, Q12): implement the Epic-10 XP award system so CL-010
+   code can land. Currently the only CL with GDD approved but code pending.
+2. **Combat feel:** Q7 (unknown intents / Dense Fog — also VS gap #44), Q8 (field effects),
+   Q9 (gym phases), Q22 (catch condition). Q7 has the highest impact (VS ship blocker).
+3. **World structure:** Q1 (City nodes + optional Gym), Q2 (Region Modifiers timing + pool),
+   Q21 (Wild biomes → Region theming).
+4. **Meta & economy:** Q17 (Trauma cap), Q18 (Battle Pass XP), Q19 (achievements).
+5. **Documentation:** Q20 (save/load manifest), then **Q23 (full UI spec)** last — after
+   mechanics settle.
+6. **Parked (reopen with League):** Q10 (Boons → relics).
