@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
-  m_Name: Ivysaur_Vanguard
+  m_Name: Ivysaur
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
   SpeciesId: ivysaur
   DisplayName: Ivysaur
@@ -23,7 +23,9 @@ MonoBehaviour:
   GrowthCurve: {fileID: 11400000, guid: 1ad3ae506f3341f419333e39738dce9e, type: 2}
   Branches:
   - {fileID: 11400000, guid: d18cff658acd412489bc4a1f67182ca7, type: 2}
-  - {fileID: 11400000, guid: 30e585bbf37a94148a913e47008effce, type: 2}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f7a8b9c0d1e2f3a4b0003, type: 2}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f7a8b9c0d1e2f3a4b0004, type: 2}
+  EvolveLevel: 20
   BaseLearnset:
   - {fileID: 11400000, guid: e1b9ad2c4566fd549812edb9a9b0977f, type: 2}
   - {fileID: 11400000, guid: aa524b2b0673230488bb9632549f3ab8, type: 2}
@@ -31,10 +33,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2d098a8f4c63ec54fbaf2bf4fc027c39, type: 2}
   TutorLearnset: []
   TMCompatibility: []
-  PrimaryAbility: {fileID: 11400000, guid: f2b428d1dd6724048981dd1c636f087b, type: 2}
+  PrimaryAbility: {fileID: 0}
   MasteryMove: {fileID: 11400000, guid: 1071fea1fc5f083428ff6cdf4244360c, type: 2}
   StatusImmunities: 
   WildRarity: 0
   SpawnBiomes: 01000000
   Portrait: {fileID: 21300000, guid: 488262d1bb2eb2f42adf235f0e6b9c88, type: 3}
-  GDDReference: "\xA75.3"
+  GDDReference: "\xA75.12.2"

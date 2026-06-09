@@ -10,20 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
-  m_Name: ivysaur_va1
+  m_Name: bulbasaur_support
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
-  BranchId: ivysaur_va1
-  DisplayName: Bloom Brawler
-  Archetype: 0
-  EvolvedSpecies: {fileID: 11400000, guid: cfc4f94ba3e54bc4ebe74409d60ef8ad, type: 2}
+  BranchId: bulbasaur_support
+  DisplayName: Support
+  Archetype: 2
+  EvolvedSpecies: {fileID: 11400000, guid: cd2d3cba28dcbb34f9d34f259b0e42a0, type: 2}
   MoveUpgrades:
-  - OldMove: {fileID: 11400000, guid: e1b9ad2c4566fd549812edb9a9b0977f, type: 2}
-    NewMove: {fileID: 11400000, guid: da32a924cc40cbd4797fb143afe6b347, type: 2}
-  - OldMove: {fileID: 11400000, guid: aa524b2b0673230488bb9632549f3ab8, type: 2}
-    NewMove: {fileID: 11400000, guid: 9bfdaa8c0a07587479217319d145bfd9, type: 2}
   - OldMove: {fileID: 11400000, guid: 4ccefcc01fa93b347a38529a8a3d7004, type: 2}
     NewMove: {fileID: 11400000, guid: 10fbbbb27efc6e34ea3d9bb246b74596, type: 2}
   NewMoves: []
-  GrantedAbility: {fileID: 11400000, guid: 258aab2730b7ea74bad9eb40a996fd29, type: 2}
+  GrantedAbility: {fileID: 0}
+  CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.3.5"
+  GDDReference: "\xA75.12.2 | Stage-1 Support: Growl→SweetScent (-Def debuffer)"

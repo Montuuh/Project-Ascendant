@@ -4,8 +4,8 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Tests
 {
-    // Per Epic 7 Task 7.4 + §5.5.1 + §5.8 (Compound Eyes) + §5.11.4 Mastery bands.
-    // Caterpie line golden tests — Specialist archetype (status-rider focused).
+    // Per CL-007 (§5.12.2) + §5.11.4 Mastery bands.
+    // Caterpie line golden tests — moves-only, single archetype, no ability/crit grant.
     public class CaterpieLineContentTests
     {
         private const string ROOT = "Assets/ScriptableObjects/VS";
@@ -37,32 +37,25 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void CaterpieEvolveBranch_HasIronShell_SpecialistArchetype_NoCritBonus()
+        public void CaterpieEvolveBranch_MovesOnly_NoAbility()
         {
-            // Per §5.3.4 — Specialist archetype reward is a species-specific passive
-            // (no crit bonus — that's Vanguard's reward).
-            //
-            // NOTE: Implementation places Iron Shell (themed Metapod chrysalis defense)
-            // as the species PRIMARY, with Compound Eyes promoted to Butterfree's
-            // branch SECONDARY. §5.8 catalog lists Compound Eyes as the Butterfree-line
-            // primary — see ⚠ OPEN gap #28 in BACKLOG. Content is asserted as-authored.
+            // Per CL-007 (§5.12.2) — stage-1 branch: ≤2 upgrades, no ability/crit grant.
             EvolutionBranchSO branch = Load<EvolutionBranchSO>(
                 $"{ROOT}/Branches/caterpie/caterpie_evolve.asset");
             Assert.That(branch, Is.Not.Null);
-            Assert.That(branch.Archetype, Is.EqualTo(BranchArchetype.Specialist));
-            Assert.That(branch.GrantedAbility, Is.Not.Null);
-            Assert.That(branch.GrantedAbility.AbilityId, Is.EqualTo("iron_shell"));
-            Assert.That(branch.CritChanceBonus, Is.EqualTo(0f).Within(0.001f),
-                "Specialist archetype does not grant a crit bonus.");
+            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: caterpie_evolve grants no ability.");
+            Assert.That(branch.CritChanceBonus, Is.EqualTo(0f).Within(0.001f), "No crit bonus (CL-007).");
+            Assert.That(branch.MoveUpgrades.Count, Is.InRange(1, 2), "≤2 move upgrades (§5.12.2).");
+            Assert.That(branch.NewMoves.Count, Is.EqualTo(0));
         }
 
         [Test]
-        public void Metapod_PrimaryAbilityIsIronShell_SingleEvolveBranch()
+        public void Metapod_NoAbility_SingleEvolveBranch()
         {
+            // Per CL-007 (§5.12.2) — mid-form has no PrimaryAbility.
             PokemonSpeciesSO metapod = Load<PokemonSpeciesSO>(
                 $"{ROOT}/Species/Wild/Caterpie/Metapod.asset");
-            Assert.That(metapod.PrimaryAbility, Is.Not.Null);
-            Assert.That(metapod.PrimaryAbility.AbilityId, Is.EqualTo("iron_shell"));
+            Assert.That(metapod.PrimaryAbility, Is.Null, "CL-007: Metapod has no PrimaryAbility.");
             Assert.That(metapod.Branches.Count, Is.EqualTo(1));
         }
 
@@ -83,13 +76,14 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void MetapodEvolveBranch_HasCompoundEyes()
+        public void MetapodEvolveBranch_AdditiveSignature_NoAbility()
         {
+            // Per CL-007 (§5.12.2) — stage-2 branch: 0 upgrades, +1 signature (Psybeam), no ability.
             EvolutionBranchSO branch = Load<EvolutionBranchSO>(
                 $"{ROOT}/Branches/caterpie/metapod_evolve.asset");
-            Assert.That(branch.GrantedAbility, Is.Not.Null);
-            Assert.That(branch.GrantedAbility.AbilityId, Is.EqualTo("compoundeyes"),
-                "Butterfree secondary: Compound Eyes (§5.8 ability; promoted to secondary slot here).");
+            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: metapod_evolve grants no ability.");
+            Assert.That(branch.MoveUpgrades.Count, Is.EqualTo(0), "Stage-2 is purely additive.");
+            Assert.That(branch.NewMoves.Count, Is.EqualTo(1), "Adds exactly 1 signature (Psybeam).");
         }
 
         [Test]

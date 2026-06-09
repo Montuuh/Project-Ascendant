@@ -16,14 +16,10 @@ MonoBehaviour:
   DisplayName: Support
   Archetype: 2
   EvolvedSpecies: {fileID: 11400000, guid: 753ab00f4b3819e4f96578876c9967df, type: 2}
-  MoveUpgrades:
-  - OldMove: {fileID: 11400000, guid: e7fa2aefa18715940accff7c57c4976e, type: 2}
-    NewMove: {fileID: 11400000, guid: a24483cd016c9ec4ebb9e0fa1ce045ac, type: 2}
-  - OldMove: {fileID: 11400000, guid: 818790dcb65e0124fa9bb42cd1059fea, type: 2}
-    NewMove: {fileID: 11400000, guid: eadcbc224bd54274d8be55762d68d352, type: 2}
-  - OldMove: {fileID: 11400000, guid: f4c6d450f23bc6c44bb3501bd0e2b2ba, type: 2}
-    NewMove: {fileID: 11400000, guid: 0c413079dee5bd34a8815b824ecb353b, type: 2}
-  NewMoves: []
-  GrantedAbility: {fileID: 11400000, guid: b7b66f6e8051ae34780e364db8c2cdd2, type: 2}
+  MoveUpgrades: []
+  NewMoves:
+  - {fileID: 11400000, guid: a24483cd016c9ec4ebb9e0fa1ce045ac, type: 2}
+  GrantedAbility: {fileID: 0}
+  CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.3.4"
+  GDDReference: "\xA75.12.2 | Stage-2 Support signature: Hurricane (Pidgeot iconic)"

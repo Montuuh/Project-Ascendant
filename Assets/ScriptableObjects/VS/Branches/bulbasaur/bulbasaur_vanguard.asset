@@ -21,10 +21,8 @@ MonoBehaviour:
     NewMove: {fileID: 11400000, guid: e1b9ad2c4566fd549812edb9a9b0977f, type: 2}
   - OldMove: {fileID: 11400000, guid: 79850338c12af834097de31a9f9e73be, type: 2}
     NewMove: {fileID: 11400000, guid: aa524b2b0673230488bb9632549f3ab8, type: 2}
-  - OldMove: {fileID: 11400000, guid: 6c33ac9e534f40d479e1e48027557d77, type: 2}
-    NewMove: {fileID: 11400000, guid: 2d098a8f4c63ec54fbaf2bf4fc027c39, type: 2}
   NewMoves: []
-  GrantedAbility: {fileID: 11400000, guid: f2b428d1dd6724048981dd1c636f087b, type: 2}
-  CritChanceBonus: 0.1
+  GrantedAbility: {fileID: 0}
+  CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.3.4"
+  GDDReference: "\xA75.12.2 | Stage-1 Vanguard: Tackle→Headbutt, VineWhip→VineLash"

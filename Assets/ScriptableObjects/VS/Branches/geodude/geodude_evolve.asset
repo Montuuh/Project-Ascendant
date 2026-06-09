@@ -19,14 +19,10 @@ MonoBehaviour:
   MoveUpgrades:
   - OldMove: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
     NewMove: {fileID: 11400000, guid: 07f68986483e3ea458954580498dc23e, type: 2}
-  - OldMove: {fileID: 11400000, guid: 4e26a9803e6de0241be8d32d53c06225, type: 2}
-    NewMove: {fileID: 11400000, guid: 6ac00825b70615347840cd19ef45d692, type: 2}
-  - OldMove: {fileID: 11400000, guid: 43981d5ca0ce13344a477d1ff2e02a39, type: 2}
-    NewMove: {fileID: 11400000, guid: f39bc894bd25c884fbf3acacb7708760, type: 2}
   - OldMove: {fileID: 11400000, guid: df4563083d9eb60409c66aa514f9a0f6, type: 2}
     NewMove: {fileID: 11400000, guid: ead3a06e041cc5f4c8c729b866fd39fa, type: 2}
   NewMoves: []
-  GrantedAbility: {fileID: 11400000, guid: 991a0c52d6158194e80eb0314b7b9fae, type: 2}
-  CritChanceBonus: 0.1
+  GrantedAbility: {fileID: 0}
+  CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.3.4"
+  GDDReference: "\xA75.12.2 | Stage-1 Vanguard: Tackle→RockBlast, Magnitude→Earthquake"

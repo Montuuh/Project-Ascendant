@@ -4,8 +4,8 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Tests
 {
-    // Per Epic 7 Task 7.5 + §5.5.1 + §5.8 (Keen Eye, Healer) + §5.11.4 Mastery bands.
-    // Pidgey line golden tests — Support archetype (no crit bonus per §5.3.4).
+    // Per CL-007 (§5.12.2) + §5.11.4 Mastery bands.
+    // Pidgey line golden tests — moves-only, single archetype, no ability/crit grant.
     public class PidgeyLineContentTests
     {
         private const string ROOT = "Assets/ScriptableObjects/VS";
@@ -37,28 +37,26 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void PidgeyEvolveBranch_HasKeenEye_SupportArchetype_NoCritBonus()
+        public void PidgeyEvolveBranch_MovesOnly_NoAbility()
         {
-            // Per §5.3.4 — Support archetype reward is a team-sustain passive (Healer),
-            // NOT crit chance. So CritChanceBonus stays 0 (Vanguard-only attribute).
+            // Per CL-007 (§5.12.2) — stage-1 branch: ≤2 upgrades, no ability/crit grant.
             EvolutionBranchSO branch = Load<EvolutionBranchSO>(
                 $"{ROOT}/Branches/pidgey/pidgey_evolve.asset");
             Assert.That(branch, Is.Not.Null);
             Assert.That(branch.Archetype, Is.EqualTo(BranchArchetype.Support));
-            Assert.That(branch.GrantedAbility, Is.Not.Null);
-            Assert.That(branch.GrantedAbility.AbilityId, Is.EqualTo("keen_eye"),
-                "Pidgey line primary is Keen Eye (Vision passive — §5.5.3.1).");
-            Assert.That(branch.CritChanceBonus, Is.EqualTo(0f).Within(0.001f),
-                "Support archetype does not grant a crit bonus.");
+            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: pidgey_evolve grants no ability.");
+            Assert.That(branch.CritChanceBonus, Is.EqualTo(0f).Within(0.001f), "No crit bonus (CL-007).");
+            Assert.That(branch.MoveUpgrades.Count, Is.InRange(1, 2), "≤2 move upgrades (§5.12.2).");
+            Assert.That(branch.NewMoves.Count, Is.EqualTo(0));
         }
 
         [Test]
-        public void Pidgeotto_PrimaryAbilityIsKeenEye_SingleEvolveBranch()
+        public void Pidgeotto_NoAbility_SingleEvolveBranch()
         {
+            // Per CL-007 (§5.12.2) — mid-form has no PrimaryAbility.
             PokemonSpeciesSO pidgeotto = Load<PokemonSpeciesSO>(
                 $"{ROOT}/Species/Wild/Pidgey/Pidgeotto.asset");
-            Assert.That(pidgeotto.PrimaryAbility, Is.Not.Null);
-            Assert.That(pidgeotto.PrimaryAbility.AbilityId, Is.EqualTo("keen_eye"));
+            Assert.That(pidgeotto.PrimaryAbility, Is.Null, "CL-007: Pidgeotto has no PrimaryAbility.");
             Assert.That(pidgeotto.Branches.Count, Is.EqualTo(1));
         }
 
@@ -78,13 +76,14 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void PidgeottoEvolveBranch_HasHealer()
+        public void PidgeottoEvolveBranch_AdditiveSignature_NoAbility()
         {
+            // Per CL-007 (§5.12.2) — stage-2 branch: 0 upgrades, +1 signature (Hurricane), no ability.
             EvolutionBranchSO branch = Load<EvolutionBranchSO>(
                 $"{ROOT}/Branches/pidgey/pidgeotto_evolve.asset");
-            Assert.That(branch.GrantedAbility, Is.Not.Null);
-            Assert.That(branch.GrantedAbility.AbilityId, Is.EqualTo("healer"),
-                "Pidgeot secondary: Healer (§5.3.4 Support archetype team-sustain reward).");
+            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: pidgeotto_evolve grants no ability.");
+            Assert.That(branch.MoveUpgrades.Count, Is.EqualTo(0), "Stage-2 is purely additive.");
+            Assert.That(branch.NewMoves.Count, Is.EqualTo(1), "Adds exactly 1 signature (Hurricane).");
         }
 
         [Test]

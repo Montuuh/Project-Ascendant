@@ -1,135 +1,126 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
 using ProjectAscendant.Core;
+using ProjectAscendant.Progression;
 
 namespace ProjectAscendant.Tests
 {
-    // Per Epic 7 Task 7.1 + §5.5.1 + §5.8 (Overgrow) + §5.11.4 Mastery bands.
-    // Bulbasaur line golden tests — Vanguard branch only (VS scope).
+    // Per CL-007 (§5.12.2) — golden content for the Bulbasaur line under the moves-only /
+    // one-species-per-stage model: 3 archetype branches per evolving stage, NO ability/crit grant,
+    // lighter payload (≤2 upgrades stage-1, +1 signature stage-2), and gap #46 closed (one Venusaur).
     public class BulbasaurLineContentTests
     {
         private const string ROOT = "Assets/ScriptableObjects/VS";
-
-        private static T Load<T>(string path) where T : UnityEngine.Object
-            => AssetDatabase.LoadAssetAtPath<T>(path);
-
-        // ── §5.5.1 — Bulbasaur base form has no PrimaryAbility ──────────────
+        private static T Load<T>(string p) where T : UnityEngine.Object => AssetDatabase.LoadAssetAtPath<T>(p);
+        private static PokemonSpeciesSO Sp(string f) => Load<PokemonSpeciesSO>($"{ROOT}/Species/Starters/Bulbasaur/{f}.asset");
+        private static EvolutionBranchSO Br(string f) => Load<EvolutionBranchSO>($"{ROOT}/Branches/bulbasaur/{f}.asset");
 
         [Test]
-        public void Bulbasaur_BaseLearnsetHasFourMoves_NoPrimaryAbility()
+        // §5.12.2 — Bulbasaur: 4 base moves, no pre-evo ability, 3 archetype branches all → Ivysaur.
+        public void Bulbasaur_ThreeArchetypeBranches_NoAbility()
         {
-            PokemonSpeciesSO bulbasaur = Load<PokemonSpeciesSO>(
-                $"{ROOT}/Species/Starters/Bulbasaur/Bulbasaur.asset");
-            Assert.That(bulbasaur, Is.Not.Null);
-            Assert.That(bulbasaur.BaseLearnset.Count, Is.EqualTo(4));
-            Assert.That(bulbasaur.PrimaryAbility, Is.Null,
-                "Pre-evo Bulbasaur must not have a PrimaryAbility (§5.5.1).");
-            Assert.That(bulbasaur.Branches.Count, Is.EqualTo(1),
-                "VS scope: Bulbasaur has only the Vanguard branch.");
+            PokemonSpeciesSO s = Sp("Bulbasaur");
+            Assert.That(s, Is.Not.Null, "Bulbasaur.asset missing");
+            Assert.That(s.BaseLearnset.Count, Is.EqualTo(4));
+            Assert.That(s.PrimaryAbility, Is.Null, "Pre-evolution Bulbasaur has no PrimaryAbility (§5.5.1).");
+            Assert.That(s.Branches.Count, Is.EqualTo(3), "Bulbasaur offers Vanguard/Specialist/Support (§5.12.2).");
+
+            PokemonSpeciesSO ivysaur = Sp("Ivysaur");
+            HashSet<BranchArchetype> archs = new();
+            foreach (EvolutionBranchSO b in s.Branches)
+            {
+                Assert.That(b.EvolvedSpecies, Is.SameAs(ivysaur), "All stage-1 archetypes evolve to the same Ivysaur (moves-only).");
+                archs.Add(b.Archetype);
+            }
+            Assert.That(archs, Is.EquivalentTo(new[]
+                { BranchArchetype.Vanguard, BranchArchetype.Specialist, BranchArchetype.Support }));
         }
 
         [Test]
-        public void Bulbasaur_MasteryLv1_BandCompliant()
+        // §5.12.2 — stage-1 branches: moves-only, 1–2 upgrades, 0 new, no ability/crit, no sub-branches.
+        public void BulbasaurBranches_MovesOnly_LighterPayload()
         {
-            PokemonSpeciesSO bulbasaur = Load<PokemonSpeciesSO>(
-                $"{ROOT}/Species/Starters/Bulbasaur/Bulbasaur.asset");
-            MoveSO mastery = bulbasaur.MasteryMove;
-            Assert.That(mastery, Is.Not.Null);
-            Assert.That(mastery.BasePower, Is.InRange(60, 80),
-                $"Lv1 Mastery Power={mastery.BasePower} outside §5.11.4 band.");
-            Assert.That(mastery.APCost, Is.EqualTo(1));
-            Assert.That(mastery.Modifier, Is.EqualTo(PositionalModifier.None));
-        }
-
-        // ── §5.3.4 + §5.6 — bulbasaur_vanguard branch ───────────────────────
-
-        [Test]
-        public void BulbasaurVanguardBranch_HasOvergrowAndTenPercentCritBonus()
-        {
-            // Per §5.8 — Bulbasaur line primary ability is Overgrow.
-            // Per §5.3.4 — Vanguard stage 1 grants a flat crit bonus (matches §5.6's
-            // 10% on the Squirtle worked example; applied consistently across starters).
-            EvolutionBranchSO branch = Load<EvolutionBranchSO>(
-                $"{ROOT}/Branches/bulbasaur/bulbasaur_vanguard.asset");
-            Assert.That(branch, Is.Not.Null);
-            Assert.That(branch.GrantedAbility, Is.Not.Null);
-            Assert.That(branch.GrantedAbility.AbilityId, Is.EqualTo("overgrow"));
-            Assert.That(branch.CritChanceBonus, Is.EqualTo(0.1f).Within(0.001f));
-            Assert.That(branch.NewMoves.Count, Is.EqualTo(0),
-                "Vanguard stage-1 evolution is upgrade-only; pool size stays 4.");
-        }
-
-        // ── Ivysaur stage-1 form ────────────────────────────────────────────
-
-        [Test]
-        public void IvysaurVanguard_PrimaryAbilityIsOvergrow_TwoSubBranches()
-        {
-            PokemonSpeciesSO ivysaur = Load<PokemonSpeciesSO>(
-                $"{ROOT}/Species/Starters/Bulbasaur/Ivysaur_Vanguard.asset");
-            Assert.That(ivysaur.PrimaryAbility, Is.Not.Null);
-            Assert.That(ivysaur.PrimaryAbility.AbilityId, Is.EqualTo("overgrow"));
-            Assert.That(ivysaur.Branches.Count, Is.EqualTo(2),
-                "Ivysaur Vanguard offers 2 sub-branches (VA1 Bloom Brawler / VA2 Toxic Briar).");
+            foreach (string id in new[] { "bulbasaur_vanguard", "bulbasaur_specialist", "bulbasaur_support" })
+            {
+                EvolutionBranchSO b = Br(id);
+                Assert.That(b, Is.Not.Null, id);
+                Assert.That(b.GrantedAbility, Is.Null, $"{id} grants no ability (CL-007).");
+                Assert.That(b.CritChanceBonus, Is.EqualTo(0f).Within(0.0001f), $"{id} grants no crit (CL-007).");
+                Assert.That(b.MoveUpgrades.Count, Is.InRange(1, 2), $"{id} has ≤2 move upgrades (§5.12.2 lighter payload).");
+                Assert.That(b.NewMoves.Count, Is.EqualTo(0), $"{id} stage-1 adds no new pool moves.");
+                Assert.That(b.SubBranches, Is.Empty, $"{id} has no A1/A2 sub-branches (removed).");
+            }
         }
 
         [Test]
-        public void Ivysaur_MasteryLv2_BandCompliant()
+        // §5.12.2 — Ivysaur: one consolidated SO; 3 branches → Venusaur; Lv2 Mastery band (§5.11.4).
+        public void Ivysaur_ThreeBranches_MasteryLv2Band()
         {
-            PokemonSpeciesSO ivysaur = Load<PokemonSpeciesSO>(
-                $"{ROOT}/Species/Starters/Bulbasaur/Ivysaur_Vanguard.asset");
-            MoveSO mastery = ivysaur.MasteryMove;
-            Assert.That(mastery, Is.Not.Null);
-            Assert.That(mastery.BasePower, Is.InRange(85, 110),
-                $"Lv2 Mastery Power={mastery.BasePower} outside §5.11.4 band.");
-            Assert.That(mastery.APCost, Is.InRange(1, 2));
-            // §5.11.4 — must carry SF/SB OR a status rider.
-            // Ranged Razor Leaf cannot carry SF/SB; satisfies the band via the
-            // Bulbasaur Lv2 achievement themed Poison rider (§5.11).
-            bool hasSfSb = mastery.Modifier == PositionalModifier.StepForward
-                        || mastery.Modifier == PositionalModifier.StepBackward;
-            bool hasRider = mastery.Effects != null && mastery.Effects.Count >= 1;
-            Assert.That(hasSfSb || hasRider, Is.True,
-                "Lv2 Mastery must carry SF/SB or a status rider per §5.11.4.");
-        }
+            PokemonSpeciesSO w = Sp("Ivysaur");
+            Assert.That(w, Is.Not.Null, "Ivysaur.asset (consolidated) missing");
+            Assert.That(w.PrimaryAbility, Is.Null, "Ivysaur has no PrimaryAbility under CL-007 (§5.12.2).");
+            Assert.That(w.Branches.Count, Is.EqualTo(3));
+            PokemonSpeciesSO venusaur = Sp("Venusaur");
+            foreach (EvolutionBranchSO b in w.Branches)
+                Assert.That(b.EvolvedSpecies, Is.SameAs(venusaur));
 
-        // ── Venusaur sub-branches ───────────────────────────────────────────
-
-        [Test]
-        public void IvysaurVA1_ToughClaws_BloomBrawler()
-        {
-            EvolutionBranchSO va1 = Load<EvolutionBranchSO>(
-                $"{ROOT}/Branches/bulbasaur/ivysaur_va1.asset");
-            Assert.That(va1.GrantedAbility, Is.Not.Null);
-            Assert.That(va1.GrantedAbility.AbilityId, Is.EqualTo("tough_claws"),
-                "VA1 secondary: Tough Claws (melee +15% — Vanguard-themed identity).");
-            Assert.That(va1.MoveUpgrades.Count, Is.EqualTo(3));
+            MoveSO m = w.MasteryMove;
+            Assert.That(m, Is.Not.Null, "Ivysaur MasteryMove (§4.3.9.2).");
+            Assert.That(m.BasePower, Is.InRange(85, 110), "Lv2 Mastery band 85–110 (§5.11.4).");
+            Assert.That(m.APCost, Is.InRange(1, 2));
         }
 
         [Test]
-        public void IvysaurVA2_Snipe_ToxicBriar()
+        // §5.12.2 — stage-2 branches: additive (+1 signature), 0 upgrades, no ability (mix-safe).
+        public void IvysaurBranches_AdditiveSignature()
         {
-            EvolutionBranchSO va2 = Load<EvolutionBranchSO>(
-                $"{ROOT}/Branches/bulbasaur/ivysaur_va2.asset");
-            Assert.That(va2.GrantedAbility, Is.Not.Null);
-            Assert.That(va2.GrantedAbility.AbilityId, Is.EqualTo("snipe"),
-                "VA2 secondary: Snipe (ranged +15% — Toxic Briar identity).");
-            Assert.That(va2.MoveUpgrades.Count, Is.EqualTo(3));
+            foreach (string id in new[] { "ivysaur_vanguard", "ivysaur_specialist", "ivysaur_support" })
+            {
+                EvolutionBranchSO b = Br(id);
+                Assert.That(b, Is.Not.Null, id);
+                Assert.That(b.GrantedAbility, Is.Null, $"{id} grants no ability (CL-007).");
+                Assert.That(b.MoveUpgrades.Count, Is.EqualTo(0), $"{id} stage-2 is purely additive (mix-safe).");
+                Assert.That(b.NewMoves.Count, Is.EqualTo(1), $"{id} adds exactly 1 signature move.");
+            }
         }
 
-        // ── Venusaur Lv3 Mastery ────────────────────────────────────────────
+        [Test]
+        // §5.12.2 / gap #46 — Venusaur is ONE final SO with a unique id, no branches, Lv3 Mastery band.
+        public void Venusaur_UniqueId_Final_MasteryLv3()
+        {
+            PokemonSpeciesSO v = Sp("Venusaur");
+            Assert.That(v, Is.Not.Null, "Venusaur.asset (consolidated A1/A2 → one) missing");
+            Assert.That(v.SpeciesId, Is.EqualTo("venusaur"), "Final-form SpeciesId is unique (gap #46 closed).");
+            Assert.That(v.PrimaryAbility, Is.Null, "Venusaur has no PrimaryAbility under CL-007 (§5.12.2).");
+            Assert.That(v.Branches.Count, Is.EqualTo(0), "Final form has no branches.");
+
+            MoveSO m = v.MasteryMove;
+            Assert.That(m, Is.Not.Null);
+            Assert.That(m.BasePower, Is.InRange(110, 140), "Lv3 Mastery band 110–140 (§5.11.4).");
+            Assert.That(m.APCost, Is.InRange(2, 3));
+        }
 
         [Test]
-        public void Venusaur_MasteryLv3_BandCompliant()
+        // §5.12.2 — cross-archetype mix: Vanguard (stage 1) then Specialist (stage 2).
+        // Pool reflects both archetypes; species advances to Venusaur; no ability is granted.
+        public void Evolution_CrossArchetypeMix_PoolReflectsBoth_NoAbility()
         {
-            PokemonSpeciesSO va1 = Load<PokemonSpeciesSO>(
-                $"{ROOT}/Species/Starters/Bulbasaur/Venusaur_VanguardA1.asset");
-            PokemonSpeciesSO va2 = Load<PokemonSpeciesSO>(
-                $"{ROOT}/Species/Starters/Bulbasaur/Venusaur_VanguardA2.asset");
-            Assert.That(va1.MasteryMove, Is.EqualTo(va2.MasteryMove),
-                "Both Vanguard sub-branches share the Lv3 Mastery move.");
-            MoveSO mastery = va1.MasteryMove;
-            Assert.That(mastery.BasePower, Is.InRange(110, 140));
-            Assert.That(mastery.APCost, Is.InRange(2, 3));
+            PokemonSpeciesSO bulbasaur = Sp("Bulbasaur");
+            PokemonInstanceFactory factory = new();
+            PokemonInstance p = factory.Create(bulbasaur, 12);
+
+            EvolutionExecutor.Evolve(p, Br("bulbasaur_vanguard"));    // stage 1: Vanguard
+            EvolutionExecutor.Evolve(p, Br("ivysaur_specialist"));    // stage 2: Specialist (the mix)
+
+            Assert.That(p.Species.SpeciesId, Is.EqualTo("venusaur"));
+            Assert.That(p.CurrentStage, Is.EqualTo(EvolutionStage.Stage2));
+            List<string> ids = p.LearnedMoves.ConvertAll(m => m.MoveId);
+            Assert.That(ids, Has.Member("headbutt"), "Vanguard stage-1 upgrade survived into the pool.");
+            Assert.That(ids, Has.Member("vine_lash"), "Vanguard stage-1 upgrade survived into the pool.");
+            Assert.That(ids, Has.Member("seed_flare"), "Specialist stage-2 signature added (the mix).");
+            Assert.That(p.Ability, Is.Null, "CL-007 — evolution grants no ability.");
+            factory.Release(p);
         }
     }
 }

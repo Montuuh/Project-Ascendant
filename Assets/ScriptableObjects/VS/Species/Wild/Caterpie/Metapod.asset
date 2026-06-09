@@ -30,7 +30,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 57b250d22425b0248b4684406479c31a, type: 2}
   TutorLearnset: []
   TMCompatibility: []
-  PrimaryAbility: {fileID: 11400000, guid: 4651a859cc66dcf43bb4bb0aa3b0f523, type: 2}
+  PrimaryAbility: {fileID: 0}
   MasteryMove: {fileID: 11400000, guid: 8c9f4ea464e24ce4b9f0b688b56db8de, type: 2}
   StatusImmunities: 
   WildRarity: 0

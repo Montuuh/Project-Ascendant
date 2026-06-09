@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
-  m_Name: Venusaur_VanguardA1
+  m_Name: Venusaur
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
   SpeciesId: venusaur
   DisplayName: Venusaur
@@ -29,10 +29,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2d098a8f4c63ec54fbaf2bf4fc027c39, type: 2}
   TutorLearnset: []
   TMCompatibility: []
-  PrimaryAbility: {fileID: 11400000, guid: f2b428d1dd6724048981dd1c636f087b, type: 2}
+  PrimaryAbility: {fileID: 0}
   MasteryMove: {fileID: 11400000, guid: 2bf4fd30b10fe0f41b455edfb52a23a6, type: 2}
-  StatusImmunities: 
+  StatusImmunities:
   WildRarity: 2
   SpawnBiomes: 01000000
   Portrait: {fileID: 21300000, guid: 7b2cff8de57dec143b09ea85c7c1702f, type: 3}
-  GDDReference: "\xA75.3 | Secondary ability (branch): Tough Claws"
+  GDDReference: "\xA75.12.2 | Final form (gap #46 closed)"

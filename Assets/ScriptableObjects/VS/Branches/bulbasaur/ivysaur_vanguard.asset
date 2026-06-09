@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
-  m_Name: graveler_evolve
+  m_Name: ivysaur_vanguard
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
-  BranchId: graveler_evolve
+  BranchId: ivysaur_vanguard
   DisplayName: Vanguard
   Archetype: 0
-  EvolvedSpecies: {fileID: 11400000, guid: f005ab37e554e4045b8a4d44ac2f08fd, type: 2}
+  EvolvedSpecies: {fileID: 11400000, guid: cfc4f94ba3e54bc4ebe74409d60ef8ad, type: 2}
   MoveUpgrades: []
   NewMoves:
-  - {fileID: 11400000, guid: ffa7bc09d7bdb9f439028df394b829d2, type: 2}
+  - {fileID: 11400000, guid: 9bfdaa8c0a07587479217319d145bfd9, type: 2}
   GrantedAbility: {fileID: 0}
   CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.12.2 | Stage-2 Vanguard signature: Body Press (uses Def for damage)"
+  GDDReference: "\xA75.12.2 | Stage-2 signature: Power Whip (physical finisher)"

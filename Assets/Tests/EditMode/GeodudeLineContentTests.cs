@@ -4,9 +4,8 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Tests
 {
-    // Per Epic 7 Task 7.6 + §5.5.1 + §5.8 (Sturdy) + §5.11.4 Mastery bands.
-    // Geodude line golden tests — Vanguard tank archetype, 3-stage wild line,
-    // no sub-branch split (single Graveler→Golem path).
+    // Per CL-007 (§5.12.2) + §5.11.4 Mastery bands.
+    // Geodude line golden tests — moves-only, single archetype, no ability/crit grant.
     public class GeodudeLineContentTests
     {
         private const string ROOT = "Assets/ScriptableObjects/VS";
@@ -38,27 +37,28 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void GeodudeEvolveBranch_HasSturdyAndTenPercentCritBonus()
+        public void GeodudeEvolveBranch_MovesOnly_NoAbility()
         {
+            // Per CL-007 (§5.12.2) — stage-1 branch: ≤2 upgrades, no ability/crit grant.
             EvolutionBranchSO branch = Load<EvolutionBranchSO>(
                 $"{ROOT}/Branches/geodude/geodude_evolve.asset");
             Assert.That(branch, Is.Not.Null);
             Assert.That(branch.Archetype, Is.EqualTo(BranchArchetype.Vanguard));
-            Assert.That(branch.GrantedAbility, Is.Not.Null);
-            Assert.That(branch.GrantedAbility.AbilityId, Is.EqualTo("sturdy"));
-            Assert.That(branch.CritChanceBonus, Is.EqualTo(0.1f).Within(0.001f),
-                "Vanguard archetype contributes +10% crit per §5.3.4.");
+            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: geodude_evolve grants no ability.");
+            Assert.That(branch.CritChanceBonus, Is.EqualTo(0f).Within(0.001f), "No crit bonus (CL-007).");
+            Assert.That(branch.MoveUpgrades.Count, Is.InRange(1, 2), "≤2 move upgrades (§5.12.2).");
+            Assert.That(branch.NewMoves.Count, Is.EqualTo(0));
         }
 
         [Test]
-        public void Graveler_PrimaryAbilityIsSturdy_SingleEvolveBranch()
+        public void Graveler_NoAbility_SingleEvolveBranch()
         {
+            // Per CL-007 (§5.12.2) — mid-form has no PrimaryAbility.
             PokemonSpeciesSO graveler = Load<PokemonSpeciesSO>(
                 $"{ROOT}/Species/Wild/Geodude/Graveler.asset");
-            Assert.That(graveler.PrimaryAbility, Is.Not.Null);
-            Assert.That(graveler.PrimaryAbility.AbilityId, Is.EqualTo("sturdy"));
+            Assert.That(graveler.PrimaryAbility, Is.Null, "CL-007: Graveler has no PrimaryAbility.");
             Assert.That(graveler.Branches.Count, Is.EqualTo(1),
-                "Wild 3-stage lines use a single Stage 2 evolution path (no A1/A2 split).");
+                "Wild 3-stage lines use a single Stage 2 evolution path.");
         }
 
         [Test]
@@ -77,13 +77,14 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void GravelerEvolveBranch_HasToughClaws()
+        public void GravelerEvolveBranch_AdditiveSignature_NoAbility()
         {
+            // Per CL-007 (§5.12.2) — stage-2 branch: 0 upgrades, +1 signature (Body Press), no ability.
             EvolutionBranchSO branch = Load<EvolutionBranchSO>(
                 $"{ROOT}/Branches/geodude/graveler_evolve.asset");
-            Assert.That(branch.GrantedAbility, Is.Not.Null);
-            Assert.That(branch.GrantedAbility.AbilityId, Is.EqualTo("tough_claws"),
-                "Golem secondary: Tough Claws (Vanguard tank's melee identity).");
+            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: graveler_evolve grants no ability.");
+            Assert.That(branch.MoveUpgrades.Count, Is.EqualTo(0), "Stage-2 is purely additive.");
+            Assert.That(branch.NewMoves.Count, Is.EqualTo(1), "Adds exactly 1 signature (Body Press).");
         }
 
         [Test]
