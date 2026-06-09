@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
+  m_Name: pidgey_specialist
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
+  BranchId: pidgey_specialist
+  DisplayName: Specialist
+  Archetype: 1
+  EvolvedSpecies: {fileID: 11400000, guid: 262430a8c293ae84298046d92ee493aa, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: 68ad5e2040d031c48bd4497fd0f071bb, type: 2}
+    NewMove: {fileID: 11400000, guid: e7fa2aefa18715940accff7c57c4976e, type: 2}
+  - OldMove: {fileID: 11400000, guid: 8362c826a5dc8e6488000c7d3fb1fcd2, type: 2}
+    NewMove: {fileID: 11400000, guid: 818790dcb65e0124fa9bb42cd1059fea, type: 2}
+  NewMoves: []
+  GrantedAbility: {fileID: 0}
+  CritChanceBonus: 0
+  SubBranches: []
+  GDDReference: "\xA75.12.2 | Stage-1 Specialist: Gust→AerialAce, SandAttack→Tailwind"

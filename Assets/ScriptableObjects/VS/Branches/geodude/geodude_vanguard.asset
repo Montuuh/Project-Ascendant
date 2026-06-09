@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
+  m_Name: geodude_vanguard
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
+  BranchId: geodude_vanguard
+  DisplayName: Vanguard
+  Archetype: 0
+  EvolvedSpecies: {fileID: 11400000, guid: 1ac34a6c3369e804bac2413deebd8eea, type: 2}
+  MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
+    NewMove: {fileID: 11400000, guid: 07f68986483e3ea458954580498dc23e, type: 2}
+  - OldMove: {fileID: 11400000, guid: df4563083d9eb60409c66aa514f9a0f6, type: 2}
+    NewMove: {fileID: 11400000, guid: ead3a06e041cc5f4c8c729b866fd39fa, type: 2}
+  NewMoves: []
+  GrantedAbility: {fileID: 0}
+  CritChanceBonus: 0
+  SubBranches: []
+  GDDReference: "\xA75.12.2 | Stage-1 Vanguard: Tackle→RockBlast, Magnitude→Earthquake"

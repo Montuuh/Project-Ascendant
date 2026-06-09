@@ -1,15 +1,16 @@
 using NUnit.Framework;
 using UnityEditor;
+using System.Linq;
 using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Tests
 {
-    // Per CL-007 (§5.12.2) — golden content for wild lines (Caterpie, Geodude, Pidgey).
-    // Wild lines use 1 archetype per stage (simpler than starters). Invariants:
-    //   • Base form: 4 moves, no PrimaryAbility, 1 branch.
-    //   • Stage-1 branch: ≤2 move upgrades, 0 new moves, no ability/crit, no sub-branches.
-    //   • Mid form: no PrimaryAbility, 1 branch (stage-2).
-    //   • Stage-2 branch: 0 upgrades, +1 signature move, no ability (additive / mix-safe).
+    // Per CL-007 #D (§5.12.2) — golden content for wild lines (Caterpie, Geodude, Pidgey).
+    // Wild lines now have 3 archetypes per stage, matching starter parity.
+    // Invariants:
+    //   • Base / mid form: 4 moves, no PrimaryAbility, 3 branches (Vanguard+Specialist+Support).
+    //   • Stage-1 branches: ≤2 move upgrades, 0 new moves, no ability/crit, no sub-branches.
+    //   • Stage-2 branches: 0 upgrades, +1 signature move each, no ability (additive / mix-safe).
     //   • Final form: no PrimaryAbility, no branches.
     public class WildLinesContentTests
     {
@@ -21,54 +22,77 @@ namespace ProjectAscendant.Tests
         // ── Caterpie / Metapod / Butterfree ──────────────────────────────────
 
         [Test]
-        // §5.12.2 — Caterpie: 4 base moves, no ability, single branch → Metapod.
-        public void Caterpie_SingleBranch_NoAbility()
+        // §5.12.2 — Caterpie: 4 base moves, no ability, 3 archetype branches → Metapod.
+        public void Caterpie_ThreeArchetypeBranches_NoAbility()
         {
             PokemonSpeciesSO s = Wild("Caterpie", "Caterpie");
             Assert.That(s, Is.Not.Null, "Caterpie.asset missing");
             Assert.That(s.BaseLearnset.Count, Is.EqualTo(4));
             Assert.That(s.PrimaryAbility, Is.Null, "Caterpie has no PrimaryAbility (§5.12.2).");
-            Assert.That(s.Branches.Count, Is.EqualTo(1));
-            EvolutionBranchSO b = s.Branches[0];
+            Assert.That(s.Branches.Count, Is.EqualTo(3), "Caterpie: 3 archetype branches (CL-007 #D).");
+            var archetypes = s.Branches.Select(b => b.Archetype).ToHashSet();
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Vanguard));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Specialist));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Support));
             PokemonSpeciesSO metapod = Wild("Caterpie", "Metapod");
-            Assert.That(b.EvolvedSpecies, Is.SameAs(metapod));
+            foreach (var b in s.Branches)
+                Assert.That(b.EvolvedSpecies, Is.SameAs(metapod), $"{b.BranchId} should evolve to Metapod.");
         }
 
         [Test]
-        // §5.12.2 — caterpie_evolve: ≤2 upgrades, 0 new, no ability/crit.
-        public void CaterpieEvolveBranch_LighterPayload_NoAbility()
+        // §5.12.2 — caterpie_vanguard: ≤2 upgrades, 0 new, no ability/crit.
+        public void CaterpieVanguardBranch_LighterPayload_NoAbility()
         {
-            EvolutionBranchSO b = Br("caterpie", "caterpie_evolve");
+            EvolutionBranchSO b = Br("caterpie", "caterpie_vanguard");
             Assert.That(b, Is.Not.Null);
-            Assert.That(b.GrantedAbility, Is.Null, "caterpie_evolve grants no ability (CL-007).");
+            Assert.That(b.Archetype, Is.EqualTo(BranchArchetype.Vanguard));
+            Assert.That(b.GrantedAbility, Is.Null, "caterpie_vanguard grants no ability (CL-007).");
             Assert.That(b.CritChanceBonus, Is.EqualTo(0f).Within(0.0001f));
-            Assert.That(b.MoveUpgrades.Count, Is.InRange(1, 2), "caterpie_evolve: ≤2 upgrades (§5.12.2).");
+            Assert.That(b.MoveUpgrades.Count, Is.InRange(1, 2), "caterpie_vanguard: ≤2 upgrades (§5.12.2).");
             Assert.That(b.NewMoves.Count, Is.EqualTo(0));
             Assert.That(b.SubBranches, Is.Empty);
         }
 
         [Test]
-        // §5.12.2 — Metapod: no ability, single stage-2 branch → Butterfree.
-        public void Metapod_SingleBranch_NoAbility()
+        // §5.12.2 — Metapod: no ability, 3 archetype branches → Butterfree.
+        public void Metapod_ThreeArchetypeBranches_NoAbility()
         {
             PokemonSpeciesSO s = Wild("Caterpie", "Metapod");
             Assert.That(s, Is.Not.Null);
             Assert.That(s.PrimaryAbility, Is.Null, "Metapod has no PrimaryAbility (§5.12.2).");
-            Assert.That(s.Branches.Count, Is.EqualTo(1));
-            EvolutionBranchSO b = s.Branches[0];
+            Assert.That(s.Branches.Count, Is.EqualTo(3), "Metapod: 3 archetype branches (CL-007 #D).");
+            var archetypes = s.Branches.Select(b => b.Archetype).ToHashSet();
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Vanguard));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Specialist));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Support));
             PokemonSpeciesSO butterfree = Wild("Caterpie", "Butterfree");
-            Assert.That(b.EvolvedSpecies, Is.SameAs(butterfree));
+            foreach (var b in s.Branches)
+                Assert.That(b.EvolvedSpecies, Is.SameAs(butterfree), $"{b.BranchId} should evolve to Butterfree.");
         }
 
         [Test]
-        // §5.12.2 — metapod_evolve: 0 upgrades, +1 signature (Psybeam), no ability.
-        public void MetapodEvolveBranch_AdditiveSignature_NoAbility()
+        // §5.12.2 — metapod_vanguard: 0 upgrades, +1 signature, no ability.
+        public void MetapodVanguardBranch_AdditiveSignature_NoAbility()
         {
-            EvolutionBranchSO b = Br("caterpie", "metapod_evolve");
+            EvolutionBranchSO b = Br("caterpie", "metapod_vanguard");
             Assert.That(b, Is.Not.Null);
-            Assert.That(b.GrantedAbility, Is.Null, "metapod_evolve grants no ability (CL-007).");
+            Assert.That(b.GrantedAbility, Is.Null, "metapod_vanguard grants no ability (CL-007).");
             Assert.That(b.MoveUpgrades.Count, Is.EqualTo(0), "Stage-2 branch is purely additive.");
-            Assert.That(b.NewMoves.Count, Is.EqualTo(1), "metapod_evolve adds exactly 1 signature (Psybeam).");
+            Assert.That(b.NewMoves.Count, Is.EqualTo(1), "metapod_vanguard adds exactly 1 signature (SilverWind).");
+        }
+
+        [Test]
+        // §5.12.2 — All Metapod stage-2 branches are purely additive (+1 sig, 0 upgrades, no ability).
+        public void MetapodAllBranches_AdditiveSignature_NoAbility()
+        {
+            foreach (string name in new[] { "metapod_vanguard", "metapod_specialist", "metapod_support" })
+            {
+                EvolutionBranchSO b = Br("caterpie", name);
+                Assert.That(b, Is.Not.Null, $"{name}.asset missing");
+                Assert.That(b.GrantedAbility, Is.Null, $"{name} grants no ability (CL-007).");
+                Assert.That(b.MoveUpgrades.Count, Is.EqualTo(0), $"{name}: Stage-2 is purely additive.");
+                Assert.That(b.NewMoves.Count, Is.EqualTo(1), $"{name}: adds exactly 1 signature.");
+            }
         }
 
         [Test]
@@ -84,54 +108,77 @@ namespace ProjectAscendant.Tests
         // ── Geodude / Graveler / Golem ────────────────────────────────────────
 
         [Test]
-        // §5.12.2 — Geodude: 4 base moves, no ability, single branch → Graveler.
-        public void Geodude_SingleBranch_NoAbility()
+        // §5.12.2 — Geodude: 4 base moves, no ability, 3 archetype branches → Graveler.
+        public void Geodude_ThreeArchetypeBranches_NoAbility()
         {
             PokemonSpeciesSO s = Wild("Geodude", "Geodude");
             Assert.That(s, Is.Not.Null, "Geodude.asset missing");
             Assert.That(s.BaseLearnset.Count, Is.EqualTo(4));
             Assert.That(s.PrimaryAbility, Is.Null, "Geodude has no PrimaryAbility (§5.12.2).");
-            Assert.That(s.Branches.Count, Is.EqualTo(1));
-            EvolutionBranchSO b = s.Branches[0];
+            Assert.That(s.Branches.Count, Is.EqualTo(3), "Geodude: 3 archetype branches (CL-007 #D).");
+            var archetypes = s.Branches.Select(b => b.Archetype).ToHashSet();
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Vanguard));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Specialist));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Support));
             PokemonSpeciesSO graveler = Wild("Geodude", "Graveler");
-            Assert.That(b.EvolvedSpecies, Is.SameAs(graveler));
+            foreach (var b in s.Branches)
+                Assert.That(b.EvolvedSpecies, Is.SameAs(graveler), $"{b.BranchId} should evolve to Graveler.");
         }
 
         [Test]
-        // §5.12.2 — geodude_evolve: ≤2 upgrades, 0 new, no ability/crit.
-        public void GeodudeEvolveBranch_LighterPayload_NoAbility()
+        // §5.12.2 — geodude_vanguard: ≤2 upgrades, 0 new, no ability/crit.
+        public void GeodudeVanguardBranch_LighterPayload_NoAbility()
         {
-            EvolutionBranchSO b = Br("geodude", "geodude_evolve");
+            EvolutionBranchSO b = Br("geodude", "geodude_vanguard");
             Assert.That(b, Is.Not.Null);
-            Assert.That(b.GrantedAbility, Is.Null, "geodude_evolve grants no ability (CL-007).");
+            Assert.That(b.Archetype, Is.EqualTo(BranchArchetype.Vanguard));
+            Assert.That(b.GrantedAbility, Is.Null, "geodude_vanguard grants no ability (CL-007).");
             Assert.That(b.CritChanceBonus, Is.EqualTo(0f).Within(0.0001f));
-            Assert.That(b.MoveUpgrades.Count, Is.InRange(1, 2), "geodude_evolve: ≤2 upgrades (§5.12.2).");
+            Assert.That(b.MoveUpgrades.Count, Is.InRange(1, 2), "geodude_vanguard: ≤2 upgrades (§5.12.2).");
             Assert.That(b.NewMoves.Count, Is.EqualTo(0));
             Assert.That(b.SubBranches, Is.Empty);
         }
 
         [Test]
-        // §5.12.2 — Graveler: no ability, single stage-2 branch → Golem.
-        public void Graveler_SingleBranch_NoAbility()
+        // §5.12.2 — Graveler: no ability, 3 archetype branches → Golem.
+        public void Graveler_ThreeArchetypeBranches_NoAbility()
         {
             PokemonSpeciesSO s = Wild("Geodude", "Graveler");
             Assert.That(s, Is.Not.Null);
             Assert.That(s.PrimaryAbility, Is.Null, "Graveler has no PrimaryAbility (§5.12.2).");
-            Assert.That(s.Branches.Count, Is.EqualTo(1));
-            EvolutionBranchSO b = s.Branches[0];
+            Assert.That(s.Branches.Count, Is.EqualTo(3), "Graveler: 3 archetype branches (CL-007 #D).");
+            var archetypes = s.Branches.Select(b => b.Archetype).ToHashSet();
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Vanguard));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Specialist));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Support));
             PokemonSpeciesSO golem = Wild("Geodude", "Golem");
-            Assert.That(b.EvolvedSpecies, Is.SameAs(golem));
+            foreach (var b in s.Branches)
+                Assert.That(b.EvolvedSpecies, Is.SameAs(golem), $"{b.BranchId} should evolve to Golem.");
         }
 
         [Test]
-        // §5.12.2 — graveler_evolve: 0 upgrades, +1 signature (Body Press), no ability.
-        public void GravelerEvolveBranch_AdditiveSignature_NoAbility()
+        // §5.12.2 — graveler_vanguard: 0 upgrades, +1 signature (Body Press), no ability.
+        public void GravelerVanguardBranch_AdditiveSignature_NoAbility()
         {
-            EvolutionBranchSO b = Br("geodude", "graveler_evolve");
+            EvolutionBranchSO b = Br("geodude", "graveler_vanguard");
             Assert.That(b, Is.Not.Null);
-            Assert.That(b.GrantedAbility, Is.Null, "graveler_evolve grants no ability (CL-007).");
+            Assert.That(b.GrantedAbility, Is.Null, "graveler_vanguard grants no ability (CL-007).");
             Assert.That(b.MoveUpgrades.Count, Is.EqualTo(0), "Stage-2 branch is purely additive.");
-            Assert.That(b.NewMoves.Count, Is.EqualTo(1), "graveler_evolve adds exactly 1 signature (Body Press).");
+            Assert.That(b.NewMoves.Count, Is.EqualTo(1), "graveler_vanguard adds exactly 1 signature (Body Press).");
+        }
+
+        [Test]
+        // §5.12.2 — All Graveler stage-2 branches are purely additive (+1 sig, 0 upgrades, no ability).
+        public void GravelerAllBranches_AdditiveSignature_NoAbility()
+        {
+            foreach (string name in new[] { "graveler_vanguard", "graveler_specialist", "graveler_support" })
+            {
+                EvolutionBranchSO b = Br("geodude", name);
+                Assert.That(b, Is.Not.Null, $"{name}.asset missing");
+                Assert.That(b.GrantedAbility, Is.Null, $"{name} grants no ability (CL-007).");
+                Assert.That(b.MoveUpgrades.Count, Is.EqualTo(0), $"{name}: Stage-2 is purely additive.");
+                Assert.That(b.NewMoves.Count, Is.EqualTo(1), $"{name}: adds exactly 1 signature.");
+            }
         }
 
         [Test]
@@ -147,54 +194,77 @@ namespace ProjectAscendant.Tests
         // ── Pidgey / Pidgeotto / Pidgeot ─────────────────────────────────────
 
         [Test]
-        // §5.12.2 — Pidgey: 4 base moves, no ability, single branch → Pidgeotto.
-        public void Pidgey_SingleBranch_NoAbility()
+        // §5.12.2 — Pidgey: 4 base moves, no ability, 3 archetype branches → Pidgeotto.
+        public void Pidgey_ThreeArchetypeBranches_NoAbility()
         {
             PokemonSpeciesSO s = Wild("Pidgey", "Pidgey");
             Assert.That(s, Is.Not.Null, "Pidgey.asset missing");
             Assert.That(s.BaseLearnset.Count, Is.EqualTo(4));
             Assert.That(s.PrimaryAbility, Is.Null, "Pidgey has no PrimaryAbility (§5.12.2).");
-            Assert.That(s.Branches.Count, Is.EqualTo(1));
-            EvolutionBranchSO b = s.Branches[0];
+            Assert.That(s.Branches.Count, Is.EqualTo(3), "Pidgey: 3 archetype branches (CL-007 #D).");
+            var archetypes = s.Branches.Select(b => b.Archetype).ToHashSet();
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Vanguard));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Specialist));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Support));
             PokemonSpeciesSO pidgeotto = Wild("Pidgey", "Pidgeotto");
-            Assert.That(b.EvolvedSpecies, Is.SameAs(pidgeotto));
+            foreach (var b in s.Branches)
+                Assert.That(b.EvolvedSpecies, Is.SameAs(pidgeotto), $"{b.BranchId} should evolve to Pidgeotto.");
         }
 
         [Test]
-        // §5.12.2 — pidgey_evolve: ≤2 upgrades, 0 new, no ability/crit.
-        public void PidgeyEvolveBranch_LighterPayload_NoAbility()
+        // §5.12.2 — pidgey_vanguard: ≤2 upgrades, 0 new, no ability/crit.
+        public void PidgeyVanguardBranch_LighterPayload_NoAbility()
         {
-            EvolutionBranchSO b = Br("pidgey", "pidgey_evolve");
+            EvolutionBranchSO b = Br("pidgey", "pidgey_vanguard");
             Assert.That(b, Is.Not.Null);
-            Assert.That(b.GrantedAbility, Is.Null, "pidgey_evolve grants no ability (CL-007).");
+            Assert.That(b.Archetype, Is.EqualTo(BranchArchetype.Vanguard));
+            Assert.That(b.GrantedAbility, Is.Null, "pidgey_vanguard grants no ability (CL-007).");
             Assert.That(b.CritChanceBonus, Is.EqualTo(0f).Within(0.0001f));
-            Assert.That(b.MoveUpgrades.Count, Is.InRange(1, 2), "pidgey_evolve: ≤2 upgrades (§5.12.2).");
+            Assert.That(b.MoveUpgrades.Count, Is.InRange(1, 2), "pidgey_vanguard: ≤2 upgrades (§5.12.2).");
             Assert.That(b.NewMoves.Count, Is.EqualTo(0));
             Assert.That(b.SubBranches, Is.Empty);
         }
 
         [Test]
-        // §5.12.2 — Pidgeotto: no ability, single stage-2 branch → Pidgeot.
-        public void Pidgeotto_SingleBranch_NoAbility()
+        // §5.12.2 — Pidgeotto: no ability, 3 archetype branches → Pidgeot.
+        public void Pidgeotto_ThreeArchetypeBranches_NoAbility()
         {
             PokemonSpeciesSO s = Wild("Pidgey", "Pidgeotto");
             Assert.That(s, Is.Not.Null);
             Assert.That(s.PrimaryAbility, Is.Null, "Pidgeotto has no PrimaryAbility (§5.12.2).");
-            Assert.That(s.Branches.Count, Is.EqualTo(1));
-            EvolutionBranchSO b = s.Branches[0];
+            Assert.That(s.Branches.Count, Is.EqualTo(3), "Pidgeotto: 3 archetype branches (CL-007 #D).");
+            var archetypes = s.Branches.Select(b => b.Archetype).ToHashSet();
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Vanguard));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Specialist));
+            Assert.That(archetypes, Does.Contain(BranchArchetype.Support));
             PokemonSpeciesSO pidgeot = Wild("Pidgey", "Pidgeot");
-            Assert.That(b.EvolvedSpecies, Is.SameAs(pidgeot));
+            foreach (var b in s.Branches)
+                Assert.That(b.EvolvedSpecies, Is.SameAs(pidgeot), $"{b.BranchId} should evolve to Pidgeot.");
         }
 
         [Test]
-        // §5.12.2 — pidgeotto_evolve: 0 upgrades, +1 signature (Hurricane), no ability.
-        public void PidgeottoEvolveBranch_AdditiveSignature_NoAbility()
+        // §5.12.2 — pidgeotto_vanguard: 0 upgrades, +1 signature (Hurricane), no ability.
+        public void PidgeottoVanguardBranch_AdditiveSignature_NoAbility()
         {
-            EvolutionBranchSO b = Br("pidgey", "pidgeotto_evolve");
+            EvolutionBranchSO b = Br("pidgey", "pidgeotto_vanguard");
             Assert.That(b, Is.Not.Null);
-            Assert.That(b.GrantedAbility, Is.Null, "pidgeotto_evolve grants no ability (CL-007).");
+            Assert.That(b.GrantedAbility, Is.Null, "pidgeotto_vanguard grants no ability (CL-007).");
             Assert.That(b.MoveUpgrades.Count, Is.EqualTo(0), "Stage-2 branch is purely additive.");
-            Assert.That(b.NewMoves.Count, Is.EqualTo(1), "pidgeotto_evolve adds exactly 1 signature (Hurricane).");
+            Assert.That(b.NewMoves.Count, Is.EqualTo(1), "pidgeotto_vanguard adds exactly 1 signature (Hurricane).");
+        }
+
+        [Test]
+        // §5.12.2 — All Pidgeotto stage-2 branches are purely additive (+1 sig, 0 upgrades, no ability).
+        public void PidgeottoAllBranches_AdditiveSignature_NoAbility()
+        {
+            foreach (string name in new[] { "pidgeotto_vanguard", "pidgeotto_specialist", "pidgeotto_support" })
+            {
+                EvolutionBranchSO b = Br("pidgey", name);
+                Assert.That(b, Is.Not.Null, $"{name}.asset missing");
+                Assert.That(b.GrantedAbility, Is.Null, $"{name} grants no ability (CL-007).");
+                Assert.That(b.MoveUpgrades.Count, Is.EqualTo(0), $"{name}: Stage-2 is purely additive.");
+                Assert.That(b.NewMoves.Count, Is.EqualTo(1), $"{name}: adds exactly 1 signature.");
+            }
         }
 
         [Test]

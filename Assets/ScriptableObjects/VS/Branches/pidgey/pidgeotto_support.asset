@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
-  m_Name: pidgeotto_evolve
+  m_Name: pidgeotto_support
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
-  BranchId: pidgeotto_evolve
+  BranchId: pidgeotto_support
   DisplayName: Support
   Archetype: 2
   EvolvedSpecies: {fileID: 11400000, guid: 753ab00f4b3819e4f96578876c9967df, type: 2}
   MoveUpgrades: []
   NewMoves:
-  - {fileID: 11400000, guid: a24483cd016c9ec4ebb9e0fa1ce045ac, type: 2}
+  - {fileID: 11400000, guid: 0096665ca2b5eac42a742eddc7594d55, type: 2}
   GrantedAbility: {fileID: 0}
   CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.12.2 | Stage-2 Support signature: Hurricane (Pidgeot iconic)"
+  GDDReference: "\xA75.12.2 | Stage-2 Support signature: FeatherDance (enemy atk debuff)"

@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
-  m_Name: metapod_evolve
+  m_Name: metapod_support
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
-  BranchId: metapod_evolve
-  DisplayName: Specialist
-  Archetype: 1
+  BranchId: metapod_support
+  DisplayName: Support
+  Archetype: 2
   EvolvedSpecies: {fileID: 11400000, guid: 71f3edde4277690449b2a7eab70e75c8, type: 2}
   MoveUpgrades: []
   NewMoves:
-  - {fileID: 11400000, guid: a30895b5c0718894e9119980445f6176, type: 2}
+  - {fileID: 11400000, guid: 686bfb1634172ad42affc9aa87a6af37, type: 2}
   GrantedAbility: {fileID: 0}
   CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.12.2 | Stage-2 Specialist signature: Psybeam (Butterfree identity)"
+  GDDReference: "\xA75.12.2 | Stage-2 Support signature: Powder Spread (status field)"

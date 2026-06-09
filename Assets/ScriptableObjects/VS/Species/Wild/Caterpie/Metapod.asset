@@ -22,7 +22,9 @@ MonoBehaviour:
     BaseSpd: 30
   GrowthCurve: {fileID: 11400000, guid: 91ef93e96286d9243af28696c89d89dc, type: 2}
   Branches:
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f7a8b9c0d1e2f3a4b0103, type: 2}
   - {fileID: 11400000, guid: 9f59c35f4d7e6f943ac03f6e1b0ce112, type: 2}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f7a8b9c0d1e2f3a4b0104, type: 2}
   BaseLearnset:
   - {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
   - {fileID: 11400000, guid: b114c7186c92548449d6e22f20cbeee5, type: 2}

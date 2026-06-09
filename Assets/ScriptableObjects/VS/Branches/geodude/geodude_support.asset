@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
-  m_Name: geodude_evolve
+  m_Name: geodude_support
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
-  BranchId: geodude_evolve
-  DisplayName: Vanguard
-  Archetype: 0
+  BranchId: geodude_support
+  DisplayName: Support
+  Archetype: 2
   EvolvedSpecies: {fileID: 11400000, guid: 1ac34a6c3369e804bac2413deebd8eea, type: 2}
   MoveUpgrades:
+  - OldMove: {fileID: 11400000, guid: 43981d5ca0ce13344a477d1ff2e02a39, type: 2}
+    NewMove: {fileID: 11400000, guid: f39bc894bd25c884fbf3acacb7708760, type: 2}
   - OldMove: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
     NewMove: {fileID: 11400000, guid: 07f68986483e3ea458954580498dc23e, type: 2}
-  - OldMove: {fileID: 11400000, guid: df4563083d9eb60409c66aa514f9a0f6, type: 2}
-    NewMove: {fileID: 11400000, guid: ead3a06e041cc5f4c8c729b866fd39fa, type: 2}
   NewMoves: []
   GrantedAbility: {fileID: 0}
   CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.12.2 | Stage-1 Vanguard: Tackle→RockBlast, Magnitude→Earthquake"
+  GDDReference: "\xA75.12.2 | Stage-1 Support: DefenseCurl→StealthRock, Tackle→RockBlast"

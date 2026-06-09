@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
-  m_Name: caterpie_evolve
+  m_Name: geodude_specialist
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
-  BranchId: caterpie_evolve
+  BranchId: geodude_specialist
   DisplayName: Specialist
   Archetype: 1
-  EvolvedSpecies: {fileID: 11400000, guid: 79fcbee40fb6ad84895b373a0bff8755, type: 2}
+  EvolvedSpecies: {fileID: 11400000, guid: 1ac34a6c3369e804bac2413deebd8eea, type: 2}
   MoveUpgrades:
-  - OldMove: {fileID: 11400000, guid: d49e17b92afc8064faf6556797bb0df4, type: 2}
-    NewMove: {fileID: 11400000, guid: b114c7186c92548449d6e22f20cbeee5, type: 2}
-  - OldMove: {fileID: 11400000, guid: be4f22f4df9c02644a0cee67a693e470, type: 2}
-    NewMove: {fileID: 11400000, guid: 8af699c93bb2b554f825d68f849db8c3, type: 2}
+  - OldMove: {fileID: 11400000, guid: 4e26a9803e6de0241be8d32d53c06225, type: 2}
+    NewMove: {fileID: 11400000, guid: dc61fa235068a5c4eb91c89961a62b8e, type: 2}
+  - OldMove: {fileID: 11400000, guid: 43981d5ca0ce13344a477d1ff2e02a39, type: 2}
+    NewMove: {fileID: 11400000, guid: ea938a84222250940bf3c5286214cf42, type: 2}
   NewMoves: []
   GrantedAbility: {fileID: 0}
   CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.12.2 | Stage-1 Specialist: StringShot→SilkBind, BugBite→PinShot"
+  GDDReference: "\xA75.12.2 | Stage-1 Specialist: RockThrow→StoneEdge, DefenseCurl→RockPolish"

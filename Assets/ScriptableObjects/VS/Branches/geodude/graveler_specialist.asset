@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
+  m_Name: graveler_specialist
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
+  BranchId: graveler_specialist
+  DisplayName: Specialist
+  Archetype: 1
+  EvolvedSpecies: {fileID: 11400000, guid: f005ab37e554e4045b8a4d44ac2f08fd, type: 2}
+  MoveUpgrades: []
+  NewMoves:
+  - {fileID: 11400000, guid: 6ac00825b70615347840cd19ef45d692, type: 2}
+  GrantedAbility: {fileID: 0}
+  CritChanceBonus: 0
+  SubBranches: []
+  GDDReference: "\xA75.12.2 | Stage-2 Specialist signature: Rollout (momentum boulder)"

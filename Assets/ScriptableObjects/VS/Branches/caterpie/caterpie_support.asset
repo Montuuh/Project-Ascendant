@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
-  m_Name: pidgey_evolve
+  m_Name: caterpie_support
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
-  BranchId: pidgey_evolve
+  BranchId: caterpie_support
   DisplayName: Support
   Archetype: 2
-  EvolvedSpecies: {fileID: 11400000, guid: 262430a8c293ae84298046d92ee493aa, type: 2}
+  EvolvedSpecies: {fileID: 11400000, guid: 79fcbee40fb6ad84895b373a0bff8755, type: 2}
   MoveUpgrades:
-  - OldMove: {fileID: 11400000, guid: 68ad5e2040d031c48bd4497fd0f071bb, type: 2}
-    NewMove: {fileID: 11400000, guid: e7fa2aefa18715940accff7c57c4976e, type: 2}
-  - OldMove: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
-    NewMove: {fileID: 11400000, guid: 818790dcb65e0124fa9bb42cd1059fea, type: 2}
+  - OldMove: {fileID: 11400000, guid: d49e17b92afc8064faf6556797bb0df4, type: 2}
+    NewMove: {fileID: 11400000, guid: b114c7186c92548449d6e22f20cbeee5, type: 2}
+  - OldMove: {fileID: 11400000, guid: 125f7ae06f4ed44439d41433a04325ad, type: 2}
+    NewMove: {fileID: 11400000, guid: 57b250d22425b0248b4684406479c31a, type: 2}
   NewMoves: []
   GrantedAbility: {fileID: 0}
   CritChanceBonus: 0
   SubBranches: []
-  GDDReference: "\xA75.12.2 | Stage-1 Support: Gust→AerialAce, Tackle→Tailwind (already 2 upgrades)"
+  GDDReference: "\xA75.12.2 | Stage-1 Support: StringShot→SilkBind, Harden→HardenPlus"

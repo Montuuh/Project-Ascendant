@@ -5,7 +5,7 @@ using ProjectAscendant.Core;
 namespace ProjectAscendant.Tests
 {
     // Per CL-007 (§5.12.2) + §5.11.4 Mastery bands.
-    // Caterpie line golden tests — moves-only, single archetype, no ability/crit grant.
+    // Caterpie line golden tests — moves-only, 3 archetypes per stage, no ability/crit grant.
     public class CaterpieLineContentTests
     {
         private const string ROOT = "Assets/ScriptableObjects/VS";
@@ -21,7 +21,7 @@ namespace ProjectAscendant.Tests
             Assert.That(caterpie, Is.Not.Null);
             Assert.That(caterpie.BaseLearnset.Count, Is.EqualTo(4));
             Assert.That(caterpie.PrimaryAbility, Is.Null);
-            Assert.That(caterpie.Branches.Count, Is.EqualTo(1));
+            Assert.That(caterpie.Branches.Count, Is.EqualTo(3));
         }
 
         [Test]
@@ -41,9 +41,9 @@ namespace ProjectAscendant.Tests
         {
             // Per CL-007 (§5.12.2) — stage-1 branch: ≤2 upgrades, no ability/crit grant.
             EvolutionBranchSO branch = Load<EvolutionBranchSO>(
-                $"{ROOT}/Branches/caterpie/caterpie_evolve.asset");
+                $"{ROOT}/Branches/caterpie/caterpie_specialist.asset");
             Assert.That(branch, Is.Not.Null);
-            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: caterpie_evolve grants no ability.");
+            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: caterpie_specialist grants no ability.");
             Assert.That(branch.CritChanceBonus, Is.EqualTo(0f).Within(0.001f), "No crit bonus (CL-007).");
             Assert.That(branch.MoveUpgrades.Count, Is.InRange(1, 2), "≤2 move upgrades (§5.12.2).");
             Assert.That(branch.NewMoves.Count, Is.EqualTo(0));
@@ -56,7 +56,7 @@ namespace ProjectAscendant.Tests
             PokemonSpeciesSO metapod = Load<PokemonSpeciesSO>(
                 $"{ROOT}/Species/Wild/Caterpie/Metapod.asset");
             Assert.That(metapod.PrimaryAbility, Is.Null, "CL-007: Metapod has no PrimaryAbility.");
-            Assert.That(metapod.Branches.Count, Is.EqualTo(1));
+            Assert.That(metapod.Branches.Count, Is.EqualTo(3));
         }
 
         [Test]
@@ -80,8 +80,8 @@ namespace ProjectAscendant.Tests
         {
             // Per CL-007 (§5.12.2) — stage-2 branch: 0 upgrades, +1 signature (Psybeam), no ability.
             EvolutionBranchSO branch = Load<EvolutionBranchSO>(
-                $"{ROOT}/Branches/caterpie/metapod_evolve.asset");
-            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: metapod_evolve grants no ability.");
+                $"{ROOT}/Branches/caterpie/metapod_specialist.asset");
+            Assert.That(branch.GrantedAbility, Is.Null, "CL-007: metapod_specialist grants no ability.");
             Assert.That(branch.MoveUpgrades.Count, Is.EqualTo(0), "Stage-2 is purely additive.");
             Assert.That(branch.NewMoves.Count, Is.EqualTo(1), "Adds exactly 1 signature (Psybeam).");
         }
