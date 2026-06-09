@@ -23,6 +23,8 @@ MonoBehaviour:
   GrowthCurve: {fileID: 11400000, guid: f1402746a01530945bbc7f9efef01ec5, type: 2}
   Branches:
   - {fileID: 11400000, guid: 732e2958ac2617c42af785c88d6825c4, type: 2}
+  - {fileID: 11400000, guid: c6d318d8634b8e5488c3e00d82c6973e, type: 2}
+  - {fileID: 11400000, guid: 21679841da30aa142a2ccb4e44c1add9, type: 2}
   EvolveLevel: 12
   BaseLearnset:
   - {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}

@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3401664013a717e48ac8f53da4d38bf7, type: 3}
-  m_Name: squirtle_vanguard
+  m_Name: squirtle_specialist
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EvolutionBranchSO
-  BranchId: squirtle_vanguard
-  DisplayName: Vanguard
-  Archetype: 0
+  BranchId: squirtle_specialist
+  DisplayName: Specialist
+  Archetype: 1
   EvolvedSpecies: {fileID: 11400000, guid: eebea80048e52154db6ed538b128cf6b, type: 2}
   MoveUpgrades:
-  - OldMove: {fileID: 11400000, guid: d70ee76fa56619d4f80febe9375e1084, type: 2}
-    NewMove: {fileID: 11400000, guid: 9f9a2edb2ac28df4da57e98df035b578, type: 2}
+  - OldMove: {fileID: 11400000, guid: 39c3f4ac179fb6f4583db1a9539ad434, type: 2}
+    NewMove: {fileID: 11400000, guid: c3221fc5587461a4ea64c6a083828c48, type: 2}
   - OldMove: {fileID: 11400000, guid: 5e6a05289e17de64e9417eac498b099b, type: 2}
-    NewMove: {fileID: 11400000, guid: c0362a0708fe7d64a84d44efea664e1c, type: 2}
+    NewMove: {fileID: 11400000, guid: 06093dc0269efb64f88e78543470b289, type: 2}
   NewMoves: []
   GrantedAbility: {fileID: 0}
   CritChanceBonus: 0

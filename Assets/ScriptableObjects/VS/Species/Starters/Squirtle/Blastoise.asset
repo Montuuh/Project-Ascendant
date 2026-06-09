@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
-  m_Name: Blastoise_VanguardA2
+  m_Name: Blastoise
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
   SpeciesId: blastoise
   DisplayName: Blastoise
@@ -22,11 +22,13 @@ MonoBehaviour:
     BaseSpd: 78
   GrowthCurve: {fileID: 11400000, guid: f1402746a01530945bbc7f9efef01ec5, type: 2}
   Branches: []
+  EvolveLevel: 0
   BaseLearnset:
-  - {fileID: 11400000, guid: d71b0dbd43473b54ca3b87b55997d8b0, type: 2}
-  - {fileID: 11400000, guid: 95e5af16af5b15d418a4daa3a54cc7ac, type: 2}
-  - {fileID: 11400000, guid: d34c0e9ccfe611147af8d67c60ddad37, type: 2}
-  - {fileID: 11400000, guid: 97eef2bf669a2cd40830e113a205fd7d, type: 2}
+  - {fileID: 11400000, guid: 1bf7ff7c86e8d5e4ba86cc5e2bdf0e31, type: 2}
+  - {fileID: 11400000, guid: b27eda9c32a79c34a9d83982cd2931b6, type: 2}
+  - {fileID: 11400000, guid: 7bfd384832686544c82565a3dac3c588, type: 2}
+  - {fileID: 11400000, guid: c0362a0708fe7d64a84d44efea664e1c, type: 2}
+  LevelUpLearnset: []
   TutorLearnset: []
   TMCompatibility: []
   PrimaryAbility: {fileID: 11400000, guid: 512195af6d5615d478873ef3b1578af6, type: 2}
@@ -34,5 +36,5 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 0300000006000000
-  Portrait: {fileID: 21300000, guid: 178157a79cd96a540a6aeb5ed55c8877, type: 3}
-  GDDReference: "\xA75.3 | Secondary ability (branch): Swift Swim"
+  Portrait: {fileID: 21300000, guid: 494f1396ffe28c34ab949f7b5dd92f25, type: 3}
+  GDDReference: "\xA75.3 | Secondary ability (branch): Shell Armor"
