@@ -101,6 +101,10 @@ namespace ProjectAscendant.Map
                 GymLeaderSO gym = ResolveGym(node);
                 return new GymNodeController(node, run, gym, PokemonFactory, Economy);
             });
+
+            // Per §7.14 (CL-009) — Dojo node: teach moves / abilities for Poké Dollars.
+            factory.Register(NodeType.Dojo, (node, run) => new DojoNodeController(
+                node, run, Box, Economy));
         }
     }
 }

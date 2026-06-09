@@ -37,7 +37,9 @@ namespace ProjectAscendant.Core
                         instance.LearnedMoves.Add(known[i]);
             }
             instance.MasteryMove = species?.MasteryMove;
-            instance.Ability = species?.PrimaryAbility;
+            // Per §5.12.3 (CL-008) — abilities are no longer auto-granted at creation.
+            // They are earned via the Dojo (§7.14). Ability starts null; Dojo sets it.
+            instance.Ability = null;
             instance.HeldItem = null;
             instance.StatStages.Clear();
             instance.PrimaryStatus = StatusCondition.None;

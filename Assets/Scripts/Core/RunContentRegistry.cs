@@ -67,7 +67,9 @@ namespace ProjectAscendant.Core
             RegisterMoves(species.BaseLearnset);
             RegisterMoves(species.TutorLearnset);
             RegisterTMs(species.TMCompatibility);
-            RegisterAbility(species.PrimaryAbility);
+            // Per §5.12.3 (CL-008) — abilities are in the Dojo learner pool, not PrimaryAbility.
+            RegisterAbilities(species.AvailableAbilities);
+            RegisterAbility(species.PrimaryAbility); // legacy field; null on VS species
             RegisterMove(species.MasteryMove);
 
             if (species.Branches != null)

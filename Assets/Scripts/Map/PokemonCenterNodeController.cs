@@ -1,58 +1,19 @@
 using System;
-using System.Collections.Generic;
 using ProjectAscendant.Core;
 using ProjectAscendant.Combat;
-using ProjectAscendant.Progression;
 
 namespace ProjectAscendant.Map
 {
-    // Per §7.6 + Epic 9 Task 9.5 — the Pokémon Center node (Region-internal, Layer 6). Utility node:
-    // fires NO combat. Offers three services over the Box, then the player leaves to the Gym.
-    //
+    // Per §7.6 + Epic 9 Task 9.5 — the Pokémon Center node. Utility node; fires NO combat.
+    // Per §7.14 / §5.12.4 (CL-009) — Move Tutor service removed; the Dojo node handles it.
+    // Remaining services:
     //   • Heal (9.5.2): all Box Pokémon → EffectiveMaxHP (revives fainted, §2.4.2). Free.
-    //   • Move Tutor (9.5.3): 3-move offer from a Pokémon's TutorLearnset; learn 1 (replace a
-    //     CurrentMoves slot — Mastery is immutable §4.3.9.2). Once per visit.
-    //   • Therapy (9.5.4): −1 Trauma stack for TherapyBaseCost × (1 + stacks) (§6.2.4). Repeatable
-    //     while affordable.
-    //
+    //   • Therapy (9.5.4): −1 Trauma stack for TherapyBaseCost × (1 + stacks) (§6.2.4). Repeatable.
     // Services are invoked interactively (UI = Epic 13); Leave() completes the node (→ MapView).
-    //
-    // Move-Tutor note: §5.10 specifies an additive Learned Move Pool, but PokemonInstance has only
-    // the 4 CurrentMoves slots today — so the Tutor REPLACES a chosen slot (user-confirmed VS model).
-    // See BACKLOG gap (§5.10 pool not implemented).
     public sealed class PokemonCenterNodeController : NodeController
     {
-        // Per §7.6.1 — Move Tutor presents a curated 3-move offer.
-        private const int MOVE_TUTOR_OFFER = 3;
-
         private readonly Box _box;
         private readonly EconomyConfigSO _economy;
-
-        // §7.6.1 — the tutor is once-per-Center-FOR-THE-RUN, persisted in RunState.EventFlags (not a
-        // per-instance flag) so RE-ENTERING the node (Bug R2-2 re-entry) does NOT reset it. This closes
-        // the leave/enter tutor-spam exploit. Keyed per Center node (Layer.Lane).
-        private string TutorFlagKey => $"center.tutor.{Node.Layer}.{Node.Lane}";
-        public bool TutorUsed => HasFlag(TutorFlagKey);
-
-        private bool HasFlag(string key)
-        {
-            if (RunState.EventFlags == null) return false;
-            for (int i = 0; i < RunState.EventFlags.Count; i++)
-                if (RunState.EventFlags[i].Key == key && RunState.EventFlags[i].Value != 0) return true;
-            return false;
-        }
-
-        private void SetFlag(string key)
-        {
-            RunState.EventFlags ??= new List<StringIntPair>();
-            for (int i = 0; i < RunState.EventFlags.Count; i++)
-                if (RunState.EventFlags[i].Key == key)
-                {
-                    RunState.EventFlags[i] = new StringIntPair { Key = key, Value = 1 };
-                    return;
-                }
-            RunState.EventFlags.Add(new StringIntPair { Key = key, Value = 1 });
-        }
 
         public PokemonCenterNodeController(MapNode node, RunStateSO runState, Box box, EconomyConfigSO economy)
             : base(node, runState)
@@ -78,40 +39,6 @@ namespace ProjectAscendant.Map
                     StatusEffectManager.CureAll(p); // Per §7.6.1 "Full restore" — cure status too
                 }
             }
-        }
-
-        // 9.5.3 / §5.4.2 — up to MOVE_TUTOR_OFFER moves from the Pokémon's TutorLearnset, excluding
-        // moves already in the Learned Move Pool (§5.10 approved 2026-06-02, pending Notion lock).
-        // Curated order (deterministic — no RNG).
-        public List<MoveSO> OfferTutorMoves(PokemonInstance pokemon)
-        {
-            List<MoveSO> offer = new();
-            if (pokemon == null || pokemon.Species == null || pokemon.Species.TutorLearnset == null)
-                return offer;
-
-            List<MoveSO> tutor = pokemon.Species.TutorLearnset;
-            for (int i = 0; i < tutor.Count && offer.Count < MOVE_TUTOR_OFFER; i++)
-            {
-                MoveSO m = tutor[i];
-                if (m == null) continue;
-                if (pokemon.LearnedMoves.Contains(m)) continue; // already in pool (§5.10)
-                offer.Add(m);
-            }
-            return offer;
-        }
-
-        // 9.5.3 / §5.10.1 — learn (add to Learned Move Pool; deduplicates). Once per visit. Mastery
-        // (separate slot) untouched per §4.3.9.2. Returns false if the tutor was already used this
-        // visit or the args are invalid.
-        public bool LearnMove(PokemonInstance pokemon, MoveSO move)
-        {
-            if (TutorUsed) return false; // once per Center for the run (§7.6.1) — survives re-entry
-            if (pokemon == null || move == null) return false;
-            if (pokemon.LearnedMoves.Contains(move)) return false; // already in pool
-
-            MoveLoadoutService.AddToPool(pokemon, move);
-            SetFlag(TutorFlagKey);
-            return true;
         }
 
         // 9.5.4 / §6.2.4 — cost to remove one Trauma stack from this Pokémon right now.

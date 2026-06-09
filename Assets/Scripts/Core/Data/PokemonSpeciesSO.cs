@@ -47,7 +47,14 @@ namespace ProjectAscendant.Core
         public List<TMSO> TMCompatibility;
 
         [Header("Ability & Mastery")]
-        // Per §5.5.1 — granted at first evolution.
+        // Per §5.12.3 (CL-008) — the abilities this species can learn at a Dojo (§7.14).
+        // One entry = one ability the player can pay to teach. Replaces the old auto-grant
+        // model (§5.5.1 pre-CL-008). Null/empty = species has no Dojo abilities.
+        public List<AbilitySO> AvailableAbilities;
+
+        // LEGACY — was the auto-granted ability at first evolution (§5.5.1 pre-CL-008).
+        // Nulled on all VS species by CL-007 / CL-008. Kept for serialisation compatibility
+        // only; new species must use AvailableAbilities instead. Do not read at runtime.
         public AbilitySO PrimaryAbility;
 
         // Per §4.3.9.2 — this stage's Mastery tier card (Lv1/Lv2/Lv3 depending on evolution stage). Unlocked via meta-progression achievements. Cannot be replaced by TM/Tutor.

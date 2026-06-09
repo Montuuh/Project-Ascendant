@@ -82,5 +82,9 @@ namespace ProjectAscendant.Core
 
         [Tooltip("Gym weight — typically 0 except the final layer.")]
         public float GymWeight;
+
+        // Per §7.14 (CL-009) — Dojo appears ~1 per region; set a small weight on mid-trunk layers.
+        [Tooltip("Dojo weight. Per §7.14 — ~1 per region; typically 0.5–1.0 on 2–3 mid-trunk layers.")]
+        public float DojoWeight;
     }
 }

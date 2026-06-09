@@ -63,5 +63,13 @@ namespace ProjectAscendant.Core
         // per Map View session. Free at Center and post-evolution; paid otherwise.
         [Tooltip("Poké Dollar cost per Pokémon for paid move reconfiguration from Map View. Per §5.10 — 50.")]
         public int MoveReconfigCost = 50;
+
+        [Header("Dojo — §7.14 (CL-009)")]
+        // Per §7.14 — Dojo teaches off-learnset moves and abilities for Poké Dollars.
+        // Placeholder values pending systems-designer calibration.
+        [Tooltip("Poké Dollar cost to teach an off-learnset move at the Dojo. Per §7.14 — placeholder 150.")]
+        public int DojoMoveCost = 150;
+        [Tooltip("Poké Dollar cost to teach (or swap) a passive ability at the Dojo. Per §7.14 — placeholder 200.")]
+        public int DojoAbilityCost = 200;
     }
 }

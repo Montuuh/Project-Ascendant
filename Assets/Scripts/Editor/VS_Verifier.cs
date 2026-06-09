@@ -39,11 +39,12 @@ namespace ProjectAscendant.Editor
             var bulbasaur = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Bulbasaur/Bulbasaur.asset");
             Check(bulbasaur  != null && bulbasaur.BaseLearnset.Count == 4, "Bulbasaur has 4 base moves");
             Check(bulbasaur  != null && bulbasaur.MasteryMove != null,  "Bulbasaur has a Mastery Move");
-            Check(bulbasaur  != null && bulbasaur.PrimaryAbility == null,   "Bulbasaur has no pre-evo ability (§5.5.1)");
+            // Per §5.12.3 (CL-008) — PrimaryAbility is legacy; VS species use AvailableAbilities.
+            Check(bulbasaur  != null && bulbasaur.PrimaryAbility == null,   "Bulbasaur PrimaryAbility == null (CL-008 legacy field)");
 
             var ivysaur = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>($"{root}/Species/Starters/Bulbasaur/Ivysaur_Vanguard.asset");
-            Check(ivysaur    != null && ivysaur.PrimaryAbility != null,     "Ivysaur gains primary ability (Overgrow)");
-            Check(ivysaur    != null && ivysaur.PrimaryAbility?.AbilityId == "overgrow", "Ivysaur ability == overgrow");
+            // CL-008: no auto-granted ability; abilities are taught via Dojo (§7.14 / §5.12.3).
+            Check(ivysaur    != null && ivysaur.PrimaryAbility == null,     "Ivysaur PrimaryAbility == null (CL-008 Dojo model)");
 
             // ── Move effects as sub-assets ───────────────────────────────────
             var leechSeed = AssetDatabase.LoadAssetAtPath<MoveSO>($"{root}/Moves/Bulbasaur/leech_seed.asset");

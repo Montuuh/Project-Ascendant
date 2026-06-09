@@ -24,18 +24,20 @@ namespace ProjectAscendant.UI
         private RectTransform _body;
         private MoveManagerUI _moveManager; // §5.10.2 — FREE entry from Center
 
-        // Move-Tutor two-step selection state (Center only).
-        private PokemonInstance _tutorMon;
-        private MoveSO _tutorMove;
+        // Dojo two-step selection state: which Pokémon is selected, and whether the picker is
+        // showing moves or abilities (null = top-level list).
+        private PokemonInstance _dojoMon;
+        private bool _dojoPickingAbility; // true = ability list; false = move list
 
         // Returns false if this node type has no interactive panel (caller should auto-resolve).
         public bool TryBegin(NodeController node, RunContext ctx, RunStateSO state, Action onComplete)
         {
-            if (node is not (RegionShopNodeController or PokemonCenterNodeController or MysteryEventNodeController))
+            if (node is not (RegionShopNodeController or PokemonCenterNodeController
+                             or MysteryEventNodeController or DojoNodeController))
                 return false;
 
             _node = node; _ctx = ctx; _state = state; _onComplete = onComplete;
-            _tutorMon = null; _tutorMove = null;
+            _dojoMon = null; _dojoPickingAbility = false;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
             // §5.10.2 — lazy-init the Move Manager UI if needed.
@@ -75,6 +77,7 @@ namespace ProjectAscendant.UI
                 case RegionShopNodeController s:      RenderShop(s); break;
                 case PokemonCenterNodeController c:   RenderCenter(c); break;
                 case MysteryEventNodeController m:    RenderMystery(m); break;
+                case DojoNodeController d:            RenderDojo(d); break;
             }
         }
 
@@ -125,7 +128,7 @@ namespace ProjectAscendant.UI
                 new Color(0.30f, 0.42f, 0.55f), true, () => { shop.Leave(); Done(); });
         }
 
-        // ── Pokémon Center (§7.6) ─────────────────────────────────────────────
+        // ── Pokémon Center (§7.6) — heal + therapy only (CL-009: tutor moved to Dojo) ──
 
         private void RenderCenter(PokemonCenterNodeController center)
         {
@@ -158,23 +161,13 @@ namespace ProjectAscendant.UI
                         () => { center.Therapy(mon); RefreshBody(); });
                 }
 
-                List<MoveSO> offer = center.OfferTutorMoves(p);
-                if (!center.TutorUsed && offer.Count > 0)
-                {
-                    PokemonInstance mon = p;
-                    Btn(_body, Mid(), new Vector2(520, y), new Vector2(140, 50), "TUTOR",
-                        new Color(0.30f, 0.42f, 0.58f), true, () => { _tutorMon = mon; _tutorMove = null; RefreshBody(); });
-                }
-
                 // §5.10.2 — FREE Move Manager from Center. Always available (no cost gate).
                 PokemonInstance pokemonForMoves = p;
-                Btn(_body, Mid(), new Vector2(680, y), new Vector2(140, 50), "MOVES",
+                Btn(_body, Mid(), new Vector2(520, y), new Vector2(140, 50), "MOVES",
                     new Color(0.34f, 0.48f, 0.56f), true, () => OpenMoveManager(pokemonForMoves));
 
                 y -= 70f;
             }
-
-            if (_tutorMon != null) y = RenderTutorPicker(center, y - 8f);
 
             Btn(_body, Mid(), new Vector2(0, Mathf.Min(y - 20f, -360f)), new Vector2(360, 64), "LEAVE  ▶",
                 new Color(0.30f, 0.42f, 0.55f), true, () => { center.Leave(); Done(); });
@@ -197,37 +190,94 @@ namespace ProjectAscendant.UI
             });
         }
 
-        // Two-step Move-Tutor: pick an offered move, then the CurrentMoves slot it replaces (§5.4.2;
-        // Mastery is a separate immutable slot, §4.3.9.2). One learn per visit.
-        private float RenderTutorPicker(PokemonCenterNodeController center, float y)
+        // ── Dojo (§7.14 / CL-009) — minimal stub; full UI = CL-023 ──────────
+
+        private void RenderDojo(DojoNodeController dojo)
         {
-            string who = _tutorMon.Species != null ? (_tutorMon.Species.DisplayName ?? _tutorMon.Species.name) : "—";
-            if (_tutorMove == null)
+            Title("DOJO", $"₽ {_state.PokeDollars}");
+            Txt(_body, $"Move: {dojo.MoveCost()}₽  ·  Ability: {dojo.AbilityCost()}₽", 20,
+                new Color(0.85f, 0.9f, 0.8f), Mid(), new Vector2(0, 370), new Vector2(1000, 32));
+
+            float y = 290f;
+
+            if (_dojoMon != null)
             {
-                Txt(_body, $"Tutor — {who}: choose a move to learn", 20, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(0, y), new Vector2(1000, 34));
-                y -= 44f;
-                List<MoveSO> offer = center.OfferTutorMoves(_tutorMon);
-                float x = -((offer.Count - 1) * 270f) / 2f;
-                for (int i = 0; i < offer.Count; i++)
-                {
-                    MoveSO m = offer[i];
-                    Btn(_body, Mid(), new Vector2(x, y), new Vector2(250, 60), $"{m.DisplayName ?? m.name}\n{m.Type} · Pwr {m.BasePower}",
-                        new Color(0.26f, 0.40f, 0.5f), true, () => { _tutorMove = m; RefreshBody(); });
-                    x += 270f;
-                }
-                y -= 76f;
+                y = RenderDojoPicker(dojo, y);
             }
             else
             {
-                // Per §5.10 — the Tutor ADDS the move to the pool; equip via the Move Manager.
-                Txt(_body, $"Teach {_tutorMove.DisplayName ?? _tutorMove.name} to {who}?", 20, new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(0, y), new Vector2(1000, 34));
-                y -= 40f;
-                Txt(_body, "Added to its move pool — equip it in the Move Manager (§5.10).", 16, new Color(0.8f, 0.95f, 0.85f), Mid(), new Vector2(0, y), new Vector2(1000, 28));
+                List<PokemonInstance> box = _ctx?.Box?.Members ?? new List<PokemonInstance>();
+                for (int i = 0; i < box.Count; i++)
+                {
+                    PokemonInstance p = box[i];
+                    if (p == null) continue;
+                    Image row = Img(_body, new Color(0.15f, 0.20f, 0.18f, 1f));
+                    Place(row.rectTransform, Mid(), new Vector2(-60, y), new Vector2(1040, 60));
+                    string name = p.Species != null ? (p.Species.DisplayName ?? p.Species.name) : "—";
+                    string abilityLabel = p.Ability != null ? $"  [{p.Ability.DisplayName ?? p.Ability.AbilityId}]" : "";
+                    Txt(row.transform, $"{name}  Lv{p.Level}{abilityLabel}", 21,
+                        Color.white, Mid(), new Vector2(-280, 0), new Vector2(620, 46));
+
+                    bool hasMoves = dojo.OfferMoves(p).Count > 0;
+                    bool hasAbils = dojo.OfferAbilities(p).Count > 0;
+                    PokemonInstance mon = p;
+                    Btn(_body, Mid(), new Vector2(330, y), new Vector2(130, 50), $"MOVES",
+                        new Color(0.30f, 0.42f, 0.58f), hasMoves,
+                        () => { _dojoMon = mon; _dojoPickingAbility = false; RefreshBody(); });
+                    Btn(_body, Mid(), new Vector2(480, y), new Vector2(140, 50), $"ABILITY",
+                        new Color(0.42f, 0.30f, 0.55f), hasAbils,
+                        () => { _dojoMon = mon; _dojoPickingAbility = true; RefreshBody(); });
+                    y -= 70f;
+                }
+            }
+
+            Btn(_body, Mid(), new Vector2(0, Mathf.Min(y - 20f, -360f)), new Vector2(360, 64), "LEAVE  ▶",
+                new Color(0.30f, 0.42f, 0.55f), true, () => { dojo.Leave(); Done(); });
+        }
+
+        // Show the teaching picker for the selected Pokémon. Returns updated y after items.
+        private float RenderDojoPicker(DojoNodeController dojo, float y)
+        {
+            string who = _dojoMon.Species != null ? (_dojoMon.Species.DisplayName ?? _dojoMon.Species.name) : "—";
+            Btn(_body, Mid(), new Vector2(-580, y), new Vector2(100, 44), "◀ BACK",
+                new Color(0.30f, 0.30f, 0.36f), true, () => { _dojoMon = null; RefreshBody(); });
+
+            if (!_dojoPickingAbility)
+            {
+                Txt(_body, $"Teach a move to {who}  ({dojo.MoveCost()}₽ each)", 20,
+                    new Color(0.8f, 0.9f, 1f), Mid(), new Vector2(40, y), new Vector2(900, 34));
                 y -= 50f;
-                Btn(_body, Mid(), new Vector2(0, y), new Vector2(300, 60), "✔ LEARN",
-                    new Color(0.30f, 0.50f, 0.36f), true,
-                    () => { center.LearnMove(_tutorMon, _tutorMove); _tutorMon = null; _tutorMove = null; RefreshBody(); });
-                y -= 76f;
+                List<MoveSO> moves = dojo.OfferMoves(_dojoMon);
+                for (int i = 0; i < moves.Count; i++)
+                {
+                    MoveSO m = moves[i];
+                    bool afford = _state.PokeDollars >= dojo.MoveCost();
+                    MoveSO captured = m; PokemonInstance mon = _dojoMon;
+                    Btn(_body, Mid(), new Vector2(0, y), new Vector2(700, 58),
+                        $"{m.DisplayName ?? m.name}  {m.Type}  Pwr {m.BasePower}",
+                        new Color(0.26f, 0.40f, 0.50f), afford,
+                        () => { dojo.TeachMove(mon, captured); RefreshBody(); });
+                    y -= 68f;
+                }
+            }
+            else
+            {
+                Txt(_body, $"Teach an ability to {who}  ({dojo.AbilityCost()}₽)", 20,
+                    new Color(0.9f, 0.8f, 1f), Mid(), new Vector2(40, y), new Vector2(900, 34));
+                y -= 50f;
+                List<AbilitySO> abils = dojo.OfferAbilities(_dojoMon);
+                for (int i = 0; i < abils.Count; i++)
+                {
+                    AbilitySO a = abils[i];
+                    bool current = _dojoMon.Ability == a;
+                    bool afford = !current && _state.PokeDollars >= dojo.AbilityCost();
+                    AbilitySO captured = a; PokemonInstance mon = _dojoMon;
+                    string label = $"{a.DisplayName ?? a.AbilityId}" + (current ? "  ✓ equipped" : "");
+                    Btn(_body, Mid(), new Vector2(0, y), new Vector2(700, 58),
+                        label, new Color(0.36f, 0.26f, 0.50f), afford,
+                        () => { dojo.TeachAbility(mon, captured); RefreshBody(); });
+                    y -= 68f;
+                }
             }
             return y;
         }

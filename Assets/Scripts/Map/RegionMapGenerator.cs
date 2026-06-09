@@ -377,6 +377,8 @@ namespace ProjectAscendant.Map
                 if (w.ShopWeight > 0f) options.Add((NodeType.Shop, w.ShopWeight));
                 if (w.MysteryWeight > 0f) options.Add((NodeType.Mystery, w.MysteryWeight));
                 if (w.GymWeight > 0f) options.Add((NodeType.Gym, w.GymWeight));
+                // Per §7.14 (CL-009) — Dojo node, ~1 per region.
+                if (w.DojoWeight > 0f) options.Add((NodeType.Dojo, w.DojoWeight));
                 break;
             }
             return options;

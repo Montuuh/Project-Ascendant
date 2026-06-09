@@ -9,6 +9,7 @@ using UnityEngine;
 namespace ProjectAscendant.Tests
 {
     // Per §7.6 / §2.4.2 / §6.2.4 + Epic 9 Task 9.5 — Pokémon Center node + PokemonVitals.
+    // Move Tutor service removed by CL-009 (§7.14); those tests live in DojoNodeControllerTests.
     public class PokemonCenterNodeControllerTests
     {
         private string _tempDir;
@@ -161,71 +162,6 @@ namespace ProjectAscendant.Tests
             Assert.That(p2.PrimaryStatus, Is.EqualTo(StatusCondition.None), "Burn cured.");
             Assert.That(p2.SecondaryStatus, Is.EqualTo(StatusCondition.None), "Confusion cured.");
             Assert.That(p2.SecondaryStatusTurnsRemaining, Is.EqualTo(0));
-        }
-
-        // ── Move Tutor (9.5.3) ────────────────────────────────────────────────
-
-        [Test]
-        public void Tutor_OfferMoves_Returns3_ExcludesKnown()
-        {
-            MoveSO m1 = MakeMove("t1"), m2 = MakeMove("t2"), m3 = MakeMove("t3"), m4 = MakeMove("t4");
-            PokemonSpeciesSO sp = MakeSpecies(100, m1, m2, m3, m4);
-            PokemonInstance p = MakeInstance(sp, hp: 100);
-            p.LearnedMoves.Add(m1); // already in pool → excluded (§5.10)
-
-            List<MoveSO> offer = Make(new Box(6), MakeEconomy(), MakeRun()).OfferTutorMoves(p);
-            Assert.That(offer.Count, Is.EqualTo(3));
-            Assert.That(offer, Has.No.Member(m1));
-        }
-
-        [Test]
-        public void Tutor_LearnMove_AddsToPool_OncePerVisit()
-        {
-            MoveSO known = MakeMove("k"), tutored = MakeMove("new");
-            PokemonSpeciesSO sp = MakeSpecies(100, tutored);
-            PokemonInstance p = MakeInstance(sp, hp: 100);
-            p.LearnedMoves.Add(MakeMove("a"));
-            p.LearnedMoves.Add(known);
-            PokemonCenterNodeController c = Make(new Box(6), MakeEconomy(), MakeRun());
-
-            bool first = c.LearnMove(p, tutored);
-            Assert.That(first, Is.True);
-            Assert.That(p.LearnedMoves, Contains.Item(tutored), "Tutored move added to pool (§5.10.1).");
-            Assert.That(p.LearnedMoves.Count, Is.EqualTo(3), "Pool grew by 1.");
-            Assert.That(c.TutorUsed, Is.True);
-
-            // Second learn this visit is refused.
-            bool second = c.LearnMove(p, MakeMove("other"));
-            Assert.That(second, Is.False);
-        }
-
-        [Test]
-        // §5.7.1 / Task 10.8 — TutorLearnset is stage-aware: evolving (Species swap) recomputes the
-        // offer. A Wartortle-stage species offers a broader pool than the Squirtle-stage one.
-        public void Tutor_Offer_RecomputesOnEvolution()
-        {
-            MoveSO a = MakeMove("a"), b = MakeMove("b"), c = MakeMove("c"), d = MakeMove("d");
-            PokemonSpeciesSO squirtleStage = MakeSpecies(100, a, b);       // narrow base pool
-            PokemonSpeciesSO wartortleStage = MakeSpecies(120, a, b, c, d); // broader evolved pool
-            PokemonInstance p = MakeInstance(squirtleStage, hp: 50);
-            PokemonCenterNodeController ctrl = Make(new Box(6), MakeEconomy(), MakeRun());
-
-            Assert.That(ctrl.OfferTutorMoves(p), Has.Count.EqualTo(2));
-
-            p.Species = wartortleStage; // EvolutionExecutor swaps Species in-run
-            List<MoveSO> after = ctrl.OfferTutorMoves(p);
-            Assert.That(after, Has.Count.EqualTo(3), "Offer caps at MOVE_TUTOR_OFFER but is now larger.");
-            Assert.That(after, Has.Member(c), "An evolved-stage tutor move is now offered.");
-        }
-
-        [Test]
-        public void Tutor_LearnMove_Duplicate_Rejected()
-        {
-            MoveSO m = MakeMove("m");
-            PokemonInstance p = MakeInstance(MakeSpecies(100), hp: 100);
-            p.LearnedMoves.Add(m); // already in pool
-            PokemonCenterNodeController c = Make(new Box(6), MakeEconomy(), MakeRun());
-            Assert.That(c.LearnMove(p, m), Is.False, "Duplicate learn rejected (§5.10.1 dedup).");
         }
 
         // ── Therapy (9.5.4) ───────────────────────────────────────────────────
