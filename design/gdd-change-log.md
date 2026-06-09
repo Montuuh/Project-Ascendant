@@ -62,7 +62,8 @@ GDD §4.3.5 written to Notion and snapshot re-exported (2026-06-10).
 (TeachMove/TeachAbility/OfferMoves/OfferAbilities), EconomyConfigSO Dojo pricing,
 MapGenerationConfigSO.DojoWeight, PokemonSpeciesSO.AvailableAbilities, factory no-op ability.
 PokemonCenterNodeController tutor service removed; NodePanelUI Dojo stub added.
-GDD Notion write still needed (use project-ascendant-gdd skill).
+GDD enriched (2026-06-10): §5.12.3 AvailableAbilities pool + PrimaryAbility legacy note; §7.14 full-pool
+offer/no-cap/placeholder pricing; Move Tutor removed from §7.6.1/§7.8.1/§7.12; §7.2.2/§7.13 updated.
 
 ² Synced via the §5.12 progression-redesign override block + §7.14 Dojo + §8.3.3 Exp Share row
 (2026-06-08). Old sections (§5.2.1/§5.3.x/§5.5/§5.10) are superseded-where-conflicting by §5.12;

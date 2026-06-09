@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-07T22:33:00.000Z -->
+<!-- Last updated from Notion: 2026-06-09T23:16:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-24 (full lock — node specs, biome pools, catching, mystery events, shops, map seeding)
+**Last Updated:** 2026-06-10 (CL-009: Dojo node enriched — full-pool offer, no cap, placeholder pricing; Move Tutor removed from Centers §7.6.1/§7.8.1; §7.2.2/§7.12/§7.13 updated)
 
 
 **Cross-references:** Topic 2 (§2.1.2 node categories, branching map), Topic 4 (§4.5 Victory Road nodes — adjacent), Topic 6 (§6.5 starter unlocks; §6.6 relic tiers; achievement triggers), Topic 8 (shop inventory, consumables, relics, Held Items).
@@ -82,15 +82,15 @@ Supersedes the §7.2.1 fixed-lane table and the gap #39 single-Gym override. Res
 Across both lanes (12 standard nodes per Region after Layer 0, before Gym):
 
 
-| Node Type                          | Count per Region | Notes                               |
-| ---------------------------------- | ---------------- | ----------------------------------- |
-| Wild Pokémon Area                  | 2                | Plus the guaranteed Layer 0         |
-| Trainer Battle                     | 4                | Standard trainers                   |
-| Elite Trainer                      | 1                | Always at Layer 3                   |
-| Pokémon Center                     | 1                | Always at Layer 6 (pre-Gym)         |
-| Shop (regional sub-shop, not City) | 1                | At Layer 2 or 5                     |
-| Mystery Event                      | 2                | Distributed across Layers 1–5       |
-| Tutor / Daycare service node       | 1                | Layer 2 or 5 (alternates with Shop) |
+| Node Type                                                | Count per Region | Notes                                                                     |
+| -------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------- |
+| Wild Pokémon Area                                        | 2                | Plus the guaranteed Layer 0                                               |
+| Trainer Battle                                           | 4                | Standard trainers                                                         |
+| Elite Trainer                                            | 1                | Always at Layer 3                                                         |
+| Pokémon Center                                           | 1                | Always at Layer 6 (pre-Gym)                                               |
+| Shop (regional sub-shop, not City)                       | 1                | At Layer 2 or 5                                                           |
+| Mystery Event                                            | 2                | Distributed across Layers 1–5                                             |
+| **Dojo** node (off-learnset move + ability tutor, §7.14) | 1                | ≈ 1 per Region, mid-trunk layers (via `MapGenerationConfigSO.DojoWeight`) |
 
 
 **Seeding determinism:** Per Engineering Pillar 3 (§1.3.2), the map is generated from the run seed. Same seed = same map every time.
@@ -289,11 +289,10 @@ Distinct from the City Pokémon Center (§2.1.4). One Region-internal Center per
 ## §7.6.1 Service Offerings
 
 
-| Service                  | Effect                                                                                                           |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| **Heal**                 | Full restore of all Box Pokémon to Effective Max HP (per §2.4.2). Free.                                          |
-| **Move Tutor (limited)** | Curated 3-move offer per Pokémon. Choose 1 Pokémon → learn 1 move. Free. Once per visit.                         |
-| **Therapy (Trauma)**     | Remove 1 Trauma stack from 1 Pokémon. Cost: 100₽ × (1 + stack count). Repeatable while affordable. (Per §6.2.4.) |
+| Service              | Effect                                                                                                           |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Heal**             | Full restore of all Box Pokémon to Effective Max HP (per §2.4.2). Free.                                          |
+| **Therapy (Trauma)** | Remove 1 Trauma stack from 1 Pokémon. Cost: 100₽ × (1 + stack count). Repeatable while affordable. (Per §6.2.4.) |
 
 
 The Center node fires no combat. Pure utility. The player leaves and proceeds to the Gym.
@@ -344,13 +343,12 @@ Cities are post-Gym-1 and post-Gym-2 rest-and-restock zones. Three sequential ev
 The City PC offers more than the Region-internal Center:
 
 
-| Service                  | Effect                                                                               | Cost               |
-| ------------------------ | ------------------------------------------------------------------------------------ | ------------------ |
-| **Heal**                 | Full restore (same as Region Center)                                                 | Free               |
-| **Move Tutor (curated)** | 5-move offer per Pokémon; Pokémon may also learn a tutor-exclusive move (per §5.4.2) | Free               |
-| **Therapy**              | Trauma Salve service per §6.2.4                                                      | 100₽ × (1 + stack) |
-| **Daycare**              | Deposit 1 Pokémon; receive +1 level instantly; that Pokémon skips next combat        | 200₽               |
-| **PC Box**               | Inspect / reorder Box (also available from Map View)                                 | Free               |
+| Service     | Effect                                                                        | Cost               |
+| ----------- | ----------------------------------------------------------------------------- | ------------------ |
+| **Heal**    | Full restore (same as Region Center)                                          | Free               |
+| **Therapy** | Trauma Salve service per §6.2.4                                               | 100₽ × (1 + stack) |
+| **Daycare** | Deposit 1 Pokémon; receive +1 level instantly; that Pokémon skips next combat | 200₽               |
+| **PC Box**  | Inspect / reorder Box (also available from Map View)                          | Free               |
 
 
 ## §7.8.2 City Curated Shop
@@ -575,19 +573,19 @@ Constraints are applied iteratively with fallback re-rolls if no valid configura
 Aggregated reward tables for every node type. Single source for systems-designer balance review.
 
 
-| Node Type               | Combat? | Poké Dollar | XP (Trainer)             | Drop                      | Special                       |
-| ----------------------- | ------- | ----------- | ------------------------ | ------------------------- | ----------------------------- |
-| Wild Pokémon Area       | Yes     | 0–25₽       | 5 (clear) + 10 (recruit) | Recruitment               | Catching mechanic             |
-| Trainer Battle          | Yes     | 50–150₽     | 5                        | Loot table                | —                             |
-| Elite Trainer           | Yes     | 300₽        | 25                       | Guaranteed Uncommon relic | —                             |
-| Pokémon Center (Region) | No      | —           | —                        | —                         | Heal + Therapy + 1 Move Tutor |
-| Shop (Region)           | No      | (spend)     | —                        | —                         | Curated inventory + re-roll   |
-| Tutor / Daycare         | No      | (varies)    | —                        | —                         | Move learning OR XP boost     |
-| Mystery Event           | Varies  | Varies      | Varies                   | Varies                    | Choice-driven                 |
-| Gym Leader              | Yes     | 500₽        | 50                       | Rare relic                | Badge                         |
-| City Pokémon Center     | No      | (varies)    | —                        | —                         | Full slate                    |
-| City Shop               | No      | (spend)     | —                        | —                         | 8-slot curated                |
-| City Reflection         | No      | —           | —                        | —                         | Region Modifier               |
+| Node Type               | Combat? | Poké Dollar | XP (Trainer)             | Drop                      | Special                                                         |
+| ----------------------- | ------- | ----------- | ------------------------ | ------------------------- | --------------------------------------------------------------- |
+| Wild Pokémon Area       | Yes     | 0–25₽       | 5 (clear) + 10 (recruit) | Recruitment               | Catching mechanic                                               |
+| Trainer Battle          | Yes     | 50–150₽     | 5                        | Loot table                | —                                                               |
+| Elite Trainer           | Yes     | 300₽        | 25                       | Guaranteed Uncommon relic | —                                                               |
+| Pokémon Center (Region) | No      | —           | —                        | —                         | Heal + Trauma therapy only (Move Tutor relocated to Dojo §7.14) |
+| Shop (Region)           | No      | (spend)     | —                        | —                         | Curated inventory + re-roll                                     |
+| Tutor / Daycare         | No      | (varies)    | —                        | —                         | Move learning OR XP boost                                       |
+| Mystery Event           | Varies  | Varies      | Varies                   | Varies                    | Choice-driven                                                   |
+| Gym Leader              | Yes     | 500₽        | 50                       | Rare relic                | Badge                                                           |
+| City Pokémon Center     | No      | (varies)    | —                        | —                         | Full slate                                                      |
+| City Shop               | No      | (spend)     | —                        | —                         | 8-slot curated                                                  |
+| City Reflection         | No      | —           | —                        | —                         | Region Modifier                                                 |
 
 
 ---
@@ -596,18 +594,19 @@ Aggregated reward tables for every node type. Single source for systems-designer
 # §7.13 Vertical Slice Carve-Out
 
 
-| System                                                | In VS                                                                         | Out of VS                                       |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------- |
-| Region 1 map (Layers 0–11, branching tree + Gym fork) | ✅ Full                                                                        | —                                               |
-| Wild Pokémon Areas + 3 biomes                         | ✅ Meadow + Cave + River                                                       | Sea, Power Plant, Sky, etc.                     |
-| Catching mechanic                                     | ✅ Pokéball v1                                                                 | Great/Ultra Ball tiers                          |
-| Trainer Battle nodes                                  | ✅ 4 archetypes (Bug Catcher, Lass, Hiker, Sailor)                             | Engineer, Hex Maniac, Ace Trainer, Rocket Grunt |
-| Elite Trainer node                                    | ✅ 1 archetype                                                                 | —                                               |
-| Region Pokémon Center                                 | ✅ Full                                                                        | —                                               |
-| Region Shop                                           | ✅ Full + re-roll                                                              | —                                               |
-| Mystery Events                                        | ✅ 4 launch events (Mysterious Stone, Berry Bush, Wandering Tutor, Slot Booth) | Full 12-event catalog                           |
-| City interstitial                                     | ❌ Not in VS (VS ends at Gym 1)                                                | —                                               |
-| Map generation algorithm                              | ✅ Single-region                                                               | Cross-region pacing tuning                      |
+| System                                                | In VS                                                                         | Out of VS                                           |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------- |
+| Region 1 map (Layers 0–11, branching tree + Gym fork) | ✅ Full                                                                        | —                                                   |
+| Wild Pokémon Areas + 3 biomes                         | ✅ Meadow + Cave + River                                                       | Sea, Power Plant, Sky, etc.                         |
+| Catching mechanic                                     | ✅ Pokéball v1                                                                 | Great/Ultra Ball tiers                              |
+| Trainer Battle nodes                                  | ✅ 4 archetypes (Bug Catcher, Lass, Hiker, Sailor)                             | Engineer, Hex Maniac, Ace Trainer, Rocket Grunt     |
+| Elite Trainer node                                    | ✅ 1 archetype                                                                 | —                                                   |
+| Region Pokémon Center                                 | ✅ Full (heal + Trauma therapy; Move Tutor removed per CL-009)                 | —                                                   |
+| **Dojo** (move + ability tutor node)                  | ✅ CL-009 — `DojoNodeController`  • map-gen wired                              | Full UI (CL-023); pricing tuning (systems-designer) |
+| Region Shop                                           | ✅ Full + re-roll                                                              | —                                                   |
+| Mystery Events                                        | ✅ 4 launch events (Mysterious Stone, Berry Bush, Wandering Tutor, Slot Booth) | Full 12-event catalog                               |
+| City interstitial                                     | ❌ Not in VS (VS ends at Gym 1)                                                | —                                                   |
+| Map generation algorithm                              | ✅ Single-region                                                               | Cross-region pacing tuning                          |
 
 > 📝 Design note (2026-05-29): two §7.9.2 Mystery choices reference post-VS systems — **Mysterious Stone (a)** "random Evolution Item" and **Wandering Tutor (a)** "free Move Tutor." The VS substitutes a Potion grant; full Evolution-Item + Move-Tutor wiring is post-VS (gap #36).
 > Blocked: the canonical effects for those two choices. VS resolution (user-confirmed 2026-05-29): Mysterious Stone (a) grants a random relic from a configured pool; Wandering Tutor (a) grants a placeholder consumable. Swap to the real effects once the Evolution-Item and Move-Pool systems land. See BACKLOG gap #37.
@@ -616,19 +615,24 @@ Aggregated reward tables for every node type. Single source for systems-designer
 ---
 
 
-# §7.14 The Dojo — Move & Ability Tutor node (2026-06-07, CL-009)
+# §7.14 The Dojo — Move & Ability Tutor node (CL-009; last updated 2026-06-10)
 
 
 A standalone **non-combat utility node** on the Region map. It **replaces** the Move Tutor service previously offered at Pokémon Centers (§7.6.1 / §7.8.1) — Centers now provide **heal + Trauma therapy only**.
 
 
-**Service.** Pick one of your Pokémon and teach it, for **Poké Dollars** (price scales by power):
+**Service.** Pick one of your Pokémon and choose what to teach it, for **Poké Dollars**:
 
-- an **off-learnset move** — from the species' stage-aware tutor pool (the moves it would never learn naturally; the scarce, valuable sculpt under the §5.12.1 lean learnset), and/or
-- an **ability** — the **ability-learner** of §5.12.3 / §5.5: set or swap the Pokémon's single passive.
+- An **off-learnset move** — the Dojo shows the **full** **`TutorLearnset`** for the chosen Pokémon's current evolution stage, filtered to exclude moves already in their pool (§5.10.1 dedup). There is **no offer cap** — every available tutor move is listed. These are the moves the Pokémon would never learn naturally under the §5.12.1 lean learnset, making them the scarce, valuable sculpt choices.
+- An **ability** — all entries in the species' `AvailableAbilities` pool (§5.12.3) are listed, **including the currently-equipped ability** (swap allowed). One passive slot per Pokémon; teaching a new ability replaces any existing one.
 
-You may teach multiple things in one visit if you can afford them, so the Dojo is the game's main **Poké Dollar sink** and the key deliberate-sculpt stop (Pillar 3). The node is **telegraphed on the map** (Pillar 1).
+You may teach multiple things in one visit if you can afford them. The Dojo is the game's main **Poké Dollar sink** and the key deliberate-sculpt stop (Pillar 3). The node is **telegraphed on the map** (Pillar 1).
 
 
-**Frequency:** ≈ 1 per Region (tuning). **Cost tables / exact pricing:** systems-designer, placeholder via the economy config.
+**Frequency:** ≈ 1 per Region (`MapGenerationConfigSO.DojoWeight` ≈ 0.5–1.0 on 2–3 mid-trunk layers; tuning).
 
+
+**Placeholder pricing** (pending systems-designer calibration; `EconomyConfigSO`):
+
+- Off-learnset move: **150₽** per move (`DojoMoveCost`)
+- Ability (set or swap): **200₽** (`DojoAbilityCost`)

@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-09T13:34:00.000Z -->
+<!-- Last updated from Notion: 2026-06-09T23:16:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-25 (Move Pool system + Mastery progression redesign — §5.3.3, §5.3.5, §5.4.1, §5.4.2, §5.6 rewritten; new §5.10–5.11 added)
+**Last Updated:** 2026-06-10 (CL-008: §5.12.3 enriched — AvailableAbilities pool, PrimaryAbility legacy-flagged)
 
 
 **Cross-references:** Topic 3 (Lead mechanic, move modifiers), Topic 4 (Mastery Moves, Branch synergy with Boons/Badges), Topic 6 (meta-progression), Topic 8 (Held Items — Lead Aura source).
@@ -641,7 +641,9 @@ Adopted via the design pass (open-questions Q12–Q16; change-log CL-006…010).
 
 ## §5.12.3 Abilities — kept, decoupled, earned (CL-008)
 
-- Abilities are **no longer auto-granted by evolution**. One passive slot per Pokémon, **taught at the Dojo** (the ability-learner). The ~30-ability roster (§5.8) stays as content.
+- Abilities are **no longer auto-granted by evolution**. One passive slot per Pokémon, **taught at the Dojo** (the ability-learner, §7.14). The ~30-ability roster (§5.8) stays as content.
+- Each species carries an **`AvailableAbilities`** **pool** — a curated list of 1–N abilities that can be taught at a Dojo. The Dojo shows all entries in this pool for the chosen Pokémon. The currently-equipped ability is included in the listing, allowing a **swap** rather than forcing a new-learn only. Teaching always **sets or replaces** the single passive slot.
+- **`PrimaryAbility`** **(legacy field):** the old auto-grant field from the pre-CL-008 model. Nulled on all Vertical Slice species by CL-007/CL-008. Kept in code for serialisation compatibility only — **do not use for new species**. New and updated species must populate `AvailableAbilities` instead.
 
 ## §5.12.4 The Dojo (CL-009 — full spec in Topic 7 §7.14)
 
