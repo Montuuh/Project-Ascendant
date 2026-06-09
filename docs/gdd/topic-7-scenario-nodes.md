@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-09T23:16:00.000Z -->
+<!-- Last updated from Notion: 2026-06-09T23:53:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -172,18 +172,22 @@ Illustrative pool assignment for the launch ~30 evolution lines:
 Per the open question logged in Topic 7's scaffold, catching is a **mini-combat** governed by Telegraphed-Tactics rules — not a probability roll.
 
 
+Per **CL-014 (Q22)**, the catch test is surfaced as a deterministic **Catchability gauge** (§7.3.4.1) — a 0–100 score that fills as the wild Pokémon is weakened and/or statused. There is still **no probability roll**: the gauge is computed, not rolled, preserving Pillar 1.
+
+
 ### §7.3.4.1 Catching encounter flow
 
 1. The wild Pokémon appears at full HP. Player Active Team enters at current HP (per §2.4 — HP persists).
 2. Combat begins. If the run holds at least one Pokéball (`RunStateSO.PokeballCount` > 0), **a Pokéball card is added to the Consumable Pile** for this combat (Option 1 counted scarcity — see §7.3.4 note). With zero balls, no catch card appears.
 3. Combat plays out normally. The wild Pokémon does NOT attempt to flee.
 4. To catch: the player must:
-    - Reduce the wild Pokémon's HP below 50% AND
+    - Fill the **Catchability gauge** to 100 (weaken the wild Pokémon and/or apply a status) AND
     - Apply the **Pokéball** consumable.
-5. Pokéball success rule (deterministic, no RNG):
-    - **HP ≥ 50%** at time of throw: **catch fails**, the Pokéball is still spent (`PokeballCount` − 1), combat continues. Each catch attempt costs one ball whether it succeeds or fails.
-    - **HP < 50%, no status condition:** **catch succeeds**, combat ends.
-    - **HP < 50% + any status condition on wild Pokémon:** **catch succeeds at any HP** (status condition expands the catch window).
+5. Catchability gauge (deterministic, no RNG — CL-014):
+    - **CatchThreshold (HP%)** = `30 (base) + 20 (any status on the wild Pokémon, non-stacking) + ball bonus (Great +15 / Ultra +30, §7.3.4.2)`.
+    - **Gauge** = `clamp(0, 100, round(100 × (100 − HP%) / (100 − CatchThreshold)))` — full HP → 0; HP% at the threshold → 100 (READY). Applying a status visibly jumps the gauge (threshold 30 → 50).
+    - **Throw at gauge 100:** **catch succeeds**, combat ends. Basic ball: catchable at HP ≤ 30% (no status) or HP ≤ 50% (any status).
+    - **Throw before the gauge reaches 100:** **catch fails**, the Pokéball is still spent (`PokeballCount` − 1), combat continues. Each attempt costs one ball whether it succeeds or fails.
     - **HP ≤ 0:** the wild Pokémon faints. The recruit is lost.
 6. On successful catch: combat ends **as a Victory** and the Active Team earns **full combat XP** (a catch is never an XP penalty vs. a KO); the wild Pokémon enters the Box (or triggers the Swap-or-Skip prompt per §2.3.1).
 7. On failed combat (Active Team wipe): run-failure event fires per §3.3.6.
@@ -191,7 +195,7 @@ Per the open question logged in Topic 7's scaffold, catching is a **mini-combat*
 ### §7.3.4.2 Tier-2 Pokéballs (post-launch acquisition layer)
 
 
-The launch ships only the basic Pokéball. Post-launch may add Great Ball (catches at HP ≤ 65%) and Ultra Ball (catches at HP ≤ 80% OR HP < 50% without status). Architecture supports the tier via a `CatchHPThreshold` field on the `PokéballConsumableSO`.
+The launch ships only the basic Pokéball (base CatchThreshold 30%). Post-launch may add **Great Ball** (+15pt → catchable at HP ≤ 45%, or ≤ 65% with a status) and **Ultra Ball** (+30pt → HP ≤ 60%, or ≤ 80% with a status). A ball bonus raises the CatchThreshold, so the Catchability gauge fills sooner. Architecture supports the tier via a `CatchHPThreshold` field on the `PokéballConsumableSO`.
 
 
 ### §7.3.4.3 Catch design rationale
@@ -201,6 +205,9 @@ Pure-deterministic catching aligns with Pillar 1 (Telegraphed Tactics). The play
 
 
 Failed catches are still possible (wild Pokémon downed below 0) but never feel like "RNG screwed me" — they feel like "I committed to damage when I should have used Pokéball."
+
+
+The Catchability gauge (CL-014) gives the satisfying catch-rate _feel_ — a filling meter — without any roll, and the tighter 30% / 50%-with-status thresholds make status a meaningful **+20pt** tool rather than a blanket "catch at any HP."
 
 
 ## §7.3.5 Wild Pokémon Stat Tier

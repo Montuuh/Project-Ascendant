@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-09T23:01:00.000Z -->
+<!-- Last updated from Notion: 2026-06-09T23:54:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -437,7 +437,7 @@ Elite enemies and bosses follow scripted intent sequences with condition-based p
 | **Signature Phase**   | Boss uses its highest-impact move, bypassing cooldown                       |
 
 
-**Mid-fight evolution** (Gym Leader tier and above):
+**Mid-fight evolution** (rival / Champion only — per CL-013, Gym Leaders no longer evolve mid-fight; see §4.4.4.3):
 
 - One turn before: `✨ [Pokémon name] is gathering energy — EVOLUTION IMMINENT.`
 - The player has one turn to burst below the threshold or prepare.
@@ -449,7 +449,10 @@ Elite enemies and bosses follow scripted intent sequences with condition-based p
 Field effects are environmental modifiers set at encounter start, persisting for the full combat unless overwritten. Introduced in Region 3 as a mechanical accent. The AI scoring function accounts for active field effects when selecting intents.
 
 
-**Launch field effects (3 at launch):**
+Per **CL-012 (Q8)**, every field carries an **owner** flag — `Neutral` or `Enemy` — that determines who its multipliers benefit. One engine, two classes: neutral **Battlefields** (wild / Region encounters, symmetric) and enemy-owned **Home Fields** (Gym / Elite, one-sided). The four field definitions below (§4.3.8.1–§4.3.8.4) apply symmetrically when set as a Battlefield, and enemy-only when set as a Home Field (§4.3.8.5).
+
+
+**Launch field set (4):**
 
 
 ### §4.3.8.1 ☀️ Sunny Day (Weather)
@@ -468,7 +471,29 @@ Field effects are environmental modifiers set at encounter start, persisting for
 - Paralysis cannot be applied to grounded Pokémon.
 - Grounded = all Pokémon except Flying-type or those with the Levitate ability tag.
 
-**Field effect UI:** active field effects displayed persistently in combat UI. Card hover damage previews account for active field effects automatically.
+### §4.3.8.4 🪨 Sandstorm (Hazard)
+
+- A new **hazard class**. Rock-, Ground-, and Steel-type Pokémon are immune.
+- Every other Pokémon loses **5% of its max HP at the end of its turn**.
+- The hazard pressures low-HP and freshly-swapped-in Pokémon, tying field effects to the faint/swap economy (Pillars 1 + 2).
+
+### §4.3.8.5 Home Fields (enemy-owned — Gym / Elite)
+
+
+A Home Field is the boss's terrain: the same field engine with **`owner = Enemy`**, so the boost is **one-sided**. A Gym Leader or Elite sets a Home Field matching **its own type identity** at combat start, telegraphed with a persistent `🏠 Home Field: [Type]` badge.
+
+- **Enemy** moves of the field's type: **×1.5 damage**.
+- **Player** moves of the same type: **×1.0** (no boost — it is the enemy's turf).
+- **No player-side suppression at launch** — the threat is the enemy's amplified offence, not a tax on the player.
+- This gives Gym type-fields a real mechanical effect (previously inert — **closes BACKLOG gap #33**).
+
+### §4.3.8.6 Counterplay
+
+- **Don't feed it:** resist or avoid the boss's type; a Home Field only amplifies the enemy's own offence, so a resist wall blunts it.
+- **Smoke Ball** (Shop consumable): clears the active field — Battlefield or Home Field — for the rest of combat. The guaranteed answer to a hostile field.
+- _Follow-up content (post-launch, not launch-blocking):_ a small set of player **field-setting moves** that overwrite a Home Field with a neutral Battlefield (stripping the enemy's ownership bonus), and a rare **Weather Vane** relic that flips an enemy Home Field to player-owned.
+
+**Field effect UI:** active field effects are displayed persistently in the combat UI; a Home Field additionally shows the `🏠 Home Field: [Type]` ownership badge. Card-hover damage previews account for the active field (and its owner) automatically.
 
 
 ## §4.3.9 Pokédex & Species Mastery (post-vertical-slice)
@@ -623,9 +648,20 @@ No two paths within a Region share the same type. 12 total Gym types in the pool
 
 ### §4.4.4.3 Gym Leader design rules
 
-- **2 Pokémon, sequential.** Second is the ace (3-phase design, mid-fight evolution eligibility at 50% HP).
+- **2 Pokémon, sequential.** The second is the ace (3-phase design). **Per CL-013, Gym aces no longer evolve mid-fight** — mid-fight evolution is reserved for the unique fights (rival / Champion, §4.3.7).
+- **Power premium:** Gym Pokémon sit at a defined **level bump above the Region's wild band** (ace > non-ace) — a tunable systems-designer value. This is the Gym's core threat: stronger Pokémon, not a transformation gimmick.
 - Type identity consistent with the drawn type — full team and moveset reflect that type.
-- A field effect matching their type is set at encounter start and persists for the full fight.
+- A **Home Field** matching their type is set at encounter start and persists for the full fight (enemy-owned, §4.3.8.5: enemy type-moves ×1.5). This replaces the previously-inert type field — **closes BACKLOG gap #33**.
+
+### §4.4.4.4 Per-type signature Phase 2 (CL-013)
+
+
+At 50% HP the Gym ace enters Phase 2 — a **per-type signature** that escalates without evolving. Each of the 12 Gym types maps to **exactly one** of four archetypes (telegraphed, learnable, replayable). Phase 1 (>50%) is always setup / read the player; the ace Phase 3 (≤20%) is the last-stand (cooldown reset + uncapped signature + Sturdy) **minus evolution**; non-ace Gym Pokémon stay 2-phase.
+
+- **Entrenchment** (Rock, Ground): the ace gains +Def stages and a damage-reduction Home-Field clause — race the wall. Counter: DoT, stat-stage strip, Defence-ignoring moves.
+- **Status Siege** (Poison, Grass, Bug): a Mass-Status phase floods the Lead with the Gym's signature status. Counter: cleanse, swap the statused Lead, immune typing.
+- **Onslaught** (Fire, Fighting, Normal): a Mass-Attack phase amplified by the Home Field (×1.5) — a burst race. Counter: resist wall, defensive swaps, healing.
+- **Tempo Control** (Electric, Psychic, Ice, Water): AP/swap taxes plus Paralysis/Freeze locks (optionally intent-hiding, §4.3.5). Counter: AP management, status immunity, telegraphed play.
 > 📝 Design note (2026-05-29): §4.4.4.3 sets a type-matching field for the Gym fight, but type fields (e.g. Rock) have no damage multiplier defined yet — only Weather (Sunny/Rain) and Terrain (Electric) do (§4.3.8). VS behaviour: the field is set for flavour/telegraph but is mechanically inert until type-field multipliers are designed (post-VS).
 > Blocked: the damage/utility effect of a Gym type field. VS stub (Task 8.5.5): FieldState.GymTypeField is set at encounter start and persists (marker only, no multiplier). See BACKLOG gap #33.
 
@@ -989,7 +1025,7 @@ When a boss's full intent pool is revealed (via Keen Eye, Soul Badge + Foresight
 **Weather and Terrain are independent categories. Both can be active simultaneously.** Only one Weather effect and one Terrain effect may be active at a time; applying a second of the same category overwrites the first.
 
 - Multiplicative stacking: a Fire move under Sunny Day (×1.5) AND Electric Terrain (no fire interaction) = ×1.5 net. Sunny Day + a hypothetical "Fire Terrain" would stack multiplicatively to ×2.25.
-- The launch field effects (§4.3.8) are 2 Weather + 1 Terrain. Post-launch may add additional Terrain effects (Grassy Terrain, Misty Terrain).
+- The launch field set (§4.3.8) is 4: 2 Weather (Sunny, Rain) + 1 Terrain (Electric) + 1 Hazard (Sandstorm, CL-012). Each may be set as a neutral Battlefield or an enemy-owned Home Field (§4.3.8.5). Post-launch may add more Terrain (Grassy, Misty) and Hazard effects.
 
 ## §4.8.3 AlwaysCrit vs Crit-Reduction Edge Case — RESOLVED (was BACKLOG gap #15)
 

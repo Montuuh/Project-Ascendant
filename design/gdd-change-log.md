@@ -47,9 +47,9 @@
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ✅⁵ |
 | CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ✅⁷ |
 | CL-011 | Q7 | Unknown intents: Elite/Gym baseline + Dense Fog extension | T4 §4.3.5 | ✅⁶ | ✅⁶ |
-| CL-012 | Q8 | Field effects: tiered neutral Battlefield + enemy-owned Home Field | T4 §4.3.8; §4.8.2 | ☐ | ☐ |
-| CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.2/§4.4.3/§4.4.4.3 | ☐ | ☐ |
-| CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ☐ | ☐ |
+| CL-012 | Q8 | Field effects: tiered neutral Battlefield + enemy-owned Home Field | T4 §4.3.8/§4.3.8.4-6/§4.4.4.3/§4.8.2 | ✅ | ☐ |
+| CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ☐ |
+| CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ☐ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -287,7 +287,7 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   catch/Pokéball consumable handler). UI: catchability gauge on the wild Pokémon + Pokéball hover
   state (Topic 10 / ui-programmer). Update §7.3.4 EditMode tests to the new thresholds. Systems-designer
   to verify the 30%→0% band is hittable with lean CL-006 early decks.
-- Status: [ ] GDD updated   [ ] Code adapted
+- Status: [✅] GDD updated (Notion §7.3.4.1–.3, re-exported 2026-06-10)   [ ] Code adapted
 
 ### CL-013 — Gym phases: remove mid-evo, power premium + per-type signature Phase 2   (resolves Q9)
 - Date: 2026-06-10
@@ -313,7 +313,7 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   level premium. Most archetypes compose existing systems (phase types §4.3.7, Home Field CL-012,
   status §4.2, intent-hide CL-011) — limited net-new combat tech. Content: assign one archetype +
   signature status per Gym type (12 entries).
-- Status: [ ] GDD updated   [ ] Code adapted
+- Status: [✅] GDD updated (Notion §4.3.7 + §4.4.4.3 + new §4.4.4.4, re-exported 2026-06-10)   [ ] Code adapted
 
 ### CL-012 — Field effects: tiered neutral Battlefield + enemy-owned Home Field   (resolves Q8)
 - Date: 2026-06-10
@@ -338,7 +338,7 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   new per-turn end-of-turn hazard tick (heaviest new piece; immune types Rock/Ground/Steel). New
   **"clear field" consumable** effect (Smoke Ball). Region-3 neutral Battlefield placement unchanged.
   Seize-moves + Weather Vane relic are deferred content.
-- Status: [ ] GDD updated   [ ] Code adapted
+- Status: [✅] GDD updated (Notion §4.3.8 + §4.8.2 + §4.4.4.3, re-exported 2026-06-10)   [ ] Code adapted
 
 ### CL-010 — XP: Active 100% / Box 75% baseline   (resolves Q12)
 - Date: 2026-06-07
