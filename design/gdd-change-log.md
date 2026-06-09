@@ -42,7 +42,7 @@
 | CL-004 | Q11 | Defer League/Champion (scope) | T2 §2.1.6, T4 §4.6/§4.7 | ✅ | n/a |
 | CL-005 | Q3 | Skill-card hand size 4 → 5 | T3 §3.2.2/§3.7 | n/a¹ | ✅ |
 | CL-006 | Q13 | Move-acquisition: level-gated learnset, start 2 | T5 §5.12.1 | ✅² | ✅³ |
-| CL-007 | Q15 | Evolution: free archetype/stage + lighter payload | T5 §5.12.2 | ✅² | ◑ (A done) |
+| CL-007 | Q15 | Evolution: free archetype/stage + lighter payload | T5 §5.12.2/§5.6 | ✅² | ✅³ |
 | CL-008 | Q14 | Abilities kept, decoupled to an earned learner | T5 §5.12.3 | ✅² | ☐ |
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ☐ |
 | CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ☐ |
@@ -174,13 +174,18 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
 - **Increment A — DONE (commit, 1037 green):** `EvolutionExecutor` no longer grants ability/crit;
   `SelectedBranch` is a record, not a path lock. `ProgressionTests` updated (asserts the recorded
   branch ability is intentionally ignored).
-- **Increment B — TODO (content authoring, next):** create the 4 new effect-bearing move SOs;
-  consolidate `Wartortle_Vanguard`→`Wartortle` and `Blastoise_A1/A2`→one `Blastoise` (unique
-  SpeciesId → closes gap #46); author 6 branch SOs (Squirtle×3 → Wartortle, Wartortle×3 → Blastoise);
-  wire `.Branches`; delete A1/A2 + old VA branches. **Rewrite `SquirtleLineContentTests`** to the
-  new structure + add payload guards (≤2 upgrades, ≤1 new; ≥2 archetypes offered per evolving stage;
-  no duplicate final-form SpeciesId). Then playtest (cross-archetype mix) + GDD §5.12.2 detail.
-- Status: [✅] GDD updated (§5.12.2 high-level)   [◑] Code — increment A done; B (content) next
+- **Increment B — DONE (2026-06-09, 1036 green):** created 4 effect-bearing move SOs (water_pulse
+  [Confusion rider], charm [−Atk], iron_defense [+Def, SB], aqua_fortress [regen +Def]); consolidated
+  `Wartortle_Vanguard`→`Wartortle` and `Blastoise_A1/A2`→one `Blastoise` (unique SpeciesId → **gap #46
+  closed for the Squirtle line**); authored 6 archetype branches (Squirtle×3→Wartortle, Wartortle×3→
+  Blastoise, moves-only, no ability/crit); wired `.Branches`; deleted A1/A2 + old VA branches.
+  **Rewrote `SquirtleLineContentTests`** to the new model (6 golden tests) + a **cross-archetype mix
+  runtime test** (Vanguard s1 → Specialist s2 → Blastoise pool has both archetypes' moves, no ability).
+  GDD §5.6 stamped superseded by §5.12.2.
+- **Follow-up (not this pass):** apply the same restructure to the other lines (Bulbasaur, Charmander,
+  Caterpie, Geodude, Pidgey) — **gap #46 still open for Charizard/Venusaur A1≡A2**. A broad payload/
+  archetype content-guard test should land with that pass (can't be global until all lines migrate).
+- Status: [✅] GDD updated (§5.12.2 + §5.6 banner)   [✅³] Code — Squirtle line complete, 1036 green
 
 ### CL-008 — Abilities kept, decoupled to an earned learner   (resolves Q14)
 - Date: 2026-06-07

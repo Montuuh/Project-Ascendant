@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-08T14:20:00.000Z -->
+<!-- Last updated from Notion: 2026-06-09T13:34:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -292,6 +292,7 @@ Pokémon in Project Ascendant may have passive abilities — always-on effects t
 
 # §5.6 Evolution Branch — Worked Example (Squirtle Line)
 
+> ⚠️ **SUPERSEDED for the Squirtle line by §5.12.2 (CL-007, 2026-06-09).** The line is now **moves-only / one species per stage**: Squirtle→Wartortle→Blastoise (one SO each — gap #46 closed), with **3 archetype branches per evolving stage** (Vanguard/Specialist/Support, free per stage), **no ability/crit grant**, and a **lighter payload** (≤2 upgrades at stage 1; +1 signature, additive, at stage 2). Squirtle-line kits: Vanguard {Tackle→Skull Bash, Tail Whip→Aqua Jet} → +Hydro Crash; Specialist {Water Gun→Water Pulse, Tail Whip→Charm} → +Hydro Pump; Support {Withdraw→Iron Defense, Tail Whip→Aqua Ring} → +Aqua Fortress. The Vanguard/A1/A2 example below is retained for historical reference only.
 
 To make the pool system concrete, here is a full worked example for the Squirtle evolution line using the **Learned Move Pool** (§5.10):
 
