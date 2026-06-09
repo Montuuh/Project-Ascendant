@@ -42,10 +42,14 @@
 | CL-004 | Q11 | Defer League/Champion (scope) | T2 §2.1.6, T4 §4.6/§4.7 | ✅ | n/a |
 | CL-005 | Q3 | Skill-card hand size 4 → 5 | T3 §3.2.2/§3.7 | n/a¹ | ✅ |
 | CL-006 | Q13 | Move-acquisition: level-gated learnset, start 2 | T5 §5.12.1 | ✅² | ✅³ |
-| CL-007 | Q15 | Evolution: free archetype/stage + lighter payload | T5 §5.12.2/§5.6 | ✅² | ✅³ |
+| CL-007 | Q15 | Evolution: free archetype/stage + lighter payload | T5 §5.12.2/§5.6 | ✅² | ✅⁴ |
 | CL-008 | Q14 | Abilities kept, decoupled to an earned learner | T5 §5.12.3 | ✅² | ☐ |
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ☐ |
 | CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ☐ |
+
+⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
+per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
+1050/1050 EditMode green (2026-06-09).
 
 ² Synced via the §5.12 progression-redesign override block + §7.14 Dojo + §8.3.3 Exp Share row
 (2026-06-08). Old sections (§5.2.1/§5.3.x/§5.5/§5.10) are superseded-where-conflicting by §5.12;
