@@ -107,7 +107,7 @@ the backend is still Bestiary (`BestiaryProgressSO`, `BestiaryShinyUnlock`,
 catalog) renamed now; backend class rename `Bestiary*` → `Pokedex*` is a code task. →
 logged **CL-001**.
 
-## Q7 — Unknown intents: frequency + reveal metaprogression 🔵
+## Q7 — Unknown intents: frequency + reveal metaprogression ✅ DECIDED 2026-06-10
 **Owner:** game-designer (+ systems-designer for unlocks)
 **User:** Should Unknown intents be more common? Only on ELITE/GYM/TRAINER nodes? What
 metaprogression unlocks "intent shown instead of Unknown"? Proposal: if you've **seen a
@@ -117,6 +117,16 @@ Pokémon use an ability**, the next time it uses the same ability its intent is 
 **Steward note (canon):** today 3-tier reveal Witnessed/Scouted/Researched (§4.3.5),
 Pokédex Familiar tier reveals a species' intents (§4.3.9.1). Your proposal sharpens the
 "Witnessed → permanently readable" loop.
+**✅ Resolution — Option B (Per-Species Reinforced):**
+- **Wild / Trainer encounters:** no Unknown intents at baseline — all intents Witnessed from turn 1.
+- **Elite / Gym encounters:** **1 Unknown intent per enemy per combat** at baseline. Once the
+  enemy fires any move (Witnessed tier), all subsequent intents that combat are revealed.
+- **Dense Fog modifier:** extends the 1-Unknown-per-enemy rule to Wild and Trainer encounters
+  too. Run layer sets `HideBaselineIntents = true` on the CombatSetup when Dense Fog is active.
+- Pokédex Familiar tier (§4.3.9.1) cross-run unlock retains full value (removes the baseline
+  Unknown from Elite/Gym encounters for Familiar species).
+- Also closes **VS gap #44** (Dense Fog HideAllEnemyIntents + Iron Will HP combat effects).
+→ logged **CL-011**.
 
 ## Q8 — Field effects: are they positive? Redesign 🔵
 **Owner:** game-designer + content-designer
@@ -312,13 +322,12 @@ done *after* the gameplay questions above settle, so the UI reflects final mecha
 
 ## Suggested processing order (producer recommendation)
 
-*Updated 2026-06-10. Q3/Q4/Q5/Q6/Q11/Q12/Q13/Q14/Q15/Q16 are ✅ DECIDED and in the change log.
+*Updated 2026-06-10. Q3/Q4/Q5/Q6/Q7/Q11/Q12/Q13/Q14/Q15/Q16 are ✅ DECIDED and in the change log.
 Q10 is ⏸ PARKED with League. Remaining open work:*
 
 1. **CL-010 unblock** (XP Box 75%, Q12): implement the Epic-10 XP award system so CL-010
    code can land. Currently the only CL with GDD approved but code pending.
-2. **Combat feel:** Q7 (unknown intents / Dense Fog — also VS gap #44), Q8 (field effects),
-   Q9 (gym phases), Q22 (catch condition). Q7 has the highest impact (VS ship blocker).
+2. **Combat feel:** Q8 (field effects), Q9 (gym phases), Q22 (catch condition).
 3. **World structure:** Q1 (City nodes + optional Gym), Q2 (Region Modifiers timing + pool),
    Q21 (Wild biomes → Region theming).
 4. **Meta & economy:** Q17 (Trauma cap), Q18 (Battle Pass XP), Q19 (achievements).

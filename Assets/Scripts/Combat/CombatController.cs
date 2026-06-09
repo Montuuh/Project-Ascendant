@@ -98,6 +98,12 @@ namespace ProjectAscendant.Combat
             // A Pokémon's Mastery card is built into the Skill Deck only if its MoveId is here.
             // Null/empty ⇒ no Mastery cards (locked).
             public ICollection<string> UnlockedMasteryIds;
+
+            // Per §4.3.5 (CL-011/Option B) — set to true by Elite/Gym controllers (always) or by the
+            // run layer when Dense Fog is active (extends to Wild/Trainer encounters). When true, each
+            // enemy's first intent is Hidden (❓) until they fire; after firing it becomes Witnessed.
+            // False → all intents Witnessed from turn 1 (Wild/Trainer baseline).
+            public bool HideBaselineIntents;
         }
 
         // Runtime state — fully describes the encounter. Public mutable for
@@ -202,6 +208,12 @@ namespace ProjectAscendant.Combat
             // Per §4.3.9.2 — unlocked Mastery MoveIds for this combat's deck build. Never null.
             public HashSet<string> UnlockedMasteryIds = new();
 
+            // Per §4.3.5 (CL-011/Option B) — mirrors setup flag; drives per-turn intent hiding.
+            public bool HideBaselineIntents;
+            // Per §4.3.5 (CL-011) — Witnessed tracking: enemies in this set have fired at least once
+            // this combat; their subsequent intents are Witnessed (not Hidden).
+            public HashSet<PokemonInstance> WitnessedEnemies = new();
+
             // Per §3.3.5 + Bug #10 — when the Lead faints, the controller pauses
             // mid-HandleAnyFaints and exposes the replacement candidates here.
             // UI shows a picker modal; player clicks; UI calls ApplyLeadReplacement(index).
@@ -274,6 +286,7 @@ namespace ProjectAscendant.Combat
                 UnlockedMasteryIds = setup.UnlockedMasteryIds != null
                     ? new HashSet<string>(setup.UnlockedMasteryIds)
                     : new HashSet<string>(),
+                HideBaselineIntents = setup.HideBaselineIntents,
             };
             State.Consumables.Build(State.ConsumableInventory);
             // Per Epic 5 Task 5.4.1 — extracted play pipeline. Wired with a
@@ -636,6 +649,17 @@ namespace ProjectAscendant.Combat
                     continue;
                 }
                 State.EnemyIntents.Add(BuildIntentForEnemy(enemy));
+
+                // Per §4.3.5 (CL-011/Option B) — Elite/Gym baseline: hide the first intent per enemy
+                // each combat until they fire (Witnessed tier). Dense Fog callers set this flag too,
+                // extending the rule to Wild/Trainer encounters.
+                if (State.HideBaselineIntents && !State.WitnessedEnemies.Contains(enemy))
+                {
+                    int idx = State.EnemyIntents.Count - 1;
+                    Intent it = State.EnemyIntents[idx];
+                    it.Reveal = IntentReveal.Hidden;
+                    State.EnemyIntents[idx] = it;
+                }
             }
 
             // Per §5.5.3.1 — Keen Eye: a team holding it reveals any Hidden intents (latent while VS
@@ -962,6 +986,10 @@ namespace ProjectAscendant.Combat
             // (success/fizzle is irrelevant — the AI committed the choice).
             if (intent.Move != null && intent.Move.CooldownTurns > 0)
                 enemy.SetMoveCooldown(intent.Move, intent.Move.CooldownTurns);
+
+            // Per §4.3.5 (CL-011) — Witnessed tier: once an enemy fires, all subsequent
+            // intents this combat are revealed (no longer Hidden).
+            State.WitnessedEnemies.Add(enemy);
         }
 
         // Per §3.2.4 / Bug #2 + #5 — enemy-side mirror of CardPlayService.ResolveEffects:

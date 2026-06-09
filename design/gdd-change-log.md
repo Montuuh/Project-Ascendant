@@ -46,10 +46,17 @@
 | CL-008 | Q14 | Abilities kept, decoupled to an earned learner | T5 §5.12.3 | ✅² | ✅⁵ |
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ✅⁵ |
 | CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ☐ |
+| CL-011 | Q7 | Unknown intents: Elite/Gym baseline + Dense Fog extension | T4 §4.3.5 | ✅⁶ | ✅⁶ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
 1050/1050 EditMode green (2026-06-09).
+
+⁶ CL-011 code complete (2026-06-10, 1070/1070 green). 6 new IntentHidingTests. EliteTrainerController +
+GymLeaderController set HideBaselineIntents=true. CombatController.RebuildEnemyIntents hides first
+intent per unwitnessed enemy; ExecuteEnemyIntent marks fired enemies as Witnessed. Dense Fog: run
+layer sets HideBaselineIntents=true on Wild/Trainer setups via DifficultyModifiers.HidesIntents().
+GDD §4.3.5 written to Notion and snapshot re-exported (2026-06-10).
 
 ⁵ CL-008 + CL-009 code complete (2026-06-10, 1064/1064 green). New: NodeType.Dojo, DojoNodeController
 (TeachMove/TeachAbility/OfferMoves/OfferAbilities), EconomyConfigSO Dojo pricing,
@@ -232,6 +239,29 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   = set `PokemonInstance.Ability`). Remove tutor service from Center nodes. Content: Dojo offer +
   price tables.
 - Status: [ ] GDD updated   [ ] Code adapted
+
+### CL-011 — Unknown intents: Elite/Gym baseline + Dense Fog extension   (resolves Q7)
+- Date: 2026-06-10
+- Topic / §: Topic 4 §4.3.5 (Unknown Intent & Revelation System)
+- Change: **Option B — Per-Species Reinforced.**
+  - Wild/Trainer encounters: **no Unknown intents at baseline** (all intents Witnessed from turn 1).
+  - Elite/Gym encounters: **1 Unknown intent per enemy per combat** — each enemy's first intent is
+    Hidden (❓); once they fire (Witnessed tier), all subsequent intents that combat are revealed.
+  - Dense Fog modifier extends the 1-Unknown-per-enemy rule to Wild/Trainer encounters too (run
+    layer sets `CombatSetup.HideBaselineIntents = true` when Dense Fog is active).
+  - Pokédex Familiar tier (§4.3.9.1) retains full value — Familiar species are exempt from the
+    Elite/Gym Unknown (pre-revealed by cross-run knowledge). Wiring deferred to Epic-Pokédex pass.
+  - Also closes VS gap #44 (Dense Fog HideAllEnemyIntents).
+- Rationale: Pillars 1 + 4 — Elite/Gym fights feel tactically sharper (one Unknown per enemy
+  creates a learn-by-doing beat) while Wild/Trainer stays fully transparent. Pokédex Familiar
+  unlock earns its metaprogression value.
+- Code impact: `CombatController.CombatSetup.HideBaselineIntents` (bool); `CombatController.
+  CombatState.HideBaselineIntents + WitnessedEnemies` (HashSet tracking); `RebuildEnemyIntents()`
+  hides intent per unwitnessed enemy when flag is true; `ExecuteEnemyIntent()` adds enemy to
+  WitnessedEnemies on fire. `EliteTrainerController` + `GymLeaderController` set flag true.
+  Run layer responsible for OR-ing with `DifficultyModifiers.HidesIntents()` for Dense Fog.
+  +6 new EditMode tests in `IntentHidingTests.cs`.
+- Status: [ ] GDD updated   [✅] Code adapted
 
 ### CL-010 — XP: Active 100% / Box 75% baseline   (resolves Q12)
 - Date: 2026-06-07

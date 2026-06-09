@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-05T14:34:00.000Z -->
+<!-- Last updated from Notion: 2026-06-09T23:01:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-25 (§4.3.9.2 Mastery Move system redesigned — pool-based meta-progression with per-species achievement unlock tiers)
+**Last Updated:** 2026-06-10 (§4.3.5 Unknown intent frequency updated — Option B: Elite/Gym baseline 1 Hidden per enemy; Wild/Trainer baseline none; Dense Fog extension. CL-011.)
 
 
 **Cross-references:** Topic 2 (Region Modifiers, Cities), Topic 3 (combat phases, Lead mechanic), Topic 5 (move kits, evolutions, passives), Topic 6 (Trauma System).
@@ -382,10 +382,12 @@ Score(intent) = BaseWeight
 | **Researched** | Keen Eye passive ability or specific relic               | All Unknown intents revealed at combat start for this run       |
 
 
-**Usage scope:**
+**Usage scope (CL-011 — Option B, 2026-06-10):**
 
-- Standard enemies: at most one Unknown intent per encounter.
-- Boss-tier: a recurring portion of the boss's intent pool is Unknown — incentivizing investment in uncovering tools.
+- **Wild / Trainer encounters:** no Unknown intents at baseline — all intents Witnessed from turn 1.
+- **Elite / Gym encounters:** 1 Unknown intent per enemy per combat. Each enemy's first intent is Hidden (❓); once they fire any move (Witnessed tier), all subsequent intents that combat are revealed.
+- **Dense Fog difficulty modifier:** extends the 1-Unknown-per-enemy rule to Wild and Trainer encounters too. The run layer sets `CombatSetup.HideBaselineIntents = true` when Dense Fog is active.
+- **Boss-tier:** a recurring portion of the boss's intent pool is Unknown — incentivising investment in uncovering tools.
 
 **Boss counter-intel mode:** when a boss's full intent pool is revealed, boss-tier AI slightly deprioritizes its top-scored intent to break predictability. Standard enemies play optimally regardless of player knowledge.
 

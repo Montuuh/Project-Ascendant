@@ -68,6 +68,8 @@ namespace ProjectAscendant.Combat
                 Rng = combatRng,
                 Reinforcements = this,
                 ActiveBadges = activeBadges,
+                // Per §4.3.5 (CL-011/Option B) — Gym encounters always start with 1 Hidden intent per enemy.
+                HideBaselineIntents = true,
             };
         }
 

@@ -66,6 +66,8 @@ namespace ProjectAscendant.Combat
                 Config = config,
                 Rng = combatRng,
                 Reinforcements = this,
+                // Per §4.3.5 (CL-011/Option B) — Elite encounters always start with 1 Hidden intent per enemy.
+                HideBaselineIntents = true,
             };
         }
 
