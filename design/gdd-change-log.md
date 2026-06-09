@@ -182,10 +182,18 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   **Rewrote `SquirtleLineContentTests`** to the new model (6 golden tests) + a **cross-archetype mix
   runtime test** (Vanguard s1 → Specialist s2 → Blastoise pool has both archetypes' moves, no ability).
   GDD §5.6 stamped superseded by §5.12.2.
-- **Follow-up (not this pass):** apply the same restructure to the other lines (Bulbasaur, Charmander,
-  Caterpie, Geodude, Pidgey) — **gap #46 still open for Charizard/Venusaur A1≡A2**. A broad payload/
-  archetype content-guard test should land with that pass (can't be global until all lines migrate).
-- Status: [✅] GDD updated (§5.12.2 + §5.6 banner)   [✅³] Code — Squirtle line complete, 1036 green
+- **Increment C — DONE (2026-06-09, 1047 green):** applied same restructure to all remaining VS lines.
+  Bulbasaur: 3 archetypes (Vanguard {Tackle→Headbutt, VineWhip→VineLash}, Specialist {VineWhip→
+  MegaDrain, LeechSeed→Toxic}, Support {Growl→SweetScent}) + Ivysaur stage-2 sigs (PowerWhip /
+  SeedFlare / GigaDrain). Charmander: 3 archetypes (Vanguard {Scratch→DragonClaw, Ember→FlameWheel},
+  Specialist {Ember→Flamethrower, Scratch→Slash}, Support {Scratch→FlameWheel}) + Charmeleon
+  stage-2 sigs (DragonClaw+ / Flamethrower / Roost). Wild lines — 1 archetype each: Caterpie
+  (SilkBind/PinShot → Psybeam sig), Geodude (RockBlast/Earthquake → BodyPress sig), Pidgey
+  (AerialAce/Tailwind → Hurricane sig). **gap #46 fully closed**: Venusaur_A1/A2→Venusaur.asset,
+  Charizard_A1/A2→Charizard.asset; all wild mid/final PrimaryAbility fields cleared. Tests:
+  BulbasaurLineContentTests + CharmanderLineContentTests fully rewritten; WildLinesContentTests new
+  (12 tests); Caterpie/Geodude/Pidgey old tests updated to CL-007 model. 1047/1047 green.
+- Status: [✅] GDD updated (§5.12.2 + §5.6 banner)   [✅] Code — ALL VS lines complete, 1047 green
 
 ### CL-008 — Abilities kept, decoupled to an earned learner   (resolves Q14)
 - Date: 2026-06-07
