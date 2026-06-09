@@ -47,6 +47,9 @@
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ✅⁵ |
 | CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ✅⁷ |
 | CL-011 | Q7 | Unknown intents: Elite/Gym baseline + Dense Fog extension | T4 §4.3.5 | ✅⁶ | ✅⁶ |
+| CL-012 | Q8 | Field effects: tiered neutral Battlefield + enemy-owned Home Field | T4 §4.3.8; §4.8.2 | ☐ | ☐ |
+| CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.2/§4.4.3/§4.4.4.3 | ☐ | ☐ |
+| CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ☐ | ☐ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -263,6 +266,79 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   Run layer responsible for OR-ing with `DifficultyModifiers.HidesIntents()` for Dense Fog.
   +6 new EditMode tests in `IntentHidingTests.cs`.
 - Status: [ ] GDD updated   [✅] Code adapted
+
+### CL-014 — Catch: deterministic Catchability Gauge   (resolves Q22)
+- Date: 2026-06-10
+- Topic / §: Topic 7 §7.3.4.1 (catch flow), §7.3.4.2 (ball tiers), §7.3.4.3 (rationale)
+- Change: **Option D — deterministic Catchability Gauge** (catch-rate *feel*, no RNG; Pillar 1 intact).
+  - 0–100 gauge on the wild Pokémon; **catch succeeds when gauge = 100**.
+  - `CatchThreshold(HP%) = 30 + (anyStatus ? 20 : 0) + ballBonus (Great +15 / Ultra +30)`.
+  - `gauge = clamp(0,100, round(100 × (100 − HP%) / (100 − CatchThreshold)))` (linear fill).
+  - Basic ball: catch at HP ≤ 30% (no status) / ≤ 50% (status). **Removes** the old "status → catch
+    at ANY HP" (status now = +20pt, non-stacking).
+  - Throw at gauge < 100 → fail + ball spent; gauge = 100 → success → Victory + full XP (§7.3.4.1 step
+    6 unchanged); HP ≤ 0 → faint, recruit lost.
+- Rationale: the user wanted a catch-rate %, but a roll violates Pillar 1; a deterministic gauge gives
+  the same satisfying "filling meter" feel while staying fully telegraphed, and the 30%/50% tightening
+  makes status a real tool instead of a trivializer.
+- Code impact: `PokeballConsumableSO.CatchHPThreshold` re-specs to base **30** (was 50); status adds
+  +20pt. New pure `Catchability(hpPercent, hasStatus, ballThreshold) → (gauge 0–100, isCatchable)`;
+  catch resolution checks `isCatchable` instead of the old `HP<50% / status→anyHP` rule (in the
+  catch/Pokéball consumable handler). UI: catchability gauge on the wild Pokémon + Pokéball hover
+  state (Topic 10 / ui-programmer). Update §7.3.4 EditMode tests to the new thresholds. Systems-designer
+  to verify the 30%→0% band is hittable with lean CL-006 early decks.
+- Status: [ ] GDD updated   [ ] Code adapted
+
+### CL-013 — Gym phases: remove mid-evo, power premium + per-type signature Phase 2   (resolves Q9)
+- Date: 2026-06-10
+- Topic / §: Topic 4 §4.3.7 (phase types — evolution scope), §4.4.2 (tier table), §4.4.3 (phase
+  template), §4.4.4.3 (Gym Leader design rules)
+- Change: **Option D.**
+  - **Remove mid-fight evolution from Gym aces** (§4.4.4.3) — reserved for rival/Champion only; the
+    "Evolution Phase" type (§4.3.7) stays in the catalog but is Champion/rival-scoped.
+  - **Gym power premium:** Gym Pokémon sit a defined level bump above the Region wild band (ace >
+    non-ace) — tunable `ProgressionConfigSO`/encounter-config number (placeholder).
+  - **Per-type signature Phase 2:** each of the 12 Gym types gets exactly one Phase-2 archetype from
+    a 4-archetype menu — **Entrenchment** (Rock, Ground), **Status Siege** (Poison, Grass, Bug),
+    **Onslaught** (Fire, Fighting, Normal), **Tempo Control** (Electric, Psychic, Ice, Water). Phase 1
+    = setup for all; ace Phase 3 (≤20%) = last-stand minus evolution; non-ace stays 2-phase.
+- Rationale: replaces the "epic" evolution beat with a learnable, telegraphed per-type identity that
+  makes each Gym distinct (Pillar 1) and forces repositioning (Pillar 2), while "more powerful
+  Pokémon" lands as a clean level premium. Reuses CL-012 Home Field + CL-011 intent-hide.
+- Code impact: remove the 50%-HP evolution-eligibility branch from the Gym ace path in
+  `GymLeaderController` (keep it on Champion/rival). Phase-2 archetype = a per-Gym-type enum/data
+  field driving the forced phase behaviour (Entrenchment = +Def stage + Home-Field DR clause;
+  Status Siege = Mass Status of the Gym's signature status; Onslaught = Mass Attack + Home-Field ×1.5;
+  Tempo Control = AP/swap tax + Para/Freeze, optional intent-hide). Encounter-gen applies the Gym
+  level premium. Most archetypes compose existing systems (phase types §4.3.7, Home Field CL-012,
+  status §4.2, intent-hide CL-011) — limited net-new combat tech. Content: assign one archetype +
+  signature status per Gym type (12 entries).
+- Status: [ ] GDD updated   [ ] Code adapted
+
+### CL-012 — Field effects: tiered neutral Battlefield + enemy-owned Home Field   (resolves Q8)
+- Date: 2026-06-10
+- Topic / §: Topic 4 §4.3.8 (field effects) + §4.8.2 (category stacking note)
+- Change: **Option D — Tiered.** Fields gain an `owner` flag (`Neutral` / `Enemy`).
+  - **Neutral Battlefield** (wild / Region 3+): symmetric, both sides — current model sharpened.
+    Launch set = Sunny Day (Fire ×1.5 / Water ×0.5), Rain Dance (Water ×1.5 / Fire ×0.5), Electric
+    Terrain (Electric ×1.3 grounded + Paralysis blocked on grounded), **Sandstorm (new hazard class:
+    Rock/Ground/Steel immune; all others −5% max HP at end of their turn)**.
+  - **Enemy-owned Home Field** (Gym / Elite): same fields, `owner = Enemy` → the boss sets a Home
+    Field of its own type at combat start (telegraphed badge); enemy moves of that type ×1.5, player
+    same-type moves ×1.0 (no boost). No player-side suppression at launch. **Closes gap #33.**
+  - **Counterplay:** new Shop consumable **"Smoke Ball"** clears the active field (any class) for the
+    rest of combat. Follow-up content (not launch-blocking): player field-setting moves that overwrite
+    a Home Field with a neutral Battlefield, and a rare "Weather Vane" relic that flips ownership.
+- Rationale: symmetric always-on fields read as passive wallpaper; an `owner` flag makes boss fields a
+  telegraphed threat you answer (Pillars 1+2) while wild fields stay light flavour, reusing the
+  existing field engine + the CL-011 ownership pattern. Sandstorm ties fields to the faint/swap economy.
+- Code impact: **Field model** gains an `owner` enum (`Neutral`/`Enemy`); the damage pipeline gates the
+  field multiplier by owner + attacker side (today it applies to all). `GymLeaderController` +
+  `EliteTrainerController` set an enemy-owned Home Field of their type at combat start. **Sandstorm** =
+  new per-turn end-of-turn hazard tick (heaviest new piece; immune types Rock/Ground/Steel). New
+  **"clear field" consumable** effect (Smoke Ball). Region-3 neutral Battlefield placement unchanged.
+  Seize-moves + Weather Vane relic are deferred content.
+- Status: [ ] GDD updated   [ ] Code adapted
 
 ### CL-010 — XP: Active 100% / Box 75% baseline   (resolves Q12)
 - Date: 2026-06-07

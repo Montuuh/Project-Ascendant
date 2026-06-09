@@ -128,19 +128,38 @@ Pokédex Familiar tier reveals a species' intents (§4.3.9.1). Your proposal sha
 - Also closes **VS gap #44** (Dense Fog HideAllEnemyIntents + Iron Will HP combat effects).
 → logged **CL-011**.
 
-## Q8 — Field effects: are they positive? Redesign 🔵
+## Q8 — Field effects: are they positive? Redesign ✅ DECIDED 2026-06-10
 **Owner:** game-designer + content-designer
 **User:** Field effects are positive? Redesign them.
 **Decision needed:** the field-effect model — who benefits, player-controllable vs enemy-
 set, the launch set.
 **Steward note (canon):** today 3 fields (Sunny/Rain Weather + Electric Terrain), set by
 encounter, symmetric multipliers (§4.3.8); Gym type-fields are inert (gap #33).
+**✅ Resolution — Option D (Tiered: neutral Battlefields + enemy-owned Home Fields):**
+- **Field gains an `owner` flag** (`Neutral` / `Enemy`) — one engine, two classes.
+- **Battlefield (neutral, wild / Region 3+):** symmetric, both sides — the current model sharpened.
+  Launch set: ☀️ Sunny Day (Fire ×1.5 / Water ×0.5), 🌧️ Rain Dance (Water ×1.5 / Fire ×0.5),
+  ⚡ Electric Terrain (Electric ×1.3 grounded + Paralysis blocked on grounded), and 🪨 **Sandstorm**
+  (new **hazard class** — Rock/Ground/Steel immune; every other mon loses **5% max HP at end of its
+  turn**, pressuring low-HP + freshly-swapped mons → ties fields to the faint/swap economy).
+- **Home Field (enemy-owned, Gym / Elite):** same fields with `owner = Enemy`, so the boost is
+  **one-sided** — the boss sets a Home Field of **its own type** at combat start (telegraphed
+  `🏠 Home Field: [Type]` badge); **enemy** moves of that type ×1.5, **player** same-type moves ×1.0
+  (no boost — their turf). **No player-side suppression at launch** (threat = amplified enemy offense,
+  not a tax). **Closes gap #33** (Gym type-fields finally bite).
+- **Counterplay:** (a) resist/avoid the boss's type; (b) new Shop consumable **"Smoke Ball"** clears
+  the active field (any class) for the rest of combat — the guaranteed answer. **Follow-up content
+  (not launch-blocking):** a few player **field-setting moves** that overwrite a Home Field with a
+  neutral Battlefield (strip ownership), and a rare **"Weather Vane" relic** that flips an enemy
+  Home Field to player-owned.
+- **Pillars:** 1 (telegraphed boss threat ★), 2 (swap/resist to answer; hazard pressures swap-ins ★),
+  3 (resist-stacking + type comp), 5 (weather/terrain flavour). → logged **CL-012**.
 
 ---
 
 # Domain E — Bosses & Challenge Arc
 
-## Q9 — Gym Leader phase systems (no mid-fight evolution) 🔵
+## Q9 — Gym Leader phase systems (no mid-fight evolution) ✅ DECIDED 2026-06-10
 **Owner:** game-designer
 **User:** Gyms shouldn't have "epic" phases like mid-fight evolution. Prefer Gyms field
 **more powerful Pokémon than the route**, and reserve mid-evolution for very unique fights
@@ -149,6 +168,30 @@ encounter, symmetric multipliers (§4.3.8); Gym type-fields are inert (gap #33).
 menu of interesting phase archetypes.
 **Steward note (canon):** today Gym ace is 3-phase + evolution-eligible at 50% (§4.4.3.1 /
 §4.4.4.3). This removes Gym mid-evo and reframes Gym threat as raw power + smart phases.
+**✅ Resolution — Option D (Power premium + per-type signature Phase 2):**
+- **Mid-fight evolution is REMOVED from Gyms entirely** — reserved for the unique fights (rival /
+  Champion, which already carries it §4.4.2). The "Evolution Phase" type (§4.3.7) stays in the catalog
+  but is Champion/rival-only.
+- **Power premium:** Gym Pokémon sit at a defined **level bump over the Region's wild band** (ace >
+  non-ace); a tunable systems-designer number (placeholder, like the XP curve). This is the "more
+  powerful Pokémon" threat the user wants.
+- **Per-type signature Phase 2 (the menu):** each of the 12 Gym types gets **exactly one** Phase-2
+  identity drawn from a 4-archetype menu — telegraphed, learnable, replayable:
+
+  | Archetype | Phase-2 behaviour | Gym types | Counterplay |
+  |---|---|---|---|
+  | **Entrenchment** | +Def stages + damage-reduction Home-Field clause; race the wall | Rock, Ground | DoT, stat-strip, Def-ignoring moves |
+  | **Status Siege** | Mass Status — floods the Lead with the Gym's signature status | Poison, Grass, Bug | cleanse, swap statused Lead, immune typing |
+  | **Onslaught** | Mass Attack + Home-Field ×1.5; burst race | Fire, Fighting, Normal | resist wall, defensive swaps, heal |
+  | **Tempo Control** | AP/swap taxes + Paralysis/Freeze locks (or intent-hide, ties CL-011) | Electric, Psychic, Ice, Water | AP mgmt, immunity, telegraphed play |
+
+- **Phase shape:** Phase 1 (>50%) stays "setup / read the player" for all Gyms; **Phase 2 (≤50%)** fires
+  the type's signature archetype; the **ace Phase 3 (≤20%)** keeps the last-stand (cooldown reset +
+  uncapped signature + Sturdy) **minus evolution**. Non-ace Gym Pokémon stay 2-phase.
+- **Reuses CL-012** (the Home Field is the substrate for Entrenchment/Onslaught clauses) and **CL-011**
+  (Tempo Control can use intent-hiding). **Closes gap #33's intent** (Gym type-field now has teeth).
+- **Pillars:** 1 (telegraphed, learnable per-type signature ★), 2 (Phase 2 forces swaps/repositioning ★),
+  3 (rewards resist/type comp), 5 (clean type fantasy). → logged **CL-013**.
 
 ## Q10 — League Boons → just better relics (Epic/Legendary)? ⏸ PARKED
 **Owner:** game-designer + content-designer
@@ -293,7 +336,7 @@ biome/species weighting).
 **Steward note (canon):** today biomes are Region-gated with a per-Region "primary" biome
 (§7.3.1 / §7.10); Region Modifiers don't currently steer biomes. Coupled to Q2.
 
-## Q22 — Catch condition: lower threshold + catch-rate %? 🔵
+## Q22 — Catch condition: lower threshold + catch-rate %? ✅ DECIDED 2026-06-10
 **Owner:** systems-designer + game-designer
 **User:** Dislike the current catch condition. Want ~**below 30%** to capture; status gives a
 "+20%" window so a statused Pokémon needs **50%**. Should we make catching a **catch-rate %**?
@@ -302,6 +345,24 @@ catch-rate; reconcile with Pillar 1 (telegraphed, not RNG).
 **Steward note (canon):** today deterministic — HP < 50% (or any status → any HP), no roll
 (§7.3.4.1). Your 30%/50% is a tighter deterministic version; a % catch-rate would reintroduce
 RNG (tension with Pillar 1 — flag for game-designer).
+**✅ Resolution — Option D (Catchability Gauge: deterministic, catch-rate *feel*, no RNG):**
+- Answers "catch-rate %?" with the catch-rate **feel as a deterministic gauge** — Pillar 1 stays
+  intact (no roll). The probabilistic Option B was rejected (would violate Pillar 1).
+- **0–100 Catchability gauge** on the wild Pokémon; **catch succeeds when gauge = 100** (computed,
+  not rolled).
+- **CatchThreshold (HP%)** = `30 (base) + 20 (if ANY status, non-stacking) + ball bonus
+  (Great +15 / Ultra +30, post-launch)`.
+- **Gauge fill (linear):** `gauge = clamp(0,100, round(100 × (100 − HP%) / (100 − CatchThreshold)))`
+  — full HP → 0; HP% at threshold → 100/READY. Status visibly jumps the gauge (threshold 30→50).
+- **Numbers honoured:** basic ball, no status → catchable at HP ≤ 30%; with status → HP ≤ 50%.
+- **Tightening:** the old "status → catch at ANY HP" is **removed** — status is now a meaningful
+  +20pt window, not a trivializer.
+- **Throw rule unchanged:** gauge < 100 → fail + ball spent; gauge = 100 → success → Victory + full XP
+  (§7.3.4.1 step 6); HP ≤ 0 → faint, recruit lost.
+- **Display (Pillar 1):** catchability bar (gold "READY ✓" at 100) + Pokéball hover state ("Catch:
+  READY ✓" / "Catchability 78% — weaken or apply status").
+- **Pillars:** 1 ★ (deterministic, fully telegraphed gauge), 2 (status-then-throw planning), 5
+  (catch-rate flavour). → logged **CL-014**.
 
 ---
 
