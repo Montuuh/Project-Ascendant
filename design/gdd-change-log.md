@@ -45,7 +45,7 @@
 | CL-007 | Q15 | Evolution: free archetype/stage + lighter payload | T5 §5.12.2/§5.6 | ✅² | ✅⁴ |
 | CL-008 | Q14 | Abilities kept, decoupled to an earned learner | T5 §5.12.3 | ✅² | ✅⁵ |
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ✅⁵ |
-| CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ☐ |
+| CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ✅⁷ |
 | CL-011 | Q7 | Unknown intents: Elite/Gym baseline + Dense Fog extension | T4 §4.3.5 | ✅⁶ | ✅⁶ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
@@ -274,7 +274,17 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
 - Code impact: XP-award flow iterates the **whole Box** (×0.75 for non-Active); add
   `ProgressionConfigSO.BenchXpShare = 0.75`. Re-spec the Exp Share relic effect (50% → lift bench
   to 100%). Touches the combat-end XP award + relic hook.
-- Status: [ ] GDD updated   [ ] Code adapted
+- ⁷ **Code complete (2026-06-10, 1074/1074 green).** The Epic-10 XP-award system already existed and
+  was wired (`MapViewUI.AwardXpAndLevelUp` → `XPAwarder`/`LevelUpResolver`) — the original "system
+  doesn't exist" blocker was stale. Changes: `ProgressionConfigSO.BenchXpShare = 0.75f` (new) +
+  `ExpShareBoxFraction` re-spec `0.5f → 1.0f` (Exp Share now lifts bench to 100%); new pure helper
+  `XPAwarder.AwardToBench(box, activeTeam, activeXp, fraction, cfg)` credits every benched mon
+  `floor(activeXp·fraction)` and runs `LevelUpResolver.Process` off-screen (bench mons now level up,
+  which they previously never did); `MapViewUI` always credits the Box (fraction = 0.75 baseline, 1.0
+  with Exp Share) instead of only when the relic was held. +4 `ProgressionTests` (AwardToBench:
+  75% credit + skip-active, Exp-Share 100% lift, off-screen level-up, guards). `.asset` untouched —
+  the float fields aren't serialized, so the new code defaults apply.
+- Status: [✅] GDD updated (§5.12.5 override block)   [✅] Code adapted — 1074/1074 green
 
 ### CL-004 — Defer League / Champion (scope)   (resolves Q11)
 - Date: 2026-06-05

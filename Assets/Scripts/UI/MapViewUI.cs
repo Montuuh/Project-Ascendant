@@ -597,13 +597,14 @@ namespace ProjectAscendant.UI
             }
 
             XPAwarder.Award(team, xp);
-            // §8.3.3 Exp Share — Box (non-active) Pokémon earn a fraction of Active Team XP.
-            if (RelicHeld("exp_share") && _ctx.Box?.Members != null)
+            // §5.12.5 (CL-010) — every benched Box Pokémon earns a fraction of Active XP: 75% baseline,
+            // lifted to 100% by the Exp Share relic (§8.3.3). Bench mons level up off-screen (no XP panel).
+            if (_ctx.Box?.Members != null)
             {
-                int boxXp = Mathf.FloorToInt(xp * _ctx.ProgressionConfig.ExpShareBoxFraction);
-                if (boxXp > 0)
-                    foreach (PokemonInstance p in _ctx.Box.Members)
-                        if (p != null && !team.Contains(p)) p.CurrentXP += boxXp;
+                float frac = RelicHeld("exp_share")
+                    ? _ctx.ProgressionConfig.ExpShareBoxFraction
+                    : _ctx.ProgressionConfig.BenchXpShare;
+                XPAwarder.AwardToBench(_ctx.Box.Members, team, xp, frac, _ctx.ProgressionConfig);
             }
 
             StringBuilder sb = new();

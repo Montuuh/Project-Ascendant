@@ -24,9 +24,12 @@ namespace ProjectAscendant.Core
         [Header("§5.2.4 — single-stage species growth bonus (post-VS; no single-stage species in the VS roster)")]
         public int SingleStageGrowthBonusPercent = 25;
 
+        [Header("§5.12.5 (CL-010) — Box XP share: every benched Pokémon earns this fraction of Active XP")]
+        public float BenchXpShare = 0.75f;           // baseline — all Box (non-active) mons earn 75% of Active XP
+
         [Header("§8.3.3 — XP-economy relic multipliers (Epic 12)")]
         public float LuckyEggXPMultiplier = 1.15f;  // Lucky Egg Token — all in-run XP ×1.15
-        public float ExpShareBoxFraction = 0.5f;     // Exp Share — Box (non-active) mons earn 50% of Active XP
+        public float ExpShareBoxFraction = 1.0f;     // Exp Share (CL-010) — lifts benched Pokémon to 100% of Active XP
 
         // XP required to advance from `level` to the next level. Monotonic in level.
         public int XPToNext(int level) => LevelUpBaseXP + Mathf.Max(0, level - 1) * LevelUpSlopeXP;

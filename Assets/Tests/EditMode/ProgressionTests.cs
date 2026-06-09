@@ -78,6 +78,69 @@ namespace ProjectAscendant.Tests
             Assert.That(a.CurrentXP, Is.EqualTo(80));
         }
 
+        // ── AwardToBench (CL-010) ────────────────────────────────────────────────
+
+        [Test]
+        // §5.12.5 (CL-010) — every benched Box mon earns floor(activeXp · 0.75); active members skipped.
+        public void AwardToBench_CreditsBenchAt75Percent_SkipsActiveMembers()
+        {
+            ProgressionConfigSO cfg = Config();
+            cfg.LevelUpBaseXP = 10000; // suppress level-up so CurrentXP holds the raw credit
+            PokemonSpeciesSO sp = Species(40, 4, 0, false);
+            PokemonInstance active = Mon(sp, 5), benchA = Mon(sp, 5), benchB = Mon(sp, 5);
+            List<PokemonInstance> box = new() { active, benchA, benchB };
+            List<PokemonInstance> team = new() { active };
+
+            int credited = XPAwarder.AwardToBench(box, team, 40, cfg.BenchXpShare, cfg);
+
+            Assert.That(credited, Is.EqualTo(2));
+            Assert.That(active.CurrentXP, Is.EqualTo(0), "active member earns full XP via Award, not the bench path");
+            Assert.That(benchA.CurrentXP, Is.EqualTo(30), "floor(40 · 0.75)");
+            Assert.That(benchB.CurrentXP, Is.EqualTo(30));
+        }
+
+        [Test]
+        // §8.3.3 (CL-010) — Exp Share lifts the bench fraction to 1.0 → benched mons earn 100%.
+        public void AwardToBench_ExpShareFraction_LiftsBenchToFullXP()
+        {
+            ProgressionConfigSO cfg = Config();
+            cfg.LevelUpBaseXP = 10000; // suppress level-up so CurrentXP holds the raw credit
+            PokemonInstance bench = Mon(Species(40, 4, 0, false), 5);
+            List<PokemonInstance> box = new() { bench };
+
+            XPAwarder.AwardToBench(box, null, 40, cfg.ExpShareBoxFraction, cfg);
+
+            Assert.That(bench.CurrentXP, Is.EqualTo(40), "Exp Share fraction is 1.0");
+        }
+
+        [Test]
+        // §5.12.5 (CL-010) — benched mons level up off-screen (LevelUpResolver runs on the bench too).
+        public void AwardToBench_ProcessesBenchLevelUp_OffScreen()
+        {
+            ProgressionConfigSO cfg = Config(); // flat 10 XP per level
+            PokemonInstance bench = Mon(Species(40, 4, 0, false), 1);
+            List<PokemonInstance> box = new() { bench };
+
+            XPAwarder.AwardToBench(box, null, 40, cfg.BenchXpShare, cfg); // floor(40·0.75)=30 XP → 3 levels
+
+            Assert.That(bench.Level, Is.EqualTo(4));
+            Assert.That(bench.CurrentXP, Is.EqualTo(0));
+        }
+
+        [Test]
+        // Guards: null box / non-positive XP / zero fraction are no-ops.
+        public void AwardToBench_GuardsNoOp()
+        {
+            ProgressionConfigSO cfg = Config();
+            PokemonInstance bench = Mon(Species(40, 4, 0, false), 5);
+            List<PokemonInstance> box = new() { bench };
+
+            Assert.That(XPAwarder.AwardToBench(null, null, 40, 0.75f, cfg), Is.EqualTo(0));
+            Assert.That(XPAwarder.AwardToBench(box, null, 0, 0.75f, cfg), Is.EqualTo(0));
+            Assert.That(XPAwarder.AwardToBench(box, null, 40, 0f, cfg), Is.EqualTo(0));
+            Assert.That(bench.CurrentXP, Is.EqualTo(0));
+        }
+
         // ── LevelUpResolver ───────────────────────────────────────────────────
 
         [Test]

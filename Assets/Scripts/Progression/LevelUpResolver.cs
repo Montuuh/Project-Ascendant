@@ -28,6 +28,35 @@ namespace ProjectAscendant.Progression
         // Convenience: resolve the tier XP from the cleared node's type, then award it.
         public static int AwardForNode(IReadOnlyList<PokemonInstance> activeTeam, NodeType node, ProgressionConfigSO cfg)
             => cfg == null ? 0 : Award(activeTeam, cfg.XPForNode(node));
+
+        // Per §5.12.5 (CL-010) — credit every benched Box Pokémon `floor(activeXp · fraction)` and process
+        // their off-screen level-ups. Members also present in `activeTeam` are skipped (they earn full XP
+        // through Award). `fraction` is the run layer's call: BenchXpShare (0.75) baseline, lifted to
+        // ExpShareBoxFraction (1.0) when the Exp Share relic is held (§8.3.3). Returns bench mons credited.
+        public static int AwardToBench(IReadOnlyList<PokemonInstance> box, IReadOnlyList<PokemonInstance> activeTeam,
+                                       int activeXp, float fraction, ProgressionConfigSO cfg)
+        {
+            if (box == null || activeXp <= 0 || fraction <= 0f) return 0;
+            int benchXp = Mathf.FloorToInt(activeXp * fraction);
+            if (benchXp <= 0) return 0;
+            int credited = 0;
+            for (int i = 0; i < box.Count; i++)
+            {
+                PokemonInstance p = box[i];
+                if (p == null || Contains(activeTeam, p)) continue;
+                p.CurrentXP += benchXp;
+                if (cfg != null) LevelUpResolver.Process(p, cfg);
+                credited++;
+            }
+            return credited;
+        }
+
+        private static bool Contains(IReadOnlyList<PokemonInstance> list, PokemonInstance p)
+        {
+            if (list == null) return false;
+            for (int i = 0; i < list.Count; i++) if (ReferenceEquals(list[i], p)) return true;
+            return false;
+        }
     }
 
     // Per §5.2.2 / §5.2.3 + Epic 10 Task 10.1 — convert accumulated CurrentXP into levels BETWEEN
