@@ -549,6 +549,8 @@ namespace ProjectAscendant.UI
             // between nodes (before the run advances + before a freshly-caught mon joins). Defeat: none.
             string levelLog = outcome == CombatController.CombatOutcome.Victory
                 ? AwardXpAndLevelUp(node.NodeType) : "";
+            // §7.8.3.1 (CL-016) Pocket Healer — heal the team on a node's combat victory.
+            if (outcome == CombatController.CombatOutcome.Victory) ApplyPocketHealer();
 
             _run.CompleteActiveNode();
             _visited.Add(node);
@@ -565,6 +567,23 @@ namespace ProjectAscendant.UI
             {
                 ProgressionConfigSO pc = _ctx.ProgressionConfig;
                 _xpPanel.Show(_lastXpRecords, pc.XPToNext, null);
+            }
+        }
+
+        // §7.8.3.1 (CL-016) Pocket Healer — on a node's combat victory, heal every non-fainted Box
+        // Pokémon a fraction of its Effective Max HP. Never revives a fainted Pokémon (§2.4.3).
+        private void ApplyPocketHealer()
+        {
+            float frac = RegionModifierResolver.PocketHealerFraction(_state?.ActiveRegionModifiers);
+            if (frac <= 0f || _ctx?.Box?.Members == null) return;
+            foreach (PokemonInstance p in _ctx.Box.Members)
+            {
+                if (p == null || p.CurrentHP <= 0) continue;
+                int max = _ctx.Economy != null
+                    ? PokemonVitals.EffectiveMaxHP(p, _ctx.Economy)
+                    : PokemonVitals.MaxHP(p);
+                int heal = Mathf.FloorToInt(max * frac);
+                if (heal > 0) p.CurrentHP = Mathf.Min(max, p.CurrentHP + heal);
             }
         }
 

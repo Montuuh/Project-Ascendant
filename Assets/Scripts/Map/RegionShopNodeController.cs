@@ -102,7 +102,11 @@ namespace ProjectAscendant.Map
         private void AddSlot(ShopSlotKind kind, ScriptableObject item, int price)
         {
             if (item == null) return;
-            _slots.Add(new ShopSlot { Kind = kind, Item = item, Price = price, Purchased = false });
+            // §7.8.3.1 (CL-016) Bargain Hunter — Shop prices discounted this Region (baked into the
+            // listed price so the displayed cost matches what's charged at Buy()).
+            int listed = UnityEngine.Mathf.FloorToInt(
+                price * RegionModifierResolver.ShopPriceMultiplier(RunState?.ActiveRegionModifiers));
+            _slots.Add(new ShopSlot { Kind = kind, Item = item, Price = listed, Purchased = false });
         }
 
         // ── Buy (9.6.2) ───────────────────────────────────────────────────────
