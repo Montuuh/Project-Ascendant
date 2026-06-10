@@ -544,6 +544,26 @@ namespace ProjectAscendant.Tests
             Assert.That(boosted, Is.GreaterThan(baseline), "Glass Cannon raises player damage dealt (+20%)");
         }
 
+        // §7.8.3.1 (CL-016) Sturdy Lead — the player's Lead survives one otherwise-lethal hit at 1 HP.
+        [Test]
+        public void RegionModifier_SturdyLead_LeadSurvivesLethalAtOneHP()
+        {
+            PokemonSpeciesSO playerSp = MakeSpecies(100, 50, 10, PokemonType.Normal); // low Def → gets one-shot
+            PokemonSpeciesSO enemySp = MakeSpecies(100, 250, 50, PokemonType.Normal);
+            PokemonInstance player = MakeMon(playerSp, MakeMove(PokemonType.Normal, 10));
+            PokemonInstance enemy = MakeMon(enemySp, MakeMove(PokemonType.Normal, 250)); // huge → lethal
+
+            CombatController.CombatSetup setup = BuildSetup(player, enemy, 5u);
+            RegionModifierSO sturdy = RegionModifierPool.BuildAll().Find(m => m.Kind == RegionModifierKind.SturdyLead);
+            _disposables.Add(sturdy);
+            setup.ActiveRegionModifiers = new List<RegionModifierSO> { sturdy };
+
+            CombatController c = new(setup, new PassiveAgent());
+            c.Start(); c.DrawPhase(); c.IntentPhase(); c.ActionPhase(); c.ResolutionPhase();
+
+            Assert.That(player.CurrentHP, Is.EqualTo(1), "Sturdy Lead saves the Lead at 1 HP on the lethal hit");
+        }
+
         // Plays SkillHand[0] once (targeting enemy 0), then ends.
         private sealed class PlayOneSkillAgent : IPlayerAgent
         {

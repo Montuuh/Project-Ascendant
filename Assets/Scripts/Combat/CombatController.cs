@@ -155,6 +155,7 @@ namespace ProjectAscendant.Combat
             public int RangedMovesPlayedThisTurn;         // §8.3.4 — Choice Specs
             public int MeleeMovesPlayedThisTurn;          // §8.3.4 — Choice Band
             public bool BarrierCharmTriggeredThisCombat;  // §8.3.3 — Barrier Charm (first enemy attack −20%)
+            public bool SturdyLeadConsumedThisCombat;     // §7.8.3.1 (CL-016) — Sturdy Lead modifier (1/combat)
             // §8.3.4 Move Echo — distinct moves played per attacker this turn → +2 AP next turn.
             public Dictionary<PokemonInstance, HashSet<MoveSO>> MovesPlayedThisTurn = new();
             public bool MoveEchoGrantedThisTurn;
@@ -738,6 +739,19 @@ namespace ProjectAscendant.Combat
                         State.EnemyIntents[i] = it;
                     }
                 }
+
+            // Per §7.8.3.1 (CL-016) Pokédex Whisper — reveal the FIRST still-Hidden intent each rebuild.
+            if (RegionModifierResolver.RevealsFirstUnknown(State.ActiveRegionModifiers))
+                for (int i = 0; i < State.EnemyIntents.Count; i++)
+                {
+                    Intent it = State.EnemyIntents[i];
+                    if (it.Reveal == IntentReveal.Hidden)
+                    {
+                        it.Reveal = IntentReveal.Witnessed;
+                        State.EnemyIntents[i] = it;
+                        break; // only the first
+                    }
+                }
         }
 
         // ── Phase 3: Action (Task 4.1.5) ─────────────────────────────────────
@@ -1003,7 +1017,7 @@ namespace ProjectAscendant.Combat
                     {
                         PokemonInstance occ = State.PlayerTeam[targets[t]];
                         if (occ != null && intent.Move != null)
-                            ResolveDamage(enemy, occ, intent.Move);
+                            ResolveDamage(enemy, occ, intent.Move, isCleave: true);
                     }
                     break;
                 }
@@ -1135,7 +1149,12 @@ namespace ProjectAscendant.Combat
         //   DamageCalculator (Power, Atk/Def, Range, Crit, STAB, TypeEff)
         //   × FieldEffectResolver.GetDamageMultiplier (Weather/Terrain)
         //   × StatusModifiers.GetIncomingDamageMultiplier (Frozen+Fire)
+        // 3-arg overload preserved so method-group delegates (Action<PokemonInstance,PokemonInstance,MoveSO>)
+        // still bind. Cleave passes isCleave: true for the §7.8.3.1 Iron Skin reduction.
         private void ResolveDamage(PokemonInstance attacker, PokemonInstance target, MoveSO move)
+            => ResolveDamage(attacker, target, move, false);
+
+        private void ResolveDamage(PokemonInstance attacker, PokemonInstance target, MoveSO move, bool isCleave)
         {
             if (attacker == null || target == null || move == null) return;
 
@@ -1226,14 +1245,28 @@ namespace ProjectAscendant.Combat
                 if (reduction > 0) final = Mathf.Max(0, final - reduction);
             }
 
+            // Per §7.8.3.1 (CL-016) Iron Skin — every player Pokémon takes reduced damage from Cleave
+            // intents (not just the Lead). Applied after the floor (can reduce to 0).
+            if (final > 0 && isCleave && State.PlayerTeam != null && State.PlayerTeam.Contains(target))
+            {
+                int ironSkin = RegionModifierResolver.CleaveDamageReduction(State.ActiveRegionModifiers);
+                if (ironSkin > 0) final = Mathf.Max(0, final - ironSkin);
+            }
+
             // Per §4.4.3 Phase 3 — Sturdy: an ace with HasSturdy survives the
             // first otherwise-lethal hit at 1 HP, once per combat (last-stand).
             // Robust to one-shots: does not require having "entered" Phase 3 on
             // a prior turn. A boss already at 1 HP is not protected.
-            if (final >= target.CurrentHP && target.CurrentHP > 1
-                && AbilityResolver.HasSturdy(target) && !target.SturdyConsumed)
+            // §7.8.3.1 (CL-016) Sturdy Lead — the player's Lead survives one lethal hit at 1 HP per
+            // combat (modifier-granted, distinct from the Sturdy ability/boss last-stand).
+            bool sturdyAbility = AbilityResolver.HasSturdy(target) && !target.SturdyConsumed;
+            bool sturdyLeadMod = !State.SturdyLeadConsumedThisCombat
+                && RegionModifierResolver.GrantsSturdyLead(State.ActiveRegionModifiers)
+                && IsPlayerLead(target);
+            if (final >= target.CurrentHP && target.CurrentHP > 1 && (sturdyAbility || sturdyLeadMod))
             {
-                target.SturdyConsumed = true;
+                if (sturdyAbility) target.SturdyConsumed = true;
+                else State.SturdyLeadConsumedThisCombat = true;
                 target.CurrentHP = 1;
             }
             else
