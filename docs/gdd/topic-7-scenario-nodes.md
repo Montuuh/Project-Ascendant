@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T08:49:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T09:03:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -408,10 +408,10 @@ The City Shop accepts sells: any held inventory item can be sold for 30% of its 
 ## §7.8.3 City Reflection — Region Modifier Selection
 
 
-Per §2.1.4: 3 Region Modifiers offered, player picks 1.
+Per §2.1.4 (Choice Plaza): the Reflection offers **3 Region Modifiers, player picks 1**. Per **CL-016 (Q2)** modifiers are **per-Region** — exactly **1 active per Region**, re-chosen each Region (a pre-R1 pick at run setup §2.1.1, then City 1 for R2 and City 2 for R3), applying to **that Region only** (non-accumulating).
 
 
-### §7.8.3.1 Launch Region Modifier Pool (12 modifiers)
+### §7.8.3.1 Launch Region Modifier Pool (16 modifiers — CL-016)
 
 
 | Modifier              | Effect                                                                 | Tier                        |
@@ -430,13 +430,20 @@ Per §2.1.4: 3 Region Modifiers offered, player picks 1.
 | **Trauma Resistance** | Each Trauma stack reduces MaxHP by 4% instead of 5% (cap unchanged)    | Strong                      |
 
 
-Per City, the 3-modifier offering is seeded from this pool, weighted to surface options that synergize with current team composition (Type Affinity surfaces the player's most-common move type).
+Per Region, the 3-modifier offering is seeded from this pool, weighted to surface options that synergize with current team composition (Type Affinity surfaces the player's most-common move type).
 
+
+**New in CL-016 (Q2) — 4 additions (pool now 16):**
+
+- **Glass Cannon** (Medium): +20% damage dealt AND +20% damage taken this Region — a transient double-edge.
+- **Quick Study** (Medium): all Pokémon gain +15% combat XP this Region.
+- **Bargain Hunter** (Medium): Shop + Dojo prices −20% this Region.
+- **Field Surveyor** (Niche): you choose the active neutral Battlefield at the start of each wild/Region combat (CL-012, §4.3.8).
 
 ### §7.8.3.2 Modifier persistence
 
 
-Per §2.1.4.1, both Region Modifiers stack and persist to run end. Confirmed and reaffirmed here.
+**Per CL-016 (Q2), this supersedes the old stack-to-2 / persist-to-run-end rule.** Modifiers are now **per-Region**: exactly one is active at a time and it expires when the Region ends; the player re-picks at the start of each Region (pre-R1 §2.1.1, City 1, City 2). The modifier descriptions' "for the next Region" wording is therefore canonical. Relics and Badges remain the run-long stacking systems.
 
 
 ## §7.8.4 City Choice Plaza (CL-015 — Q1)

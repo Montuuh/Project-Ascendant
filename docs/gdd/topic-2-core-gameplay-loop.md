@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T08:49:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T09:02:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -23,6 +23,7 @@ A run is the path from selecting a Starter to either defeating the Champion or h
 
 - The player selects one **Starter Pokémon** from the unlocked pool. Default unlocks: Bulbasaur, Charmander, Squirtle. Additional Starters are unlocked through meta-progression (Topic 6).
 - The player selects one **Starting Relic** (Trainer Item) — three offered, pick one.
+- The player selects one **Region 1 Modifier** — three offered, pick one (per **CL-016**, §7.8.3). It applies for Region 1 only, then is re-chosen at each City (§2.1.4.1).
 - The starting Box contains _only_ the Starter. The Active Team is the Starter alone until recruitment expands it.
 - A run seed is generated (or pulled from the daily seed, post-launch).
 
@@ -71,7 +72,7 @@ After defeating Gym 1 and Gym 2, the player enters a **City** — a rest-and-res
 ### §2.1.4.1 Region Modifier stacking
 
 
-Region Modifiers selected at City Reflection nodes stack across both City visits. The player ends their run with up to 2 active Region Modifiers (one from City 1 in Region 2, one from City 2 in Region 3). Both modifiers persist from their selection point until run end.
+**Per CL-016 (Q2), Region Modifiers are per-Region, not run-long-stacking.** Exactly **1 modifier is active per Region**, re-chosen at the start of each Region — a **pre-R1 pick at run setup (§2.1.1)**, then **City 1 (applies R2)** and **City 2 (applies R3)** — applying to **that Region only**: it expires when the Region ends, and modifiers do not stack or accumulate. This supersedes the previous "up to 2 active, persist to run end" rule and makes the modifier descriptions' "for the next Region" wording canonical. Relics and Badges remain the run-long stacking systems.
 
 
 ## §2.1.5 Victory Road (post-Gym 3, pre-League)

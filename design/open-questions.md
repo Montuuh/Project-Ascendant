@@ -71,13 +71,33 @@ Think Pokémon fantasy **and** StS-inspired structure for better City nodes.
   (city fantasy). **Tunable:** visit budget (default 2), City Gym loss penalty, premium-node pricing.
   → logged **CL-015**.
 
-## Q2 — Region Modifiers: timing + pool 🔵
+## Q2 — Region Modifiers: timing + pool ✅ DECIDED 2026-06-10
 **Owner:** systems-designer + content-designer
 **User:** Modifiers start at Route 2, end on Route 3 (I think). Is this good design?
 Rethink it, and produce a pool of possible Region Modifiers.
 **Decision needed:** when modifiers are picked/active; how many stack; the launch pool.
 **Steward note (canon):** today picked at City Reflection (after Gym 1 & 2), up to 2
 active, persist to run end; 12-modifier pool (§2.1.4.1 / §7.8.3).
+**✅ Resolution — Option B (Per-Region accent) + 16-modifier pool:**
+- **Timing/persistence:** exactly **1 modifier active per Region**, **re-chosen each Region** and
+  applying **only to that Region** (non-accumulating). Picks: a **pre-R1 pick at run setup (§2.1.1)**
+  + **City 1** (R2) + **City 2** (R3). 3 offered → pick 1, weighted to team composition. **R1 is no
+  longer vanilla.**
+- **Resolves the canon contradiction:** modifiers are now canonically **per-Region** (the modifier
+  descriptions' "for the next Region" wording is correct; the old §2.1.4.1 "persist to run end /
+  stack to 2" rule is **superseded**).
+- **Rationale:** relics + Badges already provide run-long stacking power; making Region Modifiers a
+  **transient, re-chosen Region accent** (ties §2.2) gives them a distinct decision texture and lets
+  the pool carry **bolder/double-edged** effects.
+- **Pool (16 — current 12 retuned + 4 new, tiered):** Strong — Hand of Plenty (+1 hand), Sturdy Lead
+  (survive lethal 1/combat), Type Affinity (+10% chosen type), Trauma Resistance (−4%/stack not −5%);
+  Medium — Swap Fuel (Lead +5 HP/swap), Lucky Draw (+1 consumable T1), Status Mastery (player statuses
+  +1 turn), Pocket Healer (+5% team heal on node's 1st victory), Coin Purse (₽ ×1.5), **Glass Cannon**
+  🆕 (+20% dealt **and** taken — double-edge), **Quick Study** 🆕 (+15% combat XP), **Bargain Hunter**
+  🆕 (Shop + Dojo −20%); Niche — Iron Skin (−1 from Cleave), Mass Mobilization (SF/SB draw 1), Pokédex
+  Whisper (reveal 1st Unknown, CL-011), **Field Surveyor** 🆕 (choose the neutral Battlefield each
+  wild/Region combat, CL-012). All numbers placeholder (systems-designer tuning).
+- **Pillars:** 1 (telegraphed pick), 2/3 (resource sculpting), 5 (Region flavour). → logged **CL-016**.
 
 ---
 

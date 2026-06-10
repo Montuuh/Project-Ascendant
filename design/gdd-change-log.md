@@ -51,6 +51,7 @@
 | CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ☐ |
 | CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ☐ |
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
+| CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ☐ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -267,6 +268,30 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   Run layer responsible for OR-ing with `DifficultyModifiers.HidesIntents()` for Dense Fog.
   +6 new EditMode tests in `IntentHidingTests.cs`.
 - Status: [ ] GDD updated   [✅] Code adapted
+
+### CL-016 — Region Modifiers → per-Region accent + 16-modifier pool   (resolves Q2)
+- Date: 2026-06-10
+- Topic / §: Topic 2 §2.1.1 (run setup — add R1 pick), §2.1.4.1 (stacking rule superseded), Topic 7
+  §7.8.3 / §7.8.3.1 (pick mechanic + pool) / §7.8.3.2 (persistence)
+- Change: **Option B — Per-Region accent.**
+  - **1 modifier active per Region**, re-chosen each Region, applies to **that Region only**
+    (non-accumulating). Picks: pre-R1 at run setup (§2.1.1) + City 1 (R2) + City 2 (R3); 3 offered →
+    pick 1, weighted to team comp. R1 no longer vanilla.
+  - **Supersedes** the §2.1.4.1 "up to 2 active, persist to run end" rule; the modifier descriptions'
+    "for the next Region" wording becomes canonical (resolves the contradiction).
+  - **Pool expanded 12 → 16:** + Glass Cannon (+20% dealt & taken), Quick Study (+15% combat XP),
+    Bargain Hunter (Shop + Dojo −20%), Field Surveyor (choose neutral Battlefield, CL-012). The 12
+    originals retained, retiered (Strong/Medium/Niche).
+- Rationale: relics + Badges already cover run-long stacking; per-Region transient modifiers get a
+  distinct decision texture and can carry bolder/double-edged effects; every Region (incl. R1) becomes
+  a player-chosen accent (§2.2).
+- Code impact: add a **Region-start modifier pick** at run setup (R1) + reuse the City Reflection flow
+  for R2/R3; change modifier scope from run-long-accumulating to **single-active-per-Region**
+  (apply on Region enter, clear on Region exit). `RegionModifierSO` pool grows to 16 (4 new effects:
+  +20%/+20% damage band, +15% XP, −20% shop/Dojo price, player Battlefield choice). Reconcile any
+  code/tests assuming 2 stacked persistent modifiers. **Post-VS** for R2/R3 (VS ends at Gym 1), but
+  the **R1 run-setup pick is VS-relevant** — flag for systems-designer/lead-programmer.
+- Status: [✅] GDD updated (Notion §2.1.1/§2.1.4.1 + §7.8.3/.1/.2, re-exported 2026-06-10)   [ ] Code adapted
 
 ### CL-015 — City → Choice Plaza + risky optional City Gym   (resolves Q1)
 - Date: 2026-06-10
