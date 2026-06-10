@@ -65,7 +65,7 @@ namespace ProjectAscendant.Tests
         {
             FieldState f = new() { Weather = FieldEffectKind.SunnyDay };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Fire, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Fire, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(1.5f).Within(0.001f));
         }
 
@@ -74,7 +74,7 @@ namespace ProjectAscendant.Tests
         {
             FieldState f = new() { Weather = FieldEffectKind.SunnyDay };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Water, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Water, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(0.5f).Within(0.001f));
         }
 
@@ -83,7 +83,7 @@ namespace ProjectAscendant.Tests
         {
             FieldState f = new() { Weather = FieldEffectKind.SunnyDay };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Grass, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Grass, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(1.0f).Within(0.001f));
         }
 
@@ -94,7 +94,7 @@ namespace ProjectAscendant.Tests
         {
             FieldState f = new() { Weather = FieldEffectKind.RainDance };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Water, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Water, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(1.5f).Within(0.001f));
         }
 
@@ -103,7 +103,7 @@ namespace ProjectAscendant.Tests
         {
             FieldState f = new() { Weather = FieldEffectKind.RainDance };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Fire, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Fire, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(0.5f).Within(0.001f));
         }
 
@@ -114,7 +114,7 @@ namespace ProjectAscendant.Tests
         {
             FieldState f = new() { Terrain = FieldEffectKind.ElectricTerrain };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Electric, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Electric, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(1.3f).Within(0.001f));
         }
 
@@ -124,7 +124,7 @@ namespace ProjectAscendant.Tests
             // Per §4.3.8.3 — non-grounded Pokémon are unaffected by Electric Terrain.
             FieldState f = new() { Terrain = FieldEffectKind.ElectricTerrain };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Electric, MakeInstance(_flyingSpecies), _config);
+                f, PokemonType.Electric, MakeInstance(_flyingSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(1.0f).Within(0.001f));
         }
 
@@ -133,7 +133,7 @@ namespace ProjectAscendant.Tests
         {
             FieldState f = new() { Terrain = FieldEffectKind.ElectricTerrain };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Normal, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Normal, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(1.0f).Within(0.001f));
         }
 
@@ -180,7 +180,7 @@ namespace ProjectAscendant.Tests
                 Terrain = FieldEffectKind.ElectricTerrain,
             };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Electric, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Electric, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(1.3f).Within(0.001f));
         }
 
@@ -200,7 +200,7 @@ namespace ProjectAscendant.Tests
                 Terrain = FieldEffectKind.ElectricTerrain, // no Fire interaction
             };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Fire, MakeInstance(_normalSpecies), _config);
+                f, PokemonType.Fire, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
             Assert.That(m, Is.EqualTo(2.0f).Within(0.001f));
         }
 
@@ -260,7 +260,7 @@ namespace ProjectAscendant.Tests
         {
             FieldState f = new() { Weather = FieldEffectKind.SunnyDay };
             float m = FieldEffectResolver.GetDamageMultiplier(
-                f, PokemonType.Fire, MakeInstance(_normalSpecies), null);
+                f, PokemonType.Fire, MakeInstance(_normalSpecies), attackerIsEnemy: false, null);
             Assert.That(m, Is.EqualTo(1.0f).Within(0.001f));
         }
 
@@ -270,6 +270,86 @@ namespace ProjectAscendant.Tests
             Assert.That(FieldEffectResolver.CategoryOf(FieldEffectKind.SunnyDay), Is.EqualTo(FieldCategory.Weather));
             Assert.That(FieldEffectResolver.CategoryOf(FieldEffectKind.RainDance), Is.EqualTo(FieldCategory.Weather));
             Assert.That(FieldEffectResolver.CategoryOf(FieldEffectKind.ElectricTerrain), Is.EqualTo(FieldCategory.Terrain));
+            Assert.That(FieldEffectResolver.CategoryOf(FieldEffectKind.Sandstorm), Is.EqualTo(FieldCategory.Hazard));
+        }
+
+        // ── Bucket 8: Home Field — enemy-owned type boost (§4.3.8.5, CL-012) ──
+
+        [Test]
+        public void HomeField_EnemyAttacker_TypeMoveBoosted()
+        {
+            _config.HomeFieldTypeMultiplier = 1.5f;
+            FieldState f = new() { HasGymField = true, GymTypeField = PokemonType.Rock };
+            float m = FieldEffectResolver.GetDamageMultiplier(
+                f, PokemonType.Rock, MakeInstance(_normalSpecies), attackerIsEnemy: true, _config);
+            Assert.That(m, Is.EqualTo(1.5f).Within(0.001f));
+        }
+
+        [Test]
+        public void HomeField_PlayerAttacker_SameType_NoBoost()
+        {
+            // §4.3.8.5 — Home Field is one-sided: the player's same-type moves get no boost.
+            _config.HomeFieldTypeMultiplier = 1.5f;
+            FieldState f = new() { HasGymField = true, GymTypeField = PokemonType.Rock };
+            float m = FieldEffectResolver.GetDamageMultiplier(
+                f, PokemonType.Rock, MakeInstance(_normalSpecies), attackerIsEnemy: false, _config);
+            Assert.That(m, Is.EqualTo(1.0f).Within(0.001f));
+        }
+
+        [Test]
+        public void HomeField_EnemyAttacker_OffTypeMove_NoBoost()
+        {
+            _config.HomeFieldTypeMultiplier = 1.5f;
+            FieldState f = new() { HasGymField = true, GymTypeField = PokemonType.Rock };
+            float m = FieldEffectResolver.GetDamageMultiplier(
+                f, PokemonType.Water, MakeInstance(_normalSpecies), attackerIsEnemy: true, _config);
+            Assert.That(m, Is.EqualTo(1.0f).Within(0.001f));
+        }
+
+        // ── Bucket 9: Sandstorm hazard (§4.3.8.4, CL-012) ──
+
+        [Test]
+        public void Sandstorm_NonImmune_Loses5PercentMaxHP()
+        {
+            _config.SandstormHazardPercent = 5;
+            FieldState f = new() { Hazard = FieldEffectKind.Sandstorm };
+            // _normalSpecies BaseHP 100, no growth → MaxHP 100 → 5% = 5.
+            int dmg = FieldEffectResolver.GetEndOfTurnHazardDamage(f, MakeInstance(_normalSpecies), _config, null);
+            Assert.That(dmg, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void Sandstorm_RockGroundSteel_Immune()
+        {
+            _config.SandstormHazardPercent = 5;
+            FieldState f = new() { Hazard = FieldEffectKind.Sandstorm };
+            foreach (PokemonType t in new[] { PokemonType.Rock, PokemonType.Ground, PokemonType.Steel })
+            {
+                PokemonSpeciesSO sp = MakeSpecies(t);
+                Assert.That(FieldEffectResolver.GetEndOfTurnHazardDamage(f, MakeInstance(sp), _config, null),
+                    Is.EqualTo(0), $"{t} should be Sandstorm-immune");
+                Object.DestroyImmediate(sp);
+            }
+        }
+
+        [Test]
+        public void Sandstorm_NoHazard_NoDamage()
+        {
+            _config.SandstormHazardPercent = 5;
+            int dmg = FieldEffectResolver.GetEndOfTurnHazardDamage(
+                FieldState.Empty, MakeInstance(_normalSpecies), _config, null);
+            Assert.That(dmg, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Apply_Sandstorm_FillsHazardSlot_IndependentOfWeatherTerrain()
+        {
+            FieldState f = FieldEffectResolver.Apply(FieldState.Empty, FieldEffectKind.SunnyDay);
+            f = FieldEffectResolver.Apply(f, FieldEffectKind.ElectricTerrain);
+            f = FieldEffectResolver.Apply(f, FieldEffectKind.Sandstorm);
+            Assert.That(f.Weather, Is.EqualTo(FieldEffectKind.SunnyDay));
+            Assert.That(f.Terrain, Is.EqualTo(FieldEffectKind.ElectricTerrain));
+            Assert.That(f.Hazard, Is.EqualTo(FieldEffectKind.Sandstorm));
         }
     }
 }

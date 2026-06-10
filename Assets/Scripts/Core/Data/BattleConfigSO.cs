@@ -177,6 +177,14 @@ namespace ProjectAscendant.Core
                  "Per §4.3.8.3.")]
         public float ElectricTerrainElectricMultiplier = 1.3f;
 
+        [Tooltip("Home Field (§4.3.8.5, CL-012) — ENEMY moves of the Gym/Elite's type ×this. " +
+                 "Player same-type moves get no boost (one-sided).")]
+        public float HomeFieldTypeMultiplier = 1.5f;
+
+        [Tooltip("Sandstorm hazard (§4.3.8.4, CL-012) — % of Effective Max HP lost at end of turn " +
+                 "by non-Rock/Ground/Steel Pokémon. 5 = -5%/turn.")]
+        public int SandstormHazardPercent = 5;
+
         // ── Lead Aura — §5.5.4 + Epic 6 Task 6.6 ──────────────────────────────
         [Header("Lead Aura — §5.5.4")]
 

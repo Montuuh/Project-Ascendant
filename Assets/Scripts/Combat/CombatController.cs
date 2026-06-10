@@ -1084,8 +1084,11 @@ namespace ProjectAscendant.Combat
             var defBadges = State.PlayerTeam != null && State.PlayerTeam.Contains(target) ? State.ActiveBadges : null;
             DamageBreakdown dmg = DamageCalculator.Compute(ctx, atkBadges, defBadges);
 
+            // Per §4.3.8.5 (CL-012) — Home Field is enemy-owned, so its type boost applies only to
+            // enemy attackers. An attacker not on the player team is enemy-side.
+            bool attackerIsEnemy = !(State.PlayerTeam != null && State.PlayerTeam.Contains(attacker));
             float fieldMul = FieldEffectResolver.GetDamageMultiplier(
-                State.Field, move.Type, target, State.Config);
+                State.Field, move.Type, target, attackerIsEnemy, State.Config);
             float freezeFireMul = StatusModifiers.GetIncomingDamageMultiplier(
                 target, move, State.Config);
             // Per §5.5.4 + Epic 6 Task 6.6 — Lead Aura broadcasts a +5%
@@ -1274,6 +1277,14 @@ namespace ProjectAscendant.Combat
                     p.CurrentHP = Mathf.Max(0, p.CurrentHP - dot);
                     State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
                         $"{p.Species?.DisplayName} {p.PrimaryStatus} → {dot} dmg"));
+                }
+                // §4.3.8.4 (CL-012) Sandstorm — end-of-turn hazard chip to non-Rock/Ground/Steel mons.
+                int hazard = FieldEffectResolver.GetEndOfTurnHazardDamage(State.Field, p, State.Config, State.Economy);
+                if (hazard > 0)
+                {
+                    p.CurrentHP = Mathf.Max(0, p.CurrentHP - hazard);
+                    State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                        $"{p.Species?.DisplayName} Sandstorm → {hazard} dmg"));
                 }
                 // §8.4.4 Leftovers — end-of-Resolution regen (after DoT; never revives a fainted wearer).
                 int regen = HeldItemResolver.LeftoversRegen(p, State.Economy);
