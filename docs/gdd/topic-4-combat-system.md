@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T08:49:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T14:05:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -490,7 +490,7 @@ A Home Field is the boss's terrain: the same field engine with **`owner = Enemy`
 ### §4.3.8.6 Counterplay
 
 - **Don't feed it:** resist or avoid the boss's type; a Home Field only amplifies the enemy's own offence, so a resist wall blunts it.
-- **Smoke Ball** (Shop consumable): clears the active field — Battlefield or Home Field — for the rest of combat. The guaranteed answer to a hostile field.
+- **Defog** (Shop consumable): clears the active field — Battlefield or Home Field — for the rest of combat. The guaranteed answer to a hostile field. (Implemented as "Defog", the canonical Pokémon field-clearer; the original "Smoke Ball" name was freed for/kept by the survive-lethal relic being renamed to Focus Sash.)
 - _Follow-up content (post-launch, not launch-blocking):_ a small set of player **field-setting moves** that overwrite a Home Field with a neutral Battlefield (stripping the enemy's ownership bonus), and a rare **Weather Vane** relic that flips an enemy Home Field to player-owned.
 
 **Field effect UI:** active field effects are displayed persistently in the combat UI; a Home Field additionally shows the `🏠 Home Field: [Type]` ownership badge. Card-hover damage previews account for the active field (and its owner) automatically.

@@ -47,8 +47,8 @@
 | CL-009 | Q16 | Move Tutor → paid "Dojo" node (moves + abilities) | T7 §7.14; T5 §5.12.4 | ✅² | ✅⁵ |
 | CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ✅⁷ |
 | CL-011 | Q7 | Unknown intents: Elite/Gym baseline + Dense Fog extension | T4 §4.3.5 | ✅⁶ | ✅⁶ |
-| CL-012 | Q8 | Field effects: tiered neutral Battlefield + enemy-owned Home Field | T4 §4.3.8/§4.3.8.4-6/§4.4.4.3/§4.8.2 | ✅ | ☐ |
-| CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ◐¹⁰ |
+| CL-012 | Q8 | Field effects: tiered neutral Battlefield + enemy-owned Home Field | T4 §4.3.8/§4.3.8.4-6/§4.4.4.3/§4.8.2 | ✅ | ✅¹¹ |
+| CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ✅¹² |
 | CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ✅⁹ |
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ☐ |
@@ -411,7 +411,15 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   orphaned `MidFightEvolution:` keys (Unity ignores removed-field keys; self-clean on reserialize).
   **Part 2 (per-type signature Phase 2 archetypes) DEFERRED** to the CL-012 Home Field pass (shared
   boss-combat substrate; full 12-type menu is post-VS content).
-- Status: [✅] GDD updated (Notion §4.3.7 + §4.4.4.3 + new §4.4.4.4, re-exported 2026-06-10)   [◐] Code — Part 1 (mid-evo removal) done, 1090 green; Part 2 (Phase-2 archetypes) deferred to CL-012
+- ¹² **Code complete (2026-06-10, 1116 green).** Part 1 (mid-evo removal): `MidFightEvolution`
+  dropped from `GymPokemonSlot`; `GymLeaderController` no longer sets `MidFightEvolutionTarget` (engine
+  kept for rival/Champion); seeders/verifier/tests updated. Part 2 (per-type Phase 2): `Phase2Archetype`
+  enum + `GymLeaderSO.Phase2ArchetypeForType` mapper; ace carries it (GymType fallback). CombatController —
+  Entrenchment (+Def on Phase-2 entry), Onslaught/Status Siege (forced offensive / Status+Debuff intents
+  via `FilterByPhase2Archetype`), Tempo Control (per-turn AP tax). `BattleConfigSO`
+  +`Phase2EntrenchmentDefStages`(2) +`Phase2TempoApTax`(1). +18 GymBossPhaseTests. Power premium =
+  authored Gym levels (no code).
+- Status: [✅] GDD updated (Notion §4.3.7 + §4.4.4.3 + new §4.4.4.4, re-exported 2026-06-10)   [✅] Code adapted — 1116 green
 
 ### CL-012 — Field effects: tiered neutral Battlefield + enemy-owned Home Field   (resolves Q8)
 - Date: 2026-06-10
@@ -434,9 +442,17 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   field multiplier by owner + attacker side (today it applies to all). `GymLeaderController` +
   `EliteTrainerController` set an enemy-owned Home Field of their type at combat start. **Sandstorm** =
   new per-turn end-of-turn hazard tick (heaviest new piece; immune types Rock/Ground/Steel). New
-  **"clear field" consumable** effect (Smoke Ball). Region-3 neutral Battlefield placement unchanged.
+  **"clear field" consumable** effect (Defog). Region-3 neutral Battlefield placement unchanged.
   Seize-moves + Weather Vane relic are deferred content.
-- Status: [✅] GDD updated (Notion §4.3.8 + §4.8.2 + §4.4.4.3, re-exported 2026-06-10)   [ ] Code adapted
+- ¹¹ **Code complete (2026-06-10, 1116 green) across 3 increments.** A) `FieldState` gained an
+  independent `Hazard` slot + `Sandstorm` kind; `FieldEffectResolver.GetDamageMultiplier(attackerIsEnemy)`
+  applies the Home Field type ×1.5 to ENEMY attackers only (closes gap #33) + `GetEndOfTurnHazardDamage`
+  /`IsSandstormImmune` (Rock/Ground/Steel); `BattleConfigSO` +`HomeFieldTypeMultiplier`(1.5)
+  +`SandstormHazardPercent`(5); `CombatController` threads attacker side + ticks Sandstorm. B) New
+  `ClearFieldConsumableEffectSO` + dispatch case clears the field; seeded as **"Defog"** (not "Smoke
+  Ball" — collision with the smoke_ball relic; GDD §4.3.8.6 reconciled to Defog; relic→Focus Sash
+  flagged as a separate task). C) Per-type Phase-2 archetypes (CL-013 Part 2) ride this — see CL-013.
+- Status: [✅] GDD updated (Notion §4.3.8 + §4.8.2 + §4.4.4.3 + §4.3.8.6 Defog, re-exported 2026-06-10)   [✅] Code adapted — 1116 green
 
 ### CL-010 — XP: Active 100% / Box 75% baseline   (resolves Q12)
 - Date: 2026-06-07
