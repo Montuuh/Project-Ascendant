@@ -94,6 +94,10 @@ namespace ProjectAscendant.Combat
             // Boulder Badge's Lead incoming-damage reduction (§4.4.5.1).
             public List<BadgeSO> ActiveBadges;
 
+            // Per §7.8.3.1 (CL-016) — the active Region Modifier(s) this combat (0..1; sourced from
+            // RunStateSO.ActiveRegionModifiers by the run layer). Queried via RegionModifierResolver.
+            public List<RegionModifierSO> ActiveRegionModifiers;
+
             // Per §4.3.9.2 — Mastery MoveIds unlocked in meta (MetaProgressionSO.UnlockedMasteryMoveIds).
             // A Pokémon's Mastery card is built into the Skill Deck only if its MoveId is here.
             // Null/empty ⇒ no Mastery cards (locked).
@@ -205,6 +209,9 @@ namespace ProjectAscendant.Combat
             // Never null after construction.
             public List<BadgeSO> ActiveBadges = new();
 
+            // Per §7.8.3.1 (CL-016) — the active Region Modifier(s) this combat (0..1). Never null.
+            public List<RegionModifierSO> ActiveRegionModifiers = new();
+
             // Per §4.3.9.2 — unlocked Mastery MoveIds for this combat's deck build. Never null.
             public HashSet<string> UnlockedMasteryIds = new();
 
@@ -283,6 +290,9 @@ namespace ProjectAscendant.Combat
                 ActiveBadges = setup.ActiveBadges != null
                     ? new List<BadgeSO>(setup.ActiveBadges)
                     : new List<BadgeSO>(),
+                ActiveRegionModifiers = setup.ActiveRegionModifiers != null
+                    ? new List<RegionModifierSO>(setup.ActiveRegionModifiers)
+                    : new List<RegionModifierSO>(),
                 UnlockedMasteryIds = setup.UnlockedMasteryIds != null
                     ? new HashSet<string>(setup.UnlockedMasteryIds)
                     : new HashSet<string>(),
@@ -385,6 +395,11 @@ namespace ProjectAscendant.Combat
                 State.PlayerTeam, State.Field, State.TurnNumber, State.Config);
             // §8.3.3 Quick Draw relic — +1 skill draw on turn 1.
             skillTarget += RelicResolver.QuickDrawBonus(State.ActiveRelics, State.TurnNumber);
+            // §7.8.3.1 (CL-016) Hand of Plenty — +max hand size this Region (every turn).
+            skillTarget += RegionModifierResolver.HandSizeBonus(State.ActiveRegionModifiers);
+            // §7.8.3.1 (CL-016) Lucky Draw — +consumable draw on turn 1 of each combat.
+            if (State.TurnNumber == 1)
+                consumableTarget += RegionModifierResolver.Turn1ConsumableBonus(State.ActiveRegionModifiers);
 
             // Per §4.4.5.1 — Cascade Badge: manual swap last turn → +1 skill draw.
             if (State.CascadeBadgeDrawPending)
@@ -1168,7 +1183,15 @@ namespace ProjectAscendant.Combat
             // Per §8.4.2 + Task 12.6 — the wearer's Held Item type-boost (Charcoal/Mystic Water/etc.).
             float heldItemMul = HeldItemResolver.OutgoingDamageMultiplier(attacker, move);
 
-            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul * heldItemMul);
+            // Per §7.8.3.1 (CL-016) Glass Cannon — symmetric damage band (player run-state): +X% when
+            // the player DEALS (player attacker) and +X% when the player TAKES (player target).
+            float regionModMul = 1f;
+            if (!attackerIsEnemy)
+                regionModMul *= RegionModifierResolver.DamageDealtMultiplier(State.ActiveRegionModifiers);
+            if (State.PlayerTeam != null && State.PlayerTeam.Contains(target))
+                regionModMul *= RegionModifierResolver.DamageTakenMultiplier(State.ActiveRegionModifiers);
+
+            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul * heldItemMul * regionModMul);
             // Per §4.1.1 + R3-4 — 0-damage floor ONLY for real attacks (non-immune).
             // Pure status/buff/debuff moves (BasePower 0) deal 0, not 1.
             if (final <= 0)

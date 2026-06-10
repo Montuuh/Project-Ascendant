@@ -579,6 +579,8 @@ namespace ProjectAscendant.UI
             if (xp <= 0 || team.Count == 0) return "";
             // §8.3.3 Lucky Egg Token — in-run XP ×1.15.
             xp = RelicResolver.ApplyXpMultiplier(xp, _state?.HeldRelics, _ctx.ProgressionConfig);
+            // §7.8.3.1 (CL-016) Quick Study — +X% combat XP this Region.
+            xp = Mathf.FloorToInt(xp * RegionModifierResolver.XpMultiplier(_state?.ActiveRegionModifiers));
 
             // §5.2 / #7 — snapshot each member's pre-award level + XP (parallel to `credited`) so the
             // XP panel can replay the fill after the award + level-ups apply.
@@ -772,6 +774,7 @@ namespace ProjectAscendant.UI
             setup.Pokedex = _ctx.Pokedex; // §6.9 / 11.8.2 — enemy faints record kills
             setup.Meta = _ctx.Meta; // §4.3.9.1 — Pokedex Master tier unlocks the species' Mastery Move
             setup.ActiveRelics = _state?.HeldRelics; // §8.3 / 12.3 — RelicResolver dispatch
+            setup.ActiveRegionModifiers = _state?.ActiveRegionModifiers; // §7.8.3.1 (CL-016) — RegionModifierResolver dispatch
             setup.UnlockedMasteryIds = _ctx.Meta?.UnlockedMasteryMoveIds; // §4.3.9.2 — gate Mastery cards
             return new CombatController(setup, new UIPlayerAgent());
         }

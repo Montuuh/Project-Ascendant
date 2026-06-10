@@ -514,6 +514,36 @@ namespace ProjectAscendant.Tests
             Assert.That(c.State.Field.HasGymField, Is.False);
         }
 
+        // §7.8.3.1 (CL-016) Glass Cannon — the player deals +20% damage (and takes +20%). Proves the
+        // setup → CombatState → RegionModifierResolver → damage wiring end-to-end. Same seed both runs,
+        // so crit/RNG is identical and the only delta is the modifier.
+        [Test]
+        public void RegionModifier_GlassCannon_BoostsPlayerDamageDealt()
+        {
+            int LossOnce(bool withGlassCannon)
+            {
+                PokemonSpeciesSO playerSp = MakeSpecies(100, 150, 50, PokemonType.Normal);
+                PokemonSpeciesSO enemySp = MakeSpecies(2000, 10, 10, PokemonType.Normal); // tanky + low Def → big, divisible hit
+                PokemonInstance player = MakeMon(playerSp, MakeMove(PokemonType.Normal, 120));
+                PokemonInstance enemy = MakeMon(enemySp, MakeMove(PokemonType.Normal, 5));
+                CombatController.CombatSetup setup = BuildSetup(player, enemy, 0xC0FFEEu);
+                if (withGlassCannon)
+                {
+                    RegionModifierSO gc = RegionModifierPool.BuildAll().Find(m => m.Kind == RegionModifierKind.GlassCannon);
+                    _disposables.Add(gc);
+                    setup.ActiveRegionModifiers = new List<RegionModifierSO> { gc };
+                }
+                CombatController c = new(setup, new FirstCardAgent());
+                c.Start(); c.DrawPhase(); c.IntentPhase(); c.ActionPhase(); c.ResolutionPhase();
+                return enemySp.BaseStats.BaseHP - enemy.CurrentHP; // damage dealt to the enemy
+            }
+
+            int baseline = LossOnce(false);
+            int boosted = LossOnce(true);
+            Assert.That(baseline, Is.GreaterThan(0), "sanity — the player hit the enemy");
+            Assert.That(boosted, Is.GreaterThan(baseline), "Glass Cannon raises player damage dealt (+20%)");
+        }
+
         // Plays SkillHand[0] once (targeting enemy 0), then ends.
         private sealed class PlayOneSkillAgent : IPlayerAgent
         {
