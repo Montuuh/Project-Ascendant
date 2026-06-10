@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T09:13:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T17:13:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -353,7 +353,7 @@ Per §1.6: ~50 launch relics target. Topic 8 will author the relic content; Topi
 
 **Tier 2 example unlocks (illustrative — Topic 8 will finalize):**
 
-- "Smoke Ball" relic unlocks after fleeing 3 wild combats (across any runs) — fits its thematic identity.
+- "Barrier Charm" relic unlocks after winning a combat without any Pokémon fainting (across any runs) — fits its protective identity.
 - "Lucky Egg" unlocks after earning XP in 50 combats.
 - "Soothe Bell" unlocks after winning a run without using the Trauma Salve relic.
 

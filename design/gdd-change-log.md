@@ -450,8 +450,9 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   /`IsSandstormImmune` (Rock/Ground/Steel); `BattleConfigSO` +`HomeFieldTypeMultiplier`(1.5)
   +`SandstormHazardPercent`(5); `CombatController` threads attacker side + ticks Sandstorm. B) New
   `ClearFieldConsumableEffectSO` + dispatch case clears the field; seeded as **"Defog"** (not "Smoke
-  Ball" — collision with the smoke_ball relic; GDD §4.3.8.6 reconciled to Defog; relic→Focus Sash
-  flagged as a separate task). C) Per-type Phase-2 archetypes (CL-013 Part 2) ride this — see CL-013.
+  Ball" — collision with the smoke_ball relic; GDD §4.3.8.6 reconciled to Defog; the −20%-first-hit
+  relic was then renamed **smoke_ball → Barrier Charm** (2026-06-10), freeing the "Smoke Ball" name —
+  Focus Sash stays the separate survive-lethal Held Item (§8.4.4); GDD §8.3.3/§6.6.1 updated). C) Per-type Phase-2 archetypes (CL-013 Part 2) ride this — see CL-013.
 - Status: [✅] GDD updated (Notion §4.3.8 + §4.8.2 + §4.4.4.3 + §4.3.8.6 Defog, re-exported 2026-06-10)   [✅] Code adapted — 1116 green
 
 ### CL-010 — XP: Active 100% / Box 75% baseline   (resolves Q12)

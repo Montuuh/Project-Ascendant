@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-07T22:33:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T17:11:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -139,7 +139,7 @@ Five categories. Each relic is tagged with one primary + up to one secondary cat
 
 | Relic                  | Category     | Effect                                                                                                                                   |
 | ---------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Smoke Ball**         | Combat       | First combat per Region: take −20% damage from first enemy attack                                                                        |
+| **Barrier Charm**      | Combat       | First combat per Region: take −20% damage from the first enemy attack                                                                    |
 | **Quick Claw Charm**   | Card-Economy | Once per combat: replay the last skill card you played, free                                                                             |
 | **Berry Pouch**        | Combat       | Healing consumables restore +20% HP                                                                                                      |
 | **Soothe Bell**        | Combat       | Each Pokémon at full HP at turn start: +5% damage on next attack                                                                         |
