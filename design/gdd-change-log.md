@@ -52,7 +52,7 @@
 | CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ☐ |
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ☐ |
-| CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ☐ |
+| CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ✅⁸ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -286,7 +286,14 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   (§2.4.2 computes vs EffectiveMaxHP) + Trauma tests against the new ladder; the §6.2.6 edge cases
   (Sturdy/Last-Stand prevent faint = no stack) are unchanged. Consider scaling Therapy (removes 1
   stack/visit) vs the deeper cap (Salve/Daycare remove-all still cover it).
-- Status: [✅] GDD updated (Notion §6.2.1 formula+table+rationale, §6.8.2 Trauma Surge, §6.13 glossary, T2 §2.6, re-exported 2026-06-10)   [ ] Code adapted
+- ⁸ **Code complete (2026-06-10, 1080/1080 green).** `PokemonVitals.EffectiveMaxHP` now computes the
+  two-zone curve (zone-1 `TraumaStackPenaltyPercent`×min(stacks,Zone1) + zone-2 `TraumaZone2PenaltyPercent`
+  ×beyond, capped at `TraumaStackCap`), all integer math (PA0001). `EconomyConfigSO` gains
+  `TraumaZone1StackCount=5` + `TraumaZone2PenaltyPercent=10`; cap 5→10 in the SO default, the
+  `EconomyConfig.asset`, and `VS_ItemSeeder`. Backward-compatible: when cap==Zone1 the curve is linear
+  (zone 2 empty), so all legacy cap=5 tests pass unchanged. `TraumaSystemTests` table rewritten to the
+  −75%/10-stack ladder + a cap-at-boundary linearity invariant (+6 cases).
+- Status: [✅] GDD updated (Notion §6.2.1 formula+table+rationale, §6.8.2 Trauma Surge, §6.13 glossary, T2 §2.6, re-exported 2026-06-10)   [✅] Code adapted — 1080/1080 green
 
 ### CL-016 — Region Modifiers → per-Region accent + 16-modifier pool   (resolves Q2)
 - Date: 2026-06-10

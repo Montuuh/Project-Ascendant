@@ -19,7 +19,9 @@ MonoBehaviour:
   GymLeaderXPMultiplier: 3
   TokenPerXP: 1
   TraumaStackPenaltyPercent: 5
-  TraumaStackCap: 5
+  TraumaZone1StackCount: 5
+  TraumaZone2PenaltyPercent: 10
+  TraumaStackCap: 10
   TraumaStacksPerFaint: 1
   BoxCapacity: 6
   TherapyBaseCost: 100

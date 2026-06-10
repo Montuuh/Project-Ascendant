@@ -661,8 +661,10 @@ namespace ProjectAscendant.Editor
             c.EliteXPMultiplier     = 2.0f;
             c.GymLeaderXPMultiplier = 3.0f;
             c.TokenPerXP            = 1.0f;
-            c.TraumaStackPenaltyPercent = 5;  // Per §6.2: −5% damage/stack
-            c.TraumaStackCap            = 5;
+            c.TraumaStackPenaltyPercent = 5;   // §6.2.1 (CL-017) zone-1: −5%/stack (1–5)
+            c.TraumaZone1StackCount     = 5;   // §6.2.1 (CL-017) zone-1 boundary
+            c.TraumaZone2PenaltyPercent = 10;  // §6.2.1 (CL-017) zone-2: −10%/stack (6–10)
+            c.TraumaStackCap            = 10;  // §6.2.1 (CL-017) soft cap → −75%
             c.TraumaStacksPerFaint      = 1;
             c.BoxCapacity               = 18;
             EditorUtility.SetDirty(c);

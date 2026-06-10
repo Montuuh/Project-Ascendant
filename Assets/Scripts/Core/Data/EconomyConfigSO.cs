@@ -29,12 +29,18 @@ namespace ProjectAscendant.Core
         [Tooltip("§8.3.3 Coin Pouch relic — all Poké Dollar drops ×this multiplier.")]
         public float CoinPouchPokeDollarMultiplier = 1.25f;
 
-        [Header("Trauma System — §6.2")]
-        [Tooltip("Percentage damage penalty per Trauma stack. E.g. 5 = -5% per stack.")]
+        [Header("Trauma System — §6.2.1 (CL-017 two-zone curve)")]
+        [Tooltip("Zone-1 penalty per stack (stacks 1..TraumaZone1StackCount). §6.2.1 — 5 = -5%/stack.")]
         public int TraumaStackPenaltyPercent = 5;
 
-        [Tooltip("Maximum Trauma stacks a single Pokémon can accumulate.")]
-        public int TraumaStackCap = 5;
+        [Tooltip("Zone-1 boundary: stacks up to here use the zone-1 penalty. §6.2.1 (CL-017) — 5.")]
+        public int TraumaZone1StackCount = 5;
+
+        [Tooltip("Zone-2 penalty per stack (stacks beyond zone 1, up to the cap). §6.2.1 (CL-017) — 10 = -10%/stack.")]
+        public int TraumaZone2PenaltyPercent = 10;
+
+        [Tooltip("Soft cap: max Trauma stacks that accrue a penalty. §6.2.1 (CL-017) — 10 → -75%.")]
+        public int TraumaStackCap = 10;
 
         [Tooltip("Trauma stacks gained per faint in combat.")]
         public int TraumaStacksPerFaint = 1;
