@@ -124,7 +124,10 @@ namespace ProjectAscendant.Combat
             // BEFORE the effect resolves. Does not increment SwapCounter and
             // does not grant the defensive-swap discount.
             if (move.Modifier == PositionalModifier.StepForward)
+            {
                 ApplyStepForward(card.Owner);
+                MassMobilizationDraw(); // §7.8.3.1 (CL-016)
+            }
 
             // Per §3.2.4 — "Card effects resolve immediately when played."
             // Damage callback handles HP delta + faint sweep + outcome flip.
@@ -150,9 +153,26 @@ namespace ProjectAscendant.Combat
             // If no eligible bench exists, the effect still resolves and
             // Lead remains Lead. No SwapCounter increment, no discount.
             if (move.Modifier == PositionalModifier.StepBackward)
+            {
                 ApplyStepBackward();
+                MassMobilizationDraw(); // §7.8.3.1 (CL-016)
+            }
 
             return true;
+        }
+
+        // §7.8.3.1 (CL-016) Mass Mobilization — Step-Forward / Step-Backward also draw 1 skill card.
+        private void MassMobilizationDraw()
+        {
+            if (!RegionModifierResolver.StepDrawsCard(_state.ActiveRegionModifiers)) return;
+            if (_state.Deck == null || _state.Rng == null) return;
+            MoveCardInstance drawn = _state.Deck.Draw(_state.Rng);
+            if (drawn != null)
+            {
+                _state.SkillHand.Add(drawn);
+                _state.CombatLog.Add(new CombatController.CombatLogEntry(
+                    CombatController.CombatLogCategory.PlayerAction, "Mass Mobilization: +1 card"));
+            }
         }
 
         // ── Position-change side effects ────────────────────────────────────
@@ -261,6 +281,11 @@ namespace ProjectAscendant.Combat
                         if (roll < rider.ApplicationChance)
                         {
                             StatusEffectManager.TryApply(statusTarget, rider.StatusToApply, _state.Config);
+                            // §7.8.3.1 (CL-016) Status Mastery — player-applied statuses last +N turns.
+                            int durBonus = RegionModifierResolver.StatusDurationBonus(_state.ActiveRegionModifiers);
+                            if (durBonus > 0 && statusTarget.PrimaryStatusTurnsRemaining > 0
+                                && statusTarget.PrimaryStatusTurnsRemaining != int.MaxValue)
+                                statusTarget.PrimaryStatusTurnsRemaining += durBonus;
                             _state.CombatLog.Add(new CombatController.CombatLogEntry(
                                 CombatController.CombatLogCategory.PlayerAction,
                                 $"{statusTarget.Species?.DisplayName} {rider.StatusToApply} applied"));

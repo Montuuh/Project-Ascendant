@@ -108,6 +108,21 @@ namespace ProjectAscendant.Combat
                 && benchSlot >= 0 && benchSlot < state.PlayerTeam.Count)
                 StatStageManager.Modify(state.PlayerTeam[benchSlot], Stat.Defense, 1);
 
+            // §7.8.3.1 (CL-016) Swap Fuel — the new Lead heals on each manual swap (capped at its
+            // Trauma-aware Effective Max HP). Never revives a fainted Pokémon.
+            int swapHeal = RegionModifierResolver.SwapHealAmount(state.ActiveRegionModifiers);
+            if (swapHeal > 0 && benchSlot >= 0 && benchSlot < state.PlayerTeam.Count)
+            {
+                PokemonInstance newLead = state.PlayerTeam[benchSlot];
+                if (newLead != null && newLead.CurrentHP > 0)
+                {
+                    int max = state.Economy != null
+                        ? PokemonVitals.EffectiveMaxHP(newLead, state.Economy)
+                        : PokemonVitals.MaxHP(newLead);
+                    newLead.CurrentHP = UnityEngine.Mathf.Min(max, newLead.CurrentHP + swapHeal);
+                }
+            }
+
             // Per R4-4 — log manual swap.
             string newLeadName = state.PlayerTeam[benchSlot]?.Species?.DisplayName ?? "???";
             state.CombatLog.Add(new CombatController.CombatLogEntry(
