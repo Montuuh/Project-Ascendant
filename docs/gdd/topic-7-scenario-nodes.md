@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-09T23:53:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T08:49:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -341,7 +341,7 @@ For 25₽, the player can re-roll the Region Shop's inventory once per visit. Up
 # §7.8 City Interstitials (per §2.1.4, expanded)
 
 
-Cities are post-Gym-1 and post-Gym-2 rest-and-restock zones. Three sequential events: Pokémon Center → Curated Shop → Reflection. Topic 7 fully specifies each.
+Cities are post-Gym-1 and post-Gym-2 rest-and-restock zones. Per **CL-015 (Q1)** the City is a **Choice Plaza** (§7.8.4): the Curated Shop + Reflection are always available, and the player may additionally visit **2 of** the premium nodes (City Gym, Pokémon Center, Grand Dojo, Black Market). Topic 7 specifies each node below; the §7.8.1 Center is now an _optional_ plaza pick rather than a guaranteed stop.
 
 
 ## §7.8.1 City Pokémon Center (expanded from §2.1.4)
@@ -437,6 +437,22 @@ Per City, the 3-modifier offering is seeded from this pool, weighted to surface 
 
 
 Per §2.1.4.1, both Region Modifiers stack and persist to run end. Confirmed and reaffirmed here.
+
+
+## §7.8.4 City Choice Plaza (CL-015 — Q1)
+
+
+The City is structured as a **Choice Plaza** — an StS-style Act-end hub with a **limited visit budget** rather than a fixed linear sequence. **Curated Shop (§7.8.2)** and **Reflection (§7.8.3)** are always available; the player may additionally visit **2 of** the four premium nodes (visit budget tunable). This makes the City a deliberate "what do I prioritise?" decision (Pillar 3).
+
+
+**Premium nodes (pick 2):**
+
+- **City Gym (risky, optional).** A Gym-tier fight (full CL-013 power premium, §4.4.4.4) against a Gym Leader of a type **outside the run's Gym pool**. **Reward:** a **4th Badge** + a guaranteed **Rare relic** + ₽. **Risk:** the player enters at **current HP** (no free pre-heal — healing means spending the Center visit instead); a **team wipe is not a run-loss** (the fight is optional), but the fainted Pokémon gain **Trauma** and the player **forfeits the Badge attempt** for this City. The City Gym is the primary **bonus-Badge source** (§4.5.3), subsuming the Secret Tournament. Badge cap unchanged: max 4/run (§4.4.5).
+- **Pokémon Center (now optional).** The full service slate of §7.8.1 (heal + Trauma therapy + Daycare + PC Box) — but choosing it spends one of the two visits (and a small ₽ fee). No longer a guaranteed free stop.
+- **Grand Dojo.** A city-tier Dojo (§7.14): a premium off-learnset move and/or ability teaching stop, priced above the Region Dojo.
+- **Black Market.** Offers a single **Rare/Epic relic** at an **HP or Trauma cost** instead of ₽ — a high-risk power spike (StS-style).
+
+**Scope:** post-VS (the VS ends at Gym 1). Tunable: visit budget (default 2), City Gym loss penalty, premium-node pricing.
 
 
 ---

@@ -50,6 +50,7 @@
 | CL-012 | Q8 | Field effects: tiered neutral Battlefield + enemy-owned Home Field | T4 §4.3.8/§4.3.8.4-6/§4.4.4.3/§4.8.2 | ✅ | ☐ |
 | CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ☐ |
 | CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ☐ |
+| CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -266,6 +267,32 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   Run layer responsible for OR-ing with `DifficultyModifiers.HidesIntents()` for Dense Fog.
   +6 new EditMode tests in `IntentHidingTests.cs`.
 - Status: [ ] GDD updated   [✅] Code adapted
+
+### CL-015 — City → Choice Plaza + risky optional City Gym   (resolves Q1)
+- Date: 2026-06-10
+- Topic / §: Topic 2 §2.1.4 (City interstitials), Topic 7 §7.8 (City node detail), Topic 4 §4.5.3
+  (bonus Badge sources)
+- Change: **Option B — Choice Plaza.** The City is no longer a fixed linear Center→Shop→Reflection.
+  - **Limited visit budget:** Shop + Reflection always available; the player visits **only 2 of** the
+    premium nodes (budget tunable): **City Gym**, **Pokémon Center** (now optional), **Grand Dojo**,
+    **Black Market**.
+  - **City Gym:** optional Gym-tier fight (CL-013 power premium) vs a type outside the run pool →
+    4th Badge + guaranteed Rare relic + ₽. Enters at current HP (no free pre-heal); a wipe is not a
+    run-loss but applies Trauma to the fainted + forfeits the Badge attempt. Subsumes the post-VS
+    Secret Tournament (§4.5.3.1) as the primary bonus-Badge source; Perfect Clear (§4.5.3.2) stays.
+  - **Pokémon Center** becomes an optional visit (heal + therapy + Daycare, costs a visit + small ₽).
+  - **Grand Dojo** = city-tier CL-009 Dojo. **Black Market** = Rare/Epic relic at HP/Trauma cost.
+  - Badge cap unchanged (max 4/run; pool 12).
+- Rationale: delivers the user's three asks at once — risky City Gym (4th Badge), Shop kept, Center
+  made optional ("probably not") — and turns the City into an StS Act-end choice hub (Pillars 1/3/4/5),
+  while giving the §4.5.3 bonus Badge an interactive home and reusing CL-013 Gym tech.
+- Code impact: **post-VS** (the VS ends at Gym 1 — no immediate code). When built: a City scene/flow
+  with a visit-budget selector; `NodeType.CityGym` (or a flagged Gym encounter) wired to the bonus-Badge
+  award + Rare relic + the current-HP entry + wipe→Trauma/forfeit branch (non-run-loss); Center becomes
+  a budget-gated optional node; `Grand Dojo` = a city-tier Dojo config; `Black Market` node (relic-for-
+  HP/Trauma). Reflection unchanged. Reconcile §4.5.3 (City Gym replaces Secret Tournament as the bonus
+  source). Content: City Gym roster (off-pool Gym leaders), Black Market pool.
+- Status: [✅] GDD updated (Notion §2.1.4/§2.7 + §7.8/§7.8.4 + §4.5.3, re-exported 2026-06-10)   [ ] Code adapted
 
 ### CL-014 — Catch: deterministic Catchability Gauge   (resolves Q22)
 - Date: 2026-06-10

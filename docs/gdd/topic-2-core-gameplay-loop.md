@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T08:49:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -62,11 +62,11 @@ Between nodes, the player sees the upcoming map and accesses a persistent **Map 
 ## §2.1.4 Post-Gym Interstitials: Cities
 
 
-After defeating Gym 1 and Gym 2, the player enters a **City** — a rest-and-restock zone between Regions. Each City contains three sequential events:
+After defeating Gym 1 and Gym 2, the player enters a **City** — a rest-and-restock zone between Regions, modelled (per **CL-015**, Q1) as a **Choice Plaza**: an StS-style Act-end hub with a **limited visit budget** rather than a fixed sequence. The **Curated Shop** and the **Reflection node** are always available; the player may additionally visit only **2 of** the premium nodes — a real "what do I prioritise?" decision. Full node detail in §7.8.4.
 
-1. **Pokémon Center** — full heal of all Box Pokémon (HP only; status conditions clear at combat end automatically). Optional move-tutor service (see §5.4.2).
-2. **Curated Shop** — rotating relic and consumable inventory, weighted to the player's current team composition.
-3. **Reflection node** — pick one of three **Region Modifiers** that apply only during the next Region (e.g., "+1 max hand size," "Lead heals 5 HP per swap"). This is the macro-loop equivalent of StS's Act-end campsite — the moment where runs begin to differentiate from each other.
+- **Curated Shop (always):** rotating relic / consumable / TM inventory, weighted to the player's current team composition.
+- **Reflection node (always, closes the City):** pick one of three **Region Modifiers** that apply only during the next Region (e.g., "+1 max hand size," "Lead heals 5 HP per swap"). The macro-loop equivalent of StS's Act-end campsite — where runs begin to differentiate from each other.
+- **Premium nodes (pick 2):** **City Gym** (risky optional fight for a 4th Badge + Rare relic, §7.8.4 / §4.5.3); **Pokémon Center** (full heal + Trauma therapy + Daycare — now an _optional_ visit, no longer guaranteed); **Grand Dojo** (city-tier move/ability tutor, §7.14); **Black Market** (a Rare/Epic relic at an HP or Trauma cost).
 
 ### §2.1.4.1 Region Modifier stacking
 
@@ -202,5 +202,5 @@ See §6.2 for full spec.
 # §2.7 City Sequence Detail Pointer (added 2026-05-24)
 
 
-Per §2.1.4, each City has three sequential events. Topic 7 §7.8 expands the City Pokémon Center service catalog (now includes Daycare for +1 level, PC Box reorder, Therapy for Trauma), the City Shop curation algorithm (8 slots, team-aware), and the launch Region Modifier pool (12 modifiers).
+Per §2.1.4, the City is a **Choice Plaza** (CL-015, §7.8.4 — limited visit budget; Center now optional). Topic 7 §7.8 expands the City Pokémon Center service catalog (now includes Daycare for +1 level, PC Box reorder, Therapy for Trauma), the City Shop curation algorithm (8 slots, team-aware), and the launch Region Modifier pool (12 modifiers).
 

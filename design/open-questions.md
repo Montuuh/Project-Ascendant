@@ -38,7 +38,7 @@ On a ✅ decision:
 
 # Domain A — Run & Macro Structure
 
-## Q1 — City: add a Gym option + rethink city nodes 🔵
+## Q1 — City: add a Gym option + rethink city nodes ✅ DECIDED 2026-06-10
 **Owner:** game-designer + content-designer
 **User:** Give players the chance to enter a Gym in the City too — a chance to win
 a Badge + rewards at a **risky cost**? Then: which nodes/places can the City have?
@@ -48,6 +48,28 @@ Think Pokémon fantasy **and** StS-inspired structure for better City nodes.
 (b) the full City node roster.
 **Steward note (canon):** today City = Center → Curated Shop → Reflection (§2.1.4 /
 §7.8). Bonus Badge sources already exist (§4.5.3); a City Gym would be a new one.
+**✅ Resolution — Option B (Choice Plaza: StS-style limited-visit hub):**
+- The City stops being a fixed linear Center→Shop→Reflection. It becomes a **plaza with a limited
+  visit budget**: **Curated Shop** and **Reflection** (Region Modifier) are always available (Shop
+  yes; Reflection always closes the City), but the player may visit **only 2 of** the premium nodes
+  (visit budget tunable) — a real "what do I prioritise?" choice:
+  - **City Gym (risky, optional):** a Gym-tier fight (full CL-013 power premium) vs a type **outside
+    the run's Gym pool**. **Reward:** the 4th Badge + a guaranteed **Rare relic** + ₽. **Risk:** you
+    enter at **current HP** (no free pre-heal — healing means spending a Center visit you might skip);
+    a **team wipe is NOT a run-loss** (it's optional) but the fainted gain **Trauma** and you **forfeit
+    the Badge attempt** for this City. This is the interactive home of the §4.5.3 bonus-Badge slot —
+    it **subsumes the post-VS Secret Tournament (§4.5.3.1)** as the primary bonus source (Victory Road
+    Perfect Clear §4.5.3.2 stays).
+  - **Pokémon Center (now OPTIONAL — the user's "probably not"):** full heal + Trauma therapy +
+    Daycare; choosing it spends one of the 2 visits (and a small ₽ fee). Not a guaranteed freebie.
+  - **Grand Dojo:** city-tier CL-009 Dojo (premium off-learnset move / ability teaching).
+  - **Black Market:** a Rare/Epic relic at an HP or Trauma cost (StS risk flavour).
+- **Badge cap unchanged:** max 4/run (3 Gyms + 1 City Gym), pool of 12 (§4.4.5).
+- **Scope:** the City is **post-VS** (the VS ends at Gym 1) — this locks forward-looking structure;
+  build lands with the multi-Region loop (post-CL-004 League work stays deferred).
+- **Pillars:** 1 (telegraphed menu + risk ★), 3 (resource sculpting ★), 4 (Badge = identity), 5
+  (city fantasy). **Tunable:** visit budget (default 2), City Gym loss penalty, premium-node pricing.
+  → logged **CL-015**.
 
 ## Q2 — Region Modifiers: timing + pool 🔵
 **Owner:** systems-designer + content-designer

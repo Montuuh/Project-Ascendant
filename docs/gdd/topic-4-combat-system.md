@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-09T23:54:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T08:49:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -920,7 +920,7 @@ Selected at the Victory Road Summit node. Three are offered from a seeded pool o
 ## §4.5.3 Bonus Badge Sources (post-vertical-slice)
 
 
-Up to 1 additional Badge per run from rare in-run bonus sources:
+Up to 1 additional Badge per run from rare in-run bonus sources. **Per CL-015 (Q1), the primary bonus-Badge source is the optional City Gym** (Topic 7 §7.8.4) — the Secret Tournament below is subsumed by it; Victory Road Perfect Clear remains a separate skill reward:
 
 
 ### §4.5.3.1 Secret Tournament node (rare map event)
