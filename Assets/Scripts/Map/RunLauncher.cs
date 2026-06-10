@@ -58,6 +58,9 @@ namespace ProjectAscendant.Map
             // built from the catalog + Hub difficulty choices (which the catalog does not own).
             _registry = RunContentRegistry.FromCatalog(_catalog);
             _registry.RegisterDifficultyModifiers(RunBootstrapper.BuildDifficultyChoices());
+            // Per §7.8.3.1 (CL-016) — register the 16 Region Modifiers so a saved ActiveRegionModifier
+            // ID resolves back to its authored SO on resume.
+            _registry.RegisterRegionModifiers(RegionModifierPool.BuildAll());
 
             // Build a fresh, IDLE run (Map == null). The Main Menu picks Continue vs New Run.
             RunStateSO run = ScriptableObject.CreateInstance<RunStateSO>();

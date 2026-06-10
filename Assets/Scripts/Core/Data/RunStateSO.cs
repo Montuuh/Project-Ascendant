@@ -54,6 +54,9 @@ namespace ProjectAscendant.Core
         public int EvolutionsThisRun;
 
         [Header("Active Modifiers")]
+        // Per §7.8.3.1 (CL-016) — Region Modifiers are per-Region, non-accumulating: this list holds
+        // 0..1 entries (the current Region's pick). Kept as a list for save-DTO compatibility; use
+        // SetRegionModifier to enforce single-active.
         public List<RegionModifierSO> ActiveRegionModifiers;
         public LeagueBoonSO ActiveBoon;
         // Per §6.8 / Task 11.6 — difficulty modifiers chosen at run start (VS: 0-1; Hub upgrade raises cap).
@@ -103,6 +106,20 @@ namespace ProjectAscendant.Core
 
             EventFlags = null;
             RecordedInputs = null;
+        }
+
+        // Per §7.8.3.1 (CL-016) — the single active Region Modifier (per-Region), or null.
+        public RegionModifierSO ActiveRegionModifier =>
+            ActiveRegionModifiers != null && ActiveRegionModifiers.Count > 0 ? ActiveRegionModifiers[0] : null;
+
+        // Per §7.8.3.1 (CL-016) — set the current Region's modifier, replacing any previous (single-
+        // active, non-accumulating). Pass null to clear. Called by the Region-start pick (run setup
+        // for R1, City Reflection for R2/R3).
+        public void SetRegionModifier(RegionModifierSO modifier)
+        {
+            if (ActiveRegionModifiers == null) ActiveRegionModifiers = new List<RegionModifierSO>();
+            ActiveRegionModifiers.Clear();
+            if (modifier != null) ActiveRegionModifiers.Add(modifier);
         }
     }
 }

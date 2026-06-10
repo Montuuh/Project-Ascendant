@@ -52,6 +52,24 @@ namespace ProjectAscendant.Core
             };
         }
 
+        // Per §7.8.3.1 (CL-016) — a seeded "3 offered" pick from the pool at a Region start. Returns
+        // `count` distinct modifiers (or the whole pool if smaller) via a partial Fisher–Yates shuffle.
+        // Deterministic for a given RNG cursor (Engineering Pillar 3). Null rng → the first `count`.
+        public static List<RegionModifierSO> BuildOffer(IReadOnlyList<RegionModifierSO> pool, GameRNG rng, int count)
+        {
+            List<RegionModifierSO> offer = new();
+            if (pool == null || pool.Count == 0 || count <= 0) return offer;
+            List<RegionModifierSO> src = new(pool);
+            int n = count < src.Count ? count : src.Count;
+            for (int i = 0; i < n; i++)
+            {
+                int j = rng != null ? rng.Range(i, src.Count) : i;
+                (src[i], src[j]) = (src[j], src[i]);
+                offer.Add(src[i]);
+            }
+            return offer;
+        }
+
         private static RegionModifierSO Rm(string id, string name, RegionModifierKind kind, float magnitude,
                                            RegionModifierTier tier, string desc)
         {
