@@ -2,16 +2,19 @@ using UnityEngine;
 
 namespace ProjectAscendant.Core
 {
-    // Per §8.2.5 + §7.3.4 — Pokéball catch mechanic effect.
-    // Catch succeeds when target HP < CatchThresholdPercent OR target has a status condition.
+    // Per §8.2.5 + §7.3.4 (CL-014) — Pokéball catch mechanic effect (deterministic Catchability Gauge).
+    // The catch threshold (in HP fraction) is the ball tier's base; a status condition on the wild adds
+    // StatusCatchBonusPercent. Catch succeeds when the wild's HP fraction ≤ the resulting threshold
+    // (gauge = 100). See WildCatchResolver for the gauge math.
     [CreateAssetMenu(fileName = "New Catch Effect", menuName = "Project Ascendant/Consumable Effects/Catch")]
     public class CatchConsumableEffectSO : ConsumableEffectSO
     {
         [Range(0f, 1f)]
-        [Tooltip("Catch succeeds if target HP/MaxHP < this value. E.g. 0.5 = below 50%.")]
-        public float CatchThresholdPercent = 0.5f;
+        [Tooltip("Base catch threshold (ball tier). Catchable at HP fraction ≤ this. §7.3.4 (CL-014): basic 0.30, Great 0.45, Ultra 0.60.")]
+        public float CatchThresholdPercent = 0.30f;
 
-        [Tooltip("If true, any primary status condition also guarantees catch regardless of HP.")]
-        public bool CatchWithAnyStatus = true;
+        [Range(0f, 1f)]
+        [Tooltip("Added to the threshold when the wild has any status condition. §7.3.4 (CL-014): 0.20 (+20pt window).")]
+        public float StatusCatchBonusPercent = 0.20f;
     }
 }

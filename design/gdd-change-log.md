@@ -49,7 +49,7 @@
 | CL-011 | Q7 | Unknown intents: Elite/Gym baseline + Dense Fog extension | T4 §4.3.5 | ✅⁶ | ✅⁶ |
 | CL-012 | Q8 | Field effects: tiered neutral Battlefield + enemy-owned Home Field | T4 §4.3.8/§4.3.8.4-6/§4.4.4.3/§4.8.2 | ✅ | ☐ |
 | CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ☐ |
-| CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ☐ |
+| CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ✅⁹ |
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ☐ |
 | CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ✅⁸ |
@@ -365,7 +365,16 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   catch/Pokéball consumable handler). UI: catchability gauge on the wild Pokémon + Pokéball hover
   state (Topic 10 / ui-programmer). Update §7.3.4 EditMode tests to the new thresholds. Systems-designer
   to verify the 30%→0% band is hittable with lean CL-006 early decks.
-- Status: [✅] GDD updated (Notion §7.3.4.1–.3, re-exported 2026-06-10)   [ ] Code adapted
+- ⁹ **Code complete (2026-06-10, 1090/1090 green).** `WildCatchResolver.Catchability(wild, effect)`
+  returns the 0–100 gauge (`round(100·(1−hpFrac)/(1−threshold))`, clamped); `Evaluate` now catches at
+  gauge==100. `CatchConsumableEffectSO`: `CatchThresholdPercent` 0.5→0.30 + new `StatusCatchBonusPercent`
+  (0.20), replacing the removed `CatchWithAnyStatus` (status is now +20pt, not catch-at-any-HP).
+  `pokeball.asset` + `VS_ItemSeeder` (ConsCatch) + `VS_Verifier` updated to 0.30/0.20. `CombatScreenUI`
+  Pokéball card shows the gauge ("Catchability N% — weaken or apply status" / "CATCH at gauge 100").
+  Tests: `WildCatchResolverTests` rewritten to the gauge model (+gauge value cases); the old
+  full-HP-with-status catch test re-specced to the +20pt window. **Follow-up:** a *visual* gauge bar on
+  the wild portrait (ui-programmer, Topic 10) — the logic + text telegraph are done.
+- Status: [✅] GDD updated (Notion §7.3.4.1–.3, re-exported 2026-06-10)   [✅] Code adapted — logic 1090 green (visual bar = UI follow-up)
 
 ### CL-013 — Gym phases: remove mid-evo, power premium + per-type signature Phase 2   (resolves Q9)
 - Date: 2026-06-10

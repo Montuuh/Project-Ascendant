@@ -115,7 +115,7 @@ namespace ProjectAscendant.Editor
             // Catch mechanic — Per §8.2.5 + §7.3.4
             // Catch succeeds when target HP < 50% OR target has any status condition.
             var pokeball = Cs(p,"pokeball",      "Pokéball",       apCost:1, tier:1, "§8.2.5");
-            ConsCatch(pokeball, threshold:0.5f, catchWithStatus:true);
+            ConsCatch(pokeball, threshold:0.30f, statusBonus:0.20f); // §7.3.4 (CL-014) basic ball
 
             d["potion"]=potion;           d["super_potion"]=superPot;
             d["antidote"]=antidote;       d["burn_heal"]=burnHeal;
@@ -768,11 +768,11 @@ namespace ProjectAscendant.Editor
             EditorUtility.SetDirty(c);
         }
 
-        static void ConsCatch(ConsumableSO c, float threshold, bool catchWithStatus)
+        static void ConsCatch(ConsumableSO c, float threshold, float statusBonus)
         {
             var fx = ScriptableObject.CreateInstance<CatchConsumableEffectSO>();
-            fx.CatchThresholdPercent = threshold;
-            fx.CatchWithAnyStatus    = catchWithStatus;
+            fx.CatchThresholdPercent  = threshold;
+            fx.StatusCatchBonusPercent = statusBonus;
             fx.name = $"{c.Id}_Catch";
             AssetDatabase.AddObjectToAsset(fx, c);
             c.Effect = fx;

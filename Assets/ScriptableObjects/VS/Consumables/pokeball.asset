@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbab9f841093d7742a0b694471fb748f, type: 3}
   m_Name: pokeball_Catch
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.CatchConsumableEffectSO
-  CatchThresholdPercent: 0.5
-  CatchWithAnyStatus: 1
+  CatchThresholdPercent: 0.3
+  StatusCatchBonusPercent: 0.2
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

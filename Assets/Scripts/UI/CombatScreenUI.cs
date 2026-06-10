@@ -509,18 +509,16 @@ namespace ProjectAscendant.UI
                     }
                     else if (!WildCatchResolver.IsCatchable(wild, catchEff))
                     {
+                        // §7.3.4.1 (CL-014) — show the deterministic Catchability gauge as the telegraph.
                         catchOk = false;
-                        int max = wild.Species != null ? wild.Species.BaseStats.BaseHP + (wild.Species.GrowthCurve != null ? wild.Species.GrowthCurve.GetHPAt(wild.Level) : 0) : 0;
-                        float pct = max > 0 ? (float)wild.CurrentHP / max : 1f;
-                        catchHint = wild.PrimaryStatus == StatusCondition.None
-                            ? $"\n(HP {(int)(pct * 100)}% — need <50% or status)"
-                            : "\n(status active — reduce HP)";
+                        int gauge = WildCatchResolver.Catchability(wild, catchEff);
+                        catchHint = $"\n(Catchability {gauge}% — weaken or apply status)";
                     }
                 }
 
                 bool playable = canAfford && (isBall ? catchOk : true);
                 string label = isBall
-                    ? $"⊙ {c.DisplayName ?? c.name}\nCATCH if HP < 50%\n(or any status)   AP {c.APCost}{catchHint}"
+                    ? $"⊙ {c.DisplayName ?? c.name}\nCATCH at gauge 100\nAP {c.APCost}{catchHint}"
                     : $"{c.DisplayName ?? c.name}\nAP {c.APCost}";
                 Color col = isBall ? new Color(0.62f, 0.26f, 0.30f) : new Color(0.30f, 0.42f, 0.32f);
                 float x = startX + slot * (cw + spacing);

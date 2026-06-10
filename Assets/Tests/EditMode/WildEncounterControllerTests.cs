@@ -94,7 +94,7 @@ namespace ProjectAscendant.Tests
         {
             CatchConsumableEffectSO eff = ScriptableObject.CreateInstance<CatchConsumableEffectSO>();
             eff.CatchThresholdPercent = threshold;
-            eff.CatchWithAnyStatus = statusWindow;
+            eff.StatusCatchBonusPercent = statusWindow ? 0.20f : 0f; // §7.3.4 (CL-014)
             _disposables.Add(eff);
             ConsumableSO c = ScriptableObject.CreateInstance<ConsumableSO>();
             c.Id = "pokeball";
@@ -423,8 +423,11 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Catch_FullHPWithStatus_Caught_StatusWindowExpands()
+        public void Catch_StatusWindowExpandsAboveBaseThreshold()
         {
+            // Per §7.3.4.1 (CL-014) — status adds +20pt to the threshold (NOT catch-at-any-HP).
+            // Base 0.50 + 0.20 status = 0.70, so a 60%-HP wild is catchable ONLY because of the status
+            // window (without the status, 60% > 50% would fail).
             PokemonSpeciesSO sp = MakeSpecies(100, PokemonType.Normal);
             ConsumableSO ball = MakePokeball(0.5f, true);
             PokemonInstance player = new() { Species = sp, Level = 5, CurrentHP = 100 };
@@ -433,7 +436,7 @@ namespace ProjectAscendant.Tests
             {
                 Species = sp,
                 Level = 5,
-                CurrentHP = 100,
+                CurrentHP = 60, // 60% — above the 50% base, within the 70% status-expanded window
                 PrimaryStatus = StatusCondition.Burn,
             };
 

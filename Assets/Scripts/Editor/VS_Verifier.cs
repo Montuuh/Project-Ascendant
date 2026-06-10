@@ -93,8 +93,8 @@ namespace ProjectAscendant.Editor
             Check(antFx    != null && antFx.CuresStatus == StatusCondition.Poison, "Antidote cures Poison");
             Check(fullHeal != null && (fullHeal.Effect as StatusCureConsumableEffectSO)?.CureAll == true, "Full Heal CureAll==true");
             var catchFx = pokeball?.Effect as CatchConsumableEffectSO;
-            Check(catchFx  != null && catchFx.CatchThresholdPercent == 0.5f,"Pokéball threshold==0.5");
-            Check(catchFx  != null && catchFx.CatchWithAnyStatus,           "Pokéball CatchWithAnyStatus==true");
+            Check(catchFx  != null && catchFx.CatchThresholdPercent == 0.30f,    "Pokéball threshold==0.30");
+            Check(catchFx  != null && catchFx.StatusCatchBonusPercent == 0.20f,  "Pokéball status bonus==0.20");
             var statFx = xAttack?.Effect as StatBoostConsumableEffectSO;
             Check(statFx   != null && statFx.TargetStat == Stat.Attack,     "X Attack boosts Attack");
             var apFx = ether?.Effect as APGrantConsumableEffectSO;
