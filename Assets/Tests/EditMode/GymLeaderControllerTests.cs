@@ -85,7 +85,7 @@ namespace ProjectAscendant.Tests
         }
 
         private GymLeaderSO MakeGym(PokemonSpeciesSO lead, PokemonSpeciesSO aceBase,
-            PokemonSpeciesSO aceEvo, BadgeSO badge, RelicSO rare)
+            BadgeSO badge, RelicSO rare)
         {
             GymLeaderSO g = ScriptableObject.CreateInstance<GymLeaderSO>();
             g.GymLeaderId = "rock_gym_r1"; g.DisplayName = "Rock Gym Leader";
@@ -95,7 +95,7 @@ namespace ProjectAscendant.Tests
             {
                 new GymPokemonSlot { Species = lead, Level = 14, PhaseCount = 2, IsAce = false },
                 new GymPokemonSlot { Species = aceBase, Level = 16, PhaseCount = 3,
-                    IsAce = true, HasSturdy = true, MidFightEvolution = aceEvo },
+                    IsAce = true, HasSturdy = true }, // CL-013: no mid-fight evolution
             };
             g.BadgeReward = badge; g.GuaranteedRareRelic = rare;
             g.TrainerXPReward = 50; g.PokeDollarReward = 500;
@@ -115,7 +115,7 @@ namespace ProjectAscendant.Tests
         [Test]
         public void BuildCombatSetup_SpawnsLeadAndSetsPersistentRockField()
         {
-            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), Sp("golem"), Boulder(), Rare("r"));
+            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), Boulder(), Rare("r"));
             GymLeaderController ctrl = new(gym, new PokemonInstanceFactory());
             CombatController.CombatSetup setup = ctrl.BuildCombatSetup(
                 new List<PokemonInstance>(), 0, new List<ConsumableSO>(), _config, new GameRNG(1u));
@@ -131,7 +131,7 @@ namespace ProjectAscendant.Tests
         [Test]
         public void BuildCombatSetup_PassesActiveBadgesThrough()
         {
-            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), Sp("golem"), Boulder(), Rare("r"));
+            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), Boulder(), Rare("r"));
             GymLeaderController ctrl = new(gym, new PokemonInstanceFactory());
             List<BadgeSO> badges = new() { Boulder() };
             CombatController.CombatSetup setup = ctrl.BuildCombatSetup(
@@ -142,10 +142,10 @@ namespace ProjectAscendant.Tests
         // ── Bucket 2: ace materialisation ────────────────────────────────────
 
         [Test]
-        public void Reinforcement_AceCarriesPhaseThreeSturdyAndEvolutionTarget()
+        public void Reinforcement_AceCarriesPhaseThreeSturdy_NoMidFightEvolution()
         {
-            PokemonSpeciesSO golem = Sp("golem");
-            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), golem, Boulder(), Rare("r"));
+            // Per CL-013 (§4.4.4.3) — Gym aces are 3-phase + Sturdy but do NOT evolve mid-fight.
+            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), Boulder(), Rare("r"));
             GymLeaderController ctrl = new(gym, new PokemonInstanceFactory());
             ctrl.BuildCombatSetup(new List<PokemonInstance>(), 0, new List<ConsumableSO>(), _config, new GameRNG(1u));
 
@@ -153,7 +153,7 @@ namespace ProjectAscendant.Tests
             Assert.That(ace.Count, Is.EqualTo(1));
             Assert.That(ace[0].PhaseCount, Is.EqualTo(3), "Ace is 3-phase (§4.4.3).");
             Assert.That(ace[0].HasSturdy, Is.True);
-            Assert.That(ace[0].MidFightEvolutionTarget, Is.SameAs(golem));
+            Assert.That(ace[0].MidFightEvolutionTarget, Is.Null, "CL-013: Gym aces no longer evolve.");
             Assert.That(ace[0].Level, Is.EqualTo(16));
         }
 
@@ -164,7 +164,7 @@ namespace ProjectAscendant.Tests
         {
             BadgeSO badge = Boulder();
             RelicSO rare = Rare("conquerors_stone");
-            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), Sp("golem"), badge, rare);
+            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), badge, rare);
             GymLeaderController ctrl = new(gym, new PokemonInstanceFactory());
 
             TrainerRewardBundle bundle = ctrl.ResolveReward(CombatController.CombatOutcome.Victory);
@@ -177,7 +177,7 @@ namespace ProjectAscendant.Tests
         [Test]
         public void ResolveReward_OnDefeat_ReturnsEmpty()
         {
-            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), Sp("golem"), Boulder(), Rare("r"));
+            GymLeaderSO gym = MakeGym(Sp("geodude"), Sp("graveler"), Boulder(), Rare("r"));
             GymLeaderController ctrl = new(gym, new PokemonInstanceFactory());
             TrainerRewardBundle bundle = ctrl.ResolveReward(CombatController.CombatOutcome.Defeat);
             Assert.That(bundle.BadgeAwards, Is.Empty);
@@ -193,7 +193,7 @@ namespace ProjectAscendant.Tests
             BadgeSO badge = Boulder();
             RelicSO rare = Rare("conquerors_stone");
             PokemonSpeciesSO geodude = Sp("geodude");
-            GymLeaderSO gym = MakeGym(geodude, Sp("graveler"), Sp("golem"), badge, rare);
+            GymLeaderSO gym = MakeGym(geodude, Sp("graveler"), badge, rare);
 
             PokemonInstance player = new() { Species = geodude, Level = 14, CurrentHP = 200 };
             player.CurrentMoves.Add(Mk(40));

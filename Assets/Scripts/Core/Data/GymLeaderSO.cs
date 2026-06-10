@@ -8,8 +8,9 @@ namespace ProjectAscendant.Core
     // (the Region climax). Distinct from standard trainers (§7.4) and Elites
     // (§7.5):
     //   • Composition: 2 Pokémon, sequential. The 2nd is the ACE — 3-phase
-    //     (§4.4.3), eligible for mid-fight evolution @ 50% HP (§4.4.4.3) and a
-    //     Phase-3 Sturdy last-stand.
+    //     (§4.4.3) with a Phase-3 Sturdy last-stand. Per CL-013 (§4.4.4.3) Gym
+    //     aces NO LONGER evolve mid-fight — mid-evolution is reserved for the
+    //     rival/Champion (the engine mechanic stays in CombatController for them).
     //   • Type identity (§4.4.4.2): the whole team + a persistent field effect
     //     reflect GymType (R1 default: Rock). The field is a VS placeholder
     //     (set + persists; no damage multiplier — see ⚠ OPEN gap #33).
@@ -64,8 +65,8 @@ namespace ProjectAscendant.Core
         [Tooltip("Per §4.4.3 Phase 3 — ace survives the first lethal hit at 1 HP.")]
         public bool HasSturdy;
 
-        [Tooltip("Per §4.4.4.3 — ace evolves into this species at 50% HP. " +
-                 "Null = no mid-fight evolution.")]
-        public PokemonSpeciesSO MidFightEvolution;
+        // Per CL-013 (§4.4.4.3) — Gym aces no longer evolve mid-fight; the
+        // MidFightEvolution slot field was removed. The engine mechanic
+        // (PokemonInstance.MidFightEvolutionTarget) remains for rival/Champion.
     }
 }

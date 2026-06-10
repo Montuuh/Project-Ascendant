@@ -21,24 +21,23 @@ namespace ProjectAscendant.Editor
         public static void SeedAll()
         {
             // ── Load species ────────────────────────────────────────────────────
+            // Per CL-013 — Gym aces no longer evolve mid-fight, so the evolved ace forms
+            // (Blastoise/Butterfree/Pidgeot) are no longer referenced here.
             PokemonSpeciesSO squirtle = FindByName<PokemonSpeciesSO>("Squirtle");
             PokemonSpeciesSO wartortleVanguard = FindByName<PokemonSpeciesSO>("Wartortle_Vanguard");
-            PokemonSpeciesSO blastoiseA1 = FindByName<PokemonSpeciesSO>("Blastoise_VanguardA1");
             PokemonSpeciesSO caterpie = FindByName<PokemonSpeciesSO>("Caterpie");
             PokemonSpeciesSO metapod = FindByName<PokemonSpeciesSO>("Metapod");
-            PokemonSpeciesSO butterfree = FindByName<PokemonSpeciesSO>("Butterfree");
             PokemonSpeciesSO pidgey = FindByName<PokemonSpeciesSO>("Pidgey");
             PokemonSpeciesSO pidgeotto = FindByName<PokemonSpeciesSO>("Pidgeotto");
-            PokemonSpeciesSO pidgeot = FindByName<PokemonSpeciesSO>("Pidgeot");
 
-            if (squirtle == null || wartortleVanguard == null || blastoiseA1 == null
-                || caterpie == null || metapod == null || butterfree == null
-                || pidgey == null || pidgeotto == null || pidgeot == null)
+            if (squirtle == null || wartortleVanguard == null
+                || caterpie == null || metapod == null
+                || pidgey == null || pidgeotto == null)
             {
                 Debug.LogError("[VS_R1GymPoolSeeder] Missing species — run VS_ContentSeeder first. "
                     + $"Squirtle={squirtle}, Wartortle_Vanguard={wartortleVanguard}, "
-                    + $"Blastoise_VanguardA1={blastoiseA1}, Caterpie={caterpie}, Metapod={metapod}, "
-                    + $"Butterfree={butterfree}, Pidgey={pidgey}, Pidgeotto={pidgeotto}, Pidgeot={pidgeot}");
+                    + $"Caterpie={caterpie}, Metapod={metapod}, "
+                    + $"Pidgey={pidgey}, Pidgeotto={pidgeotto}");
                 return;
             }
 
@@ -138,18 +137,18 @@ namespace ProjectAscendant.Editor
                     displayName: "Water Gym Leader",
                     gymType: PokemonType.Water,
                     tacticalIdentity: "Single-type Water identity. Squirtle opens with Aqua Jet aggression; "
-                        + "Wartortle ace evolves to Blastoise at 50% HP, gains Sturdy last-stand (≤20% HP), "
-                        + "and survives one lethal hit at 1 HP.",
+                        + "the Wartortle ace is a higher-tier threat than the route (CL-013 power premium), "
+                        + "gains a Sturdy last-stand (≤20% HP), and survives one lethal hit at 1 HP. "
+                        + "No mid-fight evolution (CL-013).",
                     slot1Species: squirtle,
                     slot1Level: 13,
                     slot1PhaseCount: 2,
                     aceSpecies: wartortleVanguard,
                     aceLevel: 15,
-                    aceMidFightEvolution: blastoiseA1,
                     badgeReward: cascade,
                     rareRelic: waterRare,
                     gddRef: "§4.4.4 / design/map-redesign-gyms.md | R1 Water Gym. Squirtle L13 + "
-                        + "Wartortle→Blastoise L15 ace. Reward: Cascade Badge + Rare relic + 50 XP + 500₽.");
+                        + "Wartortle L15 ace (no mid-evo, CL-013). Reward: Cascade Badge + Rare relic + 50 XP + 500₽.");
 
                 CreateOrUpdateGym(
                     $"{ROOT}/Gyms/bug_gym_r1.asset",
@@ -157,18 +156,18 @@ namespace ProjectAscendant.Editor
                     displayName: "Bug Gym Leader",
                     gymType: PokemonType.Bug,
                     tacticalIdentity: "Single-type Bug identity. Caterpie opens with String Shot control; "
-                        + "Metapod ace evolves to Butterfree at 50% HP, gains Sturdy last-stand, and survives "
-                        + "one lethal hit at 1 HP.",
+                        + "the Metapod ace is a higher-tier threat than the route (CL-013 power premium), "
+                        + "gains a Sturdy last-stand, and survives one lethal hit at 1 HP. "
+                        + "No mid-fight evolution (CL-013).",
                     slot1Species: caterpie,
                     slot1Level: 12,
                     slot1PhaseCount: 2,
                     aceSpecies: metapod,
                     aceLevel: 15,
-                    aceMidFightEvolution: butterfree,
                     badgeReward: hive,
                     rareRelic: bugRare,
                     gddRef: "§4.4.4 / design/map-redesign-gyms.md | R1 Bug Gym. Caterpie L12 + "
-                        + "Metapod→Butterfree L15 ace. Reward: Hive Badge + Rare relic + 50 XP + 500₽.");
+                        + "Metapod L15 ace (no mid-evo, CL-013). Reward: Hive Badge + Rare relic + 50 XP + 500₽.");
 
                 CreateOrUpdateGym(
                     $"{ROOT}/Gyms/normal_gym_r1.asset",
@@ -176,18 +175,18 @@ namespace ProjectAscendant.Editor
                     displayName: "Normal Gym Leader",
                     gymType: PokemonType.Normal,
                     tacticalIdentity: "Single-type Normal identity. Pidgey opens with Gust poke; "
-                        + "Pidgeotto ace evolves to Pidgeot at 50% HP, gains Sturdy last-stand, and survives "
-                        + "one lethal hit at 1 HP.",
+                        + "the Pidgeotto ace is a higher-tier threat than the route (CL-013 power premium), "
+                        + "gains a Sturdy last-stand, and survives one lethal hit at 1 HP. "
+                        + "No mid-fight evolution (CL-013).",
                     slot1Species: pidgey,
                     slot1Level: 13,
                     slot1PhaseCount: 2,
                     aceSpecies: pidgeotto,
                     aceLevel: 16,
-                    aceMidFightEvolution: pidgeot,
                     badgeReward: normal,
                     rareRelic: normalRare,
                     gddRef: "§4.4.4 / design/map-redesign-gyms.md | R1 Normal Gym. Pidgey L13 + "
-                        + "Pidgeotto→Pidgeot L16 ace. Reward: Normal Badge + Rare relic + 50 XP + 500₽.");
+                        + "Pidgeotto L16 ace (no mid-evo, CL-013). Reward: Normal Badge + Rare relic + 50 XP + 500₽.");
 
                 // ── 5. Wire into RunContentCatalog ─────────────────────────────
                 RunContentCatalogSO catalog = FindByName<RunContentCatalogSO>("RunContentCatalog");
@@ -318,7 +317,7 @@ namespace ProjectAscendant.Editor
         static void CreateOrUpdateGym(string path, string gymLeaderId, string displayName,
             PokemonType gymType, string tacticalIdentity, PokemonSpeciesSO slot1Species, int slot1Level,
             int slot1PhaseCount, PokemonSpeciesSO aceSpecies, int aceLevel,
-            PokemonSpeciesSO aceMidFightEvolution, BadgeSO badgeReward, RelicSO rareRelic, string gddRef)
+            BadgeSO badgeReward, RelicSO rareRelic, string gddRef)
         {
             GymLeaderSO gym = AssetDatabase.LoadAssetAtPath<GymLeaderSO>(path);
             if (gym == null)
@@ -335,12 +334,12 @@ namespace ProjectAscendant.Editor
                 new GymPokemonSlot
                 {
                     Species = slot1Species, Level = slot1Level, PhaseCount = slot1PhaseCount,
-                    IsAce = false, HasSturdy = false, MidFightEvolution = null,
+                    IsAce = false, HasSturdy = false,
                 },
                 new GymPokemonSlot
                 {
                     Species = aceSpecies, Level = aceLevel, PhaseCount = 3,
-                    IsAce = true, HasSturdy = true, MidFightEvolution = aceMidFightEvolution,
+                    IsAce = true, HasSturdy = true, // CL-013: no mid-fight evolution
                 },
             };
             gym.BadgeReward = badgeReward;

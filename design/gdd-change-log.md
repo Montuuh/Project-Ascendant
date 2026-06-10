@@ -48,7 +48,7 @@
 | CL-010 | Q12 | XP: Active 100% / Box 75% baseline | T5 §5.12.5; T8 §8.3.3 | ✅² | ✅⁷ |
 | CL-011 | Q7 | Unknown intents: Elite/Gym baseline + Dense Fog extension | T4 §4.3.5 | ✅⁶ | ✅⁶ |
 | CL-012 | Q8 | Field effects: tiered neutral Battlefield + enemy-owned Home Field | T4 §4.3.8/§4.3.8.4-6/§4.4.4.3/§4.8.2 | ✅ | ☐ |
-| CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ☐ |
+| CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ◐¹⁰ |
 | CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ✅⁹ |
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ☐ |
@@ -400,7 +400,18 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   level premium. Most archetypes compose existing systems (phase types §4.3.7, Home Field CL-012,
   status §4.2, intent-hide CL-011) — limited net-new combat tech. Content: assign one archetype +
   signature status per Gym type (12 entries).
-- Status: [✅] GDD updated (Notion §4.3.7 + §4.4.4.3 + new §4.4.4.4, re-exported 2026-06-10)   [ ] Code adapted
+- ¹⁰ **Part 1 code complete (2026-06-10, 1090/1090 green) — Gym mid-evolution removed.** The generic
+  mid-evo engine (`PokemonInstance.MidFightEvolutionTarget` + `CombatController.EvolveMidFight`) is
+  KEPT for the future rival/Champion; only the Gym path stops using it. Removed `MidFightEvolution`
+  from `GymPokemonSlot`; dropped the wiring in `GymLeaderController`; cleaned `VS_GymSeeder` +
+  `VS_R1GymPoolSeeder` (+ flavor text) + `VS_Verifier`; flipped `GymLeaderControllerTests` /
+  `GymLeaderAuditTests` to assert aces don't evolve (`GymBossPhaseTests` keeps testing the engine
+  directly — valid for rival/Champion). Power premium = Gym levels already authored above route tier
+  (lead L13–14 / ace L15–16 vs R1 wild L5–10) — authoring, no code. The 4 Gym `.assets` keep harmless
+  orphaned `MidFightEvolution:` keys (Unity ignores removed-field keys; self-clean on reserialize).
+  **Part 2 (per-type signature Phase 2 archetypes) DEFERRED** to the CL-012 Home Field pass (shared
+  boss-combat substrate; full 12-type menu is post-VS content).
+- Status: [✅] GDD updated (Notion §4.3.7 + §4.4.4.3 + new §4.4.4.4, re-exported 2026-06-10)   [◐] Code — Part 1 (mid-evo removal) done, 1090 green; Part 2 (Phase-2 archetypes) deferred to CL-012
 
 ### CL-012 — Field effects: tiered neutral Battlefield + enemy-owned Home Field   (resolves Q8)
 - Date: 2026-06-10

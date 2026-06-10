@@ -29,13 +29,12 @@ namespace ProjectAscendant.Editor
         {
             PokemonSpeciesSO geodude = FindByName<PokemonSpeciesSO>("Geodude");
             PokemonSpeciesSO graveler = FindByName<PokemonSpeciesSO>("Graveler");
-            PokemonSpeciesSO golem = FindByName<PokemonSpeciesSO>("Golem");
             BadgeSO boulder = FindByName<BadgeSO>("boulder_badge");
 
-            if (geodude == null || graveler == null || golem == null || boulder == null)
+            if (geodude == null || graveler == null || boulder == null)
             {
                 Debug.LogError("[VS_GymSeeder] Missing cross-reference — "
-                    + $"Geodude={geodude}, Graveler={graveler}, Golem={golem}, "
+                    + $"Geodude={geodude}, Graveler={graveler}, "
                     + $"boulder_badge={boulder}. Run VS_ContentSeeder + VS_ItemSeeder first.");
                 return;
             }
@@ -77,20 +76,20 @@ namespace ProjectAscendant.Editor
                 gym.GymType = PokemonType.Rock;
                 gym.TacticalIdentity =
                     "Single-type Rock identity. Geodude opens methodically; the ace "
-                    + "Graveler evolves into Golem at 50% HP (power spike), and in its "
-                    + "last stand (≤20% HP) resets cooldowns to fire its signature and "
-                    + "survives one lethal hit at 1 HP (Sturdy).";
+                    + "Graveler is a higher-tier threat than the route (CL-013 power premium), "
+                    + "and in its last stand (≤20% HP) resets cooldowns to fire its signature "
+                    + "and survives one lethal hit at 1 HP (Sturdy). No mid-fight evolution (CL-013).";
                 gym.Composition = new List<GymPokemonSlot>
                 {
                     new GymPokemonSlot
                     {
                         Species = geodude, Level = 14, PhaseCount = 2,
-                        IsAce = false, HasSturdy = false, MidFightEvolution = null,
+                        IsAce = false, HasSturdy = false,
                     },
                     new GymPokemonSlot
                     {
                         Species = graveler, Level = 16, PhaseCount = 3,
-                        IsAce = true, HasSturdy = true, MidFightEvolution = golem,
+                        IsAce = true, HasSturdy = true,
                     },
                 };
                 gym.BadgeReward = boulder;

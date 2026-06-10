@@ -7,9 +7,9 @@ namespace ProjectAscendant.Combat
     //
     // Same sequential-spawn shape as the Elite/trainer controllers (via
     // IEnemyReinforcementProvider), with the boss extras:
-    //   • Materialises each Pokémon with its authored PhaseCount, plus the
-    //     ace's HasSturdy + MidFightEvolutionTarget (consumed by
-    //     CombatController's phase-transition director, §4.4.3 / §4.4.4.3).
+    //   • Materialises each Pokémon with its authored PhaseCount + the ace's
+    //     HasSturdy (consumed by CombatController's phase-transition director,
+    //     §4.4.3). Per CL-013 Gym aces no longer evolve mid-fight (§4.4.4.3).
     //   • Sets a persistent type field at encounter start (§4.4.4.3) — a VS
     //     placeholder marker (no damage multiplier yet; ⚠ gap #33).
     //   • Reward (§7.12 / §4.4.5): Badge + guaranteed Rare relic + 50 XP +
@@ -125,10 +125,11 @@ namespace ProjectAscendant.Combat
 
             PokemonInstance inst = _pokemonFactory.Create(slot.Species, slot.Level);
 
-            // Per §4.4.3 / §4.4.4.3 — carry boss state onto the instance.
+            // Per §4.4.3 — carry boss state onto the instance. Per CL-013 (§4.4.4.3)
+            // Gym aces do NOT set MidFightEvolutionTarget — Gyms no longer evolve
+            // mid-fight (the engine mechanic stays for rival/Champion).
             inst.PhaseCount = slot.PhaseCount < 1 ? 1 : slot.PhaseCount;
             inst.HasSturdy = slot.HasSturdy;
-            inst.MidFightEvolutionTarget = slot.MidFightEvolution;
 
             // Mirror the other controllers: factory does not auto-fill moves,
             // so copy the species learnset (capped at the §3.7 active-4 count).

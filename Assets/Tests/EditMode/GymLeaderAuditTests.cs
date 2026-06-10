@@ -89,16 +89,16 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Gym_Ace_HasSturdyAndMidFightEvolution()
+        public void Gym_Ace_HasSturdy()
         {
-            // Per §4.4.3 Phase 3 + §4.4.4.3 — ace Sturdy + mid-fight evolution.
+            // Per §4.4.3 Phase 3 — ace has a Sturdy last-stand. Per CL-013 (§4.4.4.3) Gym aces no
+            // longer evolve mid-fight (the MidFightEvolution slot field was removed entirely).
             var bad = new List<string>();
             foreach (GymLeaderSO g in LoadAll())
             {
                 if (g.Composition == null || g.Composition.Count < 2) continue;
                 GymPokemonSlot ace = g.Composition[1];
                 if (!ace.HasSturdy) bad.Add($"{g.GymLeaderId} ace missing Sturdy");
-                if (ace.MidFightEvolution == null) bad.Add($"{g.GymLeaderId} ace missing MidFightEvolution");
             }
             Assert.That(bad, Is.Empty, string.Join("\n  ", bad));
         }
