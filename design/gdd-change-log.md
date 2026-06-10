@@ -52,6 +52,7 @@
 | CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ☐ |
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ☐ |
+| CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ☐ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -268,6 +269,24 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   Run layer responsible for OR-ing with `DifficultyModifiers.HidesIntents()` for Dense Fog.
   +6 new EditMode tests in `IntentHidingTests.cs`.
 - Status: [ ] GDD updated   [✅] Code adapted
+
+### CL-017 — Trauma cap → two-zone curve (soft cap −75% at 10 stacks)   (resolves Q17)
+- Date: 2026-06-10
+- Topic / §: Topic 6 §6.2.1 (Trauma formula + table + soft-cap rationale), Topic 2 §2.6 (Trauma summary anchor)
+- Change: **Option C — two-zone curve.** Stacks 1–5 = −5% each (→ −25%, unchanged); stacks 6–10 =
+  −10% each (→ −75% floor). Soft cap 5 → 10. Formula:
+  `EffectiveMaxHP = floor(BaseMaxHP × max(0.25, 1 − 0.05·min(s,5) − 0.10·max(0, min(s,10) − 5)))`.
+- Rationale: gives Trauma real teeth (deeper consequence) while keeping the gentle early game and the
+  anti-spiral protection where it matters; deep Trauma is recoverable via Box rotation (safe now that
+  CL-010 keeps benched mons leveled) + clearing sources, so it reads as "rest/retire this Pokémon," not
+  a run-loss.
+- Code impact: update the Trauma `EffectiveMaxHP` multiplier (today `1 − 0.05·min(stacks,5)`) to the
+  two-zone piecewise above; raise the soft cap constant 5 → 10. Pull both slopes + cap from a config
+  (BattleConfig/ProgressionConfig) per data-driven rule — no inline literals. Re-verify all healing
+  (§2.4.2 computes vs EffectiveMaxHP) + Trauma tests against the new ladder; the §6.2.6 edge cases
+  (Sturdy/Last-Stand prevent faint = no stack) are unchanged. Consider scaling Therapy (removes 1
+  stack/visit) vs the deeper cap (Salve/Daycare remove-all still cover it).
+- Status: [✅] GDD updated (Notion §6.2.1 formula+table+rationale, §6.8.2 Trauma Surge, §6.13 glossary, T2 §2.6, re-exported 2026-06-10)   [ ] Code adapted
 
 ### CL-016 — Region Modifiers → per-Region accent + 16-modifier pool   (resolves Q2)
 - Date: 2026-06-10

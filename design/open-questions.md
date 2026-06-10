@@ -332,12 +332,27 @@ and **maybe add one new move**.
 
 # Domain G — Cross-Run Meta-Progression
 
-## Q17 — Trauma cap increased to ~−75% 🔵
+## Q17 — Trauma cap increased to ~−75% ✅ DECIDED 2026-06-10
 **Owner:** systems-designer
 **User:** Trauma should have a higher cap — up to about **−75%**.
 **Decision needed:** new cap + per-stack value + stack count; re-check the soft-lock rationale.
 **Steward note (canon):** today −5%/stack, cap 5 = **−25%** (§6.2.1). A −75% cap is a major
 swing (e.g. 15 stacks ×5%, or steeper per-stack) — needs a spiral/soft-lock re-evaluation.
+**✅ Resolution — Option C (Two-zone curve, soft cap −75% at 10 stacks):**
+- **Zone 1 (stacks 1–5): −5% each → −25% at 5** — *unchanged from today.* Normal play feels identical;
+  the gentle early game (and its anti-spiral protection) is preserved.
+- **Zone 2 (stacks 6–10): −10% each → −75% floor at 10 stacks.** Soft cap moves 5 → 10.
+- **Formula:** `EffectiveMaxHP = floor(BaseMaxHP × max(0.25, 1 − 0.05·min(s,5) − 0.10·max(0, min(s,10) − 5)))`.
+  Multiplier ladder: 0→1.00, 1→.95, 2→.90, 3→.85, 4→.80, 5→.75, 6→.65, 7→.55, 8→.45, 9→.35, 10+→.25.
+- **Spiral safety (the §6.2.1 rationale, re-evaluated):** deep Trauma is now safe to allow because it's
+  **per-instance** and the Box (6–8 + recruitment) lets you **bench/retire** a breaking-down Pokémon;
+  **CL-010** keeps benched mons leveled so rotation is painless; clearing sources (Salve/Therapy/Daycare,
+  §6.2.4) still recover. The deep zone reframes as a deliberate *"rest or retire this Pokémon"* signal,
+  not a run-loss. Therapy (removes 1/visit) may need a tune vs the deeper cap — Salve/Daycare (remove all)
+  still cover it.
+- **Pillars:** consequence-of-faint depth (the Trauma threat now has real teeth) while Pillar-1 telegraph
+  (Map-View badge + pre-combat Effective Max HP preview) is unchanged. All numbers systems-designer-tunable.
+  → logged **CL-017**.
 
 ## Q18 — Trainer XP as a full "Battle Pass" 🔵
 **Owner:** systems-designer + producer + content-designer

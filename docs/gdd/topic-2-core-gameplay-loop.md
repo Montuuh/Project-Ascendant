@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T09:02:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T09:13:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -193,7 +193,7 @@ _Gym types per Region are seeded-randomly drawn from a tiered pool (4 types per 
 
 Topic 2 §2.4.4 hooks the Trauma System. The full mechanic specification, application rules, clearing sources, and edge cases are specified in Topic 6 §6.2. Summary anchor:
 
-- **Stack:** +1 per faint, multiplicatively reduces Effective Max HP by 5%, soft-capped at 5 stacks (-25%).
+- **Stack:** +1 per faint; reduces Effective Max HP on a two-zone curve (CL-017): −5%/stack for stacks 1–5 then −10%/stack for 6–10, soft-capped at 10 stacks (−75%).
 - **Persistence:** Across combats, nodes, Cities. Cleared at run end OR via Trauma Salve relic / Therapy service / Daycare Mystery Event.
 - **Healing:** All healing events compute against `EffectiveMaxHP`, not `BaseMaxHP`.
 

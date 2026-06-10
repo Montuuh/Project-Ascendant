@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
+<!-- Last updated from Notion: 2026-06-10T09:13:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -44,22 +44,28 @@ Each time a Pokémon's `CurrentHP` reaches 0 during combat (the fainted state, p
 
 
 ```javascript
-EffectiveMaxHP = floor( BaseMaxHP × (1 − 0.05 × min(TraumaStacks, 5)) )
+// Two-zone curve (CL-017 — Q17): stacks 1–5 = −5% each (→ −25%); 6–10 = −10% each (→ −75% floor)
+EffectiveMaxHP = floor( BaseMaxHP × max(0.25, 1 − 0.05 × min(TraumaStacks, 5) − 0.10 × max(0, min(TraumaStacks, 10) − 5)) )
 ```
 
 
-| Stacks  | Multiplier    | Effective Max HP (Base = 100) |
-| ------- | ------------- | ----------------------------- |
-| 0       | 1.00          | 100                           |
-| 1       | 0.95          | 95                            |
-| 2       | 0.90          | 90                            |
-| 3       | 0.85          | 85                            |
-| 4       | 0.80          | 80                            |
-| 5 (cap) | 0.75          | 75                            |
-| 6+      | 0.75 (capped) | 75                            |
+| Stacks   | Multiplier    | Effective Max HP (Base = 100) |
+| -------- | ------------- | ----------------------------- |
+| 0        | 1.00          | 100                           |
+| 1        | 0.95          | 95                            |
+| 2        | 0.90          | 90                            |
+| 3        | 0.85          | 85                            |
+| 4        | 0.80          | 80                            |
+| 5        | 0.75          | 75                            |
+| 6        | 0.65          | 65                            |
+| 7        | 0.55          | 55                            |
+| 8        | 0.45          | 45                            |
+| 9        | 0.35          | 35                            |
+| 10 (cap) | 0.25          | 25                            |
+| 11+      | 0.25 (capped) | 25                            |
 
 
-**Soft cap rationale:** Beyond 5 stacks, additional faints accrue no further penalty. This prevents an "unrecoverable spiral" anti-pattern — a Pokémon that has fainted six times is functionally indistinguishable from one that has fainted five.
+**Two-zone curve (CL-017 — Q17):** stacks 1–5 reduce Effective Max HP by 5% each (−25% at 5, unchanged from the original cap); stacks 6–10 reduce by 10% each, reaching a **−75% soft cap at 10 stacks**. Stacks 1–5 keep the gentle early game (normal play is unaffected); the steep 6–10 "deep Trauma" zone makes a repeatedly-fainting Pokémon visibly break down — a deliberate _rest-or-retire_ signal, not a flat punishment. **Anti-spiral protection** is preserved by the soft cap **and** by Trauma being per-instance: a deeply-traumatized Pokémon is benched or retired (the Box + recruitment), and CL-010 keeps benched Pokémon leveled so rotation is painless. Clearing sources (§6.2.4) still recover — Therapy (1 stack/visit) may be tuned against the deeper cap, while Salve/Daycare remove all.
 
 
 ## §6.2.2 Application Timing
@@ -436,18 +442,18 @@ Each modifier specifies:
 ## §6.8.2 Launch Modifier Pool (10 modifiers)
 
 
-| Modifier               | Effect                                                                                                              | XP Mult | Unlock                            |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------- | ------- | --------------------------------- |
-| **Iron Will**          | All wild encounters have +20% HP                                                                                    | ×1.15   | Trainer Level 3                   |
-| **Tight Schedule**     | League micro-rest heals 20% instead of 30%                                                                          | ×1.15   | Trainer Level 4                   |
-| **No Refunds**         | Consumables are expended after use (do NOT return at combat end)                                                    | ×1.30   | Trainer Level 6                   |
-| **Dense Fog**          | All non-boss enemies start with one Unknown intent                                                                  | ×1.15   | Trainer Level 5                   |
-| **Box Squeeze**        | Box capacity is 4 instead of 6 (cannot expand via Hub upgrade)                                                      | ×1.20   | Trainer Level 7                   |
-| **Trauma Surge**       | Trauma stacks reduce Max HP by 7% instead of 5% (cap unchanged)                                                     | ×1.20   | Trainer Level 8                   |
-| **Greater Threats**    | Region 1 enemies use Region 2 stat tier; Region 2 → Region 3 tier; Region 3 → Champion tier                         | ×1.40   | Trainer Level 10                  |
-| **Faint Echo**         | Fainted Pokémon's discarded cards are NOT removed from the discard pile until end of next turn (jamming hand draws) | ×1.20   | Trainer Level 9                   |
-| **One Path**           | Both Gym branches show the same Gym type — no informed choice                                                       | ×1.10   | Trainer Level 4                   |
-| **Master's Challenge** | All bosses gain one extra phase (Phase 3 universal, ace gets Phase 4)                                               | ×1.50   | Trainer Level 15 + Champion clear |
+| Modifier               | Effect                                                                                                                                 | XP Mult | Unlock                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------- | --------------------------------- |
+| **Iron Will**          | All wild encounters have +20% HP                                                                                                       | ×1.15   | Trainer Level 3                   |
+| **Tight Schedule**     | League micro-rest heals 20% instead of 30%                                                                                             | ×1.15   | Trainer Level 4                   |
+| **No Refunds**         | Consumables are expended after use (do NOT return at combat end)                                                                       | ×1.30   | Trainer Level 6                   |
+| **Dense Fog**          | All non-boss enemies start with one Unknown intent                                                                                     | ×1.15   | Trainer Level 5                   |
+| **Box Squeeze**        | Box capacity is 4 instead of 6 (cannot expand via Hub upgrade)                                                                         | ×1.20   | Trainer Level 7                   |
+| **Trauma Surge**       | Trauma stacks hit 2pp harder per stack on the CL-017 two-zone curve (−7%/stack in zone 1, −12%/stack in zone 2; soft cap at 10 stacks) | ×1.20   | Trainer Level 8                   |
+| **Greater Threats**    | Region 1 enemies use Region 2 stat tier; Region 2 → Region 3 tier; Region 3 → Champion tier                                            | ×1.40   | Trainer Level 10                  |
+| **Faint Echo**         | Fainted Pokémon's discarded cards are NOT removed from the discard pile until end of next turn (jamming hand draws)                    | ×1.20   | Trainer Level 9                   |
+| **One Path**           | Both Gym branches show the same Gym type — no informed choice                                                                          | ×1.10   | Trainer Level 4                   |
+| **Master's Challenge** | All bosses gain one extra phase (Phase 3 universal, ace gets Phase 4)                                                                  | ×1.50   | Trainer Level 15 + Champion clear |
 
 
 ## §6.8.3 Stacking Rules
@@ -541,8 +547,8 @@ Topic 6 systems in the Region 1 vertical slice:
 
 # §6.13 Glossary Additions for Topic 6
 
-- **Trauma stack:** Per-Pokémon-instance, per-run counter incremented on faint. Multiplicatively reduces MaxHP by 5% per stack, capped at 5 stacks (-25%).
-- **Effective Max HP:** `BaseMaxHP × (1 − 0.05 × min(TraumaStacks, 5))`. The current HP ceiling for all healing.
+- **Trauma stack:** Per-Pokémon-instance, per-run counter incremented on faint. Reduces Effective Max HP on a two-zone curve (CL-017): −5%/stack for stacks 1–5, −10%/stack for 6–10, soft-capped at 10 stacks (−75%).
+- **Effective Max HP:** `floor(BaseMaxHP × max(0.25, 1 − 0.05·min(stacks,5) − 0.10·max(0, min(stacks,10) − 5)))` (CL-017 two-zone). The current HP ceiling for all healing.
 - **Trainer XP:** Persistent meta-XP. Drives Trainer Level.
 - **Trainer Level:** Account-level metric. Gates Hub upgrades and modifier unlocks.
 - **Trainer Token:** Earned-per-run currency. Spent on chosen unlocks. 1 Token per 100 Trainer XP earned that run, capped at 50/run.
