@@ -21,6 +21,9 @@ namespace ProjectAscendant.Map
             int pokeDollars = bundle.PokeDollars;
             if (economy != null && ProjectAscendant.Combat.RelicResolver.Holds(run.HeldRelics, "coin_pouch"))
                 pokeDollars = UnityEngine.Mathf.FloorToInt(pokeDollars * economy.CoinPouchPokeDollarMultiplier);
+            // §7.8.3.1 (CL-016) Coin Purse — all ₽ drops ×(1 + Magnitude) this Region.
+            pokeDollars = UnityEngine.Mathf.FloorToInt(
+                pokeDollars * RegionModifierResolver.CoinMultiplier(run.ActiveRegionModifiers));
             run.PokeDollars += pokeDollars;
             run.TrainerXPEarnedThisRun += bundle.TrainerXP; // §6.3.2 — meta XP accrual (committed at run-end)
             run.CombatsClearedThisRun += 1;                 // §2.1.7 — run-summary tally

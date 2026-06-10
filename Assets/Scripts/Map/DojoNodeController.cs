@@ -32,10 +32,14 @@ namespace ProjectAscendant.Map
         protected override void OnEnter() { }
 
         // Per §7.14 — Poké Dollar cost to teach a move (flat per move, placeholder per §7.14 note).
-        public int MoveCost() => _economy.DojoMoveCost;
+        // §7.8.3.1 (CL-016) Bargain Hunter discounts Shop + Dojo prices this Region.
+        public int MoveCost() => Discounted(_economy.DojoMoveCost);
 
         // Per §7.14 — Poké Dollar cost to teach (or swap) an ability.
-        public int AbilityCost() => _economy.DojoAbilityCost;
+        public int AbilityCost() => Discounted(_economy.DojoAbilityCost);
+
+        private int Discounted(int baseCost) => UnityEngine.Mathf.FloorToInt(
+            baseCost * RegionModifierResolver.ShopPriceMultiplier(RunState?.ActiveRegionModifiers));
 
         // Per §7.14 / §5.4.2 — all moves in the species' TutorLearnset that the Pokémon has not yet
         // learned. Moves already in the pool are excluded (§5.10.1 dedup). No cap — the Dojo shows
