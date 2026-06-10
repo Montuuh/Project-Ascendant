@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ff0d6dfdb0c1384793311e5da4709c4, type: 3}
+  m_Name: defog
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.ConsumableSO
+  Id: defog
+  DisplayName: Defog
+  Icon: {fileID: 0}
+  EffectDescription: Clear the active field effect (weather, terrain, hazard, or
+    Home Field).
+  APCost: 1
+  Effect: {fileID: 8976406085442422051}
+  Tier: 1
+  UpgradeTo: {fileID: 0}
+  GDDReference: "\xA74.3.8.6"
+--- !u!114 &8976406085442422051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fe149e5f0a52364c87ea984989ae446, type: 3}
+  m_Name: defog_ClearField
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.ClearFieldConsumableEffectSO

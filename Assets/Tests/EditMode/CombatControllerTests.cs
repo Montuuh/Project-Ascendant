@@ -486,6 +486,34 @@ namespace ProjectAscendant.Tests
             Assert.That(player.PrimaryStatus, Is.EqualTo(StatusCondition.None));
         }
 
+        [Test]
+        public void Consumable_Defog_ClearsActiveField()
+        {
+            // §4.3.8.6 (CL-012) — Defog clears every field class (Weather, Terrain, Hazard, Home Field).
+            PokemonInstance player = MakeMon(MakeSpecies(100, 50, 50, PokemonType.Normal), MakeMove(PokemonType.Normal, 40));
+            PokemonInstance enemy = MakeMon(MakeSpecies(50, 10, 50, PokemonType.Normal), MakeMove(PokemonType.Normal, 5));
+            CombatController.CombatSetup setup = BuildSetup(player, enemy, 7u);
+            setup.InitialField = new FieldState
+            {
+                Weather = FieldEffectKind.SunnyDay,
+                Terrain = FieldEffectKind.ElectricTerrain,
+                Hazard = FieldEffectKind.Sandstorm,
+                HasGymField = true,
+                GymTypeField = PokemonType.Rock,
+            };
+            setup.ConsumableInventory = new List<ConsumableSO>
+            {
+                MakeConsumable(ScriptableObject.CreateInstance<ClearFieldConsumableEffectSO>(), apCost: 1),
+            };
+            CombatController c = new(setup, new PlayConsumableAgent());
+            c.Start(); c.DrawPhase(); c.ActionPhase();
+
+            Assert.That(c.State.Field.Weather, Is.EqualTo(FieldEffectKind.None));
+            Assert.That(c.State.Field.Terrain, Is.EqualTo(FieldEffectKind.None));
+            Assert.That(c.State.Field.Hazard, Is.EqualTo(FieldEffectKind.None));
+            Assert.That(c.State.Field.HasGymField, Is.False);
+        }
+
         // Plays SkillHand[0] once (targeting enemy 0), then ends.
         private sealed class PlayOneSkillAgent : IPlayerAgent
         {

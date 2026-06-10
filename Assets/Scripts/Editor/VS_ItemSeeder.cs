@@ -117,11 +117,16 @@ namespace ProjectAscendant.Editor
             var pokeball = Cs(p,"pokeball",      "Pokéball",       apCost:1, tier:1, "§8.2.5");
             ConsCatch(pokeball, threshold:0.30f, statusBonus:0.20f); // §7.3.4 (CL-014) basic ball
 
+            // Field clear — Per §4.3.8.6 (CL-012). Clears the active field (any class incl. Home Field).
+            var defog    = Cs(p,"defog",         "Defog",          apCost:1, tier:1, "§4.3.8.6");
+            ConsClearField(defog);
+
             d["potion"]=potion;           d["super_potion"]=superPot;
             d["antidote"]=antidote;       d["burn_heal"]=burnHeal;
             d["awakening"]=awakening;     d["paralyze_heal"]=parHeal;
             d["full_heal"]=fullHeal;      d["ether"]=ether;
             d["x_attack"]=xAttack;        d["pokeball"]=pokeball;
+            d["defog"]=defog;
 
             // Epic 13 — player-facing tooltip text (consumable §refs carry no effect prose).
             potion.EffectDescription   = "Restore HP to one Pokémon.";
@@ -133,7 +138,8 @@ namespace ProjectAscendant.Editor
             fullHeal.EffectDescription = "Cure all status conditions from one Pokémon.";
             ether.EffectDescription    = "Restore +2 AP this turn.";
             xAttack.EffectDescription  = "Raise one Pokémon's Attack by 1 stage.";
-            pokeball.EffectDescription = "Catch a wild Pokémon at under 50% HP (or any HP if it has a status).";
+            pokeball.EffectDescription = "Catch a wild Pokémon at 30% HP or below (50% if it has a status).";
+            defog.EffectDescription    = "Clear the active field effect (weather, terrain, hazard, or Home Field).";
             return d;
         }
 
@@ -774,6 +780,15 @@ namespace ProjectAscendant.Editor
             fx.CatchThresholdPercent  = threshold;
             fx.StatusCatchBonusPercent = statusBonus;
             fx.name = $"{c.Id}_Catch";
+            AssetDatabase.AddObjectToAsset(fx, c);
+            c.Effect = fx;
+            EditorUtility.SetDirty(c);
+        }
+
+        static void ConsClearField(ConsumableSO c)
+        {
+            var fx = ScriptableObject.CreateInstance<ClearFieldConsumableEffectSO>();
+            fx.name = $"{c.Id}_ClearField";
             AssetDatabase.AddObjectToAsset(fx, c);
             c.Effect = fx;
             EditorUtility.SetDirty(c);

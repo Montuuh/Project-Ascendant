@@ -823,6 +823,13 @@ namespace ProjectAscendant.Combat
                 case APGrantConsumableEffectSO ap:
                     State.CurrentAP += ap.APGranted; // §8.2.4 Ether — this turn
                     break;
+
+                case ClearFieldConsumableEffectSO:
+                    // §4.3.8.6 (CL-012) Defog — clear the active field (any class incl. Home Field).
+                    State.Field = FieldState.Empty;
+                    State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                        "Defog — the field cleared"));
+                    break;
             }
         }
 
