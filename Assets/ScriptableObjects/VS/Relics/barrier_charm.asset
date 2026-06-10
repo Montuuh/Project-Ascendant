@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7132e25ae0fcb646932ad7d65392f61, type: 3}
-  m_Name: smoke_ball
+  m_Name: barrier_charm
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.RelicSO
-  Id: smoke_ball
-  DisplayName: Smoke Ball
+  Id: barrier_charm
+  DisplayName: Barrier Charm
   Icon: {fileID: 0}
-  EffectDescription: Once per combat, 30% chance to survive a lethal hit at 1 HP.
+  EffectDescription: Once per combat, the first enemy attack deals 20% less damage.
   Rarity: 0
   MetaTier: 1
   Categories: 02000000
   OnAcquireHook: {fileID: 0}
   EventHooks: []
-  GDDReference: "\xA78.3 | Effect: Once per combat, 30% chance to survive a lethal
-    hit at 1 HP."
+  GDDReference: "\xA78.3.3 | Effect: First combat per Region (VS: per combat): take
+    -20% damage from the first enemy attack."

@@ -63,8 +63,13 @@ namespace ProjectAscendant.Core
 
         // Per §4.4.4.3 — mid-fight evolution: the ace evolves into this species
         // on entering Phase 2 (HP <= 50%). Null = no mid-fight evolution.
+        // Per CL-013, Gym aces never set this (rival/Champion only).
         public PokemonSpeciesSO MidFightEvolutionTarget;
         public bool HasEvolvedMidFight;
+
+        // Per §4.4.4.4 (CL-013) — the Gym ace's Phase-2 signature archetype. None for
+        // non-ace / non-Gym Pokémon. Drives CombatController's Phase-2 behaviour.
+        public Phase2Archetype Phase2Archetype;
 
         // Called by PokemonInstanceFactory.Release() before returning to pool.
         // Clears collections in-place to avoid re-allocating them on reuse.
@@ -94,6 +99,7 @@ namespace ProjectAscendant.Core
             SturdyConsumed = false;
             MidFightEvolutionTarget = null;
             HasEvolvedMidFight = false;
+            Phase2Archetype = Phase2Archetype.None;
         }
 
         // Per §4.3.3 — set/check/tick helpers for AI cooldown gate.

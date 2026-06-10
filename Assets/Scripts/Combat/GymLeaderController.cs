@@ -131,6 +131,12 @@ namespace ProjectAscendant.Combat
             inst.PhaseCount = slot.PhaseCount < 1 ? 1 : slot.PhaseCount;
             inst.HasSturdy = slot.HasSturdy;
 
+            // Per §4.4.4.4 (CL-013) — the ace carries the Gym's Phase-2 signature archetype
+            // (derived from GymType when not set explicitly). Non-ace slots stay None.
+            inst.Phase2Archetype = slot.IsAce && _gym != null
+                ? _gym.ResolvedAcePhase2Archetype
+                : Phase2Archetype.None;
+
             // Mirror the other controllers: factory does not auto-fill moves,
             // so copy the species learnset (capped at the §3.7 active-4 count).
             if (slot.Species.BaseLearnset != null)

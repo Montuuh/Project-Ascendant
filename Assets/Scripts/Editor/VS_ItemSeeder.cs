@@ -158,11 +158,11 @@ namespace ProjectAscendant.Editor
 
             // ── Common Relics (x10) ──────────────────────────────────────────
 
-            // Smoke Ball: once per combat, if Lead would faint, survive at 1 HP (30% proc).
-            d["smoke_ball"]      = Rl(p,"smoke_ball",     "Smoke Ball",
+            // Barrier Charm: once per combat, the first enemy attack deals −20% damage.
+            d["barrier_charm"]   = Rl(p,"barrier_charm",  "Barrier Charm",
                 RarityTier.Common, metaTier:1,
                 new[]{SynergyCategory.Combat},
-                "§8.3 | Effect: Once per combat, 30% chance to survive a lethal hit at 1 HP.");
+                "§8.3.3 | Effect: First combat per Region (VS: per combat): take −20% damage from the first enemy attack.");
 
             // Quick Claw Charm: draw +1 skill card on turn 1 of each combat.
             d["quick_claw_charm"]= Rl(p,"quick_claw_charm","Quick Claw Charm",

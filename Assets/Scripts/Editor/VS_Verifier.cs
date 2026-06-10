@@ -101,12 +101,12 @@ namespace ProjectAscendant.Editor
             Check(apFx     != null && apFx.APGranted == 2,                  "Ether grants 2 AP");
 
             // ── 3.3.D — Relics ───────────────────────────────────────────────
-            var smokeBall  = AssetDatabase.LoadAssetAtPath<RelicSO>($"{root}/Relics/smoke_ball.asset");
+            var barrierCharm= AssetDatabase.LoadAssetAtPath<RelicSO>($"{root}/Relics/barrier_charm.asset");
             var traumaSalve= AssetDatabase.LoadAssetAtPath<RelicSO>($"{root}/Relics/trauma_salve.asset");
             var choiceBand = AssetDatabase.LoadAssetAtPath<RelicSO>($"{root}/Relics/choice_band.asset");
 
-            Check(smokeBall   != null && smokeBall.Rarity == RarityTier.Common,     "Smoke Ball is Common");
-            Check(smokeBall   != null && smokeBall.Categories.Count > 0,            "Smoke Ball has SynergyCategories");
+            Check(barrierCharm != null && barrierCharm.Rarity == RarityTier.Common,  "Barrier Charm is Common");
+            Check(barrierCharm != null && barrierCharm.Categories.Count > 0,         "Barrier Charm has SynergyCategories");
             Check(traumaSalve != null && traumaSalve.Rarity == RarityTier.Uncommon, "Trauma Salve is Uncommon");
             Check(choiceBand  != null && choiceBand.Rarity  == RarityTier.Uncommon, "Choice Band is Uncommon");
 

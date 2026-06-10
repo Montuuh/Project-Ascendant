@@ -150,7 +150,7 @@ namespace ProjectAscendant.Combat
             public int ManualSwapsThisCombat;             // §8.3.4 — for Tactician's Coin / Defense Curl Charm
             public int RangedMovesPlayedThisTurn;         // §8.3.4 — Choice Specs
             public int MeleeMovesPlayedThisTurn;          // §8.3.4 — Choice Band
-            public bool SmokeBallTriggeredThisCombat;     // §8.3.3 — Smoke Ball (first enemy attack)
+            public bool BarrierCharmTriggeredThisCombat;  // §8.3.3 — Barrier Charm (first enemy attack −20%)
             // §8.3.4 Move Echo — distinct moves played per attacker this turn → +2 AP next turn.
             public Dictionary<PokemonInstance, HashSet<MoveSO>> MovesPlayedThisTurn = new();
             public bool MoveEchoGrantedThisTurn;
@@ -355,6 +355,15 @@ namespace ProjectAscendant.Combat
                 State.CombatLog.Add(new CombatLogEntry(
                     CombatLogCategory.TurnEvent, $"Move Echo: +{State.PendingBonusAPNextTurn} AP"));
             State.PendingBonusAPNextTurn = 0;
+            // Per §4.4.4.4 (CL-013) — Tempo Control: while a Tempo Control ace is in an aggressive
+            // phase it taxes the player's AP each turn (clamped ≥ 1 so the player can always act).
+            if (AnyAggressiveTempoControlEnemy())
+            {
+                int taxed = State.CurrentAP - State.Config.Phase2TempoApTax;
+                State.CurrentAP = taxed < 1 ? 1 : taxed;
+                State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                    $"Tempo Control — −{State.Config.Phase2TempoApTax} AP this turn"));
+            }
             State.SwapCounter = 0;
             State.RangedMovesPlayedThisTurn = 0;          // §8.3.4 — Choice Specs/Band reset per turn
             State.MeleeMovesPlayedThisTurn = 0;
@@ -622,6 +631,11 @@ namespace ProjectAscendant.Combat
             // a no-op for wild/standard-trainer encounters.
             bool phaseAggressive = BossPhaseTracker.IsAggressivePhase(enemy, State.Config);
 
+            // Per §4.4.4.4 (CL-013) — Phase-2 signature forcing. In an aggressive phase an Onslaught
+            // ace declares only offensive intents, a Status Siege ace only Status/Debuff intents.
+            if (phaseAggressive)
+                candidates = FilterByPhase2Archetype(candidates, enemy.Phase2Archetype);
+
             IntentScorer.Context ctx = new()
             {
                 Attacker = enemy,
@@ -631,6 +645,41 @@ namespace ProjectAscendant.Combat
                 PhaseAggressive = phaseAggressive,
             };
             return IntentScorer.PickIntent(candidates, ctx, State.Rng);
+        }
+
+        // Per §4.4.4.4 (CL-013) — restrict a Phase-2 ace's candidate intents to its signature kind.
+        // Onslaught → offensive only; Status Siege → Status/Debuff only. Falls back to the full list
+        // if the archetype has no matching move, so the ace is never left without an action.
+        private static List<Intent> FilterByPhase2Archetype(List<Intent> candidates, Phase2Archetype archetype)
+        {
+            if (archetype != Phase2Archetype.Onslaught && archetype != Phase2Archetype.StatusSiege)
+                return candidates;
+            List<Intent> filtered = new();
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                IntentKind k = candidates[i].Kind;
+                bool keep = archetype == Phase2Archetype.Onslaught
+                    ? (k == IntentKind.Attack || k == IntentKind.Cleave || k == IntentKind.Backstrike)
+                    : (k == IntentKind.Status || k == IntentKind.Debuff);
+                if (keep) filtered.Add(candidates[i]);
+            }
+            return filtered.Count > 0 ? filtered : candidates;
+        }
+
+        // Per §4.4.4.4 (CL-013) — true if any living enemy is a Tempo Control ace in an aggressive
+        // phase (Phase 2+). Drives the per-turn AP tax in DrawPhase.
+        private bool AnyAggressiveTempoControlEnemy()
+        {
+            if (State.EnemyTeam == null) return false;
+            for (int i = 0; i < State.EnemyTeam.Count; i++)
+            {
+                PokemonInstance e = State.EnemyTeam[i];
+                if (e != null && e.CurrentHP > 0
+                    && e.Phase2Archetype == Phase2Archetype.TempoControl
+                    && BossPhaseTracker.IsAggressivePhase(e, State.Config))
+                    return true;
+            }
+            return false;
         }
 
         // Per Bug #1 — rebuild intents for the current EnemyTeam. Factored out
@@ -1132,14 +1181,14 @@ namespace ProjectAscendant.Combat
             // Per §5.5.3.3 — Levitate: Ground-type moves do nothing to a Levitate target.
             if (AbilityResolver.IsImmuneTo(target, move)) final = 0;
 
-            // §8.3.3 Smoke Ball — the FIRST enemy attack each combat deals −20% (player run-state relic).
+            // §8.3.3 Barrier Charm — the FIRST enemy attack each combat deals −20% (player run-state relic).
             // VS simplification: per-combat (GDD §8.3.3 says first combat per Region) — flagged.
-            if (final > 0 && !State.SmokeBallTriggeredThisCombat
+            if (final > 0 && !State.BarrierCharmTriggeredThisCombat
                 && State.PlayerTeam.Contains(target) && !State.PlayerTeam.Contains(attacker)
-                && RelicResolver.Holds(State.ActiveRelics, "smoke_ball"))
+                && RelicResolver.Holds(State.ActiveRelics, "barrier_charm"))
             {
-                final = Mathf.FloorToInt(final * State.Config.SmokeBallDamageMultiplier);
-                State.SmokeBallTriggeredThisCombat = true;
+                final = Mathf.FloorToInt(final * State.Config.BarrierCharmDamageMultiplier);
+                State.BarrierCharmTriggeredThisCombat = true;
             }
 
             // Per §4.4.5.1 — Boulder Badge: flat reduction on damage INCOMING
@@ -1232,8 +1281,20 @@ namespace ProjectAscendant.Combat
                 if (phase <= e.LastObservedPhase) continue; // escalate forward only
 
                 // Entering Phase 2 (HP ≤ 50%) → mid-fight evolution (ace, once).
+                // Per CL-013 this never fires for Gym aces (MidFightEvolutionTarget null);
+                // retained for rival/Champion.
                 if (phase >= 2 && e.MidFightEvolutionTarget != null && !e.HasEvolvedMidFight)
                     EvolveMidFight(e);
+
+                // Per §4.4.4.4 (CL-013) — Entrenchment: on first reaching Phase 2 the ace hardens
+                // (+Def stages). The raised Defense IS the archetype's damage-reduction clause.
+                if (phase >= 2 && e.LastObservedPhase < 2
+                    && e.Phase2Archetype == Phase2Archetype.Entrenchment)
+                {
+                    StatStageManager.Modify(e, Stat.Defense, State.Config.Phase2EntrenchmentDefStages);
+                    State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                        $"{e.Species?.DisplayName} entrenches (+{State.Config.Phase2EntrenchmentDefStages} Def)"));
+                }
 
                 // Entering Phase 3 (HP ≤ 20%) → last-stand: reset cooldowns so
                 // the signature move fires without cooldown (§4.4.3).

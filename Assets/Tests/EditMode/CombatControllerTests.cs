@@ -548,6 +548,38 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
+        public void Relic_BarrierCharm_FirstEnemyAttack_TakesReducedDamage()
+        {
+            // §8.3.3 — Barrier Charm: once per combat, the first enemy attack deals
+            // −20% (BattleConfig.BarrierCharmDamageMultiplier = 0.80; VS: per-combat).
+            // Run two identical seeded combats — with and without the relic — over one
+            // enemy attack; same seed → same base roll, so the only delta is the ×0.80.
+            PokemonSpeciesSO playerSp = MakeSpecies(300, 80, 50, PokemonType.Normal);
+            PokemonSpeciesSO enemySp  = MakeSpecies(100, 80, 50, PokemonType.Normal);
+
+            int FirstHitDamage(bool withRelic, out bool triggered)
+            {
+                PokemonInstance player = MakeMon(playerSp, MakeMove(PokemonType.Normal, 40));
+                PokemonInstance enemy  = MakeMon(enemySp, MakeMove(PokemonType.Normal, 60));
+                CombatController.CombatSetup setup = BuildSetup(player, enemy, 0xBA111Eu);
+                if (withRelic) setup.ActiveRelics = new List<RelicSO> { Relic("barrier_charm") };
+                CombatController c = new(setup, new PassiveAgent());
+                c.Start(); c.DrawPhase(); c.IntentPhase(); c.ActionPhase(); c.ResolutionPhase();
+                triggered = c.State.BarrierCharmTriggeredThisCombat;
+                return playerSp.BaseStats.BaseHP - player.CurrentHP;
+            }
+
+            int baseDmg  = FirstHitDamage(false, out bool flagOff);
+            int relicDmg = FirstHitDamage(true,  out bool flagOn);
+
+            Assert.That(baseDmg, Is.GreaterThan(0), "the enemy's first attack hit the Lead.");
+            Assert.That(relicDmg, Is.EqualTo(Mathf.FloorToInt(baseDmg * 0.80f)),
+                "Barrier Charm cut the first enemy attack by 20%.");
+            Assert.That(flagOff, Is.False, "no relic → never triggers.");
+            Assert.That(flagOn,  Is.True,  "relic → trigger flag flips so it fires only once per combat.");
+        }
+
+        [Test]
         public void Consumable_Ether_GrantsAP_NetOfCost()
         {
             // §8.2.4 — Ether grants +2 AP this turn (net of its own 1 AP cost): 3 − 1 + 2 = 4.

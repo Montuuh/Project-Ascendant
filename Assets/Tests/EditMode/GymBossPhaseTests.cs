@@ -266,5 +266,142 @@ namespace ProjectAscendant.Tests
             c.ExecuteAction(PlayerAction.PlaySkill(FindHandIndex(c, strong), enemySlot: 0));
             Assert.That(ace.CurrentHP, Is.EqualTo(0));
         }
+
+        // ── Bucket 4: Per-type Phase-2 archetypes (§4.4.4.4 / CL-013) ─────────
+
+        // A BasePower-0 self-buff move → classified Buff (non-offensive).
+        private MoveSO MkBuff()
+        {
+            MoveSO m = ScriptableObject.CreateInstance<MoveSO>();
+            m.name = "buffmv"; m.Type = PokemonType.Normal; m.BasePower = 0; m.APCost = 1;
+            m.Role = MoveRole.Defensive; m.Range = MoveRange.Melee; m.RangeModifierMultiplier = 1f;
+            BuffSelfEffectSO fx = ScriptableObject.CreateInstance<BuffSelfEffectSO>();
+            fx.TargetStat = Stat.Defense; fx.StageChange = 1;
+            m.Effects = new List<MoveEffectSO> { fx };
+            _disposables.Add(fx); _disposables.Add(m);
+            return m;
+        }
+
+        // A BasePower-0 status-rider move → classified Status (Lead-targeted).
+        private MoveSO MkStatusMove()
+        {
+            MoveSO m = ScriptableObject.CreateInstance<MoveSO>();
+            m.name = "statusmv"; m.Type = PokemonType.Normal; m.BasePower = 0; m.APCost = 1;
+            m.Role = MoveRole.Utility; m.Range = MoveRange.Ranged; m.RangeModifierMultiplier = 0.75f;
+            StatusRiderEffectSO fx = ScriptableObject.CreateInstance<StatusRiderEffectSO>();
+            fx.StatusToApply = StatusCondition.Poison; fx.ApplyToSelf = false; fx.ApplicationChance = 1f;
+            m.Effects = new List<MoveEffectSO> { fx };
+            _disposables.Add(fx); _disposables.Add(m);
+            return m;
+        }
+
+        [TestCase(PokemonType.Rock, Phase2Archetype.Entrenchment)]
+        [TestCase(PokemonType.Ground, Phase2Archetype.Entrenchment)]
+        [TestCase(PokemonType.Poison, Phase2Archetype.StatusSiege)]
+        [TestCase(PokemonType.Grass, Phase2Archetype.StatusSiege)]
+        [TestCase(PokemonType.Bug, Phase2Archetype.StatusSiege)]
+        [TestCase(PokemonType.Fire, Phase2Archetype.Onslaught)]
+        [TestCase(PokemonType.Fighting, Phase2Archetype.Onslaught)]
+        [TestCase(PokemonType.Normal, Phase2Archetype.Onslaught)]
+        [TestCase(PokemonType.Electric, Phase2Archetype.TempoControl)]
+        [TestCase(PokemonType.Water, Phase2Archetype.TempoControl)]
+        [TestCase(PokemonType.Ice, Phase2Archetype.TempoControl)]
+        [TestCase(PokemonType.Psychic, Phase2Archetype.TempoControl)]
+        public void Phase2ArchetypeForType_MapsCanonically(PokemonType t, Phase2Archetype expected)
+            => Assert.That(GymLeaderSO.Phase2ArchetypeForType(t), Is.EqualTo(expected));
+
+        [Test]
+        public void Entrenchment_AceGainsDefenseStagesOnPhase2Entry()
+        {
+            PokemonInstance ace = new()
+            {
+                Species = Species(100), Level = 1, CurrentHP = 50, // 50% → Phase 2
+                PhaseCount = 3, Phase2Archetype = Phase2Archetype.Entrenchment,
+            };
+            ace.CurrentMoves.Add(Mk(40));
+            PokemonInstance lead = new() { Species = Species(100), Level = 1, CurrentHP = 100 };
+
+            CombatController c = BuildWithEnemy(ace, lead);
+            c.IntentPhase();
+
+            Assert.That(StatStageManager.GetStage(ace, Stat.Defense),
+                Is.EqualTo(_config.Phase2EntrenchmentDefStages));
+        }
+
+        [Test]
+        public void Onslaught_AggressiveAce_DeclaresOffensiveIntentOnly()
+        {
+            // Ace has an Attack + a Buff move; in Phase 2 Onslaught must declare the offensive one.
+            PokemonInstance ace = new()
+            {
+                Species = Species(100), Level = 1, CurrentHP = 50,
+                PhaseCount = 3, Phase2Archetype = Phase2Archetype.Onslaught,
+            };
+            ace.CurrentMoves.Add(MkBuff());
+            ace.CurrentMoves.Add(Mk(40));
+            PokemonInstance lead = new() { Species = Species(100), Level = 1, CurrentHP = 100 };
+
+            CombatController c = BuildWithEnemy(ace, lead);
+            c.IntentPhase();
+
+            Assert.That(c.State.EnemyIntents[0].Kind, Is.EqualTo(IntentKind.Attack),
+                "Onslaught forces an offensive intent in Phase 2.");
+        }
+
+        [Test]
+        public void StatusSiege_AggressiveAce_DeclaresStatusIntentOnly()
+        {
+            // Ace has an Attack + a Status move; in Phase 2 Status Siege must declare the Status one.
+            PokemonInstance ace = new()
+            {
+                Species = Species(100), Level = 1, CurrentHP = 50,
+                PhaseCount = 3, Phase2Archetype = Phase2Archetype.StatusSiege,
+            };
+            ace.CurrentMoves.Add(Mk(40));
+            ace.CurrentMoves.Add(MkStatusMove());
+            PokemonInstance lead = new() { Species = Species(100), Level = 1, CurrentHP = 100 };
+
+            CombatController c = BuildWithEnemy(ace, lead);
+            c.IntentPhase();
+
+            Assert.That(c.State.EnemyIntents[0].Kind, Is.EqualTo(IntentKind.Status),
+                "Status Siege forces a Status intent in Phase 2.");
+        }
+
+        [Test]
+        public void TempoControl_AggressiveAce_TaxesPlayerAP()
+        {
+            PokemonInstance ace = new()
+            {
+                Species = Species(100), Level = 1, CurrentHP = 50, // aggressive Phase 2
+                PhaseCount = 3, Phase2Archetype = Phase2Archetype.TempoControl,
+            };
+            ace.CurrentMoves.Add(Mk(40));
+            PokemonInstance lead = new() { Species = Species(100), Level = 1, CurrentHP = 100 };
+
+            CombatController c = BuildWithEnemy(ace, lead);
+            c.DrawPhase();
+
+            Assert.That(c.State.CurrentAP,
+                Is.EqualTo(_config.BaseAPPerTurn - _config.Phase2TempoApTax),
+                "Tempo Control taxes 1 AP while the ace is aggressive.");
+        }
+
+        [Test]
+        public void TempoControl_AceNotYetAggressive_NoAPTax()
+        {
+            PokemonInstance ace = new()
+            {
+                Species = Species(100), Level = 1, CurrentHP = 100, // full HP → Phase 1, not aggressive
+                PhaseCount = 3, Phase2Archetype = Phase2Archetype.TempoControl,
+            };
+            ace.CurrentMoves.Add(Mk(40));
+            PokemonInstance lead = new() { Species = Species(100), Level = 1, CurrentHP = 100 };
+
+            CombatController c = BuildWithEnemy(ace, lead);
+            c.DrawPhase();
+
+            Assert.That(c.State.CurrentAP, Is.EqualTo(_config.BaseAPPerTurn), "No tax in Phase 1.");
+        }
     }
 }

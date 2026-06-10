@@ -4,6 +4,17 @@ using UnityEngine;
 
 namespace ProjectAscendant.Core
 {
+    // Per §4.4.4.4 (CL-013) — the ace's Phase-2 signature. Each Gym TYPE maps to exactly one
+    // archetype (telegraphed, learnable). Drives the Phase-2 behaviour in CombatController.
+    public enum Phase2Archetype
+    {
+        None,           // not a per-type Gym ace (default)
+        Entrenchment,   // Rock, Ground — +Def stages on Phase-2 entry (race the wall)
+        StatusSiege,    // Poison, Grass, Bug — Phase 2 forces Status/Debuff intents
+        Onslaught,      // Fire, Fighting, Normal — Phase 2 forces offensive intents (+ Home Field ×1.5)
+        TempoControl,   // Electric, Psychic, Ice, Water — Phase 2 taxes player AP each turn
+    }
+
     // Per §4.4.4 + Epic 8 Task 8.5 — definition SO for a Gym Leader boss
     // (the Region climax). Distinct from standard trainers (§7.4) and Elites
     // (§7.5):
@@ -47,7 +58,27 @@ namespace ProjectAscendant.Core
         [Tooltip("PokéDollar windfall on victory. §7.12 — Gym = 500.")]
         public int PokeDollarReward;
 
+        [Header("Phase-2 signature — §4.4.4.4 (CL-013)")]
+        [Tooltip("The ace's Phase-2 archetype. Leave None to derive it from GymType " +
+                 "(Phase2ArchetypeForType). Set explicitly to override.")]
+        public Phase2Archetype AcePhase2Archetype;
+
         public string GDDReference;
+
+        // Per §4.4.4.4 (CL-013) — the canonical Gym-type → Phase-2 archetype mapping. Used when a
+        // Gym's AcePhase2Archetype is left None, so existing/auto-authored Gyms get the right signature.
+        public static Phase2Archetype Phase2ArchetypeForType(PokemonType type) => type switch
+        {
+            PokemonType.Rock or PokemonType.Ground => Phase2Archetype.Entrenchment,
+            PokemonType.Poison or PokemonType.Grass or PokemonType.Bug => Phase2Archetype.StatusSiege,
+            PokemonType.Fire or PokemonType.Fighting or PokemonType.Normal => Phase2Archetype.Onslaught,
+            PokemonType.Electric or PokemonType.Psychic or PokemonType.Ice or PokemonType.Water => Phase2Archetype.TempoControl,
+            _ => Phase2Archetype.None,
+        };
+
+        // The ace's effective Phase-2 archetype: the explicit field if set, else derived from GymType.
+        public Phase2Archetype ResolvedAcePhase2Archetype =>
+            AcePhase2Archetype != Phase2Archetype.None ? AcePhase2Archetype : Phase2ArchetypeForType(GymType);
     }
 
     [Serializable]

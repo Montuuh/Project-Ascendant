@@ -156,6 +156,14 @@ namespace ProjectAscendant.Core
                  "urgently and aggressively.' Mirrors AggressiveSelfMultiplier.")]
         public float BossPhaseAggressionMultiplier = 1.5f;
 
+        // ── Per-type Phase-2 archetypes — §4.4.4.4 (CL-013) ───────────────────
+        [Tooltip("Entrenchment ace: Defense stages gained on entering Phase 2. §4.4.4.4 (CL-013).")]
+        public int Phase2EntrenchmentDefStages = 2;
+
+        [Tooltip("Tempo Control ace: player AP taxed per turn while it is in an aggressive phase " +
+                 "(clamped so the player keeps ≥1 AP). §4.4.4.4 (CL-013).")]
+        public int Phase2TempoApTax = 1;
+
         // ── Field Effects — §4.3.8 + Epic 4 Task 4.9 ──────────────────────────
         // Weather and Terrain are independent (§4.8.2). Multipliers stack
         // multiplicatively across categories.
@@ -203,7 +211,7 @@ namespace ProjectAscendant.Core
         public float BraveCharmDamageMultiplier = 1.10f;   // Brave Charm — HP < 50% → +10% damage
         public float SootheBellDamageMultiplier = 1.05f;   // Soothe Bell — at full HP → +5% damage
         public float BerryPouchHealMultiplier = 1.20f;     // Berry Pouch — healing consumables +20%
-        public float SmokeBallDamageMultiplier = 0.80f;    // Smoke Ball — first enemy attack −20% (VS: per-combat)
+        public float BarrierCharmDamageMultiplier = 0.80f; // Barrier Charm — first enemy attack −20% (VS: per-combat)
         public int MoveEchoMoveThreshold = 3;              // Move Echo — distinct moves from one mon in a turn
         // Playtest 2026-06-04: was +2 (GDD §8.3) but a recurring +2 AP doubled the card-economy relic
         // family norm (~+1 AP/turn) and snowballed; tuned to +1. GDD §8.3 to be updated to match.
