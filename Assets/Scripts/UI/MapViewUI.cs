@@ -570,6 +570,20 @@ namespace ProjectAscendant.UI
             }
         }
 
+        // §7.8.3.1 (CL-016) Field Surveyor — a favourable neutral Battlefield for the team's type.
+        // Only Fire/Water/Electric teams have a synergistic Battlefield; others get none (Empty).
+        private FieldState SurveyorFieldFor(PokemonType type)
+        {
+            FieldState f = FieldState.Empty;
+            switch (type)
+            {
+                case PokemonType.Fire: f.Weather = FieldEffectKind.SunnyDay; break;
+                case PokemonType.Water: f.Weather = FieldEffectKind.RainDance; break;
+                case PokemonType.Electric: f.Terrain = FieldEffectKind.ElectricTerrain; break;
+            }
+            return f;
+        }
+
         // §7.8.3.1 (CL-016) Type Affinity — the team's most-common move type (GDD: "surfaces the
         // player's most-common move type"). Ties break toward the first seen; defaults to Normal.
         private PokemonType MostCommonMoveType(List<PokemonInstance> team)
@@ -819,6 +833,15 @@ namespace ProjectAscendant.UI
             // §7.8.3.1 (CL-016) Type Affinity — surface the team's most-common move type for the bonus.
             if (RegionModifierResolver.Has(_state?.ActiveRegionModifiers, RegionModifierKind.TypeAffinity))
                 setup.TypeAffinityType = MostCommonMoveType(BuildPlayerTeam(out _));
+            // §7.8.3.1 (CL-016) Field Surveyor — for wild/Region combats the player surfaces a favourable
+            // neutral Battlefield (auto-picked from the team's most-common type; no per-combat picker in VS).
+            if ((active is WildAreaNodeController || active is TrainerBattleNodeController)
+                && RegionModifierResolver.GrantsFieldChoice(_state?.ActiveRegionModifiers))
+            {
+                FieldState surveyed = SurveyorFieldFor(MostCommonMoveType(BuildPlayerTeam(out _)));
+                if (surveyed.Weather != FieldEffectKind.None || surveyed.Terrain != FieldEffectKind.None)
+                    setup.InitialField = surveyed;
+            }
             setup.UnlockedMasteryIds = _ctx.Meta?.UnlockedMasteryMoveIds; // §4.3.9.2 — gate Mastery cards
             return new CombatController(setup, new UIPlayerAgent());
         }
