@@ -40,6 +40,11 @@ namespace ProjectAscendant.Core
         // grants its reward exactly once across all runs.
         public List<int> ClaimedPokedexMilestones;
 
+        // Per §6.3.4/§6.3.5 (CL-019 — Q18) — Battle Pass Token milestones already claimed (by Trainer
+        // Level), so each level's Tokens are granted exactly once. Tokens now come from the track's
+        // milestone levels (§6.3.5), superseding the old per-run floor(runXP/100) earn.
+        public List<int> ClaimedLevelMilestones;
+
         [Header("Run History")]
         public int TotalRunsCompleted;
         public int TotalRunsAttempted;

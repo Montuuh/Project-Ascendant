@@ -4,8 +4,9 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Tests
 {
-    // Per §6.3 + Epic 11 Task 11.3 — Trainer Level curve (floor(500×(L-1)^1.6)), Token conversion
-    // (floor(runXP/100) cap 50), and the run-end CommitRun (bank XP → recompute Level → award Tokens).
+    // Per §6.3 + Epic 11 Task 11.3 — Trainer Level curve (floor(500×(L-1)^1.6)) and CommitRun (bank XP →
+    // recompute Level). Per CL-019 (Q18): Tokens are granted at the Battle Pass track's milestone levels
+    // (TrainerLevelMilestone.TrainerTokens), NOT per-run — CommitRun no longer grants Tokens.
     public class TrainerProgressionTests
     {
         private MetaProgressionConfigSO _cfg;
@@ -53,9 +54,9 @@ namespace ProjectAscendant.Tests
 
         // ── §6.3 / §6.5.2 / §6.6.1 — Trainer-Level milestone unlocks (#9) ────
 
-        private void AddMilestone(int level, string starterId = null, string relicId = null)
+        private void AddMilestone(int level, string starterId = null, string relicId = null, int tokens = 0)
         {
-            TrainerLevelMilestone m = new() { Level = level };
+            TrainerLevelMilestone m = new() { Level = level, TrainerTokens = tokens };
             if (starterId != null) m.StarterIds.Add(starterId);
             if (relicId != null) m.RelicIds.Add(relicId);
             _cfg.LevelMilestones.Add(m);
@@ -129,14 +130,15 @@ namespace ProjectAscendant.Tests
             Assert.That(_cfg.TokensForRun(runXp), Is.EqualTo(expected));
         }
 
+        // CL-019 (Q18): CommitRun banks XP + recomputes Level but no longer grants Tokens.
         [Test]
-        public void CommitRun_BanksXp_RecomputesLevel_AwardsTokens()
+        public void CommitRun_BanksXp_RecomputesLevel_NoLongerAwardsTokens()
         {
             TrainerProgression.CommitResult r = TrainerProgression.CommitRun(_meta, 550, _cfg);
 
             Assert.That(_meta.TrainerXP, Is.EqualTo(550));
             Assert.That(_meta.TrainerLevel, Is.EqualTo(2), "550 ≥ 500 → Level 2.");
-            Assert.That(_meta.TrainerTokens, Is.EqualTo(5), "floor(550/100).");
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(0), "CL-019: CommitRun grants no per-run Tokens.");
             Assert.That(r.LeveledUp, Is.True);
             Assert.That(r.OldLevel, Is.EqualTo(1));
             Assert.That(r.NewLevel, Is.EqualTo(2));
@@ -145,15 +147,14 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void CommitRun_Accumulates_AcrossRuns_AndTokenCapIsPerRun()
+        public void CommitRun_Accumulates_XpAcrossRuns_GrantsNoTokens()
         {
-            TrainerProgression.CommitRun(_meta, 9999, _cfg); // tokens capped at 50 this run
-            Assert.That(_meta.TrainerTokens, Is.EqualTo(50));
+            TrainerProgression.CommitRun(_meta, 9999, _cfg);
             int xpAfterFirst = _meta.TrainerXP;
 
-            TrainerProgression.CommitRun(_meta, 9999, _cfg); // another capped run → +50 more
-            Assert.That(_meta.TrainerTokens, Is.EqualTo(100), "Cap is per-run, not lifetime.");
+            TrainerProgression.CommitRun(_meta, 9999, _cfg);
             Assert.That(_meta.TrainerXP, Is.EqualTo(xpAfterFirst + 9999), "XP accumulates.");
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(0), "CL-019: no per-run Token earn.");
         }
 
         [Test]
@@ -163,6 +164,45 @@ namespace ProjectAscendant.Tests
             Assert.That(_meta.TrainerXP, Is.EqualTo(0));
             Assert.That(_meta.TrainerTokens, Is.EqualTo(0));
             Assert.That(_meta.TrainerLevel, Is.EqualTo(1));
+        }
+
+        // §6.3.4/§6.3.5 (CL-019 — Q18) — Battle Pass Token milestones: Tokens granted once on the level cross.
+        [Test]
+        public void GrantLevelUnlocks_TokenMilestone_GrantsTokensOnce_AndRecords()
+        {
+            AddMilestone(5, tokens: 5);
+
+            var granted = TrainerProgression.GrantLevelUnlocks(_meta, _cfg, oldLevel: 4, newLevel: 5);
+
+            Assert.That(granted.Count, Is.EqualTo(1), "a token-only milestone is still reported.");
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(5));
+            Assert.That(_meta.ClaimedLevelMilestones, Does.Contain(5));
+        }
+
+        [Test]
+        public void GrantLevelUnlocks_TokenMilestone_IsIdempotent()
+        {
+            AddMilestone(5, tokens: 5);
+
+            TrainerProgression.GrantLevelUnlocks(_meta, _cfg, 4, 5);
+            var second = TrainerProgression.GrantLevelUnlocks(_meta, _cfg, 4, 5);
+
+            Assert.That(second, Is.Empty, "Re-crossing the same level must not re-grant Tokens.");
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(5), "Tokens granted exactly once.");
+        }
+
+        [Test]
+        public void GrantLevelUnlocks_MultiLevel_SumsSpannedMilestoneTokens()
+        {
+            AddMilestone(5, tokens: 5);
+            AddMilestone(10, tokens: 5);
+            AddMilestone(15, tokens: 8); // beyond the jump → not granted
+
+            var granted = TrainerProgression.GrantLevelUnlocks(_meta, _cfg, oldLevel: 1, newLevel: 10);
+
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(10), "L5 + L10 Tokens; L15 not yet reached.");
+            int sum = 0; foreach (var m in granted) sum += m.TrainerTokens;
+            Assert.That(sum, Is.EqualTo(10), "granted milestones carry their Tokens for the run-summary.");
         }
     }
 }

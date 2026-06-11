@@ -48,9 +48,12 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Finalize_Victory_CommitsXp_AwardsTokens_CountsCompleted()
+        public void Finalize_Victory_CommitsXp_AwardsMilestoneTokens_CountsCompleted()
         {
             SuppressAchievements();
+            // CL-019 (Q18): Tokens come from the Battle Pass track. Author a Level-2 Token milestone so
+            // reaching Lv2 this run grants its Tokens (replacing the old per-run floor(550/100) earn).
+            _cfg.LevelMilestones.Add(new TrainerLevelMilestone { Level = 2, TrainerTokens = 5 });
             _run.TrainerXPEarnedThisRun = 550;
             _run.CombatsClearedThisRun = 6;
             _run.EvolutionsThisRun = 2;
@@ -59,13 +62,13 @@ namespace ProjectAscendant.Tests
 
             Assert.That(_meta.TrainerXP, Is.EqualTo(550));
             Assert.That(_meta.TrainerLevel, Is.EqualTo(2), "550 ≥ 500 → Lv2.");
-            Assert.That(_meta.TrainerTokens, Is.EqualTo(5));
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(5), "CL-019: from the Level-2 milestone, not per-run.");
             Assert.That(_meta.TotalRunsCompleted, Is.EqualTo(1));
             Assert.That(_meta.TotalRunsAttempted, Is.EqualTo(1));
             Assert.That(s.Outcome, Is.EqualTo(RunOutcome.Victory));
             Assert.That(s.CombatsCleared, Is.EqualTo(6));
             Assert.That(s.Evolutions, Is.EqualTo(2));
-            Assert.That(s.TokensGained, Is.EqualTo(5));
+            Assert.That(s.TokensGained, Is.EqualTo(5), "milestone Tokens surface in the run summary.");
             Assert.That(s.LeveledUp, Is.True);
         }
 

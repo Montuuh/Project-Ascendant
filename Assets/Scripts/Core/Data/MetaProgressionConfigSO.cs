@@ -19,6 +19,10 @@ namespace ProjectAscendant.Core
         [Tooltip("§6.6.1 — relic ids added to the run-pool meta-unlock set at this level.")]
         public List<string> RelicIds = new();
 
+        [Tooltip("§6.3.4/§6.3.5 (CL-019 — Q18) — Trainer Tokens granted at this milestone level (the " +
+                 "Battle Pass Token milestones, ~every 5th level). Granted once via ClaimedLevelMilestones.")]
+        public int TrainerTokens;
+
         [Tooltip("Player-facing description of what this milestone grants (Hub / run-summary).")]
         public string Description;
     }
@@ -79,8 +83,12 @@ namespace ProjectAscendant.Core
                  "save). Authored per save in the inspector; empty = no completion rewards yet.")]
         public List<PokedexCompletionMilestone> PokedexMilestones = new();
 
-        [Header("§6.3.4 — Trainer Token conversion (per run)")]
-        public int TokenXPDivisor = 100;    // 1 Token per 100 Trainer XP earned this run
+        [Header("§6.3.4 — Trainer Token conversion (SUPERSEDED by CL-019 milestone Tokens)")]
+        // ⚠ SUPERSEDED (CL-019 — Q18): Tokens are no longer earned per-run via floor(runXP/100). They
+        // are granted at the Battle Pass track's milestone levels (TrainerLevelMilestone.TrainerTokens,
+        // §6.3.5). These fields + TokensForRun are retained for the formula test only; CommitRun no
+        // longer calls them.
+        public int TokenXPDivisor = 100;
         public int TokensPerRunCap = 50;
 
         // §6.3.3 — cumulative Trainer XP required to REACH Level L. Level 1 = 0 (run-1 baseline).

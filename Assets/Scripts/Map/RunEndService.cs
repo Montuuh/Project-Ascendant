@@ -60,7 +60,6 @@ namespace ProjectAscendant.Map
             {
                 TrainerProgression.CommitResult r =
                     TrainerProgression.CommitRun(meta, run.TrainerXPEarnedThisRun, cfg);
-                s.TokensGained = r.TokensGained;
                 s.OldLevel = r.OldLevel;
                 s.NewLevel = r.NewLevel;
                 s.LeveledUp = r.LeveledUp;
@@ -68,6 +67,12 @@ namespace ProjectAscendant.Map
                 // §6.3 / §6.5.2 / §6.6.1 — leveling up grants milestone content unlocks
                 // (new starters / relic-pool entries). This is what Trainer XP "serves".
                 s.LevelUnlocks = TrainerProgression.GrantLevelUnlocks(meta, cfg, r.OldLevel, r.NewLevel);
+
+                // §6.3.4/§6.3.5 (CL-019 — Q18) — Tokens are granted at the track's milestone levels
+                // (not per-run). Sum the Tokens from the milestones this run-end newly crossed.
+                if (s.LevelUnlocks != null)
+                    for (int i = 0; i < s.LevelUnlocks.Count; i++)
+                        s.TokensGained += s.LevelUnlocks[i].TrainerTokens;
 
                 // §6.9 — Pokédex completion-% milestones (tokens / relics / starters), claimed once.
                 s.PokedexUnlocks = PokedexRewardService.GrantCompletionMilestones(

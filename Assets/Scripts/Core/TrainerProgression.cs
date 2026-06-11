@@ -43,10 +43,9 @@ namespace ProjectAscendant.Core
             r.XpGained = gained;
             meta.TrainerXP += gained;
 
-            int tokens = config.TokensForRun(gained);
-            meta.TrainerTokens += tokens;
-            r.TokensGained = tokens;
-
+            // §6.3.4 (CL-019 — Q18): Tokens are NO LONGER earned per-run here. They are granted at the
+            // Battle Pass track's milestone levels in GrantLevelUnlocks. r.TokensGained stays 0; the
+            // run-end flow reads the milestone Tokens from the granted milestones (RunEndService).
             int newLevel = LevelForXP(meta.TrainerXP, config);
             meta.TrainerLevel = newLevel;
             r.NewLevel = newLevel;
@@ -70,6 +69,7 @@ namespace ProjectAscendant.Core
 
             meta.UnlockedStarterIds ??= new List<string>();
             meta.UnlockedRelicIds ??= new List<string>();
+            meta.ClaimedLevelMilestones ??= new List<int>();
 
             for (int i = 0; i < config.LevelMilestones.Count; i++)
             {
@@ -78,6 +78,16 @@ namespace ProjectAscendant.Core
 
                 bool any = AddNew(meta.UnlockedStarterIds, m.StarterIds);
                 any |= AddNew(meta.UnlockedRelicIds, m.RelicIds);
+
+                // §6.3.4/§6.3.5 (CL-019 — Q18) — grant the level's Battle Pass Tokens once (claimed-set
+                // idempotency, mirroring ClaimedPokedexMilestones). Token-only milestones still count.
+                if (m.TrainerTokens > 0 && !meta.ClaimedLevelMilestones.Contains(m.Level))
+                {
+                    meta.TrainerTokens += m.TrainerTokens;
+                    meta.ClaimedLevelMilestones.Add(m.Level);
+                    any = true;
+                }
+
                 if (any) granted.Add(m);
             }
             return granted;
