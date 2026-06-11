@@ -4,14 +4,14 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Tests
 {
-    // Per §6.7.1 + Epic 11 Task 11.5.2 — the 10 VS launch achievements are well-formed.
+    // Per §6.7.1 / §6.7.1.1 (CL-020 — Q19) — the VS achievement catalog (medal-tiered) is well-formed.
     public class AchievementCatalogTests
     {
         [Test]
-        public void Catalog_HasTenDistinctValidAchievements()
+        public void Catalog_HasDistinctValidAchievements()
         {
             IReadOnlyList<AchievementSO> all = AchievementCatalog.All;
-            Assert.That(all, Has.Count.EqualTo(10));
+            Assert.That(all, Has.Count.EqualTo(19), "VS-triggerable subset of the §6.7.1.1 catalog (CL-020).");
 
             HashSet<string> ids = new();
             foreach (AchievementSO a in all)
@@ -22,6 +22,45 @@ namespace ProjectAscendant.Tests
                 Assert.That(a.TargetCount, Is.GreaterThanOrEqualTo(1));
                 Assert.That(a.TrainerXPReward, Is.InRange(50, 500), "§6.7 reward band");
             }
+        }
+
+        // §6.7.0 (CL-020) — medal tier sets the reward band; Gold/Platinum grant Tokens, Bronze/Silver don't.
+        [Test]
+        public void Catalog_TierBands_AreConsistent()
+        {
+            foreach (AchievementSO a in AchievementCatalog.All)
+            {
+                switch (a.Tier)
+                {
+                    case AchievementTier.Bronze:
+                        Assert.That(a.TrainerXPReward, Is.InRange(50, 100), $"{a.AchievementId} Bronze XP band");
+                        Assert.That(a.TokenReward, Is.EqualTo(0), $"{a.AchievementId} Bronze grants no Tokens");
+                        break;
+                    case AchievementTier.Silver:
+                        Assert.That(a.TrainerXPReward, Is.InRange(150, 250), $"{a.AchievementId} Silver XP band");
+                        Assert.That(a.TokenReward, Is.EqualTo(0), $"{a.AchievementId} Silver grants no Tokens");
+                        break;
+                    case AchievementTier.Gold:
+                        Assert.That(a.TrainerXPReward, Is.InRange(250, 400), $"{a.AchievementId} Gold XP band");
+                        Assert.That(a.TokenReward, Is.GreaterThan(0), $"{a.AchievementId} Gold grants Tokens");
+                        break;
+                    case AchievementTier.Platinum:
+                        Assert.That(a.TrainerXPReward, Is.InRange(400, 500), $"{a.AchievementId} Platinum XP band");
+                        Assert.That(a.TokenReward, Is.GreaterThan(0), $"{a.AchievementId} Platinum grants Tokens");
+                        break;
+                }
+            }
+        }
+
+        [Test]
+        public void Catalog_HasAllFourTiers()
+        {
+            HashSet<AchievementTier> tiers = new();
+            foreach (AchievementSO a in AchievementCatalog.All) tiers.Add(a.Tier);
+            Assert.That(tiers, Is.EquivalentTo(new[]
+            {
+                AchievementTier.Bronze, AchievementTier.Silver, AchievementTier.Gold, AchievementTier.Platinum
+            }), "the VS catalog spans all four medal tiers.");
         }
 
         [Test]

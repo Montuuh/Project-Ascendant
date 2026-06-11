@@ -30,10 +30,11 @@ namespace ProjectAscendant.Tests
 
         private T Make<T>() where T : ScriptableObject { T o = ScriptableObject.CreateInstance<T>(); _disposables.Add(o); return o; }
 
-        private AchievementSO Ach(string id, AchievementTrigger t, int target = 1, int reward = 50)
+        private AchievementSO Ach(string id, AchievementTrigger t, int target = 1, int reward = 50, int tokens = 0)
         {
             AchievementSO a = Make<AchievementSO>();
             a.AchievementId = id; a.Trigger = t; a.TargetCount = target; a.TrainerXPReward = reward;
+            a.TokenReward = tokens;
             return a;
         }
 
@@ -96,6 +97,30 @@ namespace ProjectAscendant.Tests
             List<AchievementSO> reg = new() { a };
             AchievementService.Report(AchievementTrigger.DefeatGym, 1, reg, _meta, _cfg);
             Assert.That(_meta.TrainerLevel, Is.EqualTo(2), "500 XP → Lv2 (threshold 500).");
+        }
+
+        // §6.7.0 (CL-020 — Q19) — Gold/Platinum achievements grant Trainer Tokens on completion.
+        [Test]
+        public void Report_GoldTier_GrantsTokens_OnceOnly()
+        {
+            AchievementSO a = Ach("one_mon_army", AchievementTrigger.WinCombatLeadOnly, reward: 300, tokens: 2);
+            List<AchievementSO> reg = new() { a };
+
+            AchievementService.Report(AchievementTrigger.WinCombatLeadOnly, 1, reg, _meta, _cfg);
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(2), "Gold tier grants +2 Tokens.");
+            Assert.That(_meta.TrainerXP, Is.EqualTo(300));
+
+            AchievementService.Report(AchievementTrigger.WinCombatLeadOnly, 1, reg, _meta, _cfg);
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(2), "Completed → no double Token grant.");
+        }
+
+        [Test]
+        public void Report_BronzeTier_GrantsNoTokens()
+        {
+            AchievementSO a = Ach("first_steps", AchievementTrigger.WinCombat, reward: 50, tokens: 0);
+            List<AchievementSO> reg = new() { a };
+            AchievementService.Report(AchievementTrigger.WinCombat, 1, reg, _meta, _cfg);
+            Assert.That(_meta.TrainerTokens, Is.EqualTo(0), "Bronze/Silver grant no Tokens.");
         }
     }
 }

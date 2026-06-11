@@ -45,6 +45,8 @@ namespace ProjectAscendant.Core
                     ClearProgress(meta, a.AchievementId);
                     (meta.CompletedAchievementIds ??= new List<string>()).Add(a.AchievementId);
                     AwardXP(meta, a.TrainerXPReward, cfg);
+                    // §6.7.0 (CL-020 — Q19) — Gold/Platinum achievements also grant Trainer Tokens.
+                    if (a.TokenReward > 0) meta.TrainerTokens += a.TokenReward;
                     completed.Add(a);
                 }
                 else
