@@ -62,6 +62,15 @@ namespace ProjectAscendant.Combat
         public static bool IsFullyEvolved(PokemonInstance p)
             => p?.Species != null && (p.Species.Branches == null || p.Species.Branches.Count == 0);
 
+        // §8.3.7 (CL-021) Battle Hardened — the combat-start Shield for one (living) player Pokémon:
+        // BattleHardenedShieldPercent × MaxHP. 0 when the relic is absent or the Pokémon is fainted.
+        public static int BattleHardenedShield(PokemonInstance p, IReadOnlyList<RelicSO> relics, BattleConfigSO cfg)
+        {
+            if (p == null || p.CurrentHP <= 0 || cfg == null || cfg.BattleHardenedShieldPercent <= 0f
+                || !Holds(relics, "battle_hardened")) return 0;
+            return Mathf.FloorToInt(PokemonVitals.MaxHP(p) * cfg.BattleHardenedShieldPercent);
+        }
+
         // §8.3.3 Berry Pouch — healing consumables restore +X% HP. Returns the boosted heal amount.
         public static int ApplyHealBonus(int baseHeal, IReadOnlyList<RelicSO> relics, BattleConfigSO cfg)
         {

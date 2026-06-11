@@ -61,6 +61,11 @@ namespace ProjectAscendant.Core
         public bool HasSturdy;
         public bool SturdyConsumed;
 
+        // Per §8.3.7 (CL-021) — Battle Hardened Legendary: a combat-start damage-absorbing Shield (set
+        // each combat in CombatController.Start, consumed before HP in the damage pipeline). Combat-
+        // transient — reset at the start of every combat.
+        public int ShieldHP;
+
         // Per §4.4.4.3 — mid-fight evolution: the ace evolves into this species
         // on entering Phase 2 (HP <= 50%). Null = no mid-fight evolution.
         // Per CL-013, Gym aces never set this (rival/Champion only).

@@ -329,6 +329,19 @@ namespace ProjectAscendant.Combat
             State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent, "Combat started"));
             AbilityResolver.ApplyLeadEntryEffects(State); // §5.5.3.5 Intimidate — initial Lead enters
             RecordEnemiesSeen(); // §6.9 — Pokédex discovery: the enemy species are now "seen"
+            ApplyBattleHardenedShields(); // §8.3.7 (CL-021) — combat-start Legendary Shields
+        }
+
+        // §8.3.7 (CL-021) Battle Hardened — each Active Team Pokémon starts every combat with a Shield =
+        // BattleHardenedShieldPercent × MaxHP (0 when the relic is absent). Resets every combat.
+        private void ApplyBattleHardenedShields()
+        {
+            if (State.PlayerTeam == null) return;
+            for (int i = 0; i < State.PlayerTeam.Count; i++)
+            {
+                PokemonInstance p = State.PlayerTeam[i];
+                if (p != null) p.ShieldHP = RelicResolver.BattleHardenedShield(p, State.ActiveRelics, State.Config);
+            }
         }
 
         // Per §6.9 — mark every current enemy species as seen in the Pokédex (combat start + each
@@ -1058,7 +1071,15 @@ namespace ProjectAscendant.Combat
                                     || intent.AppliedStatus != StatusCondition.Paralysis)
                     {
                         if (occ != null)
-                            StatusEffectManager.TryApply(occ, intent.AppliedStatus, State.Config);
+                        {
+                            // §8.3.7 (CL-021) Unbreakable Will — the player is immune to the FIRST status
+                            // condition each combat (this enemy application is blocked, once per combat).
+                            if (!State.UnbreakableStatusBlockedThisCombat
+                                && RelicResolver.Holds(State.ActiveRelics, "unbreakable_will"))
+                                State.UnbreakableStatusBlockedThisCombat = true;
+                            else
+                                StatusEffectManager.TryApply(occ, intent.AppliedStatus, State.Config);
+                        }
                     }
                     break;
                 }
@@ -1287,6 +1308,16 @@ namespace ProjectAscendant.Combat
             // a prior turn. A boss already at 1 HP is not protected.
             // §7.8.3.1 (CL-016) Sturdy Lead — the player's Lead survives one lethal hit at 1 HP per
             // combat (modifier-granted, distinct from the Sturdy ability/boss last-stand).
+            // §8.3.7 (CL-021) Battle Hardened — the target's Shield absorbs damage before HP (player-side;
+            // enemies never carry a Shield). Applied before the survive-lethal checks so a fully-absorbed
+            // hit is not "lethal".
+            if (final > 0 && target.ShieldHP > 0)
+            {
+                int absorbed = Mathf.Min(target.ShieldHP, final);
+                target.ShieldHP -= absorbed;
+                final -= absorbed;
+            }
+
             bool sturdyAbility = AbilityResolver.HasSturdy(target) && !target.SturdyConsumed;
             bool sturdyLeadMod = !State.SturdyLeadConsumedThisCombat
                 && RegionModifierResolver.GrantsSturdyLead(State.ActiveRegionModifiers)

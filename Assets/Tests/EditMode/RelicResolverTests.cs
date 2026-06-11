@@ -23,6 +23,7 @@ namespace ProjectAscendant.Tests
             _cfg.LegendaryTypeMasteryBonus = 0.15f;
             _cfg.LegendaryEvolutionsEdgeBonus = 0.10f;
             _cfg.LegendaryApexPredatorBonus = 0.20f;
+            _cfg.BattleHardenedShieldPercent = 0.10f;
         }
 
         // A species WITH evolution branches (not fully evolved).
@@ -207,6 +208,19 @@ namespace ProjectAscendant.Tests
             Assert.That(RelicResolver.IsFullyEvolved(Mon(100, 100)), Is.True, "no branches.");
             Assert.That(RelicResolver.IsFullyEvolved(MonEvolvable()), Is.False, "has a branch.");
             Assert.That(RelicResolver.IsFullyEvolved(null), Is.False);
+        }
+
+        // §8.3.7 (CL-021) Battle Hardened — combat-start Shield = 10% MaxHP for a living player mon.
+        [Test]
+        public void BattleHardened_ShieldIsPercentOfMaxHp()
+        {
+            List<RelicSO> r = new() { Relic("battle_hardened") };
+            PokemonInstance m = Mon(100, 100);
+            int expected = Mathf.FloorToInt(PokemonVitals.MaxHP(m) * 0.10f);
+            Assert.That(expected, Is.GreaterThan(0), "sanity: a positive shield.");
+            Assert.That(RelicResolver.BattleHardenedShield(m, r, _cfg), Is.EqualTo(expected));
+            Assert.That(RelicResolver.BattleHardenedShield(Mon(100, 0), r, _cfg), Is.EqualTo(0), "fainted → no shield.");
+            Assert.That(RelicResolver.BattleHardenedShield(m, new List<RelicSO>(), _cfg), Is.EqualTo(0), "no relic → no shield.");
         }
     }
 }

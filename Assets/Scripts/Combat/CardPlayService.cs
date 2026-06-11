@@ -283,6 +283,9 @@ namespace ProjectAscendant.Combat
                             StatusEffectManager.TryApply(statusTarget, rider.StatusToApply, _state.Config);
                             // §7.8.3.1 (CL-016) Status Mastery — player-applied statuses last +N turns.
                             int durBonus = RegionModifierResolver.StatusDurationBonus(_state.ActiveRegionModifiers);
+                            // §8.3.7 (CL-021) Unbreakable Will — player-applied statuses also last +N turns.
+                            if (RelicResolver.Holds(_state.ActiveRelics, "unbreakable_will"))
+                                durBonus += _state.Config.LegendaryStatusDurationBonus;
                             if (durBonus > 0 && statusTarget.PrimaryStatusTurnsRemaining > 0
                                 && statusTarget.PrimaryStatusTurnsRemaining != int.MaxValue)
                                 statusTarget.PrimaryStatusTurnsRemaining += durBonus;
