@@ -53,7 +53,7 @@
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ✅¹³ |
 | CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ✅⁸ |
-| CL-018 | Q21 | Biome↔Region binding confirmed + Naturalist's Lens (opt-in biome-steer modifier) | T7 §7.3.1/§7.8.3.1 | ✅ | ☐ |
+| CL-018 | Q21 | Biome↔Region binding confirmed + Naturalist's Lens (opt-in biome-steer modifier) | T7 §7.3.1/§7.8.3.1 | ✅ | ✅¹⁴ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -361,7 +361,20 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   modifier (offer = Region's eligible biomes); biome eligibility comes from the Region/biome config.
   **VS-relevant** (R1 Meadow/Cave/River). All weights systems-designer-tunable. Add EditMode tests:
   primary-biome override, eligible-only guard, secondary biomes still sampled.
-- Status: [✅] GDD updated (Notion §7.3.1 + §7.8.3.1, re-exported 2026-06-11)   [ ] Code adapted
+- ¹⁴ **Code complete (2026-06-11, 1155/1155 green).** `RegionModifierKind.NaturalistLens` + pool entry
+  (`naturalist_lens`, Medium, Magnitude 5 = weight-boost factor) → pool 16→17. `RegionModifierResolver`
+  gains `GrantsBiomeSteer` + `BiomeSteerBoost`. New pure helper `WildAreaBiomeWeighting`
+  (`ResolveSteerBiome` + `BuildOptions`): the steered biome's weight ×boost (dominant), all other eligible
+  biomes keep their weight (dominant, not exclusive → 3-species offer never starves); eligible-only guard;
+  null/ineligible chosen biome falls back to the **top non-primary eligible biome** (auto-surface).
+  `RunStateSO.NaturalistLensBiome` (per-Region; cleared on `SetRegionModifier`/reset). `WildAreaNode
+  Controller.PickBiome` now routes through the helper using the active modifiers — so the modifier is
+  **live in the VS via auto-surface** the moment it's picked (R1 run-setup pick already wired, CL-016).
+  +8 EditMode tests (`WildAreaBiomeWeightingTests` ×6, resolver ×2). **Follow-up (not blocking):** an
+  explicit biome **sub-picker** in `RegionModifierSelectUI` so the player chooses *which* biome to steer
+  to (today it auto-surfaces the top non-primary) — exact parity with the Type Affinity sub-picker
+  follow-up; + `NaturalistLensBiome` save round-trip (biomes aren't in the ID registry yet).
+- Status: [✅] GDD updated (Notion §7.3.1 + §7.8.3.1, re-exported 2026-06-11)   [✅] Code adapted — 1155 green (logic + VS auto-surface; explicit biome sub-picker = UI follow-up)
 
 ### CL-015 — City → Choice Plaza + risky optional City Gym   (resolves Q1)
 - Date: 2026-06-10
