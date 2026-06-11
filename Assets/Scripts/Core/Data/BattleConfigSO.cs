@@ -217,6 +217,13 @@ namespace ProjectAscendant.Core
         // family norm (~+1 AP/turn) and snowballed; tuned to +1. GDD §8.3 to be updated to match.
         public int MoveEchoBonusAP = 1;                    // Move Echo — AP granted next turn
 
+        // Per §8.3.7 (CL-021 — Q10) — Legendary relic combat values (RelicResolver). Tunable placeholders.
+        public float LegendaryTypeMasteryBonus = 0.15f;    // Type Mastery — super-effective moves +15%
+        public float LegendaryEvolutionsEdgeBonus = 0.10f; // Evolution's Edge — fully-evolved attacker +10%
+        public float LegendaryApexPredatorBonus = 0.20f;   // Apex Predator — Lead at full HP +20%
+        public float BattleHardenedShieldPercent = 0.10f;  // Battle Hardened — combat-start Shield = 10% max HP
+        public int LegendaryStatusDurationBonus = 1;       // Unbreakable Will — player-applied status +1 turn
+
         // Per §5.5.3 / §5.8 — Shell Armor: flat incoming-damage reduction while this Pokémon is Lead
         // (stacks with the Boulder Badge reduction, §4.4.5.1).
         public int ShellArmorFlatReduction = 2;

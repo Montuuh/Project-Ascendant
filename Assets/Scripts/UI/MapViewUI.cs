@@ -47,6 +47,7 @@ namespace ProjectAscendant.UI
         private PauseMenuUI _pauseMenu;
         private DifficultySelectUI _difficultySelect;
         private RegionModifierSelectUI _regionModifierSelect; // §7.8.3.1 (CL-016)
+        private LegendaryPickSelectUI _legendaryPick; // §8.3.7 (CL-021)
         private RunLauncher _launcher;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
@@ -106,6 +107,8 @@ namespace ProjectAscendant.UI
             _difficultySelect.transform.SetParent(transform, false);
             _regionModifierSelect = new GameObject("RegionModifierSelect").AddComponent<RegionModifierSelectUI>(); // §7.8.3.1 (CL-016)
             _regionModifierSelect.transform.SetParent(transform, false);
+            _legendaryPick = new GameObject("LegendaryPick").AddComponent<LegendaryPickSelectUI>(); // §8.3.7 (CL-021)
+            _legendaryPick.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -579,6 +582,13 @@ namespace ProjectAscendant.UI
             _run.CompleteActiveNode();
             _visited.Add(node);
             if (!_run.RunOver) AutoFillTeam(); // a recruited Pokémon joins the active team (up to 3)
+
+            // §8.3.7 (CL-021 — Q10) — a Gym victory offers a choice-only Legendary relic (1-of-3,
+            // excludes held, max 2/run). The VS's one Legendary-pick moment (Victory Road + Black Market
+            // are post-VS). At the cap the picker no-ops.
+            if (active is GymNodeController && outcome == CombatController.CombatOutcome.Victory)
+                OfferLegendaryPick();
+
             AppendLog($"L{node.Layer} {node.NodeType}: combat {outcome}" +
                       (caught != null ? $" — recruited {caught.Species?.DisplayName ?? caught.Species?.name}!" : "") +
                       levelLog);
@@ -593,6 +603,34 @@ namespace ProjectAscendant.UI
                 _xpPanel.Show(_lastXpRecords, pc.XPToNext, null);
             }
         }
+
+        // §8.3.7 (CL-021 — Q10) — present the 1-of-3 Legendary pick; the chosen relic joins HeldRelics.
+        // Seeded per Region so repeat runs are deterministic. At the 2-relic cap the picker no-ops.
+        private void OfferLegendaryPick()
+        {
+            if (_state == null || _legendaryPick == null) return;
+            if (!LegendaryPickService.CanPick(_state.HeldRelics))
+            {
+                AppendLog("Legendary: already holding 2 — no pick offered (max 2/run).");
+                return;
+            }
+
+            GameRNG offerRng = new((uint)(_state.RunSeed ^ 0x1E6E ^ (_state.CurrentRegionIndex * 31)));
+            List<RelicSO> offer = LegendaryPickService.BuildOffer(
+                LegendaryRelicCatalog.BuildAll(), _state.HeldRelics, offerRng, 3);
+            if (offer.Count == 0) return;
+
+            _legendaryPick.Open(offer, picked =>
+            {
+                if (picked == null) return;
+                (_state.HeldRelics ??= new List<RelicSO>()).Add(picked);
+                AppendLog($"★ Legendary claimed: {picked.DisplayName ?? picked.Id}!");
+                Refresh();
+            });
+        }
+
+        // DEV probe hook — force a Legendary offer regardless of node (the bridge can't fight the Gym).
+        public void CheatOfferLegendary() => OfferLegendaryPick();
 
         // §7.8.3.1 (CL-016) Field Surveyor — a favourable neutral Battlefield for the team's type.
         // Only Fire/Water/Electric teams have a synergistic Battlefield; others get none (Empty).

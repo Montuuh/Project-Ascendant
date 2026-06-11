@@ -20,6 +20,20 @@ namespace ProjectAscendant.Tests
             _cfg.BraveCharmDamageMultiplier = 1.10f;
             _cfg.SootheBellDamageMultiplier = 1.05f;
             _cfg.BerryPouchHealMultiplier = 1.20f;
+            _cfg.LegendaryTypeMasteryBonus = 0.15f;
+            _cfg.LegendaryEvolutionsEdgeBonus = 0.10f;
+            _cfg.LegendaryApexPredatorBonus = 0.20f;
+        }
+
+        // A species WITH evolution branches (not fully evolved).
+        private PokemonInstance MonEvolvable()
+        {
+            PokemonSpeciesSO sp = ScriptableObject.CreateInstance<PokemonSpeciesSO>();
+            sp.BaseStats = new BaseStats { BaseHP = 100, BaseAtk = 50, BaseDef = 50, BaseSpd = 50 };
+            EvolutionBranchSO br = ScriptableObject.CreateInstance<EvolutionBranchSO>(); _disp.Add(br);
+            sp.Branches = new List<EvolutionBranchSO> { br };
+            _disp.Add(sp);
+            return new PokemonInstance { Species = sp, Level = 1, CurrentHP = 100 };
         }
 
         [TearDown]
@@ -130,6 +144,56 @@ namespace ProjectAscendant.Tests
             List<RelicSO> r = new() { Relic("lucky_egg_token") };
             Assert.That(RelicResolver.ApplyXpMultiplier(100, r, pc), Is.EqualTo(115), "100 × 1.15.");
             Assert.That(RelicResolver.ApplyXpMultiplier(100, new List<RelicSO>(), pc), Is.EqualTo(100));
+        }
+
+        // ── §8.3.7 (CL-021) Legendary outgoing multipliers ──
+
+        [Test]
+        public void LegendaryOutgoing_NoRelics_IsOne()
+        {
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(Mon(100, 100), true, true, null, _cfg), Is.EqualTo(1f));
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(Mon(100, 100), true, true, new List<RelicSO>(), _cfg), Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void TypeMastery_OnlyWhenSuperEffective()
+        {
+            List<RelicSO> r = new() { Relic("type_mastery") };
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(Mon(100, 100), true, false, r, _cfg), Is.EqualTo(1.15f).Within(0.001f));
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(Mon(100, 100), false, false, r, _cfg), Is.EqualTo(1f), "not super-effective → no bonus.");
+        }
+
+        [Test]
+        public void EvolutionsEdge_OnlyWhenFullyEvolved()
+        {
+            List<RelicSO> r = new() { Relic("evolutions_edge") };
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(Mon(100, 100), false, false, r, _cfg), Is.EqualTo(1.10f).Within(0.001f), "no branches → fully evolved.");
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(MonEvolvable(), false, false, r, _cfg), Is.EqualTo(1f), "has a branch → not fully evolved.");
+        }
+
+        [Test]
+        public void ApexPredator_OnlyWhenLeadAtFullHp()
+        {
+            List<RelicSO> r = new() { Relic("apex_predator") };
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(Mon(100, 100), false, true, r, _cfg), Is.EqualTo(1.20f).Within(0.001f));
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(Mon(100, 100), false, false, r, _cfg), Is.EqualTo(1f), "not Lead-at-full-HP → no bonus.");
+        }
+
+        [Test]
+        public void Legendary_DamageBonuses_StackMultiplicatively()
+        {
+            List<RelicSO> r = new() { Relic("type_mastery"), Relic("evolutions_edge") };
+            // Fully-evolved (no branches) attacker landing a super-effective hit: 1.15 × 1.10.
+            Assert.That(RelicResolver.LegendaryOutgoingMultiplier(Mon(100, 100), true, false, r, _cfg),
+                Is.EqualTo(1.265f).Within(0.001f));
+        }
+
+        [Test]
+        public void IsFullyEvolved_TrueWhenNoBranches()
+        {
+            Assert.That(RelicResolver.IsFullyEvolved(Mon(100, 100)), Is.True, "no branches.");
+            Assert.That(RelicResolver.IsFullyEvolved(MonEvolvable()), Is.False, "has a branch.");
+            Assert.That(RelicResolver.IsFullyEvolved(null), Is.False);
         }
     }
 }

@@ -160,6 +160,8 @@ namespace ProjectAscendant.Combat
             public int MeleeMovesPlayedThisTurn;          // §8.3.4 — Choice Band
             public bool BarrierCharmTriggeredThisCombat;  // §8.3.3 — Barrier Charm (first enemy attack −20%)
             public bool SturdyLeadConsumedThisCombat;     // §7.8.3.1 (CL-016) — Sturdy Lead modifier (1/combat)
+            public bool LastStandConsumedThisCombat;      // §8.3.7 (CL-021) — Last Stand Legendary (1/combat)
+            public bool UnbreakableStatusBlockedThisCombat; // §8.3.7 (CL-021) — Unbreakable Will (first status)
             // §8.3.4 Move Echo — distinct moves played per attacker this turn → +2 AP next turn.
             public Dictionary<PokemonInstance, HashSet<MoveSO>> MovesPlayedThisTurn = new();
             public bool MoveEchoGrantedThisTurn;
@@ -1223,7 +1225,16 @@ namespace ProjectAscendant.Combat
                 && RegionModifierResolver.Has(State.ActiveRegionModifiers, RegionModifierKind.TypeAffinity))
                 regionModMul *= 1f + RegionModifierResolver.TypeAffinityBonus(State.ActiveRegionModifiers);
 
-            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul * heldItemMul * regionModMul);
+            // §8.3.7 (CL-021) Legendary relics — player-attacker outgoing bonuses (Type Mastery /
+            // Evolution's Edge / Apex Predator). Lead-at-full-HP resolved here; SE from the type chart.
+            float legendaryOutMul = !attackerIsEnemy
+                ? RelicResolver.LegendaryOutgoingMultiplier(
+                    attacker, dmg.TypeEffectiveness > 1.0,
+                    IsPlayerLead(attacker) && attacker.CurrentHP >= PokemonVitals.MaxHP(attacker),
+                    State.ActiveRelics, State.Config)
+                : 1f;
+
+            int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul * heldItemMul * regionModMul * legendaryOutMul);
             // Per §4.1.1 + R3-4 — 0-damage floor ONLY for real attacks (non-immune).
             // Pure status/buff/debuff moves (BasePower 0) deal 0, not 1.
             if (final <= 0)
@@ -1276,10 +1287,17 @@ namespace ProjectAscendant.Combat
             bool sturdyLeadMod = !State.SturdyLeadConsumedThisCombat
                 && RegionModifierResolver.GrantsSturdyLead(State.ActiveRegionModifiers)
                 && IsPlayerLead(target);
-            if (final >= target.CurrentHP && target.CurrentHP > 1 && (sturdyAbility || sturdyLeadMod))
+            // §8.3.7 (CL-021) Last Stand — once per combat, the first Active Team Pokémon that would
+            // faint survives at 1 HP (any active member, not just the Lead). Order: Sturdy → Sturdy Lead
+            // → Last Stand (§8.3.6).
+            bool lastStandLeg = !State.LastStandConsumedThisCombat
+                && RelicResolver.Holds(State.ActiveRelics, "last_stand")
+                && State.PlayerTeam != null && State.PlayerTeam.Contains(target);
+            if (final >= target.CurrentHP && target.CurrentHP > 1 && (sturdyAbility || sturdyLeadMod || lastStandLeg))
             {
                 if (sturdyAbility) target.SturdyConsumed = true;
-                else State.SturdyLeadConsumedThisCombat = true;
+                else if (sturdyLeadMod) State.SturdyLeadConsumedThisCombat = true;
+                else State.LastStandConsumedThisCombat = true;
                 target.CurrentHP = 1;
             }
             else

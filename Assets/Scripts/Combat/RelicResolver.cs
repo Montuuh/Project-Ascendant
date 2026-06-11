@@ -39,6 +39,29 @@ namespace ProjectAscendant.Combat
             return mult;
         }
 
+        // §8.3.7 (CL-021 — Q10) — Legendary outgoing-damage multiplier for a PLAYER attacker (relics are
+        // player run-state; the caller guards enemy attackers). Composes: Type Mastery (super-effective
+        // moves), Evolution's Edge (fully-evolved attacker), Apex Predator (the Lead at full HP — the
+        // caller resolves Lead + full-HP). Multiplicative, baseline 1.0.
+        public static float LegendaryOutgoingMultiplier(
+            PokemonInstance attacker, bool superEffective, bool isLeadAtFullHP,
+            IReadOnlyList<RelicSO> relics, BattleConfigSO cfg)
+        {
+            float mult = 1f;
+            if (cfg == null) return mult;
+            if (superEffective && Holds(relics, "type_mastery"))
+                mult *= 1f + cfg.LegendaryTypeMasteryBonus;
+            if (IsFullyEvolved(attacker) && Holds(relics, "evolutions_edge"))
+                mult *= 1f + cfg.LegendaryEvolutionsEdgeBonus;
+            if (isLeadAtFullHP && Holds(relics, "apex_predator"))
+                mult *= 1f + cfg.LegendaryApexPredatorBonus;
+            return mult;
+        }
+
+        // §8.3.7 — a Pokémon is fully evolved when its species has no further evolution branches.
+        public static bool IsFullyEvolved(PokemonInstance p)
+            => p?.Species != null && (p.Species.Branches == null || p.Species.Branches.Count == 0);
+
         // §8.3.3 Berry Pouch — healing consumables restore +X% HP. Returns the boosted heal amount.
         public static int ApplyHealBonus(int baseHeal, IReadOnlyList<RelicSO> relics, BattleConfigSO cfg)
         {
