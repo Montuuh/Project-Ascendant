@@ -117,7 +117,8 @@ namespace ProjectAscendant.Combat
                 if (newLead != null && newLead.CurrentHP > 0)
                 {
                     int max = state.Economy != null
-                        ? PokemonVitals.EffectiveMaxHP(newLead, state.Economy)
+                        ? PokemonVitals.EffectiveMaxHP(newLead, state.Economy,
+                            RegionModifierResolver.TraumaPenaltyReduction(state.ActiveRegionModifiers)) // §7.8.3.1 (CL-016)
                         : PokemonVitals.MaxHP(newLead);
                     newLead.CurrentHP = UnityEngine.Mathf.Min(max, newLead.CurrentHP + swapHeal);
                 }

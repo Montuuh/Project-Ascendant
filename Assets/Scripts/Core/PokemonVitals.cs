@@ -25,7 +25,12 @@ namespace ProjectAscendant.Core
         // past the cap accrue no further penalty (soft cap). Equivalent to the old linear ladder when
         // TraumaStackCap == Zone1Count (zone 2 stays empty), so callers using the legacy cap are
         // behaviour-preserved. Integer math throughout (no float literals — PA0001). Floored at 1.
-        public static int EffectiveMaxHP(PokemonInstance p, EconomyConfigSO economy)
+        //
+        // Per §7.8.3.1 (CL-016) Trauma Resistance — `traumaPenaltyReduction` shaves that many percentage
+        // points off EACH per-stack penalty (zone 1 → 5−R, zone 2 → 10−R, clamped ≥ 0). Defaults to 0 so
+        // every existing caller is behaviour-preserved; the run/combat layer passes the active modifier's
+        // reduction (RegionModifierResolver.TraumaPenaltyReduction).
+        public static int EffectiveMaxHP(PokemonInstance p, EconomyConfigSO economy, int traumaPenaltyReduction = 0)
         {
             int max = MaxHP(p);
             if (p == null || economy == null) return max;
@@ -39,8 +44,13 @@ namespace ProjectAscendant.Core
             int zone1 = capped < z1Boundary ? capped : z1Boundary;
             int zone2 = capped - zone1; // ≥ 0
 
-            int penalty = economy.TraumaStackPenaltyPercent * zone1
-                        + economy.TraumaZone2PenaltyPercent * zone2;
+            int reduction = traumaPenaltyReduction < 0 ? 0 : traumaPenaltyReduction;
+            int z1Pen = economy.TraumaStackPenaltyPercent - reduction;
+            int z2Pen = economy.TraumaZone2PenaltyPercent - reduction;
+            if (z1Pen < 0) z1Pen = 0;
+            if (z2Pen < 0) z2Pen = 0;
+
+            int penalty = z1Pen * zone1 + z2Pen * zone2;
             int effPercent = 100 - penalty;
             if (effPercent < 0) effPercent = 0;
 

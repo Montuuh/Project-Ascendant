@@ -314,14 +314,16 @@ namespace ProjectAscendant.Combat
                         int healAmount = heal.FlatHealAmount;
                         if (heal.PercentageOfMaxHP > 0)
                         {
-                            // Per §6.2.2 — heals compute against EffectiveMaxHP.
+                            // Per §6.2.2 — heals compute against EffectiveMaxHP (§7.8.3.1 Trauma-Resistance-aware).
                             int effectiveMax = _state.Economy != null
-                                ? PokemonVitals.EffectiveMaxHP(healTarget, _state.Economy)
+                                ? PokemonVitals.EffectiveMaxHP(healTarget, _state.Economy,
+                                    RegionModifierResolver.TraumaPenaltyReduction(_state.ActiveRegionModifiers))
                                 : PokemonVitals.MaxHP(healTarget);
                             healAmount += UnityEngine.Mathf.FloorToInt(effectiveMax * heal.PercentageOfMaxHP);
                         }
                         int effectiveMax2 = _state.Economy != null
-                            ? PokemonVitals.EffectiveMaxHP(healTarget, _state.Economy)
+                            ? PokemonVitals.EffectiveMaxHP(healTarget, _state.Economy,
+                                RegionModifierResolver.TraumaPenaltyReduction(_state.ActiveRegionModifiers))
                             : PokemonVitals.MaxHP(healTarget);
                         healTarget.CurrentHP = UnityEngine.Mathf.Min(effectiveMax2, healTarget.CurrentHP + healAmount);
                         int actualHeal = healTarget.CurrentHP - hpBefore;

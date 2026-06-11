@@ -921,7 +921,10 @@ namespace ProjectAscendant.Combat
 
         // §6.2 — Trauma-aware heal ceiling (raw MaxHP when no economy, e.g. tests).
         private int EffectiveMaxHpFor(PokemonInstance p) =>
-            State.Economy != null ? PokemonVitals.EffectiveMaxHP(p, State.Economy) : PokemonVitals.MaxHP(p);
+            State.Economy != null
+                ? PokemonVitals.EffectiveMaxHP(p, State.Economy,
+                    RegionModifierResolver.TraumaPenaltyReduction(State.ActiveRegionModifiers)) // §7.8.3.1 (CL-016) Trauma Resistance
+                : PokemonVitals.MaxHP(p);
 
         // Per Epic 8 Task 8.1.4 — Pokéball: the wild occupies enemy slot 0; on a successful catch set
         // CaughtTarget + clear EnemyTeam so the IsAllFainted Victory path fires. Failed/non-wild = no-op.
@@ -1129,9 +1132,7 @@ namespace ProjectAscendant.Combat
                     if (healTarget != null && healTarget.CurrentHP > 0)
                     {
                         int hpBefore = healTarget.CurrentHP;
-                        int effectiveMax = State.Economy != null
-                            ? PokemonVitals.EffectiveMaxHP(healTarget, State.Economy)
-                            : PokemonVitals.MaxHP(healTarget);
+                        int effectiveMax = EffectiveMaxHpFor(healTarget); // §7.8.3.1 (CL-016) Trauma-Resistance-aware
                         int healAmount = heal.FlatHealAmount;
                         if (heal.PercentageOfMaxHP > 0)
                             healAmount += Mathf.FloorToInt(effectiveMax * heal.PercentageOfMaxHP);

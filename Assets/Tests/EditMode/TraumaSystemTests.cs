@@ -54,6 +54,22 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(e);
         }
 
+        // Per §7.8.3.1 (CL-016) Trauma Resistance — the reduction shaves N points off EACH per-stack
+        // penalty (zone 1 → 5−N, zone 2 → 10−N), so the Effective Max ceiling rises.
+        [TestCase(0, 1, 100)]  // no stacks → no change
+        [TestCase(3, 1, 88)]   // zone1: (5−1)×3 = 12% penalty → 88
+        [TestCase(5, 1, 80)]   // (5−1)×5 = 20% → 80 (vs 75 baseline)
+        [TestCase(10, 1, 35)]  // (4)×5 + (9)×5 = 65% → 35 (vs 25 baseline)
+        [TestCase(5, 0, 75)]   // reduction 0 = baseline (backward-compatible)
+        public void EffectiveMaxHP_TraumaResistance_RaisesCeiling(int stacks, int reduction, int expected)
+        {
+            EconomyConfigSO e = Economy();
+            PokemonInstance p = Mon(100, stacks);
+            Assert.That(PokemonVitals.EffectiveMaxHP(p, e, reduction), Is.EqualTo(expected));
+            Object.DestroyImmediate(p.Species);
+            Object.DestroyImmediate(e);
+        }
+
         // Per §6.2.1 — floor() applies (odd base HP).
         [Test]
         public void EffectiveMaxHP_Floors()

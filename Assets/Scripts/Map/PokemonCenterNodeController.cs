@@ -35,7 +35,9 @@ namespace ProjectAscendant.Map
                 PokemonInstance p = _box.Members[i];
                 if (p != null)
                 {
-                    p.CurrentHP = PokemonVitals.EffectiveMaxHP(p, _economy);
+                    // §7.8.3.1 (CL-016) Trauma Resistance raises the heal ceiling this Region.
+                    p.CurrentHP = PokemonVitals.EffectiveMaxHP(p, _economy,
+                        RegionModifierResolver.TraumaPenaltyReduction(RunState?.ActiveRegionModifiers));
                     StatusEffectManager.CureAll(p); // Per §7.6.1 "Full restore" — cure status too
                 }
             }

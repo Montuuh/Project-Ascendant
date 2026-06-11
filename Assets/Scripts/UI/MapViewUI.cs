@@ -580,7 +580,8 @@ namespace ProjectAscendant.UI
             {
                 if (p == null || p.CurrentHP <= 0) continue;
                 int max = _ctx.Economy != null
-                    ? PokemonVitals.EffectiveMaxHP(p, _ctx.Economy)
+                    ? PokemonVitals.EffectiveMaxHP(p, _ctx.Economy,
+                        RegionModifierResolver.TraumaPenaltyReduction(_state?.ActiveRegionModifiers))
                     : PokemonVitals.MaxHP(p);
                 int heal = Mathf.FloorToInt(max * frac);
                 if (heal > 0) p.CurrentHP = Mathf.Min(max, p.CurrentHP + heal);

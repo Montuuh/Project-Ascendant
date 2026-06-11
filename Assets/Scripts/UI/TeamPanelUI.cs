@@ -166,8 +166,10 @@ namespace ProjectAscendant.UI
 
             string name = p?.Species != null ? (p.Species.DisplayName ?? p.Species.name) : "—";
             // §6.2.5 — the team panel previews the Trauma-adjusted ceiling, not the base max.
+            // §7.8.3.1 (CL-016) — Trauma-Resistance-aware so the displayed max matches healed HP.
             int effMax = p == null ? 0
-                       : _economy != null ? PokemonVitals.EffectiveMaxHP(p, _economy)
+                       : _economy != null ? PokemonVitals.EffectiveMaxHP(p, _economy,
+                            RegionModifierResolver.TraumaPenaltyReduction(_state?.ActiveRegionModifiers))
                        : PokemonVitals.MaxHP(p);
             int hp = p?.CurrentHP ?? 0;
             int stacks = p?.TraumaStacks ?? 0;
