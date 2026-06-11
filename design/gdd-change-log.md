@@ -77,9 +77,18 @@ pre-existing BACKLOG gap — only the 5 run-data triggers fire today). Commit 17
 seeded 1-of-N offer excluding held + the **max-2/run cap** (`HeldCount`/`CanPick`/`BuildOffer`). Pool
 **exclusions**: `StartingRelicService` whitelists Common+Uncommon (Legendary previously leaked via the
 'never Rare' filter); `RunBootstrapper.StoneRelicPool = NonLegendary(relics)` (shop buckets already
-rarity-specific). +7 tests. **Follow-up:** the Gym-victory 1-of-3 **pick UI** + the **10 effect hooks**
-(retuned-Boon + new effects — compose existing relic/field/status systems, post-VS like the relic-tier
-UI). Commit 2b578c7.
+rarity-specific). +7 tests. Commit 2b578c7. **Follow-up DONE (2026-06-11, 1181 green):** the Gym-victory 1-of-3 **pick UI**
+(`LegendaryPickSelectUI` + `MapViewUI.OfferLegendaryPick`, seeded per-Region, max-2 cap) makes
+Legendaries obtainable in the VS — the F7 "Skip to Gym" cheat already exists for debugging. **All 10
+effect hooks implemented** (Id-dispatch at the existing relic seams, data-driven via BattleConfig/
+ProgressionConfig): type_mastery (SE +15%), evolutions_edge (fully-evolved +10%), apex_predator (Lead
+full-HP +20%), last_stand (survive lethal 1/combat), flow_state (first swap 0 AP), grandmasters_tempo
+(+1 hand & first card 0 AP), clear_mind (reveal Unknown intents), living_legend (XP ×1.3 & recruit +2
+lvl), unbreakable_will (block first status & +1 status duration), battle_hardened (combat-start Shield =
+10% MaxHP, new `PokemonInstance.ShieldHP` absorbed before HP). +10 tests across inc E/F1/F2/F4/F5
+(commits 9fdfd15 · e940cb9 · f35a81f · 702302e). **Remaining follow-up:** Legendary **save round-trip**
+(register the code-built catalog in RunContentRegistry so a held Legendary resolves on resume) — effects
+work in-session via Id-dispatch regardless.
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -390,7 +399,7 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   drop pool, Starting-Relic curation (§6.6.3), and shop random stock. New effects: Grandmaster's Tempo
   (+hand & first-card 0 AP), Living Legend (XP×1.3 + recruit +2 lvl/0 Trauma), Unbreakable Will (first-
   status immunity + status duration), Apex Predator (full-HP Lead +20%, double-edge). Data-driven (PA0001).
-- Status: [✅] GDD updated (Notion §8.3.1/§8.3.7 + §4.5.2/§4.5.1.4/§4.6 + §6.6.1/§6.6.3 + §6.13, re-exported 2026-06-11)   [✅] Code adapted — VS core (1172 green); see ¹⁷. Gym-victory pick UI + 10 effect hooks = follow-up.
+- Status: [✅] GDD updated (Notion §8.3.1/§8.3.7 + §4.5.2/§4.5.1.4/§4.6 + §6.6.1/§6.6.3 + §6.13, re-exported 2026-06-11)   [✅] Code adapted — VS COMPLETE (1181 green); see ¹⁷. Pick UI + all 10 effect hooks done; save round-trip = minor follow-up.
 
 ### CL-020 — Achievements → medal-tier framework + 50-entry catalog   (resolves Q19)
 - Date: 2026-06-11
