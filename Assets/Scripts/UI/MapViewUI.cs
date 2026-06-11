@@ -563,6 +563,10 @@ namespace ProjectAscendant.UI
         private void OnCombatComplete(MapNode node, NodeController active, CombatController cc, CombatController.CombatOutcome outcome)
         {
             PokemonInstance caught = cc.State.CaughtTarget;
+            // §8.3.7 (CL-021) Living Legend — recruited wild Pokémon enter at +2 levels (0 Trauma is
+            // already the recruit default, §6.2.3). Stats derive from Level, so the bump is immediate.
+            if (caught != null && ProjectAscendant.Combat.RelicResolver.Holds(_state?.HeldRelics, "living_legend"))
+                caught.Level += 2;
             // §6.9 — Pokédex: record the recruit (enemy "seen" is recorded combat-side in Start).
             if (caught?.Species != null) _ctx?.Pokedex?.RecordRecruit(caught.Species.SpeciesId);
             // §7.3.4 (Option 1) — a thrown Pokéball is spent (success or fail).

@@ -77,6 +77,10 @@ namespace ProjectAscendant.Combat
             // §8.3.4 Choice Specs / Choice Band — first Ranged/Melee move each turn 0 AP, subsequent +1.
             apCost = RelicResolver.ApplyChoiceCost(apCost, move, _state.ActiveRelics,
                 _state.RangedMovesPlayedThisTurn, _state.MeleeMovesPlayedThisTurn);
+            // §8.3.7 (CL-021) Grandmaster's Tempo — the first skill card each turn costs 0 AP.
+            if (_state.RangedMovesPlayedThisTurn + _state.MeleeMovesPlayedThisTurn == 0
+                && RelicResolver.Holds(_state.ActiveRelics, "grandmasters_tempo"))
+                apCost = 0;
             // §8.3.3 Quick Claw Charm — a replayed copy is free.
             if (card.FreePlay) apCost = 0;
             if (apCost > _state.CurrentAP) return true;
