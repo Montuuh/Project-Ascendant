@@ -77,6 +77,13 @@ namespace ProjectAscendant.Core
         // Populated by InputLogRecorder during the run.
         public InputLog RecordedInputs;
 
+        // Per §9.8.6 (gap #45) — the 5 RNG stream cursors, snapshotted from RNGStreams before each
+        // node-entry autosave so a resume continues each stream where it left off (encounters/loot/
+        // mystery/combat don't re-roll). On resume only the 4 content cursors are restored; MapRNG
+        // re-derives the map by replay (§9.8.6). Absent in pre-CL-022 saves → defaults to all-zero,
+        // i.e. today's "re-roll from seed" behaviour (backward-compatible).
+        public RNGCursors RngCursors;
+
         // Per gap #43 — reset this SO to a fresh run with the given seed, in place (preserving the
         // instance identity so live references — LoadoutManager, Services registration — stay valid).
         // Used by "New Run" from the Main Menu. Position, inventory, team, modifiers, and tallies all
@@ -112,6 +119,7 @@ namespace ProjectAscendant.Core
 
             EventFlags = null;
             RecordedInputs = null;
+            RngCursors = default; // §9.8.6 — fresh run: streams re-seed from RunSeed, no saved cursors
         }
 
         // Per §7.8.3.1 (CL-016) — the single active Region Modifier (per-Region), or null.

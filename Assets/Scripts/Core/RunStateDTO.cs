@@ -40,12 +40,18 @@ namespace ProjectAscendant.Core
 
         // Active modifiers (SO refs → stable IDs)
         public List<string> ActiveRegionModifierIds;
+        // Per §7.3.1 + CL-018 (Q21) — the biome Naturalist's Lens steers this Region toward, stored as
+        // a stable BiomeId and re-resolved via the registry (gap C). Null when the modifier is inactive.
+        public string NaturalistLensBiomeId;
         public string ActiveBoonId;
         public List<string> ActiveDifficultyModifierIds;
 
         // Event flags + determinism log (plain serializable; copied directly)
         public List<StringIntPair> EventFlags;
         public InputLog RecordedInputs;
+
+        // Per §9.8.6 (gap #45) — the 5 RNG stream cursors, copied straight through (value type).
+        public RNGCursors RngCursors;
 
         // Capture a live RunStateSO into a persistable DTO (no registry needed — IDs are read
         // directly off each SO's identity field).
@@ -77,11 +83,13 @@ namespace ProjectAscendant.Core
             dto.EvolutionsThisRun      = run.EvolutionsThisRun;
 
             dto.ActiveRegionModifierIds     = Ids(run.ActiveRegionModifiers,     so => so.ModifierId);
+            dto.NaturalistLensBiomeId       = run.NaturalistLensBiome != null ? run.NaturalistLensBiome.BiomeId : null;
             dto.ActiveBoonId                = run.ActiveBoon != null ? run.ActiveBoon.BoonId : null;
             dto.ActiveDifficultyModifierIds = Ids(run.ActiveDifficultyModifiers, so => so.ModifierId);
 
             dto.EventFlags     = run.EventFlags != null ? new List<StringIntPair>(run.EventFlags) : null;
             dto.RecordedInputs = run.RecordedInputs;
+            dto.RngCursors     = run.RngCursors; // §9.8.6 — value-type copy
 
             return dto;
         }
@@ -125,11 +133,13 @@ namespace ProjectAscendant.Core
             run.EvolutionsThisRun      = EvolutionsThisRun;
 
             run.ActiveRegionModifiers     = Resolve(ActiveRegionModifierIds,     id => registry?.ResolveRegionModifier(id));
+            run.NaturalistLensBiome       = registry?.ResolveBiome(NaturalistLensBiomeId);
             run.ActiveBoon                = registry?.ResolveBoon(ActiveBoonId);
             run.ActiveDifficultyModifiers = Resolve(ActiveDifficultyModifierIds, id => registry?.ResolveDifficultyModifier(id));
 
             run.EventFlags     = EventFlags != null ? new List<StringIntPair>(EventFlags) : null;
             run.RecordedInputs = RecordedInputs;
+            run.RngCursors     = RngCursors; // §9.8.6 — value-type copy
         }
 
         // Map an SO list → ID list, preserving order. Null entries map to null (skipped on rebuild).

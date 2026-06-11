@@ -16,6 +16,15 @@ namespace ProjectAscendant.Core
             _state = seed == 0 ? 1u : seed;
         }
 
+        // Per §9.8.6 (gap #45) — the live cursor. Get to snapshot a stream's position into the run
+        // save; set to restore it on resume so already-consumed rolls (encounters/loot/mystery) do
+        // not re-roll. Clamp 0 → 1 (xorshift32 cannot leave the zero state).
+        public uint State
+        {
+            get => _state;
+            set => _state = value == 0 ? 1u : value;
+        }
+
         // Per §9.7.1 — xorshift32: deterministic, fast, zero GC.
         public uint NextUInt()
         {

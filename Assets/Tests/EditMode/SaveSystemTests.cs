@@ -425,6 +425,149 @@ namespace ProjectAscendant.Tests
             Object.DestroyImmediate(run);
         }
 
+        // ── RNG cursor persistence (§9.8.6 / gap #45, CL-022) ───────────────────────
+
+        // Per §9.8.6 — the 5 RNG stream cursors must survive a run save round-trip so a resume does
+        // not re-roll already-consumed encounters/loot/mystery/combat. (uint via JsonUtility.)
+        [Test]
+        public void SaveSystem_RunRoundTrip_PersistsRngCursors()
+        {
+            RunStateSO original = ScriptableObject.CreateInstance<RunStateSO>();
+            original.RunSeed = 555;
+            original.RngCursors = new RNGCursors { Map = 111u, Combat = 222u, Loot = 333u, Mystery = 444u, Encounter = 555u };
+            SaveSystem.SaveRun(original);
+
+            RunStateSO loaded = SaveSystem.LoadRun(new RunContentRegistry(), new PokemonInstanceFactory()).Run;
+            Assert.That(loaded.RngCursors.Map, Is.EqualTo(111u));
+            Assert.That(loaded.RngCursors.Combat, Is.EqualTo(222u));
+            Assert.That(loaded.RngCursors.Loot, Is.EqualTo(333u));
+            Assert.That(loaded.RngCursors.Mystery, Is.EqualTo(444u));
+            Assert.That(loaded.RngCursors.Encounter, Is.EqualTo(555u));
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(loaded);
+        }
+
+        // Per §9.8.6 — RestoreContentCursors restores the 4 content streams so they CONTINUE where the
+        // save left off, but deliberately leaves MapRNG at its (re-derived) start so the replayed map
+        // does not shift on resume.
+        [Test]
+        public void RNGStreams_RestoreContentCursors_ContinuesContentStreams_NotMap()
+        {
+            // A "live" run: advance every stream a few rolls, then snapshot the cursors.
+            RNGStreams live = new(0xABCDEF);
+            for (int i = 0; i < 5; i++) { live.MapRNG.NextUInt(); live.CombatRNG.NextUInt(); live.LootRNG.NextUInt(); live.MysteryRNG.NextUInt(); live.EncounterRNG.NextUInt(); }
+            uint nextCombat = PeekNext(live.CombatRNG);   // what the live run would roll next
+            uint nextLoot = PeekNext(live.LootRNG);
+            RNGCursors saved = live.CaptureCursors();
+
+            // Resume: fresh streams (Map re-derived to start), then restore the content cursors.
+            RNGStreams resumed = new(0xABCDEF);
+            uint mapStart = resumed.MapRNG.State;
+            resumed.RestoreContentCursors(saved);
+
+            // Content streams continue identically to the live run...
+            Assert.That(resumed.CombatRNG.NextUInt(), Is.EqualTo(nextCombat));
+            Assert.That(resumed.LootRNG.NextUInt(), Is.EqualTo(nextLoot));
+            // ...but MapRNG is untouched (still at its fresh start — the map re-derives by replay).
+            Assert.That(resumed.MapRNG.State, Is.EqualTo(mapStart));
+            Assert.That(resumed.MapRNG.State, Is.Not.EqualTo(saved.Map));
+        }
+
+        private static uint PeekNext(GameRNG rng)
+        {
+            uint snapshot = rng.State;
+            uint next = rng.NextUInt();
+            rng.State = snapshot; // rewind — non-destructive peek
+            return next;
+        }
+
+        // ── Legendary relic save round-trip (§8.3.7 / CL-021, gap B) ────────────────
+
+        // Per §8.3.7 — a held Legendary relic (code-built catalog, not in catalog.Relics) must survive
+        // a save round-trip once LegendaryRelicCatalog is registered on the resume path.
+        [Test]
+        public void SaveSystem_RunRoundTrip_HeldLegendary_SurvivesWhenCatalogRegistered()
+        {
+            System.Collections.Generic.List<RelicSO> legendaries = LegendaryRelicCatalog.BuildAll();
+            RelicSO battleHardened = legendaries.Find(r => r.Id == "battle_hardened");
+            Assert.That(battleHardened, Is.Not.Null);
+            Assert.That(battleHardened.Rarity, Is.EqualTo(RarityTier.Legendary));
+
+            RunStateSO original = ScriptableObject.CreateInstance<RunStateSO>();
+            original.HeldRelics = new System.Collections.Generic.List<RelicSO> { battleHardened };
+            SaveSystem.SaveRun(original);
+
+            // Resume path registers the code-built Legendary catalog (RunLauncher does this).
+            RunContentRegistry registry = new();
+            registry.RegisterRelics(LegendaryRelicCatalog.BuildAll());
+
+            RunStateSO loaded = SaveSystem.LoadRun(registry, new PokemonInstanceFactory()).Run;
+            Assert.That(loaded.HeldRelics, Has.Count.EqualTo(1));
+            Assert.That(loaded.HeldRelics[0].Id, Is.EqualTo("battle_hardened"));
+            Assert.That(loaded.HeldRelics[0].Rarity, Is.EqualTo(RarityTier.Legendary));
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(loaded);
+            foreach (RelicSO r in legendaries) Object.DestroyImmediate(r);
+        }
+
+        // ── Naturalist's Lens biome round-trip (§7.3.1 / CL-018, gap C) ─────────────
+
+        [Test]
+        public void SaveSystem_RunRoundTrip_NaturalistLensBiome_ResolvesById()
+        {
+            BiomeSO cave = ScriptableObject.CreateInstance<BiomeSO>();
+            cave.BiomeId = "cave";
+
+            RunStateSO original = ScriptableObject.CreateInstance<RunStateSO>();
+            original.NaturalistLensBiome = cave;
+            SaveSystem.SaveRun(original);
+
+            RunContentRegistry registry = new();
+            registry.RegisterBiome(cave);
+
+            RunStateSO loaded = SaveSystem.LoadRun(registry, new PokemonInstanceFactory()).Run;
+            Assert.That(loaded.NaturalistLensBiome, Is.SameAs(cave));
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(loaded);
+            Object.DestroyImmediate(cave);
+        }
+
+        // ── ShieldHP is combat-transient, never carried on a restore (§8.3.7 / gap D) ──
+
+        [Test]
+        public void PokemonInstance_Reset_ZeroesShieldHP()
+        {
+            PokemonInstanceFactory factory = new();
+            PokemonInstance mon = factory.RentEmpty();
+            mon.ShieldHP = 25;
+            factory.Release(mon); // Release → Reset → returns to pool
+            PokemonInstance reused = factory.RentEmpty(); // a pooled instance must not carry a stale shield
+            Assert.That(reused.ShieldHP, Is.EqualTo(0));
+        }
+
+        // ── Meta: CL-019 Token / milestone state round-trips (gap E, verify-only) ───
+
+        // Per §6.3.4/§6.3.5 (CL-019) — whole-object JsonUtility means new Meta fields auto-serialize;
+        // prove ClaimedLevelMilestones + TrainerTokens actually round-trip.
+        [Test]
+        public void SaveSystem_Meta_ClaimedLevelMilestonesAndTokens_RoundTrip()
+        {
+            MetaProgressionSO original = ScriptableObject.CreateInstance<MetaProgressionSO>();
+            original.TrainerTokens = 44;
+            original.ClaimedLevelMilestones = new System.Collections.Generic.List<int> { 5, 10, 15 };
+            SaveSystem.SaveMeta(original);
+
+            MetaProgressionSO loaded = SaveSystem.LoadMeta();
+            Assert.That(loaded.TrainerTokens, Is.EqualTo(44));
+            Assert.That(loaded.ClaimedLevelMilestones, Is.EquivalentTo(new[] { 5, 10, 15 }));
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(loaded);
+        }
+
         // ── Checksum ──────────────────────────────────────────────────────────────
 
         [Test]

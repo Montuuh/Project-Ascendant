@@ -105,6 +105,7 @@ namespace ProjectAscendant.Core
             MidFightEvolutionTarget = null;
             HasEvolvedMidFight = false;
             Phase2Archetype = Phase2Archetype.None;
+            ShieldHP = 0; // §8.3.7 (CL-021) — combat-transient; never carried between nodes on a save-restore
         }
 
         // Per §4.3.3 — set/check/tick helpers for AI cooldown gate.

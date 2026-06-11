@@ -21,6 +21,8 @@ namespace ProjectAscendant.Core
         private readonly Dictionary<string, DifficultyModifierSO> _difficultyModifiers = new();
         private readonly Dictionary<string, RegionModifierSO> _regionModifiers = new();
         private readonly Dictionary<string, LeagueBoonSO> _boons = new();
+        // Per CL-018 (Q21) gap C — biomes Naturalist's Lens can steer to; indexed for save round-trip.
+        private readonly Dictionary<string, BiomeSO> _biomes = new();
 
         // Team content (PokemonInstance refs, gap #43 team persistence) — populated transitively
         // from the catalog's species roots (starters + wild biome pools) via RegisterSpeciesGraph.
@@ -50,7 +52,11 @@ namespace ProjectAscendant.Core
             reg.RegisterSpeciesGraphs(catalog.Starters);
             if (catalog.WildConfig != null && catalog.WildConfig.RegionBiomes != null)
                 foreach (BiomeWeight bw in catalog.WildConfig.RegionBiomes)
-                    if (bw.Biome != null) reg.RegisterSpeciesGraphs(bw.Biome.SpeciesPool);
+                    if (bw.Biome != null)
+                    {
+                        reg.RegisterBiome(bw.Biome); // CL-018 gap C — Naturalist's Lens biome round-trip
+                        reg.RegisterSpeciesGraphs(bw.Biome.SpeciesPool);
+                    }
 
             return reg;
         }
@@ -123,6 +129,7 @@ namespace ProjectAscendant.Core
         public void RegisterDifficultyModifier(DifficultyModifierSO so) { Add(_difficultyModifiers, so, so != null ? so.ModifierId : null); }
         public void RegisterRegionModifier(RegionModifierSO so) { Add(_regionModifiers, so, so != null ? so.ModifierId : null); }
         public void RegisterBoon(LeagueBoonSO so)           { Add(_boons, so, so != null ? so.BoonId : null); }
+        public void RegisterBiome(BiomeSO so)               { Add(_biomes, so, so != null ? so.BiomeId : null); }
 
         public void RegisterRelics(IEnumerable<RelicSO> list)               { AddRange(list, RegisterRelic); }
         public void RegisterConsumables(IEnumerable<ConsumableSO> list)     { AddRange(list, RegisterConsumable); }
@@ -145,6 +152,7 @@ namespace ProjectAscendant.Core
         public DifficultyModifierSO ResolveDifficultyModifier(string id) => Resolve(_difficultyModifiers, id, "DifficultyModifier");
         public RegionModifierSO ResolveRegionModifier(string id)     => Resolve(_regionModifiers, id, "RegionModifier");
         public LeagueBoonSO ResolveBoon(string id)                   => Resolve(_boons, id, "Boon");
+        public BiomeSO ResolveBiome(string id)                       => Resolve(_biomes, id, "Biome");
         public PokemonSpeciesSO ResolveSpecies(string id)            => Resolve(_species, id, "Species");
         public MoveSO ResolveMove(string id)                         => Resolve(_moves, id, "Move");
         public AbilitySO ResolveAbility(string id)                   => Resolve(_abilities, id, "Ability");

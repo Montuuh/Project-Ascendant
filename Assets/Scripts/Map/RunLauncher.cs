@@ -61,6 +61,10 @@ namespace ProjectAscendant.Map
             // Per §7.8.3.1 (CL-016) — register the 16 Region Modifiers so a saved ActiveRegionModifier
             // ID resolves back to its authored SO on resume.
             _registry.RegisterRegionModifiers(RegionModifierPool.BuildAll());
+            // Per §8.3.7 (CL-021) gap B — Legendary relics are code-built (LegendaryRelicCatalog), NOT
+            // in catalog.Relics, so FromCatalog never indexes them; without this a held Legendary's id
+            // resolves to null on resume and is silently dropped. Register the catalog so it round-trips.
+            _registry.RegisterRelics(LegendaryRelicCatalog.BuildAll());
 
             // Build a fresh, IDLE run (Map == null). The Main Menu picks Continue vs New Run.
             RunStateSO run = ScriptableObject.CreateInstance<RunStateSO>();
@@ -125,10 +129,13 @@ namespace ProjectAscendant.Map
 
             // Per gap #43 — reseed the RNG streams from the LOADED seed so the deterministic map
             // regenerates identically to the saved run (boot seeded streams from the idle placeholder
-            // seed). NOTE gap #45: per-stream cursors aren't persisted, so node CONTENTS past the
-            // resume point re-roll from each stream's start; the map topology + node types are stable.
+            // seed). Resume() rebuilds the region map by replaying MapRNG from its region-entry state.
             Context.Streams = new RNGStreams((uint)Context.Run.RunSeed);
             Run.Resume();
+            // Per §9.8.6 (gap #45) — restore the 4 CONTENT cursors so encounters/loot/mystery/combat
+            // continue exactly where the save left off instead of re-rolling from the stream start.
+            // MapRNG is intentionally left as the replay rebuilt it (the map must NOT shift on resume).
+            Context.Streams.RestoreContentCursors(Context.Run.RngCursors);
             Debug.Log($"[RunLauncher] Continued run (seed {Context.Run.RunSeed}) at " +
                       $"L{Context.Run.CurrentLayerIndex}/Lane{Context.Run.CurrentLaneIndex} — team={Context.Box.Count}.");
             return true;

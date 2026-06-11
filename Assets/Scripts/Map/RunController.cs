@@ -158,7 +158,13 @@ namespace ProjectAscendant.Map
             ActiveNode = _factory.Build(node, _ctx.Run);
             // Per §9.8.1 + gap #43 — save-on-entry persists run-state AND the live Box (team). The
             // callback is supplied here because this is the layer that owns the RunContext.Box.
-            ActiveNode.Enter(run => SaveSystem.SaveRun(run, _ctx.Box?.Members, _ctx.Box?.Capacity ?? 0));
+            // Per §9.8.6 (gap #45) — snapshot the 5 RNG cursors into run-state first so the resume
+            // continues each stream where it left off (encounters/loot/mystery don't re-roll).
+            ActiveNode.Enter(run =>
+            {
+                if (_ctx.Streams != null) run.RngCursors = _ctx.Streams.CaptureCursors();
+                SaveSystem.SaveRun(run, _ctx.Box?.Members, _ctx.Box?.Capacity ?? 0);
+            });
             CurrentNode = node;
 
             _dispatch(new GameEvent(GameEventType.NodeConfirmed));
