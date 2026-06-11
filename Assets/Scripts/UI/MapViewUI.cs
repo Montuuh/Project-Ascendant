@@ -570,6 +570,27 @@ namespace ProjectAscendant.UI
             }
         }
 
+        // §7.8.3.1 (CL-016) Type Affinity — the team's most-common move type (GDD: "surfaces the
+        // player's most-common move type"). Ties break toward the first seen; defaults to Normal.
+        private PokemonType MostCommonMoveType(List<PokemonInstance> team)
+        {
+            Dictionary<PokemonType, int> counts = new();
+            if (team != null)
+                foreach (PokemonInstance p in team)
+                    if (p?.CurrentMoves != null)
+                        foreach (MoveSO m in p.CurrentMoves)
+                            if (m != null)
+                            {
+                                counts.TryGetValue(m.Type, out int c);
+                                counts[m.Type] = c + 1;
+                            }
+            PokemonType best = PokemonType.Normal;
+            int bestN = -1;
+            foreach (KeyValuePair<PokemonType, int> kv in counts)
+                if (kv.Value > bestN) { bestN = kv.Value; best = kv.Key; }
+            return best;
+        }
+
         // §7.8.3.1 (CL-016) Pocket Healer — on a node's combat victory, heal every non-fainted Box
         // Pokémon a fraction of its Effective Max HP. Never revives a fainted Pokémon (§2.4.3).
         private void ApplyPocketHealer()
@@ -795,6 +816,9 @@ namespace ProjectAscendant.UI
             setup.Meta = _ctx.Meta; // §4.3.9.1 — Pokedex Master tier unlocks the species' Mastery Move
             setup.ActiveRelics = _state?.HeldRelics; // §8.3 / 12.3 — RelicResolver dispatch
             setup.ActiveRegionModifiers = _state?.ActiveRegionModifiers; // §7.8.3.1 (CL-016) — RegionModifierResolver dispatch
+            // §7.8.3.1 (CL-016) Type Affinity — surface the team's most-common move type for the bonus.
+            if (RegionModifierResolver.Has(_state?.ActiveRegionModifiers, RegionModifierKind.TypeAffinity))
+                setup.TypeAffinityType = MostCommonMoveType(BuildPlayerTeam(out _));
             setup.UnlockedMasteryIds = _ctx.Meta?.UnlockedMasteryMoveIds; // §4.3.9.2 — gate Mastery cards
             return new CombatController(setup, new UIPlayerAgent());
         }

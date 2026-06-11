@@ -98,6 +98,10 @@ namespace ProjectAscendant.Combat
             // RunStateSO.ActiveRegionModifiers by the run layer). Queried via RegionModifierResolver.
             public List<RegionModifierSO> ActiveRegionModifiers;
 
+            // Per §7.8.3.1 (CL-016) Type Affinity — the player's chosen/surfaced move type that gets the
+            // damage bonus this Region (the run layer surfaces the team's most-common move type).
+            public PokemonType TypeAffinityType;
+
             // Per §4.3.9.2 — Mastery MoveIds unlocked in meta (MetaProgressionSO.UnlockedMasteryMoveIds).
             // A Pokémon's Mastery card is built into the Skill Deck only if its MoveId is here.
             // Null/empty ⇒ no Mastery cards (locked).
@@ -213,6 +217,9 @@ namespace ProjectAscendant.Combat
             // Per §7.8.3.1 (CL-016) — the active Region Modifier(s) this combat (0..1). Never null.
             public List<RegionModifierSO> ActiveRegionModifiers = new();
 
+            // Per §7.8.3.1 (CL-016) Type Affinity — the move type that gets the damage bonus this combat.
+            public PokemonType TypeAffinityType;
+
             // Per §4.3.9.2 — unlocked Mastery MoveIds for this combat's deck build. Never null.
             public HashSet<string> UnlockedMasteryIds = new();
 
@@ -294,6 +301,7 @@ namespace ProjectAscendant.Combat
                 ActiveRegionModifiers = setup.ActiveRegionModifiers != null
                     ? new List<RegionModifierSO>(setup.ActiveRegionModifiers)
                     : new List<RegionModifierSO>(),
+                TypeAffinityType = setup.TypeAffinityType,
                 UnlockedMasteryIds = setup.UnlockedMasteryIds != null
                     ? new HashSet<string>(setup.UnlockedMasteryIds)
                     : new HashSet<string>(),
@@ -1210,6 +1218,10 @@ namespace ProjectAscendant.Combat
                 regionModMul *= RegionModifierResolver.DamageDealtMultiplier(State.ActiveRegionModifiers);
             if (State.PlayerTeam != null && State.PlayerTeam.Contains(target))
                 regionModMul *= RegionModifierResolver.DamageTakenMultiplier(State.ActiveRegionModifiers);
+            // §7.8.3.1 (CL-016) Type Affinity — the player's chosen type gets +Magnitude damage.
+            if (!attackerIsEnemy && move.Type == State.TypeAffinityType
+                && RegionModifierResolver.Has(State.ActiveRegionModifiers, RegionModifierKind.TypeAffinity))
+                regionModMul *= 1f + RegionModifierResolver.TypeAffinityBonus(State.ActiveRegionModifiers);
 
             int final = Mathf.FloorToInt(dmg.Final * fieldMul * freezeFireMul * playerAuraMul * abilityOutMul * relicOutMul * heldItemMul * regionModMul);
             // Per §4.1.1 + R3-4 — 0-damage floor ONLY for real attacks (non-immune).

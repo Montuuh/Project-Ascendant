@@ -544,6 +544,33 @@ namespace ProjectAscendant.Tests
             Assert.That(boosted, Is.GreaterThan(baseline), "Glass Cannon raises player damage dealt (+20%)");
         }
 
+        // §7.8.3.1 (CL-016) Type Affinity — the player's chosen move type deals +10% damage.
+        [Test]
+        public void RegionModifier_TypeAffinity_BoostsChosenTypeDamage()
+        {
+            int LossOnce(bool withAffinity)
+            {
+                PokemonSpeciesSO playerSp = MakeSpecies(100, 150, 50, PokemonType.Fire);
+                PokemonSpeciesSO enemySp = MakeSpecies(2000, 10, 10, PokemonType.Normal);
+                PokemonInstance player = MakeMon(playerSp, MakeMove(PokemonType.Fire, 120));
+                PokemonInstance enemy = MakeMon(enemySp, MakeMove(PokemonType.Normal, 5));
+                CombatController.CombatSetup setup = BuildSetup(player, enemy, 0xAFF10001u);
+                if (withAffinity)
+                {
+                    RegionModifierSO ta = RegionModifierPool.BuildAll().Find(m => m.Kind == RegionModifierKind.TypeAffinity);
+                    _disposables.Add(ta);
+                    setup.ActiveRegionModifiers = new List<RegionModifierSO> { ta };
+                    setup.TypeAffinityType = PokemonType.Fire; // matches the player's move type
+                }
+                CombatController c = new(setup, new FirstCardAgent());
+                c.Start(); c.DrawPhase(); c.IntentPhase(); c.ActionPhase(); c.ResolutionPhase();
+                return enemySp.BaseStats.BaseHP - enemy.CurrentHP;
+            }
+
+            Assert.That(LossOnce(true), Is.GreaterThan(LossOnce(false)),
+                "Type Affinity raises chosen-type damage (+10%)");
+        }
+
         // §7.8.3.1 (CL-016) Sturdy Lead — the player's Lead survives one otherwise-lethal hit at 1 HP.
         [Test]
         public void RegionModifier_SturdyLead_LeadSurvivesLethalAtOneHP()
