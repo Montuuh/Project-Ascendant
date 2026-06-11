@@ -54,6 +54,7 @@
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ✅¹³ |
 | CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ✅⁸ |
 | CL-018 | Q21 | Biome↔Region binding confirmed + Naturalist's Lens (opt-in biome-steer modifier) | T7 §7.3.1/§7.8.3.1 | ✅ | ✅¹⁴ |
+| CL-019 | Q18 | Trainer XP → Hybrid Battle Pass (per-level track + Token choice lane) | T6 §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1 | ✅ | ☐ (post-VS) |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -335,6 +336,35 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   Type Affinity / Field Surveyor auto-target rather than offer an explicit sub-picker (GDD-aligned).
 - Status: [✅] GDD updated (Notion §2.1.1/§2.1.4.1 + §7.8.3/.1/.2, re-exported 2026-06-10)   [✅] Code adapted — 16/16 effects + foundation/lifecycle + R1 pick UI (1147 green)
 
+### CL-019 — Trainer XP → Hybrid Battle Pass   (resolves Q18)
+- Date: 2026-06-11
+- Topic / §: Topic 6 §6.3.4 (currency model rewrite), new §6.3.5 (Battle Pass reward track + 1–30
+  table), §6.4.2 (Hub upgrades now track-granted), §6.5.2 (meta-starters track-granted), §6.6.1 (Tier-3
+  = the Token lane)
+- Change: **Option B — Hybrid Battle Pass.**
+  - Trainer XP stays the single earn-source → Trainer Level (curve §6.3.3 unchanged). Each level grants
+    an authored reward; **~80% auto-grants, ~20% Token milestones** (every 5th level: L5/10/15/20/25/30).
+  - **Token earn changes:** the per-run `floor(run XP / 100)` (cap 50) rule is **superseded** — Tokens
+    now come from **track milestones + select achievements**. Tokens are spent at the Pokémart **only**
+    on the **Tier-3 Mastery-relic lane** (§6.6.1, 10 relics × 5 Tokens) in any order (retained agency).
+  - **Hub upgrades (§6.4.2) + meta-starters (§6.5.2) move onto the track**, auto-granted on schedule;
+    their individual **Token costs are removed**. The meta-starters' thematic criteria (Pikachu "reach
+    R2", Eevee "win + recruit 4 evos", Riolu "Underdog Run") **become achievements** that grant bonus
+    XP/Tokens instead of gating the starter (Q19 expands the achievement catalog).
+  - **Tier-2 discovery layer (§6.6.1) unchanged** (achievement-triggered relic unlocks stay orthogonal).
+  - **§6.1 hard rule preserved:** every reward is option/QoL/cosmetic — never power.
+  - Full 1–30 track authored in §6.3.5 (placements + Token amounts are systems-designer placeholders).
+- Rationale: delivers the user's "each level visibly unlocks X" (failure-is-fuel ★) while keeping the
+  §6.3.4 agency that exists to dodge the XP-funnel trap — by shrinking Tokens to a focused Mastery-relic
+  choice lane fed by milestones. Preserves the thematic starter criteria as achievements (Pillar 5).
+- Code impact: **post-VS** (the VS ends at Gym 1 — Trainer Hub / meta-progression is a separate Epic).
+  When built: remove the per-run Token earn (`floor(run XP / 100)`); add a **Battle Pass reward-track**
+  data asset (level → reward[]), granted on level-up by the Trainer-Level service; reposition Hub
+  upgrades + meta-starters as track grants (drop their Token-cost fields); restrict Token spend to the
+  Tier-3 Mastery-relic lane; route the starter thematic criteria into the achievement system (Q19);
+  add the Battle Pass track UI surface (ties Q23). Data-driven per PA0001 (no inline reward literals).
+- Status: [✅] GDD updated (Notion §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1, re-exported 2026-06-11)   [ ] Code adapted (post-VS)
+
 ### CL-018 — Biome↔Region binding confirmed + Naturalist's Lens   (resolves Q21)
 - Date: 2026-06-11
 - Topic / §: Topic 7 §7.3.1 (biome↔Region binding confirmation + modifier-steer note), §7.8.3.1
@@ -567,7 +597,7 @@ pass lands (subject to the actual decisions):
 | Evolution payload + per-stage branch choice | Q15 | Topic 5 §5.3 |
 | Move Tutor as standalone node | Q16 | Topic 7 §7.6/§7.8, Topic 5 §5.4.2 |
 | Trauma cap / per-stack value | Q17 | Topic 6 §6.2 |
-| Battle Pass replacing/absorbing Tokens | Q18 | Topic 6 §6.3 |
+| Battle Pass replacing/absorbing Tokens (CL-019 ✅ decided) | Q18 | Topic 6 §6.3.4/§6.3.5 |
 | Achievement catalog expansion | Q19 | Topic 6 §6.7 |
 | Save/Load persistence manifest (new doc) | Q20 | Topic 9 §9.8, Topic 6 §6.10 |
 | Biome↔Region binding + Naturalist's Lens (CL-018 ✅ decided) | Q21 | Topic 7 §7.3.1/§7.8.3.1 |

@@ -354,7 +354,7 @@ swing (e.g. 15 stacks ×5%, or steeper per-stack) — needs a spiral/soft-lock r
   (Map-View badge + pre-combat Effective Max HP preview) is unchanged. All numbers systems-designer-tunable.
   → logged **CL-017**.
 
-## Q18 — Trainer XP as a full "Battle Pass" 🔵
+## Q18 — Trainer XP as a full "Battle Pass" ✅ DECIDED 2026-06-11
 **Owner:** systems-designer + producer + content-designer
 **User:** Player XP should work like a **Battle Pass** — each level visibly unlocks X (new
 starters, relics, nodes, etc.). **Design the full Battle Pass now.**
@@ -362,6 +362,28 @@ starters, relics, nodes, etc.). **Design the full Battle Pass now.**
 relates to / replaces Trainer Tokens.
 **Steward note (canon):** today two-track (XP→Level gates + Tokens→manual spend, §6.3).
 A Battle Pass likely collapses Tokens into a fixed per-level reward track.
+**✅ Resolution — Option B (Hybrid Battle Pass: fixed track + Token choice milestones):**
+- **Single earn-source:** Trainer XP only (§6.3.2 sources unchanged) → Trainer Level (curve `500×N^1.6`,
+  §6.3.3 unchanged). Each level grants its authored reward instantly on level-up.
+- **~80% auto-grants / ~20% Token milestones:** every 5th level (5/10/15/20/25/30) grants **Trainer
+  Tokens**; all other levels auto-grant an option-expanding reward.
+- **Tokens repurposed to an agency lane only:** the old per-run `floor(run XP / 100)` earn is
+  **superseded** — Tokens now come from **track milestones + select achievements**. Tokens are spent at
+  the Pokémart on the **Tier-3 Mastery-relic lane** (§6.6.1, 10 relics × 5 Tokens) in any order — the
+  retained choice that avoids the §6.3.4 XP-funnel trap.
+- **Hub upgrades + meta-starters move onto the track** (auto-granted on schedule); their old **Token
+  costs are removed** (§6.4.2 / §6.5.2). The meta-starters' thematic criteria (e.g. Riolu's "Underdog
+  Run") **survive as achievements** granting bonus XP/Tokens rather than gating the starter (→ Q19).
+- **Discovery layer intact:** achievement-triggered **Tier-2** relic unlocks (§6.6.1) stay orthogonal.
+- **No power (§6.1 hard rule preserved):** every reward expands options / QoL / cosmetics — never
+  +damage/HP/baseline.
+- **Full 1–30 track authored** (see §6.3.5): starters Pikachu(L4)/Eevee(L8)/Riolu(L12); 7 Hub upgrades
+  at L3/6/7/9/11/13/18; difficulty mods at L14/17/21; relic-pool drips; cosmetics; Token milestones
+  L5(+5)/10(+5)/15(+8)/20(+8)/25(+10)/30(+10) ≈ 44 Tokens (achievements top up the long-tail). All
+  numbers systems-designer-tunable placeholders.
+- **Pillars:** §6.1 philosophy (failure-is-fuel ★, options-never-power), Pillar 5 (cheerful reveals),
+  Pillar 3 (expanded sculpt options). **Code:** meta-progression is post-VS (VS ends at Gym 1) — GDD now,
+  code deferred. → logged **CL-019**.
 
 ## Q19 — Expand + improve the achievement list 🔵
 **Owner:** content-designer
@@ -462,14 +484,14 @@ done *after* the gameplay questions above settle, so the UI reflects final mecha
 
 ## Suggested processing order (producer recommendation)
 
-*Updated 2026-06-11. Q1–Q9, Q11–Q17, Q21, Q22 are ✅ DECIDED and in the change log (18 of 23).
+*Updated 2026-06-11. Q1–Q9, Q11–Q18, Q21, Q22 are ✅ DECIDED and in the change log (19 of 23).
 Q10 is ⏸ PARKED with League. Remaining open work:*
 
-1. ✅ **Done:** Combat feel (Q8/Q9/Q22), World structure (Q1/Q2/**Q21**), Trauma (Q17), progression
-   cascade (Q12–Q16), Unknown intents (Q7).
-2. **Meta & economy (next):** **Q18 (Battle Pass XP — large)**, Q19 (achievements).
+1. ✅ **Done:** Combat feel (Q8/Q9/Q22), World structure (Q1/Q2/Q21), Trauma (Q17), progression
+   cascade (Q12–Q16), Unknown intents (Q7), **Battle Pass (Q18)**.
+2. **Meta & economy:** Q19 (achievements — coupled to Q18's achievement→Token/XP layer).
 3. **Documentation:** Q20 (save/load manifest), then **Q23 (full UI spec)** last — after
    mechanics settle.
 4. **Parked (reopen with League):** Q10 (Boons → relics).
 
-*Recommended remaining order: **Q20 (doc) → Q19 → Q18 → Q23 last.***
+*Recommended remaining order: **Q19 → Q20 (doc) → Q23 last.***

@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T17:13:00.000Z -->
+<!-- Last updated from Notion: 2026-06-11T09:47:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-24 (Trauma System Option E + cap; meta-progression spec authored; starter unlocks, relic pool, difficulty, achievements defined)
+**Last Updated:** 2026-06-11 (CL-019 — Q18: Trainer XP → Hybrid Battle Pass; §6.3.4 currency model rewritten, new §6.3.5 reward track, §6.4.2/§6.5.2/§6.6.1 reconciled)
 
 
 **Cross-references:** Topic 1 (§1.6 starter unlocks, §1.7 difficulty modifiers), Topic 2 (§2.4.4 Trauma penalty hook, §2.4.2 healing formula), Topic 4 (§4.3.9 Pokédex tiers — adjacent system), Topic 5 (§5.2 XP & Leveling — in-run XP is separate), Topic 8 (Trauma Salve relic, Type Plates for starter unlocks).
@@ -149,7 +149,7 @@ For traceability — preserving the design conversation that led to Option E:
 ## §6.3.1 Trainer XP — what it is
 
 
-Trainer XP is the persistent meta-currency. Earned during runs (won or lost). Spent on permanent unlocks via the Trainer Hub (§6.4). Trainer Level is the player's "account level" and gates content tier unlocks.
+Trainer XP is the persistent meta-currency, earned during runs (won or lost). It drives **Trainer Level**, which advances the **Battle Pass reward track** (§6.3.5) and gates content tiers. Per **CL-019 (Q18)**, XP itself is never _spent_ — it accrues; the manual-spend currency is the Trainer Token (§6.3.4).
 
 
 **Trainer XP is not power.** Spending Trainer XP unlocks new starter Pokémon, new relics in the run-pool, new difficulty modifiers, and new Hub upgrades — but never increases damage, HP, or any baseline combat number. Per §6.1.
@@ -212,15 +212,61 @@ XP to reach Trainer Level N (cumulative) = floor( 500 × N^1.6 )
 - Trainer Level 20 ≈ "completionist" tier; all run-content unlocks visible.
 - Trainer Level 30 ≈ prestige cap; future Ascension-mode entry.
 
-## §6.3.4 Currencies — Two-Track System
+## §6.3.4 Currencies — Two-Track System (CL-019 — Q18)
 
 
-To avoid the "XP-funnel" trap (one bar, every unlock competes), Project Ascendant uses a two-track meta-currency model:
+Project Ascendant uses a two-track meta-currency model to avoid the "XP-funnel" trap (one bar where every unlock competes):
 
-- **Trainer XP:** Drives Trainer Level. Earned passively, spent automatically (level-ups are free).
-- **Trainer Tokens:** Spent manually at the Hub for chosen unlocks. Earned per run: `floor(TrainerXP_Earned_This_Run / 100)`. Capped at 50 per run.
+- **Trainer XP:** the single earn-source (§6.3.2). Drives **Trainer Level**, which advances the **Battle Pass reward track** (§6.3.5) — each level grants its authored reward automatically on level-up.
+- **Trainer Tokens:** the manual-spend **agency currency**. Per **CL-019 (Q18)** the old per-run `floor(TrainerXP_Earned_This_Run / 100)` earn (cap 50) is **superseded** — Tokens are now granted at the track's **milestone levels** (every 5th level, §6.3.5) and by select achievements (§6.7), and spent at the Pokémart on the **Tier-3 Mastery-relic lane** (§6.6.1) in any order.
 
-**Why two tracks:** XP guarantees progress (every run feels productive); Tokens give the player **agency** (choose what to unlock next). Standard roguelike meta-progression pattern.
+**Why two tracks:** the track guarantees visible progress every level (failure-is-fuel); Tokens preserve **agency** (you choose which Mastery relics to bring into your pool), keeping the XP-funnel trap away. Per §6.1, every reward expands options — never power.
+
+
+## §6.3.5 Battle Pass Reward Track (CL-019 — Q18)
+
+
+Each Trainer Level grants an authored reward the moment it is reached — the "every level visibly unlocks something" Battle Pass shape. **~80% of levels auto-grant** an option-expanding reward (a meta-starter, a Hub upgrade, a difficulty modifier, a relic-pool addition, or a cosmetic); **every 5th level is a Token milestone** (~20%) granting **Trainer Tokens** for the §6.6.1 Mastery-relic lane. All rewards obey §6.1 (options / QoL / cosmetic, never power).
+
+
+The 3 meta-starters (§6.5.2) and the 7 Hub upgrades (§6.4.2) are delivered **on this track** (their former Token costs are removed); the meta-starters' thematic criteria survive as **achievements** (§6.7). Tier-2 relic discovery (§6.6.1) remains an orthogonal layer.
+
+
+| Trainer Level | Reward                                                     | Grant    |
+| ------------- | ---------------------------------------------------------- | -------- |
+| 1             | — (account start)                                          | —        |
+| 2             | Relic pool +1 (Tier-1 signature)                           | Auto     |
+| 3             | Hub: Curated Starting Relic +1 (3→4 offer)                 | Auto     |
+| 4             | Meta-Starter: Pikachu                                      | Auto     |
+| 5             | +5 Trainer Tokens                                          | 🎟 Token |
+| 6             | Hub: Expanded Box (6→8 slots)                              | Auto     |
+| 7             | Hub: Pokédex Insight                                       | Auto     |
+| 8             | Meta-Starter: Eevee                                        | Auto     |
+| 9             | Hub: Trauma Salve Cache                                    | Auto     |
+| 10            | +5 Trainer Tokens — Mastery-relic lane opens (§6.6.1)      | 🎟 Token |
+| 11            | Hub: Apex Pokémon Reveal                                   | Auto     |
+| 12            | Meta-Starter: Riolu                                        | Auto     |
+| 13            | Hub: Difficulty Modifier Slot +1                           | Auto     |
+| 14            | New difficulty modifier unlocked                           | Auto     |
+| 15            | +8 Trainer Tokens                                          | 🎟 Token |
+| 16            | Relic pool +1                                              | Auto     |
+| 17            | New difficulty modifier unlocked                           | Auto     |
+| 18            | Hub: Second Starter Slot (Twin Run)                        | Auto     |
+| 19            | Cosmetic: Trainer title / card frame                       | Auto     |
+| 20            | +8 Trainer Tokens                                          | 🎟 Token |
+| 21            | New difficulty modifier unlocked                           | Auto     |
+| 22            | Relic pool +1                                              | Auto     |
+| 23            | Cosmetic: Pokédex frame                                    | Auto     |
+| 24            | Relic pool +1                                              | Auto     |
+| 25            | +10 Trainer Tokens                                         | 🎟 Token |
+| 26            | Relic pool +1                                              | Auto     |
+| 27            | Cosmetic: prestige flair                                   | Auto     |
+| 28            | Relic pool +1                                              | Auto     |
+| 29            | Cosmetic: prestige flair                                   | Auto     |
+| 30            | +10 Trainer Tokens + Prestige cap (Ascension, post-launch) | 🎟 Token |
+
+
+**Numbers are systems-designer-tunable placeholders** (level placements, Token amounts). The §6.3.3 pacing anchors hold: all 3 meta-starters by Trainer Level 12; prestige cap at 30. Total track Tokens ≈ 44 — intentionally short of the 50 needed for all ten Mastery relics, so achievements (§6.7) top up the long-tail.
 
 
 ---
@@ -247,7 +293,10 @@ The Trainer Hub is the post-run / pre-run menu space. It is **not** a 3D explora
 ## §6.4.2 Hub Upgrade Tree
 
 
-Persistent upgrades to the Hub itself, unlocked at the Pokémart for Trainer Tokens. Each upgrade is a **quality-of-life** or **option-expanding** unlock — never raw power.
+Persistent upgrades to the Hub itself — each a **quality-of-life** or **option-expanding** unlock, never raw power.
+
+
+**Per CL-019 (Q18):** these upgrades are now **auto-granted on the Battle Pass track (§6.3.5)** at the Trainer Level shown in the _Prereq_ column — the **Token costs in the table are historical** (superseded). The table is retained for the effects + level schedule.
 
 
 | Upgrade                            | Cost (Tokens) | Effect                                                                                                         | Prereq           |
@@ -307,7 +356,10 @@ Per §5.3.3, starter Pokémon get 3 evolution branches (versus 2 for standard sp
 ## §6.5.2 Meta-Unlocked Starters
 
 
-Three additional starters, each tied to a clear unlock criterion. Designed to widen build diversity rather than escalate power.
+Three additional starters, each designed to widen build diversity rather than escalate power.
+
+
+**Per CL-019 (Q18):** the 3 meta-starters are now **unlocked on the Battle Pass track (§6.3.5)** — Pikachu at Trainer Level 4, Eevee at 8, Riolu at 12 — and the **Token costs in the table are removed**. Each starter's thematic _Unlock Criterion_ (column 3) is **retained as an achievement** (§6.7) granting bonus XP/Tokens, no longer gating the starter.
 
 
 | Starter     | Type     | Unlock Criterion                                                                              | Token Cost | Design Slot Filled                                                                        |
@@ -358,6 +410,9 @@ Per §1.6: ~50 launch relics target. Topic 8 will author the relic content; Topi
 - "Soothe Bell" unlocks after winning a run without using the Trauma Salve relic.
 
 This creates ongoing discovery — even at Trainer Level 20, a relic the player hasn't yet triggered is still locked.
+
+
+**Per CL-019 (Q18):** Tier-3 Mastery relics are the **sole Token-spend lane** — unlocked at the Pokémart in any order (5 Tokens each), funded by the Battle Pass track's milestone Tokens (§6.3.5) + achievements. Tier-2 (Discovered) unlocks stay an orthogonal achievement/event discovery layer.
 
 
 ## §6.6.2 Per-Run Pool Construction
@@ -551,7 +606,7 @@ Topic 6 systems in the Region 1 vertical slice:
 - **Effective Max HP:** `floor(BaseMaxHP × max(0.25, 1 − 0.05·min(stacks,5) − 0.10·max(0, min(stacks,10) − 5)))` (CL-017 two-zone). The current HP ceiling for all healing.
 - **Trainer XP:** Persistent meta-XP. Drives Trainer Level.
 - **Trainer Level:** Account-level metric. Gates Hub upgrades and modifier unlocks.
-- **Trainer Token:** Earned-per-run currency. Spent on chosen unlocks. 1 Token per 100 Trainer XP earned that run, capped at 50/run.
+- **Trainer Token:** the agency currency (CL-019 — Q18). Granted at the Battle Pass track's milestone levels (every 5th, §6.3.5) + select achievements; the old per-run `floor(run XP/100)` earn is superseded. Spent at the Pokémart on Tier-3 Mastery relics (§6.6.1).
 - **Trainer Hub:** Pre/post-run menu space; kiosk-driven.
 - **Hub upgrade:** Permanent quality-of-life or option-expanding unlock purchased with Tokens.
 - **Tier 1/2/3 relic:** Meta-unlock status of a relic (NOT in-run rarity).
