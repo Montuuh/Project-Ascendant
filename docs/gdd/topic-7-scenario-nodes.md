@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T09:03:00.000Z -->
+<!-- Last updated from Notion: 2026-06-11T09:16:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-06-10 (CL-009: Dojo node enriched — full-pool offer, no cap, placeholder pricing; Move Tutor removed from Centers §7.6.1/§7.8.1; §7.2.2/§7.12/§7.13 updated)
+**Last Updated:** 2026-06-11 (CL-018: biome↔Region binding confirmed §7.3.1; Naturalist's Lens added to Region Modifier pool §7.8.3.1, pool 16→17)
 
 
 **Cross-references:** Topic 2 (§2.1.2 node categories, branching map), Topic 4 (§4.5 Victory Road nodes — adjacent), Topic 6 (§6.5 starter unlocks; §6.6 relic tiers; achievement triggers), Topic 8 (shop inventory, consumables, relics, Held Items).
@@ -131,6 +131,9 @@ Seven biome variants, each with its own species pool and visual theming:
 
 
 When a Wild Pokémon Area node generates, it samples a biome from the Region's eligible set, weighted by Region (each Region has a "primary" biome that appears more often).
+
+
+**Biome↔Region binding is canon (CL-018, Q21):** the eligible biome set and the primary-biome weighting are fixed per Region (§7.10) — biomes always follow the Region's theme. Region Modifiers do **not** steer biome/species weighting, with **one opt-in exception**: **Naturalist's Lens** (§7.8.3.1) lets the player override _this Region's_ primary biome for the Region.
 
 
 ## §7.3.2 Encounter Composition
@@ -411,7 +414,7 @@ The City Shop accepts sells: any held inventory item can be sold for 30% of its 
 Per §2.1.4 (Choice Plaza): the Reflection offers **3 Region Modifiers, player picks 1**. Per **CL-016 (Q2)** modifiers are **per-Region** — exactly **1 active per Region**, re-chosen each Region (a pre-R1 pick at run setup §2.1.1, then City 1 for R2 and City 2 for R3), applying to **that Region only** (non-accumulating).
 
 
-### §7.8.3.1 Launch Region Modifier Pool (16 modifiers — CL-016)
+### §7.8.3.1 Launch Region Modifier Pool (17 modifiers — CL-016, CL-018)
 
 
 | Modifier              | Effect                                                                 | Tier                        |
@@ -439,6 +442,10 @@ Per Region, the 3-modifier offering is seeded from this pool, weighted to surfac
 - **Quick Study** (Medium): all Pokémon gain +15% combat XP this Region.
 - **Bargain Hunter** (Medium): Shop + Dojo prices −20% this Region.
 - **Field Surveyor** (Niche): you choose the active neutral Battlefield at the start of each wild/Region combat (CL-012, §4.3.8).
+
+**New in CL-018 (Q21) — 1 addition (pool now 17):**
+
+- **Naturalist's Lens** (Medium): at Region start, choose one biome from the Region's **eligible** set (§7.3.1); it becomes that Region's **primary biome** (dominant Wild-Area weighting) for the Region, overriding the default primary. The chosen biome is **dominant, not exclusive** — secondary biomes still appear, so the §7.3.2 three-species offer never starves (every biome carries a full Common/Uncommon/Rare pool, §7.3.3). This is the **only** Region Modifier that steers wild encounters: a telegraphed, opt-in recruit-pool sculpt (Pillar 3). The picker offers only the Region's eligible biomes; all weights are systems-designer-tunable.
 
 ### §7.8.3.2 Modifier persistence
 

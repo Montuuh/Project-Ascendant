@@ -53,6 +53,7 @@
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ✅¹³ |
 | CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ✅⁸ |
+| CL-018 | Q21 | Biome↔Region binding confirmed + Naturalist's Lens (opt-in biome-steer modifier) | T7 §7.3.1/§7.8.3.1 | ✅ | ☐ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -334,6 +335,34 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   Type Affinity / Field Surveyor auto-target rather than offer an explicit sub-picker (GDD-aligned).
 - Status: [✅] GDD updated (Notion §2.1.1/§2.1.4.1 + §7.8.3/.1/.2, re-exported 2026-06-10)   [✅] Code adapted — 16/16 effects + foundation/lifecycle + R1 pick UI (1147 green)
 
+### CL-018 — Biome↔Region binding confirmed + Naturalist's Lens   (resolves Q21)
+- Date: 2026-06-11
+- Topic / §: Topic 7 §7.3.1 (biome↔Region binding confirmation + modifier-steer note), §7.8.3.1
+  (Region Modifier pool 16 → 17)
+- Change: **Option C — opt-in biome-steer modifier.**
+  - **Part 1 (confirmation, no spec change):** biomes are Region-bound (§7.3.1 per-Region eligible set +
+    primary-biome weighting; §7.10 per-Region biome focus). Region Modifiers stay orthogonal to biomes
+    **except** via the one new modifier below. Add a sentence to §7.3.1 stating this explicitly.
+  - **Part 2 (new content):** **Naturalist's Lens** — new Region Modifier (pool 16 → 17, tier Medium).
+    At Region start the player chooses one biome from the Region's **eligible** set; it becomes that
+    Region's **primary biome** (dominant Wild-Area weighting) for the Region, overriding the default
+    primary. Reuses the existing per-Region primary-biome weighting (§7.3.1) — no new sampling logic.
+    Guard: picker offers only eligible biomes; every biome has a full Common/Uncommon/Rare pool
+    (§7.3.3, ≥3 species) so the 3-species offer (§7.3.2) never starves; chosen biome is dominant, not
+    exclusive (secondary biomes still appear).
+- Rationale: lets players **sculpt their recruit pool** (Pillar 3) toward a desired type/species via a
+  telegraphed, opt-in pick that costs a modifier slot — answering the "modifiers steer biomes?" half of
+  Q21 without a hidden global tilt and without scope-creeping the other 16 modifiers.
+- Code impact: add a **`Naturalist's Lens`** entry to the `RegionModifierSO` pool
+  (`RegionModifierPool.BuildAll`) with a chosen-biome parameter (like Type Affinity's chosen type).
+  The Wild-Area biome sampler (Region primary-biome weighting) must consult the active modifier:
+  if Naturalist's Lens is active, the chosen biome **replaces the Region's default primary** for
+  weighting. The modifier-pick UI (`RegionModifierSelectUI`) needs a biome sub-choice for this
+  modifier (offer = Region's eligible biomes); biome eligibility comes from the Region/biome config.
+  **VS-relevant** (R1 Meadow/Cave/River). All weights systems-designer-tunable. Add EditMode tests:
+  primary-biome override, eligible-only guard, secondary biomes still sampled.
+- Status: [✅] GDD updated (Notion §7.3.1 + §7.8.3.1, re-exported 2026-06-11)   [ ] Code adapted
+
 ### CL-015 — City → Choice Plaza + risky optional City Gym   (resolves Q1)
 - Date: 2026-06-10
 - Topic / §: Topic 2 §2.1.4 (City interstitials), Topic 7 §7.8 (City node detail), Topic 4 §4.5.3
@@ -528,7 +557,7 @@ pass lands (subject to the actual decisions):
 | Battle Pass replacing/absorbing Tokens | Q18 | Topic 6 §6.3 |
 | Achievement catalog expansion | Q19 | Topic 6 §6.7 |
 | Save/Load persistence manifest (new doc) | Q20 | Topic 9 §9.8, Topic 6 §6.10 |
-| Biome↔Region binding | Q21 | Topic 7 §7.3/§7.10 |
+| Biome↔Region binding + Naturalist's Lens (CL-018 ✅ decided) | Q21 | Topic 7 §7.3.1/§7.8.3.1 |
 | Catch thresholds (30%/50%) or catch-rate% | Q22 | Topic 7 §7.3.4 |
 | Full per-system UI spec | Q23 | Topic 10 |
 | City Gym + new City nodes | Q1 | Topic 2 §2.1.4, Topic 7 §7.8 |

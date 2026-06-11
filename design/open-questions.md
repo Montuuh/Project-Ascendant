@@ -385,13 +385,35 @@ redesign — produces a save/load spec doc.
 
 # Domain H — Nodes, Content & Economy
 
-## Q21 — Wild biomes follow Region theming/modifiers 🔵
+## Q21 — Wild biomes follow Region theming/modifiers ✅ DECIDED 2026-06-11
 **Owner:** content-designer
 **User:** The biomes of Wild Areas should follow the Region (modifiers/theme), right?
 **Decision needed:** confirm biome↔Region binding (and whether Region Modifiers influence
 biome/species weighting).
 **Steward note (canon):** today biomes are Region-gated with a per-Region "primary" biome
 (§7.3.1 / §7.10); Region Modifiers don't currently steer biomes. Coupled to Q2.
+**✅ Resolution — Option C (Opt-in biome-steer modifier):**
+- **Part 1 — binding confirmed (no change):** biomes **are** Region-bound today and stay so. §7.3.1
+  gates each of the 7 biomes by Region with a per-Region *primary* biome (weighted more often); §7.10
+  locks each Region's biome focus (R1 Meadow-primary, R2 Sea-primary, R3 Volcano-primary). The user's
+  intuition is canon — biomes follow the Region.
+- **Part 2 — modifiers may steer biomes, but only opt-in:** baseline Region Modifiers stay orthogonal
+  to encounters, **plus** one new modifier — **Naturalist's Lens** — lets the player steer that
+  Region's Wild-Area biome weighting. No hidden global tilt; the steer costs your one modifier slot
+  and is fully telegraphed.
+- **Naturalist's Lens (pool 16 → 17, tier Medium):** at Region start the player chooses one biome from
+  the Region's **eligible** set; it becomes that Region's **primary biome** (dominant Wild-Area
+  weighting) for the Region, **overriding** the default primary. Reuses the existing per-Region
+  primary-biome weighting machinery (§7.3.1) — no new sampling logic.
+- **Recruit-starvation guard:** the picker offers **only the Region's eligible biomes**, and every
+  biome carries a full Common/Uncommon/Rare pool (§7.3.3, ≥3 species), so a primary-swap can never
+  starve the 3-species offer (§7.3.2). The chosen biome is **dominant, not exclusive** — secondary
+  biomes still appear, preserving variety.
+- **VS-relevant:** R1 is in the VS with 3 eligible biomes (Meadow/Cave/River) — Naturalist's Lens lets
+  a VS player make Cave or River primary (steer toward Rock/Ground/Fighting or Water recruits).
+- **Pillars:** 1 (telegraphed pick; biome visible on each Wild node), **3 ★ (sculpt the recruit pool —
+  hunt the type/species you want)**, 5 (Region flavour — specialise the Region). All weights
+  systems-designer-tunable. → logged **CL-018**.
 
 ## Q22 — Catch condition: lower threshold + catch-rate %? ✅ DECIDED 2026-06-10
 **Owner:** systems-designer + game-designer
@@ -440,15 +462,14 @@ done *after* the gameplay questions above settle, so the UI reflects final mecha
 
 ## Suggested processing order (producer recommendation)
 
-*Updated 2026-06-10. Q3/Q4/Q5/Q6/Q7/Q11/Q12/Q13/Q14/Q15/Q16 are ✅ DECIDED and in the change log.
+*Updated 2026-06-11. Q1–Q9, Q11–Q17, Q21, Q22 are ✅ DECIDED and in the change log (18 of 23).
 Q10 is ⏸ PARKED with League. Remaining open work:*
 
-1. **CL-010 unblock** (XP Box 75%, Q12): implement the Epic-10 XP award system so CL-010
-   code can land. Currently the only CL with GDD approved but code pending.
-2. **Combat feel:** Q8 (field effects), Q9 (gym phases), Q22 (catch condition).
-3. **World structure:** Q1 (City nodes + optional Gym), Q2 (Region Modifiers timing + pool),
-   Q21 (Wild biomes → Region theming).
-4. **Meta & economy:** Q17 (Trauma cap), Q18 (Battle Pass XP), Q19 (achievements).
-5. **Documentation:** Q20 (save/load manifest), then **Q23 (full UI spec)** last — after
+1. ✅ **Done:** Combat feel (Q8/Q9/Q22), World structure (Q1/Q2/**Q21**), Trauma (Q17), progression
+   cascade (Q12–Q16), Unknown intents (Q7).
+2. **Meta & economy (next):** **Q18 (Battle Pass XP — large)**, Q19 (achievements).
+3. **Documentation:** Q20 (save/load manifest), then **Q23 (full UI spec)** last — after
    mechanics settle.
-6. **Parked (reopen with League):** Q10 (Boons → relics).
+4. **Parked (reopen with League):** Q10 (Boons → relics).
+
+*Recommended remaining order: **Q20 (doc) → Q19 → Q18 → Q23 last.***
