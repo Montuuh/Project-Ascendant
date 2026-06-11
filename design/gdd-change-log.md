@@ -54,9 +54,32 @@
 | CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ✅¹³ |
 | CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ✅⁸ |
 | CL-018 | Q21 | Biome↔Region binding confirmed + Naturalist's Lens (opt-in biome-steer modifier) | T7 §7.3.1/§7.8.3.1 | ✅ | ✅¹⁴ |
-| CL-019 | Q18 | Trainer XP → Hybrid Battle Pass (per-level track + Token choice lane) | T6 §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1 | ✅ | ☐ (post-VS) |
-| CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ☐ (post-VS) |
-| CL-021 | Q10 | League Boons → choice-only Legendary relic tier (10-relic pool, max 2/run) | T8 §8.3.1/§8.3.7; T4 §4.5.2/§4.5.1.4/§4.6; T6 §6.6.1/§6.6.3 | ✅ | ☐ (post-VS) |
+| CL-019 | Q18 | Trainer XP → Hybrid Battle Pass (per-level track + Token choice lane) | T6 §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1 | ✅ | ✅¹⁵ |
+| CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ✅¹⁶ |
+| CL-021 | Q10 | League Boons → choice-only Legendary relic tier (10-relic pool, max 2/run) | T8 §8.3.1/§8.3.7; T4 §4.5.2/§4.5.1.4/§4.6; T6 §6.6.1/§6.6.3 | ✅ | ✅¹⁷ |
+
+¹⁵ **CL-019 VS code complete (2026-06-11, 1161 green).** `TrainerLevelMilestone.TrainerTokens` +
+`MetaProgressionSO.ClaimedLevelMilestones` (idempotency); `CommitRun` no longer grants per-run Tokens —
+`GrantLevelUnlocks` grants milestone Tokens once on the level cross; `RunEndService` sums them into the
+run summary. `BattlePassTrack.BuildDefaultMilestones()` = the §6.3.5 1-30 track (code-built, seeded into
+the `RunBootstrapper` meta-config fallback). +6 tests. Token **sink** (Tier-3 Mastery relics) + the
+meta-starter / Hub-upgrade *grants* remain post-VS content. Commits 858c2cc · 09c5d9d.
+
+¹⁶ **CL-020 VS code complete (2026-06-11, 1165 green).** `AchievementSO` gains `AchievementTier`
+(Bronze/Silver/Gold/Platinum) + `TokenReward`; `AchievementService` grants Tokens on completion
+(Gold +2 / Platinum +5). `AchievementCatalog` expanded 10→19 (the VS-triggerable subset of §6.7.1.1),
+medal-tiered, ~21% hidden, all 4 tiers. +4 tests. The combat/timer-context triggers (no-damage,
+ranged-only, swaps, overkill, etc.) are catalogued but await the **achievement-hook follow-up** (the
+pre-existing BACKLOG gap — only the 5 run-data triggers fire today). Commit 17f8344.
+
+¹⁷ **CL-021 VS core complete (2026-06-11, 1172 green).** `LegendaryRelicCatalog.BuildAll()` = the 10
+§8.3.7 Legendaries (data: id/name/desc/category/Rarity=Legendary/run-1). `LegendaryPickService`:
+seeded 1-of-N offer excluding held + the **max-2/run cap** (`HeldCount`/`CanPick`/`BuildOffer`). Pool
+**exclusions**: `StartingRelicService` whitelists Common+Uncommon (Legendary previously leaked via the
+'never Rare' filter); `RunBootstrapper.StoneRelicPool = NonLegendary(relics)` (shop buckets already
+rarity-specific). +7 tests. **Follow-up:** the Gym-victory 1-of-3 **pick UI** + the **10 effect hooks**
+(retuned-Boon + new effects — compose existing relic/field/status systems, post-VS like the relic-tier
+UI). Commit 2b578c7.
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -367,7 +390,7 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   drop pool, Starting-Relic curation (§6.6.3), and shop random stock. New effects: Grandmaster's Tempo
   (+hand & first-card 0 AP), Living Legend (XP×1.3 + recruit +2 lvl/0 Trauma), Unbreakable Will (first-
   status immunity + status duration), Apex Predator (full-HP Lead +20%, double-edge). Data-driven (PA0001).
-- Status: [✅] GDD updated (Notion §8.3.1/§8.3.7 + §4.5.2/§4.5.1.4/§4.6 + §6.6.1/§6.6.3 + §6.13, re-exported 2026-06-11)   [ ] Code adapted (post-VS)
+- Status: [✅] GDD updated (Notion §8.3.1/§8.3.7 + §4.5.2/§4.5.1.4/§4.6 + §6.6.1/§6.6.3 + §6.13, re-exported 2026-06-11)   [✅] Code adapted — VS core (1172 green); see ¹⁷. Gym-victory pick UI + 10 effect hooks = follow-up.
 
 ### CL-020 — Achievements → medal-tier framework + 50-entry catalog   (resolves Q19)
 - Date: 2026-06-11
@@ -389,7 +412,7 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   drives XP+Token grant; wire the ~40 new triggers (most compose existing run/combat events); route the
   3 starter-criteria achievements + their Token/XP bonus; Champion/League-gated entries stay dormant
   until CL-004 reopens. Data-driven per PA0001 (no inline reward literals); rewards tunable.
-- Status: [✅] GDD updated (Notion §6.7.0/§6.7.1/§6.7.1.1, re-exported 2026-06-11)   [ ] Code adapted (post-VS)
+- Status: [✅] GDD updated (Notion §6.7.0/§6.7.1/§6.7.1.1, re-exported 2026-06-11)   [✅] Code adapted — VS slice (1165 green); see ¹⁶. Combat/timer trigger wiring = existing achievement-hook gap.
 
 ### CL-019 — Trainer XP → Hybrid Battle Pass   (resolves Q18)
 - Date: 2026-06-11
@@ -418,7 +441,7 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   upgrades + meta-starters as track grants (drop their Token-cost fields); restrict Token spend to the
   Tier-3 Mastery-relic lane; route the starter thematic criteria into the achievement system (Q19);
   add the Battle Pass track UI surface (ties Q23). Data-driven per PA0001 (no inline reward literals).
-- Status: [✅] GDD updated (Notion §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1, re-exported 2026-06-11)   [ ] Code adapted (post-VS)
+- Status: [✅] GDD updated (Notion §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1, re-exported 2026-06-11)   [✅] Code adapted — VS slice (1161 green); see ¹⁵. Token sink + meta-starter/Hub grants post-VS.
 
 ### CL-018 — Biome↔Region binding confirmed + Naturalist's Lens   (resolves Q21)
 - Date: 2026-06-11
