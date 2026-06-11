@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-11T09:47:00.000Z -->
+<!-- Last updated from Notion: 2026-06-11T09:57:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-06-11 (CL-019 — Q18: Trainer XP → Hybrid Battle Pass; §6.3.4 currency model rewritten, new §6.3.5 reward track, §6.4.2/§6.5.2/§6.6.1 reconciled)
+**Last Updated:** 2026-06-11 (CL-019 — Q18: Trainer XP → Hybrid Battle Pass, §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1; CL-020 — Q19: achievement medal-tier framework §6.7.0 + 50-entry catalog §6.7.1.1)
 
 
 **Cross-references:** Topic 1 (§1.6 starter unlocks, §1.7 difficulty modifiers), Topic 2 (§2.4.4 Trauma penalty hook, §2.4.2 healing formula), Topic 4 (§4.3.9 Pokédex tiers — adjacent system), Topic 5 (§5.2 XP & Leveling — in-run XP is separate), Topic 8 (Trauma Salve relic, Type Plates for starter unlocks).
@@ -440,7 +440,21 @@ Per §2.1.1, the player picks 1 of 3 Starting Relics at run start (4 if Curated 
 # §6.7 Achievement System
 
 
-Achievements are challenge goals that grant Trainer XP and serve as the primary unlock signal for Tier 2 relics and meta-starters.
+Achievements are challenge goals that grant **Trainer XP** (always) and, on the harder tiers, **Trainer Tokens** (CL-020 — Q19). They are a discovery/unlock signal for Tier-2 relics (§6.6.1) and carry the meta-starters' thematic flavor markers — the starter unlock itself rides the Battle Pass track (§6.3.5 / CL-019).
+
+
+## §6.7.0 Reward Tiers (medal system — CL-020 — Q19)
+
+
+Each achievement carries a **medal tier** that sets its reward band. XP is always granted; **Tokens** (the §6.3.4 agency currency) are granted on Gold/Platinum, so hard achievements fund the §6.6.1 Mastery-relic lane — topping up the long-tail the §6.3.5 Battle Pass track deliberately leaves short. ~20% of achievements are **Hidden** (description revealed on completion, §6.7.3). Per §6.1 every reward is XP / Tokens / cosmetic — never power.
+
+
+| Tier        | Difficulty | XP      | Tokens | Extra                              |
+| ----------- | ---------- | ------- | ------ | ---------------------------------- |
+| 🥉 Bronze   | Easy       | 50–100  | —      | —                                  |
+| 🥈 Silver   | Medium     | 150–250 | —      | —                                  |
+| 🥇 Gold     | Hard       | 250–400 | +2     | occasional cosmetic title          |
+| 💎 Platinum | Very hard  | 400–500 | +5     | occasional Tier-2 relic / cosmetic |
 
 
 ## §6.7.1 Achievement Categories (8 launch categories)
@@ -458,7 +472,70 @@ Achievements are challenge goals that grant Trainer XP and serve as the primary 
 | **Endurance**      | Win 5 consecutive runs. Survive Region 3 without Pokémon Center healing.                                                                 | 200–500   |
 
 
-**Achievement count target:** ~50 launch achievements distributed across the categories above.
+**Achievement count target:** ~50 launch achievements distributed across the categories above. The per-category XP ranges above are indicative; the **authoritative per-achievement rewards** are the medal tiers (§6.7.0) in the full catalog below.
+
+
+### §6.7.1.1 Full Launch Catalog (50 achievements — CL-020 — Q19)
+
+
+Tier sets the reward (§6.7.0). **(H)** = Hidden (§6.7.3); **★** = carries a meta-starter's thematic flavor (the starter unlocks on the §6.3.5 track regardless); **◆** = references deferred League content (CL-004) — catalogued now, earn-gated until the League ships. Numbers/tiers are systems-designer-tunable.
+
+
+| Category       | Achievement        | Description                                              | Tier        | Notes      |
+| -------------- | ------------------ | -------------------------------------------------------- | ----------- | ---------- |
+| First Steps    | First Blood        | Win your first combat                                    | 🥉 Bronze   |            |
+| First Steps    | Gotcha!            | Recruit your first Pokémon                               | 🥉 Bronze   |            |
+| First Steps    | Growing Up         | Trigger your first evolution                             | 🥉 Bronze   |            |
+| First Steps    | Badge Collector    | Earn your first Badge                                    | 🥉 Bronze   |            |
+| First Steps    | The Long Road      | Complete your first run (reach Region 2)                 | 🥈 Silver   | ★ Pikachu  |
+| Recruitment    | Welcome Wagon      | Recruit 10 different species (lifetime)                  | 🥉 Bronze   |            |
+| Recruitment    | Full House         | Recruit a Pokémon while your Box is full                 | 🥈 Silver   | (H)        |
+| Recruitment    | Pokédex Apprentice | Recruit 25 different species                             | 🥈 Silver   |            |
+| Recruitment    | Catch of the Day   | Catch a Rare-tier wild Pokémon                           | 🥈 Silver   |            |
+| Recruitment    | Gotta Catch 'Em    | Recruit 50 different species                             | 🥇 Gold     |            |
+| Recruitment    | Wild at Heart      | Win a run with an all-wild-recruited Active Team         | 🥇 Gold     |            |
+| Evolution      | Metamorphosis      | Trigger 10 evolutions (lifetime)                         | 🥉 Bronze   |            |
+| Evolution      | Branch Out         | Evolve into all 3 branches of one species (across runs)  | 🥈 Silver   |            |
+| Evolution      | Many Faces         | Win a run AND recruit 4 different evolutions across runs | 🥇 Gold     | ★ Eevee    |
+| Evolution      | Full Bloom         | Field an all-final-stage Active Team in one combat       | 🥈 Silver   |            |
+| Evolution      | Late Bloomer       | Evolve a Pokémon on the final layer before a Gym         | 🥉 Bronze   | (H)        |
+| Evolution      | Two-Stage Climb    | Take one Pokémon through both evolution stages in a run  | 🥈 Silver   |            |
+| Mastery        | Acquaintance       | Reach Familiar tier with 5 species                       | 🥉 Bronze   |            |
+| Mastery        | Veteran Trainer    | Reach Veteran tier with 10 species                       | 🥈 Silver   |            |
+| Mastery        | Specialist         | Master one species (Master tier, §4.3.9)                 | 🥇 Gold     |            |
+| Mastery        | Living Pokédex     | Master 10 species                                        | 💎 Platinum |            |
+| Mastery        | Shiny Hunter       | Recruit a Shiny Pokémon                                  | 🥇 Gold     | (H)        |
+| Mastery        | Move Master        | Use a Mastery Move in combat                             | 🥈 Silver   |            |
+| Combat         | Untouchable        | Win a combat without taking any damage                   | 🥈 Silver   |            |
+| Combat         | Sharpshooter       | Win a combat using only Ranged moves                     | 🥈 Silver   |            |
+| Combat         | One-Mon Army       | Win a combat using only one Pokémon's cards              | 🥇 Gold     |            |
+| Combat         | Swap Maestro       | Win a combat with 5+ manual swaps                        | 🥈 Silver   |            |
+| Combat         | Status Surgeon     | Inflict 4 different status conditions in one combat      | 🥇 Gold     | (H)        |
+| Combat         | Overkill           | Land a single hit dealing ≥3× the target's remaining HP  | 🥉 Bronze   | (H)        |
+| Combat         | Comeback Kid       | Win a combat down to your last non-fainted Pokémon       | 🥈 Silver   | (H)        |
+| Boss           | Gym Sweep          | Defeat all 3 Gym Leaders in a single run                 | 🥇 Gold     |            |
+| Boss           | Flawless Gym       | Defeat a Gym Leader with no Pokémon fainting             | 🥇 Gold     |            |
+| Boss           | City Conqueror     | Win the optional City Gym fight (4th Badge)              | 🥇 Gold     | CL-015     |
+| Boss           | Champion           | Defeat the Champion                                      | 💎 Platinum | ◆ League   |
+| Boss           | Underdog           | Defeat the Champion with no fully-evolved Pokémon        | 💎 Platinum | ★ Riolu, ◆ |
+| Boss           | Speedrunner        | Defeat the Champion in under 90 minutes                  | 💎 Platinum | ◆          |
+| Boss           | Type Tactician     | Defeat a Gym using only super-effective damage           | 🥈 Silver   | (H)        |
+| Build Identity | Monotype Master    | Win a run with an all-one-type Active Team               | 🥇 Gold     |            |
+| Build Identity | Pure Form          | Win a run with no evolution triggered                    | 💎 Platinum |            |
+| Build Identity | Solo Trainer       | Win a run using only your starter's line                 | 💎 Platinum |            |
+| Build Identity | Pacifist's Path    | Win a run catching 0 wild Pokémon                        | 🥇 Gold     | (H)        |
+| Build Identity | Relic Hoarder      | Hold 8+ relics simultaneously in one run                 | 🥈 Silver   |            |
+| Build Identity | Minimalist         | Win a run holding 2 or fewer relics                      | 🥇 Gold     |            |
+| Build Identity | Glass Cannon       | Win a Gym fight while your Lead carries Trauma stacks    | 🥈 Silver   | (H)        |
+| Endurance      | Back-to-Back       | Win 2 consecutive runs                                   | 🥈 Silver   |            |
+| Endurance      | Win Streak         | Win 5 consecutive runs                                   | 💎 Platinum |            |
+| Endurance      | Iron Trainer       | Clear Region 3 with no Pokémon Center healing            | 🥇 Gold     |            |
+| Endurance      | No Rest            | Win a run visiting 0 Pokémon Centers                     | 💎 Platinum | (H)        |
+| Endurance      | Modifier Master    | Win a run with 2 difficulty modifiers active             | 🥇 Gold     |            |
+| Endurance      | Ascendant          | Win a run on the highest available difficulty            | 💎 Platinum |            |
+
+
+**Totals:** 50 achievements (First Steps 5 · Recruitment 6 · Evolution 6 · Mastery 6 · Combat 7 · Boss 7 · Build Identity 7 · Endurance 6); 10 Hidden (~20%); 14 grant Tokens (Gold/Platinum).
 
 
 ## §6.7.2 Achievement Surface

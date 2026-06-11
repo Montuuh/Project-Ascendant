@@ -385,13 +385,28 @@ A Battle Pass likely collapses Tokens into a fixed per-level reward track.
   Pillar 3 (expanded sculpt options). **Code:** meta-progression is post-VS (VS ends at Gym 1) — GDD now,
   code deferred. → logged **CL-019**.
 
-## Q19 — Expand + improve the achievement list 🔵
+## Q19 — Expand + improve the achievement list ✅ DECIDED 2026-06-11
 **Owner:** content-designer
 **User:** The achievement list is small and not well implemented. Add new interesting ones —
 some easily achievable, some very hard.
 **Decision needed:** the expanded achievement catalog (with difficulty spread + rewards).
 **Steward note (canon):** today ~50 target across 8 categories (§6.7); only ~10 wired (VS).
 Coupled to Q18 (achievements may feed Battle Pass / unlocks).
+**✅ Resolution — Option B (Medal-tier framework + 50-entry catalog):**
+- **Medal tiers set the reward band:** 🥉 Bronze (easy, 50–100 XP) · 🥈 Silver (medium, 150–250 XP) ·
+  🥇 Gold (hard, 250–400 XP **+2 Tokens**) · 💎 Platinum (very hard, 400–500 XP **+5 Tokens**, occasional
+  Tier-2 relic / cosmetic). XP always; **Tokens on Gold/Platinum** (CL-019-aligned — hard achievements
+  fund the §6.6.1 Mastery-relic long-tail the §6.3.5 track leaves short).
+- **50 achievements** authored across the 8 canon categories (First Steps 5 · Recruitment 6 · Evolution 6
+  · Mastery 6 · Combat 7 · Boss 7 · Build Identity 7 · Endurance 6). **~20% Hidden** (revealed on
+  completion, §6.7.3).
+- **Starter criteria folded in** (★): The Long Road (reach R2 → Pikachu), Many Faces (win + 4 evos → Eevee),
+  Underdog (Champion, no fully-evolved → Riolu) — flavor markers; the starter itself unlocks on the
+  §6.3.5 track (CL-019). **◆** = deferred-League achievements (Champion/Speedrunner) catalogued but
+  earn-gated until the League ships (CL-004).
+- **Pillars:** §6.1 (options never power — rewards are XP/Tokens/cosmetics), Pillar 5 (cheerful medal
+  flavor). All numbers systems-designer-tunable. **Code:** post-VS (meta Epic; VS ships ~10).
+  → logged **CL-020**.
 
 ## Q20 — Document the Save/Load design fully 🔵
 **Owner:** lead-programmer (+ gdd-steward to author the doc)
@@ -484,14 +499,13 @@ done *after* the gameplay questions above settle, so the UI reflects final mecha
 
 ## Suggested processing order (producer recommendation)
 
-*Updated 2026-06-11. Q1–Q9, Q11–Q18, Q21, Q22 are ✅ DECIDED and in the change log (19 of 23).
+*Updated 2026-06-11. Q1–Q9, Q11–Q19, Q21, Q22 are ✅ DECIDED and in the change log (20 of 23).
 Q10 is ⏸ PARKED with League. Remaining open work:*
 
 1. ✅ **Done:** Combat feel (Q8/Q9/Q22), World structure (Q1/Q2/Q21), Trauma (Q17), progression
-   cascade (Q12–Q16), Unknown intents (Q7), **Battle Pass (Q18)**.
-2. **Meta & economy:** Q19 (achievements — coupled to Q18's achievement→Token/XP layer).
-3. **Documentation:** Q20 (save/load manifest), then **Q23 (full UI spec)** last — after
-   mechanics settle.
+   cascade (Q12–Q16), Unknown intents (Q7), Battle Pass (Q18), **achievements (Q19)**.
+2. **Documentation:** Q20 (save/load manifest — now also covers Battle Pass track state).
+3. **Last:** **Q23 (full UI spec)** — after mechanics settle.
 4. **Parked (reopen with League):** Q10 (Boons → relics).
 
-*Recommended remaining order: **Q19 → Q20 (doc) → Q23 last.***
+*Recommended remaining order: **Q20 (doc) → Q23 last.***

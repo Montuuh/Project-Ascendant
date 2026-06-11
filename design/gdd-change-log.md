@@ -55,6 +55,7 @@
 | CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ✅⁸ |
 | CL-018 | Q21 | Biome↔Region binding confirmed + Naturalist's Lens (opt-in biome-steer modifier) | T7 §7.3.1/§7.8.3.1 | ✅ | ✅¹⁴ |
 | CL-019 | Q18 | Trainer XP → Hybrid Battle Pass (per-level track + Token choice lane) | T6 §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1 | ✅ | ☐ (post-VS) |
+| CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ☐ (post-VS) |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -336,6 +337,28 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   Type Affinity / Field Surveyor auto-target rather than offer an explicit sub-picker (GDD-aligned).
 - Status: [✅] GDD updated (Notion §2.1.1/§2.1.4.1 + §7.8.3/.1/.2, re-exported 2026-06-10)   [✅] Code adapted — 16/16 effects + foundation/lifecycle + R1 pick UI (1147 green)
 
+### CL-020 — Achievements → medal-tier framework + 50-entry catalog   (resolves Q19)
+- Date: 2026-06-11
+- Topic / §: Topic 6 new §6.7.0 (reward-tier framework), §6.7.1 intro reconcile, new §6.7.1.1 (full
+  50-entry catalog); §6.7 intro updated for Token rewards
+- Change: **Option B — Medal-tier framework.**
+  - Four medal tiers set each achievement's reward band: 🥉 Bronze (50–100 XP) / 🥈 Silver (150–250 XP) /
+    🥇 Gold (250–400 XP +2 Tokens) / 💎 Platinum (400–500 XP +5 Tokens, occasional Tier-2 relic / cosmetic).
+    XP always; **Tokens on Gold/Platinum** — the CL-019 "select achievements grant Tokens" hook; hard
+    achievements fund the §6.6.1 Mastery-relic long-tail the §6.3.5 track leaves short.
+  - **50 achievements** authored across the 8 canon categories; **~20% Hidden** (§6.7.3).
+  - **Meta-starter criteria folded in** as flavor-marked achievements (★ The Long Road→Pikachu, Many
+    Faces→Eevee, Underdog→Riolu); the starter unlocks on the §6.3.5 track regardless (CL-019). **◆**
+    deferred-League achievements (Champion/Speedrunner) catalogued, earn-gated until the League (CL-004).
+- Rationale: delivers the user's "easy → very hard" spread via legible medal tiers; makes hard
+  achievements a real prize (Tokens → Mastery relics) without re-opening the CL-019 track balance.
+- Code impact: **post-VS** (achievement system is a meta Epic; VS ships ~10). When built: an
+  `AchievementSO` per entry (Tier enum → reward band, trigger predicate, Hidden flag); the medal tier
+  drives XP+Token grant; wire the ~40 new triggers (most compose existing run/combat events); route the
+  3 starter-criteria achievements + their Token/XP bonus; Champion/League-gated entries stay dormant
+  until CL-004 reopens. Data-driven per PA0001 (no inline reward literals); rewards tunable.
+- Status: [✅] GDD updated (Notion §6.7.0/§6.7.1/§6.7.1.1, re-exported 2026-06-11)   [ ] Code adapted (post-VS)
+
 ### CL-019 — Trainer XP → Hybrid Battle Pass   (resolves Q18)
 - Date: 2026-06-11
 - Topic / §: Topic 6 §6.3.4 (currency model rewrite), new §6.3.5 (Battle Pass reward track + 1–30
@@ -598,7 +621,7 @@ pass lands (subject to the actual decisions):
 | Move Tutor as standalone node | Q16 | Topic 7 §7.6/§7.8, Topic 5 §5.4.2 |
 | Trauma cap / per-stack value | Q17 | Topic 6 §6.2 |
 | Battle Pass replacing/absorbing Tokens (CL-019 ✅ decided) | Q18 | Topic 6 §6.3.4/§6.3.5 |
-| Achievement catalog expansion | Q19 | Topic 6 §6.7 |
+| Achievement catalog expansion (CL-020 ✅ decided) | Q19 | Topic 6 §6.7.0/§6.7.1.1 |
 | Save/Load persistence manifest (new doc) | Q20 | Topic 9 §9.8, Topic 6 §6.10 |
 | Biome↔Region binding + Naturalist's Lens (CL-018 ✅ decided) | Q21 | Topic 7 §7.3.1/§7.8.3.1 |
 | Catch thresholds (30%/50%) or catch-rate% | Q22 | Topic 7 §7.3.4 |
