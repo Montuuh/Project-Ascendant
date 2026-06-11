@@ -51,7 +51,7 @@
 | CL-013 | Q9 | Gym phases: remove mid-evo, power premium + per-type signature Phase 2 | T4 §4.3.7/§4.4.4.3/§4.4.4.4 | ✅ | ✅¹² |
 | CL-014 | Q22 | Catch: deterministic Catchability Gauge (30%/50% thresholds, no RNG) | T7 §7.3.4.1/§7.3.4.2/§7.3.4.3 | ✅ | ✅⁹ |
 | CL-015 | Q1 | City → Choice Plaza (StS hub) + risky optional City Gym (4th Badge) | T2 §2.1.4/§2.7; T7 §7.8/§7.8.4; T4 §4.5.3 | ✅ | ☐ |
-| CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ◐¹³ |
+| CL-016 | Q2 | Region Modifiers → per-Region (1 active, re-chosen) + 16-modifier pool | T2 §2.1.1/§2.1.4.1; T7 §7.8.3 | ✅ | ✅¹³ |
 | CL-017 | Q17 | Trauma cap → two-zone curve, soft cap −75% at 10 stacks | T6 §6.2.1/§6.8.2/§6.13; T2 §2.6 | ✅ | ✅⁸ |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
@@ -317,19 +317,22 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   +20%/+20% damage band, +15% XP, −20% shop/Dojo price, player Battlefield choice). Reconcile any
   code/tests assuming 2 stacked persistent modifiers. **Post-VS** for R2/R3 (VS ends at Gym 1), but
   the **R1 run-setup pick is VS-relevant** — flag for systems-designer/lead-programmer.
-- ¹³ **Code PARTIAL (2026-06-10, 1141 green) across inc1–inc3e.** Done: `RegionModifierSO` schema
+- ¹³ **Code COMPLETE (2026-06-11, 1147 green) across inc1–inc3i.** Foundation: `RegionModifierSO` schema
   (Kind/Magnitude/Tier) + `RegionModifierResolver` query API + `RegionModifierPool.BuildAll`/`BuildOffer`
   (16-pool, seeded offer) + `RunStateSO.SetRegionModifier` single-active lifecycle + registry
-  registration + save round-trip + `CombatSetup/State.ActiveRegionModifiers` threading. **13/16 effects
-  wired + tested green:** Hand of Plenty, Lucky Draw, Glass Cannon, Quick Study, Coin Purse, Bargain
-  Hunter (Shop + Dojo), Iron Skin, Sturdy Lead, Pokédex Whisper, Swap Fuel, Mass Mobilization, Status
-  Mastery, Pocket Healer. **REMAINING (focused follow-up):** (a) **TraumaResistance** — needs an
-  `EffectiveMaxHP` penalty-reduction param threaded to ~13 call sites (wide refactor); (b) **TypeAffinity**
-  + **Field Surveyor** — need new run-state (chosen type / chosen Battlefield) + new pick UI; (c) the
-  **run-setup R1 pick screen + City Reflection screen** that call `SetRegionModifier` (engine supports
-  it; no UI invokes it yet — mirror `DifficultySelectUI`). Tests: RegionModifierResolverTests (12) +
-  RegionModifierLifecycleTests (7) + RegionModifierEffectTests (4) + GlassCannon/SturdyLead integration.
-- Status: [✅] GDD updated (Notion §2.1.1/§2.1.4.1 + §7.8.3/.1/.2, re-exported 2026-06-10)   [◐] Code — 13/16 effects + full foundation/lifecycle (1141 green); TraumaResistance refactor + TypeAffinity/Field Surveyor UI + pick screens = follow-up
+  registration + save round-trip + `CombatSetup/State.ActiveRegionModifiers` threading. **All 16 effects
+  wired + green:** Hand of Plenty, Lucky Draw, Glass Cannon, Quick Study, Coin Purse, Bargain Hunter
+  (Shop + Dojo), Iron Skin, Sturdy Lead, Pokédex Whisper, Swap Fuel, Mass Mobilization, Status Mastery,
+  Pocket Healer, **TraumaResistance** (`EffectiveMaxHP` optional penalty-reduction param, threaded
+  through the heal-ceiling + display sites), **TypeAffinity** (chosen type auto-surfaced as the team's
+  most-common move type → +Magnitude in ResolveDamage), **Field Surveyor** (wild/Trainer combats surface
+  a favourable neutral Battlefield from the team type). **Pick UI:** new `RegionModifierSelectUI` (3-of-16
+  card picker) wired into the New-Run flow for the R1 pick (`MapViewUI.BeginRunWithDifficulty`); reused
+  for City Reflection R2/R3 when the post-VS City flow lands. Tests: RegionModifierResolverTests (12) +
+  RegionModifierLifecycleTests (7) + RegionModifierEffectTests (4) + GlassCannon/SturdyLead/TypeAffinity
+  integration + TraumaResistance cases. **Minor:** deep DoT/hazard helpers use base Trauma (forgiving);
+  Type Affinity / Field Surveyor auto-target rather than offer an explicit sub-picker (GDD-aligned).
+- Status: [✅] GDD updated (Notion §2.1.1/§2.1.4.1 + §7.8.3/.1/.2, re-exported 2026-06-10)   [✅] Code adapted — 16/16 effects + foundation/lifecycle + R1 pick UI (1147 green)
 
 ### CL-015 — City → Choice Plaza + risky optional City Gym   (resolves Q1)
 - Date: 2026-06-10
