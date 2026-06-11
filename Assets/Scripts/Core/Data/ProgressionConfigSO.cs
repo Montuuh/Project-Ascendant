@@ -29,6 +29,7 @@ namespace ProjectAscendant.Core
 
         [Header("§8.3.3 — XP-economy relic multipliers (Epic 12)")]
         public float LuckyEggXPMultiplier = 1.15f;  // Lucky Egg Token — all in-run XP ×1.15
+        public float LivingLegendXPMultiplier = 1.3f; // §8.3.7 (CL-021) Living Legend Legendary — XP ×1.3
         public float ExpShareBoxFraction = 1.0f;     // Exp Share (CL-010) — lifts benched Pokémon to 100% of Active XP
 
         // XP required to advance from `level` to the next level. Monotonic in level.

@@ -81,8 +81,11 @@ namespace ProjectAscendant.Combat
                 return false;
 
             int cost = NextSwapCost(state.SwapCounter);
-            // §8.3.4 Tactician's Coin — the first manual swap each combat costs 0 AP.
-            if (state.ManualSwapsThisCombat == 0 && RelicResolver.Holds(state.ActiveRelics, "tacticians_coin"))
+            // §8.3.4 Tactician's Coin / §8.3.7 (CL-021) Flow State Legendary — the first manual swap each
+            // combat costs 0 AP.
+            if (state.ManualSwapsThisCombat == 0
+                && (RelicResolver.Holds(state.ActiveRelics, "tacticians_coin")
+                    || RelicResolver.Holds(state.ActiveRelics, "flow_state")))
                 cost = 0;
             state.CurrentAP -= cost;
             state.SwapCounter += 1;

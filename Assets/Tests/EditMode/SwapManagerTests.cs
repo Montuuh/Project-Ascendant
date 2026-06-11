@@ -116,6 +116,18 @@ namespace ProjectAscendant.Tests
             Assert.That(s.CurrentAP, Is.EqualTo(4));
         }
 
+        // §8.3.7 (CL-021) Flow State Legendary — the first manual swap each combat costs 0 AP.
+        [Test]
+        public void TryManualSwap_FlowState_FirstSwapFree()
+        {
+            CombatController.CombatState s = MakeState(initialAP: 6);
+            s.ActiveRelics.Add(Relic("flow_state"));
+            SwapManager.TryManualSwap(s, benchSlot: 1);
+            Assert.That(s.CurrentAP, Is.EqualTo(6), "§8.3.7 — first swap free.");
+            SwapManager.TryManualSwap(s, benchSlot: 0); // second swap pays NextSwapCost(1)=2
+            Assert.That(s.CurrentAP, Is.EqualTo(4));
+        }
+
         [Test]
         public void TryManualSwap_DefenseCurl_BuffsNewLeadEveryThirdSwap()
         {

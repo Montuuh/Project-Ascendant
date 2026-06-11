@@ -70,12 +70,15 @@ namespace ProjectAscendant.Combat
             return baseHeal;
         }
 
-        // §8.3.3 Lucky Egg Token — all in-run XP ×multiplier. Returns the boosted XP.
+        // §8.3.3 Lucky Egg Token + §8.3.7 (CL-021) Living Legend — all in-run XP ×multiplier(s),
+        // stacking multiplicatively. Returns the boosted XP.
         public static int ApplyXpMultiplier(int baseXp, IReadOnlyList<RelicSO> relics, ProgressionConfigSO cfg)
         {
-            if (cfg != null && baseXp > 0 && Holds(relics, "lucky_egg_token"))
-                return Mathf.FloorToInt(baseXp * cfg.LuckyEggXPMultiplier);
-            return baseXp;
+            if (cfg == null || baseXp <= 0) return baseXp;
+            float mult = 1f;
+            if (Holds(relics, "lucky_egg_token")) mult *= cfg.LuckyEggXPMultiplier;
+            if (Holds(relics, "living_legend")) mult *= cfg.LivingLegendXPMultiplier;
+            return Mathf.FloorToInt(baseXp * mult);
         }
 
         // §8.3.3 Quick Draw — +1 skill card on the FIRST turn of each combat.

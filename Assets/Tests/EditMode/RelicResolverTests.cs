@@ -140,10 +140,23 @@ namespace ProjectAscendant.Tests
         public void LuckyEgg_BoostsXp()
         {
             ProgressionConfigSO pc = ScriptableObject.CreateInstance<ProgressionConfigSO>();
-            pc.LuckyEggXPMultiplier = 1.15f; _disp.Add(pc);
+            pc.LuckyEggXPMultiplier = 1.15f; pc.LivingLegendXPMultiplier = 1.3f; _disp.Add(pc);
             List<RelicSO> r = new() { Relic("lucky_egg_token") };
             Assert.That(RelicResolver.ApplyXpMultiplier(100, r, pc), Is.EqualTo(115), "100 × 1.15.");
             Assert.That(RelicResolver.ApplyXpMultiplier(100, new List<RelicSO>(), pc), Is.EqualTo(100));
+        }
+
+        // §8.3.7 (CL-021) Living Legend — XP ×1.3; stacks multiplicatively with Lucky Egg.
+        [Test]
+        public void LivingLegend_BoostsXp_StacksWithLuckyEgg()
+        {
+            ProgressionConfigSO pc = ScriptableObject.CreateInstance<ProgressionConfigSO>();
+            pc.LuckyEggXPMultiplier = 1.15f; pc.LivingLegendXPMultiplier = 1.3f; _disp.Add(pc);
+            Assert.That(RelicResolver.ApplyXpMultiplier(100, new List<RelicSO> { Relic("living_legend") }, pc),
+                Is.EqualTo(130), "100 × 1.3.");
+            Assert.That(RelicResolver.ApplyXpMultiplier(100,
+                new List<RelicSO> { Relic("lucky_egg_token"), Relic("living_legend") }, pc),
+                Is.EqualTo(Mathf.FloorToInt(100 * 1.15f * 1.3f)), "stacks multiplicatively.");
         }
 
         // ── §8.3.7 (CL-021) Legendary outgoing multipliers ──

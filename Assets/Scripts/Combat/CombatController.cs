@@ -408,6 +408,8 @@ namespace ProjectAscendant.Combat
             skillTarget += RelicResolver.QuickDrawBonus(State.ActiveRelics, State.TurnNumber);
             // §7.8.3.1 (CL-016) Hand of Plenty — +max hand size this Region (every turn).
             skillTarget += RegionModifierResolver.HandSizeBonus(State.ActiveRegionModifiers);
+            // §8.3.7 (CL-021) Grandmaster's Tempo Legendary — +1 max hand size (every turn).
+            if (RelicResolver.Holds(State.ActiveRelics, "grandmasters_tempo")) skillTarget += 1;
             // §7.8.3.1 (CL-016) Lucky Draw — +consumable draw on turn 1 of each combat.
             if (State.TurnNumber == 1)
                 consumableTarget += RegionModifierResolver.Turn1ConsumableBonus(State.ActiveRegionModifiers);
@@ -727,8 +729,10 @@ namespace ProjectAscendant.Combat
 
                 // Per §4.3.5 (CL-011/Option B) — Elite/Gym baseline: hide the first intent per enemy
                 // each combat until they fire (Witnessed tier). Dense Fog callers set this flag too,
-                // extending the rule to Wild/Trainer encounters.
-                if (State.HideBaselineIntents && !State.WitnessedEnemies.Contains(enemy))
+                // extending the rule to Wild/Trainer encounters. §8.3.7 (CL-021) Clear Mind Legendary
+                // reveals all Unknown intents (overrides the baseline hide).
+                if (State.HideBaselineIntents && !State.WitnessedEnemies.Contains(enemy)
+                    && !RelicResolver.Holds(State.ActiveRelics, "clear_mind"))
                 {
                     int idx = State.EnemyIntents.Count - 1;
                     Intent it = State.EnemyIntents[idx];
