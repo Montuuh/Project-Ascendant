@@ -46,6 +46,7 @@ namespace ProjectAscendant.UI
         private MainMenuUI _mainMenu;
         private PauseMenuUI _pauseMenu;
         private DifficultySelectUI _difficultySelect;
+        private RegionModifierSelectUI _regionModifierSelect; // §7.8.3.1 (CL-016)
         private RunLauncher _launcher;
         private RectTransform _graph; // node-net canvas (absolute layout)
         private Font _font;
@@ -103,6 +104,8 @@ namespace ProjectAscendant.UI
 
             _difficultySelect = new GameObject("DifficultySelect").AddComponent<DifficultySelectUI>();
             _difficultySelect.transform.SetParent(transform, false);
+            _regionModifierSelect = new GameObject("RegionModifierSelect").AddComponent<RegionModifierSelectUI>(); // §7.8.3.1 (CL-016)
+            _regionModifierSelect.transform.SetParent(transform, false);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             _cheats = new GameObject("CheatConsole").AddComponent<CheatConsole>();
@@ -200,16 +203,37 @@ namespace ProjectAscendant.UI
         }
 
         // Reset to a clean run, apply the chosen difficulty (after the reset, which clears it), then
-        // reveal starter-select.
+        // present the R1 Region Modifier pick, then reveal starter-select.
         private void BeginRunWithDifficulty(DifficultyModifierSO selected)
         {
-            _launcher?.BeginNewRun(); // resets run-state (clears difficulty) → apply AFTER
+            _launcher?.BeginNewRun(); // resets run-state (clears difficulty + modifiers) → apply AFTER
             if (_state != null)
                 _state.ActiveDifficultyModifiers = selected != null
                     ? new System.Collections.Generic.List<DifficultyModifierSO> { selected }
                     : null;
+
+            // §7.8.3.1 (CL-016) — R1 Region Modifier pick (3-of-16, mandatory) before starter-select.
+            // Salted RNG so the offer is seeded-deterministic without advancing the MapRNG cursor.
+            if (_regionModifierSelect != null && _state != null)
+            {
+                GameRNG offerRng = new((uint)(_state.RunSeed ^ 0x5236));
+                List<RegionModifierSO> offer = RegionModifierPool.BuildOffer(RegionModifierPool.BuildAll(), offerRng, 3);
+                _regionModifierSelect.Open(offer, picked =>
+                {
+                    _state.SetRegionModifier(picked);
+                    FinishNewRunSetup(selected, picked);
+                });
+            }
+            else FinishNewRunSetup(selected, null);
+        }
+
+        // §7.8.3.1 (CL-016) — close the menu + log after the difficulty + R1 modifier are chosen.
+        private void FinishNewRunSetup(DifficultyModifierSO difficulty, RegionModifierSO modifier)
+        {
             _mainMenu?.Close();
-            AppendLog($"New run — difficulty: {(selected != null ? (selected.DisplayName ?? selected.ModifierId) : "None")}. Choose your starter.");
+            string diff = difficulty != null ? (difficulty.DisplayName ?? difficulty.ModifierId) : "None";
+            string mod = modifier != null ? (modifier.DisplayName ?? modifier.ModifierId) : "None";
+            AppendLog($"New run — difficulty: {diff}; R1 modifier: {mod}. Choose your starter.");
             Refresh();
         }
 
