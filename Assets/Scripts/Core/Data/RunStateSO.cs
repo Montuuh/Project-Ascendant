@@ -58,6 +58,11 @@ namespace ProjectAscendant.Core
         // 0..1 entries (the current Region's pick). Kept as a list for save-DTO compatibility; use
         // SetRegionModifier to enforce single-active.
         public List<RegionModifierSO> ActiveRegionModifiers;
+        // Per §7.3.1 + CL-018 (Q21) — the biome Naturalist's Lens steers Wild-Area weighting toward this
+        // Region (player-chosen; null → the sampler auto-surfaces the top non-primary eligible biome).
+        // Transient/per-Region: cleared whenever the active modifier changes (SetRegionModifier) and at
+        // run reset. (Save round-trip is a follow-up — biomes aren't in the ID registry yet.)
+        public BiomeSO NaturalistLensBiome;
         public LeagueBoonSO ActiveBoon;
         // Per §6.8 / Task 11.6 — difficulty modifiers chosen at run start (VS: 0-1; Hub upgrade raises cap).
         public List<DifficultyModifierSO> ActiveDifficultyModifiers;
@@ -101,6 +106,7 @@ namespace ProjectAscendant.Core
             EvolutionsThisRun = 0;
 
             ActiveRegionModifiers = null;
+            NaturalistLensBiome = null;
             ActiveBoon = null;
             ActiveDifficultyModifiers = null;
 
@@ -120,6 +126,9 @@ namespace ProjectAscendant.Core
             if (ActiveRegionModifiers == null) ActiveRegionModifiers = new List<RegionModifierSO>();
             ActiveRegionModifiers.Clear();
             if (modifier != null) ActiveRegionModifiers.Add(modifier);
+            // Per CL-018 (Q21) — the steered biome is per-Region; clear it when the modifier changes.
+            // The pick flow re-sets NaturalistLensBiome afterward if the new pick is Naturalist's Lens.
+            NaturalistLensBiome = null;
         }
     }
 }

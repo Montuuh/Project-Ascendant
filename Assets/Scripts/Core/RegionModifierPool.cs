@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ProjectAscendant.Core
 {
-    // Per §7.8.3.1 (CL-016) — the 16-modifier launch pool, built in code (mirrors
+    // Per §7.8.3.1 (CL-016, CL-018) — the 17-modifier launch pool, built in code (mirrors
     // RunBootstrapper.BuildDifficultyChoices). The run layer offers 3-of-pool → pick 1 at each Region
     // start (pre-R1 + City 1 + City 2). All numbers are systems-designer-tunable placeholders.
     public static class RegionModifierPool
@@ -39,6 +39,9 @@ namespace ProjectAscendant.Core
                    RegionModifierTier.Medium, "All Pokémon gain +15% combat XP this Region."),
                 Rm("bargain_hunter", "Bargain Hunter", RegionModifierKind.BargainHunter, 0.20f,
                    RegionModifierTier.Medium, "Shop and Dojo prices −20% this Region."),
+                // CL-018 (Q21) — Magnitude is the chosen biome's weight-boost factor (dominant, not exclusive).
+                Rm("naturalist_lens", "Naturalist's Lens", RegionModifierKind.NaturalistLens, 5f,
+                   RegionModifierTier.Medium, "Steer this Region's wild biomes toward one biome — concentrate your recruit pool."),
 
                 // ── Niche ──
                 Rm("iron_skin", "Iron Skin", RegionModifierKind.IronSkin, 1f,

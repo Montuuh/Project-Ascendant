@@ -5,7 +5,7 @@ using ProjectAscendant.Core;
 
 namespace ProjectAscendant.Tests
 {
-    // Per §7.8.3.1 (CL-016) — the 16-modifier pool + RegionModifierResolver query API.
+    // Per §7.8.3.1 (CL-016, CL-018) — the 17-modifier pool + RegionModifierResolver query API.
     public class RegionModifierResolverTests
     {
         private readonly List<Object> _disposables = new();
@@ -33,10 +33,10 @@ namespace ProjectAscendant.Tests
         }
 
         [Test]
-        public void Pool_Has16_UniqueKindsAndIds()
+        public void Pool_Has17_UniqueKindsAndIds()
         {
             List<RegionModifierSO> pool = Pool();
-            Assert.That(pool.Count, Is.EqualTo(16), "16-modifier launch pool (CL-016).");
+            Assert.That(pool.Count, Is.EqualTo(17), "17-modifier launch pool (CL-016 + CL-018 Naturalist's Lens).");
 
             HashSet<RegionModifierKind> kinds = new();
             HashSet<string> ids = new();
@@ -118,6 +118,23 @@ namespace ProjectAscendant.Tests
             Assert.That(RegionModifierResolver.StepDrawsCard(Active(RegionModifierKind.MassMobilization)), Is.True);
             Assert.That(RegionModifierResolver.RevealsFirstUnknown(Active(RegionModifierKind.PokedexWhisper)), Is.True);
             Assert.That(RegionModifierResolver.GrantsFieldChoice(Active(RegionModifierKind.FieldSurveyor)), Is.True);
+        }
+
+        // CL-018 (Q21) — Naturalist's Lens biome-steer query API.
+        [Test]
+        public void NaturalistLens_GrantsBiomeSteer_WithBoost()
+        {
+            List<RegionModifierSO> active = Active(RegionModifierKind.NaturalistLens);
+            Assert.That(RegionModifierResolver.GrantsBiomeSteer(active), Is.True);
+            Assert.That(RegionModifierResolver.BiomeSteerBoost(active), Is.EqualTo(5f).Within(0.0001f), "Magnitude = weight-boost factor.");
+        }
+
+        [Test]
+        public void NaturalistLens_NeutralWhenAbsent()
+        {
+            List<RegionModifierSO> none = new();
+            Assert.That(RegionModifierResolver.GrantsBiomeSteer(none), Is.False);
+            Assert.That(RegionModifierResolver.BiomeSteerBoost(none), Is.EqualTo(1f), "no boost (×1) when absent.");
         }
     }
 }

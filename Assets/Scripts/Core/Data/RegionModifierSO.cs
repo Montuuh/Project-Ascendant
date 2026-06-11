@@ -24,6 +24,7 @@ namespace ProjectAscendant.Core
         MassMobilization, // Step-Forward / Step-Backward also draw 1 card
         PokedexWhisper,   // first Unknown intent of each combat is revealed
         FieldSurveyor,    // player chooses the active neutral Battlefield each wild/Region combat
+        NaturalistLens,   // CL-018 (Q21): steers this Region's Wild-Area biome weighting (Magnitude = boost factor)
     }
 
     public enum RegionModifierTier { Strong, Medium, Niche }

@@ -109,17 +109,21 @@ namespace ProjectAscendant.Map
 
         // ── Internals ────────────────────────────────────────────────────────
 
-        // Per §7.3.1 — weighted biome sample from the Region's eligible set. Null if none configured.
+        // Per §7.3.1 (+ CL-018 / Q21) — weighted biome sample from the Region's eligible set. When the
+        // Naturalist's Lens Region Modifier is active, the steered biome is made dominant (its weight is
+        // boosted) — overriding the default primary — while other biomes still appear. Null if none.
         private BiomeSO PickBiome()
         {
             if (_config.RegionBiomes == null || _config.RegionBiomes.Count == 0) return null;
 
-            List<(BiomeSO value, float weight)> opts = new(_config.RegionBiomes.Count);
-            for (int i = 0; i < _config.RegionBiomes.Count; i++)
-            {
-                BiomeWeight bw = _config.RegionBiomes[i];
-                if (bw.Biome != null && bw.Weight > 0f) opts.Add((bw.Biome, bw.Weight));
-            }
+            bool steer = RunState != null
+                && RegionModifierResolver.GrantsBiomeSteer(RunState.ActiveRegionModifiers);
+            BiomeSO chosen = RunState != null ? RunState.NaturalistLensBiome : null;
+            float boost = RunState != null
+                ? RegionModifierResolver.BiomeSteerBoost(RunState.ActiveRegionModifiers) : 1f;
+
+            List<(BiomeSO value, float weight)> opts =
+                WildAreaBiomeWeighting.BuildOptions(_config.RegionBiomes, steer, chosen, boost);
             return opts.Count > 0 ? _encounterRng.PickWeighted(opts) : null;
         }
 

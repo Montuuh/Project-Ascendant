@@ -96,5 +96,18 @@ namespace ProjectAscendant.Core
         // itself is run-state (player-picked when the modifier is taken).
         public static float TypeAffinityBonus(IReadOnlyList<RegionModifierSO> active)
             => Mag(active, RegionModifierKind.TypeAffinity, 0f);
+
+        // NaturalistLens (CL-018, Q21) — steers this Region's Wild-Area biome weighting toward a chosen
+        // biome (the chosen biome itself is run-state). False if absent.
+        public static bool GrantsBiomeSteer(IReadOnlyList<RegionModifierSO> active)
+            => Has(active, RegionModifierKind.NaturalistLens);
+
+        // NaturalistLens — the multiplier applied to the steered biome's weight (dominant, not exclusive).
+        // 1.0 (no boost) if absent.
+        public static float BiomeSteerBoost(IReadOnlyList<RegionModifierSO> active)
+        {
+            RegionModifierSO m = Find(active, RegionModifierKind.NaturalistLens);
+            return m != null && m.Magnitude > 0f ? m.Magnitude : 1f;
+        }
     }
 }
