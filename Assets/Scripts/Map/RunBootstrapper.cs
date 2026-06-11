@@ -104,7 +104,7 @@ namespace ProjectAscendant.Map
                 MysteryConfig = catalog.MysteryConfig,
                 MysteryItems = new MysteryEventNodeController.MysteryItemRefs
                 {
-                    StoneRelicPool = relics,
+                    StoneRelicPool = NonLegendary(relics), // CL-021 — Legendaries are choice-only (§8.3.7)
                     Potion = catalog.Potion,
                     TutorPlaceholder = catalog.Potion,
                 },
@@ -118,6 +118,18 @@ namespace ProjectAscendant.Map
             List<RelicSO> result = new();
             for (int i = 0; i < relics.Count; i++)
                 if (relics[i] != null && relics[i].Rarity == rarity) result.Add(relics[i]);
+            return result;
+        }
+
+        // CL-021 (Q10) — Legendary relics are choice-only (§8.3.7); they must never appear in random
+        // pools (Mysterious Stone, shops, drops). Shop buckets already use rarity-specific Filter; this
+        // guards the full-list pools.
+        private static List<RelicSO> NonLegendary(List<RelicSO> relics)
+        {
+            List<RelicSO> result = new();
+            if (relics != null)
+                for (int i = 0; i < relics.Count; i++)
+                    if (relics[i] != null && relics[i].Rarity != RarityTier.Legendary) result.Add(relics[i]);
             return result;
         }
 

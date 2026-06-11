@@ -13,7 +13,10 @@ namespace ProjectAscendant.Map
             List<RelicSO> candidates = new();
             if (pool != null)
                 foreach (RelicSO r in pool)
-                    if (r != null && r.Rarity != RarityTier.Rare) candidates.Add(r); // §6.6.3 — never Rare
+                    // §6.6.3 (+ CL-021 — Q10) — Common-and-Uncommon only: never Rare; never Legendary
+                    // (Legendaries are choice-only, §8.3.7 — earned via the 1-of-3 picks, not Starting Relics).
+                    if (r != null && (r.Rarity == RarityTier.Common || r.Rarity == RarityTier.Uncommon))
+                        candidates.Add(r);
 
             List<RelicSO> offer = new();
             while (offer.Count < count && candidates.Count > 0)

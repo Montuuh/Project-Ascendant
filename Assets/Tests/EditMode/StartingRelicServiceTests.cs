@@ -29,12 +29,13 @@ namespace ProjectAscendant.Tests
             {
                 Relic("c1", RarityTier.Common), Relic("c2", RarityTier.Common), Relic("c3", RarityTier.Common),
                 Relic("u1", RarityTier.Uncommon), Relic("u2", RarityTier.Uncommon),
-                Relic("r1", RarityTier.Rare), // must never be offered
+                Relic("r1", RarityTier.Rare),            // must never be offered (§6.6.3)
+                Relic("l1", RarityTier.Legendary),       // must never be offered (CL-021 — choice-only)
             };
         }
 
         [Test]
-        public void Offer_ReturnsThreeDistinct_NeverRare()
+        public void Offer_ReturnsThreeDistinct_NeverRareOrLegendary()
         {
             List<RelicSO> offer = StartingRelicService.Offer(Pool(), new GameRNG(123u), 3);
             Assert.That(offer, Has.Count.EqualTo(3));
@@ -42,6 +43,7 @@ namespace ProjectAscendant.Tests
             foreach (RelicSO r in offer)
             {
                 Assert.That(r.Rarity, Is.Not.EqualTo(RarityTier.Rare), "§6.6.3 — never Rare.");
+                Assert.That(r.Rarity, Is.Not.EqualTo(RarityTier.Legendary), "CL-021 — never Legendary (choice-only).");
                 Assert.That(seen.Add(r), Is.True, "distinct.");
             }
         }
