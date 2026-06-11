@@ -56,6 +56,7 @@
 | CL-018 | Q21 | Biome↔Region binding confirmed + Naturalist's Lens (opt-in biome-steer modifier) | T7 §7.3.1/§7.8.3.1 | ✅ | ✅¹⁴ |
 | CL-019 | Q18 | Trainer XP → Hybrid Battle Pass (per-level track + Token choice lane) | T6 §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1 | ✅ | ☐ (post-VS) |
 | CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ☐ (post-VS) |
+| CL-021 | Q10 | League Boons → choice-only Legendary relic tier (10-relic pool, max 2/run) | T8 §8.3.1/§8.3.7; T4 §4.5.2/§4.5.1.4/§4.6; T6 §6.6.1/§6.6.3 | ✅ | ☐ (post-VS) |
 
 ⁴ CL-007 #A–#D fully complete (0f40520). Wild lines Caterpie/Geodude/Pidgey now have 3 archetypes
 per stage (parity with starters). 12 new branch SOs, 6 renames, 1 new move (signal_beam).
@@ -336,6 +337,37 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   integration + TraumaResistance cases. **Minor:** deep DoT/hazard helpers use base Trauma (forgiving);
   Type Affinity / Field Surveyor auto-target rather than offer an explicit sub-picker (GDD-aligned).
 - Status: [✅] GDD updated (Notion §2.1.1/§2.1.4.1 + §7.8.3/.1/.2, re-exported 2026-06-10)   [✅] Code adapted — 16/16 effects + foundation/lifecycle + R1 pick UI (1147 green)
+
+### CL-021 — League Boons → choice-only Legendary relic tier   (resolves Q10)
+- Date: 2026-06-11
+- Topic / §: Topic 8 §8.3.1 (rarity table — add Legendary) + new §8.3.7 (Legendary catalog, 10); Topic 4
+  §4.5.2 (Boons → Legendary pointer), §4.5.1.4 (Summit pick), §4.6 (deferral banner note); Topic 6
+  §6.6.1 / §6.6.3 (Legendary = run-1, choice-only, excluded from starting/shop) + §6.13 glossary
+- Change: **Option C — choice-only Legendary tier** (Q10 de-deferred for design 2026-06-11; League
+  *combat* stays deferred per CL-004).
+  - New rarity class **Legendary** above Rare, **not** in the random drop table — Common 60 / Uncommon
+    30 / Rare 10 unchanged. 10 launch Legendaries, all available run 1 (rarity class ≠ meta-tier).
+  - **Acquisition (choice-only, Pillar 1):** each Gym victory offers a **Legendary pick 1-of-3**; the
+    Victory Road Summit pick (former Boon slot); the CL-015 Black Market may stock one. ~4 pick-moments/run.
+  - **Hold cap: max 2 Legendaries/run** (at cap → Rare relic / skip instead).
+  - Effects **retuned ~⅔** for permanent run-long scope; excluded from Starting Relics (§6.6.3) + shop stock.
+  - **10 Legendaries:** 6 ported Boons (Battle Hardened 15→10% shield, Flow State, Last Stand per-mon→
+    1/combat, Type Mastery 0.25→0.15, Clear Mind, Evolution's Edge 15→10%) + 4 new (Grandmaster's Tempo,
+    Living Legend, Unbreakable Will, Apex Predator) across all 5 synergy categories.
+  - **Boons removed:** §4.5.2 Boon system replaced by Legendaries; §4.5.1.4 Summit "Boon selection" →
+    "Legendary pick."
+- Rationale: unifies Boons into the relic system (same `RelicSO`, same inventory) while preserving the
+  Boons' essence — a *guaranteed, telegraphed pick* of powerful options, not an RNG drop — so Pillar 1
+  stays intact and the Common/Uncommon/Rare drop economy is untouched. The 2-cap + retune contain the
+  permanent-scope snowball (Pillar 3); reliable picks deliver the user's "a bit easier."
+- Code impact: **post-VS** (relic-tier UI + League both deferred). When built: add `RarityTier.Legendary`
+  + the 10 `RelicSO` assets (retuned effects, most compose existing relic/field/status hooks); a
+  **Legendary-pick choice UI** (1-of-3) wired to Gym-victory rewards + Victory Road Summit + Black Market;
+  enforce the **max-2/run cap** at pick time (offer Rare/skip at cap); exclude Legendary from the random
+  drop pool, Starting-Relic curation (§6.6.3), and shop random stock. New effects: Grandmaster's Tempo
+  (+hand & first-card 0 AP), Living Legend (XP×1.3 + recruit +2 lvl/0 Trauma), Unbreakable Will (first-
+  status immunity + status duration), Apex Predator (full-HP Lead +20%, double-edge). Data-driven (PA0001).
+- Status: [✅] GDD updated (Notion §8.3.1/§8.3.7 + §4.5.2/§4.5.1.4/§4.6 + §6.6.1/§6.6.3 + §6.13, re-exported 2026-06-11)   [ ] Code adapted (post-VS)
 
 ### CL-020 — Achievements → medal-tier framework + 50-entry catalog   (resolves Q19)
 - Date: 2026-06-11
@@ -628,4 +660,4 @@ pass lands (subject to the actual decisions):
 | Full per-system UI spec | Q23 | Topic 10 |
 | City Gym + new City nodes | Q1 | Topic 2 §2.1.4, Topic 7 §7.8 |
 | Region Modifier timing + pool | Q2 | Topic 2 §2.1.4, Topic 7 §7.8.3 |
-| League Boons → relic rarity (parked w/ league) | Q10 | Topic 4 §4.5.2, Topic 8 §8.3 |
+| League Boons → choice-only Legendary relic tier (CL-021 ✅ decided) | Q10 | Topic 8 §8.3.1/§8.3.7, Topic 4 §4.5.2 |

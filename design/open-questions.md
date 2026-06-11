@@ -235,15 +235,30 @@ menu of interesting phase archetypes.
 - **Pillars:** 1 (telegraphed, learnable per-type signature ★), 2 (Phase 2 forces swaps/repositioning ★),
   3 (rewards resist/type comp), 5 (clean type fantasy). → logged **CL-013**.
 
-## Q10 — League Boons → just better relics (Epic/Legendary)? ⏸ PARKED
+## Q10 — League Boons → just better relics (Epic/Legendary)? ✅ DECIDED 2026-06-11
 **Owner:** game-designer + content-designer
 **User:** Can League Boons just be **better relics** (EPIC / LEGENDARY rarity)? Unify the
 systems and make the game a bit easier.
 **Decision needed:** collapse Boons into a higher relic-rarity tier, or keep separate.
 **Steward note (canon):** today Boons are a distinct League-only pick (6 pool, 1 of 3,
 §4.5.2); relics are 3 rarities (§8.3.1). Unifying simplifies but loses League-scoped flavor.
-**⏸ Parked with Q11 / CL-004 (2026-06-05):** League is deferred until R1→Victory Road loop
-is solid. Revisit when League/Champion design reopens. No change log entry needed until then.
+**⏸ Was parked with Q11 / CL-004 (2026-06-05); de-deferred for DESIGN by the user 2026-06-11**
+(League *combat* stays deferred per CL-004; this resolves the Boon→relic redesign only).
+**✅ Resolution — Option C (choice-only Legendary rarity tier) + 4 sub-decisions:**
+- **New rarity class `Legendary`** above Rare — **not** in the random drop table (Common 60 / Uncommon
+  30 / Rare 10 untouched). Legendary is a *rarity class*, not a meta-tier; all 10 available from run 1.
+- **Acquisition = choice-only (Pillar 1 ★):** each **Gym victory** offers a **Legendary pick (1 of 3)**;
+  the **Victory Road Summit** pick (the former Boon slot); the **Black Market** (CL-015) may stock one.
+  Never an RNG drop (~4 pick-moments/run = reliable, telegraphed access = the "a bit easier" the user wanted).
+- **Hold cap: max 2 Legendaries/run** (Q10c) — at cap, pick-moments offer a Rare relic / skip instead.
+  Keeps Legendaries a deliberate apex sculpt (Pillar 3).
+- **Effects retuned ~⅔** for permanent run-long scope (Q10a) — they were League-only/5-fights.
+- **Pool = 10** (Q10d): 6 ported Boons + 4 new (Grandmaster's Tempo, Living Legend, Unbreakable Will,
+  Apex Predator), spread across all 5 synergy categories.
+- **Boons removed:** §4.5.2 Boon system → Legendary relics; §4.5.1.4 Summit "Boon selection" → "Legendary
+  pick." Excluded from Starting Relics (§6.6.3) + shop random stock.
+- **Pillars:** 1 ★ (choice, never reactive RNG), 3 ★ (2-cap apex sculpt), 5. Numbers tunable;
+  **code post-VS** (relic tier + League both deferred). → logged **CL-021**.
 
 ## Q11 — Defer League + Champion ✅ DECIDED 2026-06-05
 **Owner:** producer
@@ -499,13 +514,12 @@ done *after* the gameplay questions above settle, so the UI reflects final mecha
 
 ## Suggested processing order (producer recommendation)
 
-*Updated 2026-06-11. Q1–Q9, Q11–Q19, Q21, Q22 are ✅ DECIDED and in the change log (20 of 23).
-Q10 is ⏸ PARKED with League. Remaining open work:*
+*Updated 2026-06-11. Q1–Q19, Q21, Q22 are ✅ DECIDED and in the change log (21 of 23); Q10 design
+resolved (CL-021, League combat still deferred per CL-004). Remaining open work:*
 
 1. ✅ **Done:** Combat feel (Q8/Q9/Q22), World structure (Q1/Q2/Q21), Trauma (Q17), progression
-   cascade (Q12–Q16), Unknown intents (Q7), Battle Pass (Q18), **achievements (Q19)**.
-2. **Documentation:** Q20 (save/load manifest — now also covers Battle Pass track state).
+   cascade (Q12–Q16), Unknown intents (Q7), Battle Pass (Q18), achievements (Q19), **Boons→Legendary (Q10)**.
+2. **Documentation:** Q20 (save/load manifest — now also covers Battle Pass track + achievement state).
 3. **Last:** **Q23 (full UI spec)** — after mechanics settle.
-4. **Parked (reopen with League):** Q10 (Boons → relics).
 
-*Recommended remaining order: **Q20 (doc) → Q23 last.***
+*Remaining: **Q20 (doc) → Q23 last.** (Q10 done; only Q20 + Q23 remain — 2 of 23 open.)*

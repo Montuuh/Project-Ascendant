@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-11T09:57:00.000Z -->
+<!-- Last updated from Notion: 2026-06-11T14:32:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-06-11 (CL-019 — Q18: Trainer XP → Hybrid Battle Pass, §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1; CL-020 — Q19: achievement medal-tier framework §6.7.0 + 50-entry catalog §6.7.1.1)
+**Last Updated:** 2026-06-11 (CL-019 — Q18: Trainer XP → Hybrid Battle Pass, §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1; CL-020 — Q19: achievement medal-tier framework §6.7.0 + 50-entry catalog §6.7.1.1; CL-021 — Q10: Legendary relic notes §6.6.1/§6.6.3 + glossary)
 
 
 **Cross-references:** Topic 1 (§1.6 starter unlocks, §1.7 difficulty modifiers), Topic 2 (§2.4.4 Trauma penalty hook, §2.4.2 healing formula), Topic 4 (§4.3.9 Pokédex tiers — adjacent system), Topic 5 (§5.2 XP & Leveling — in-run XP is separate), Topic 8 (Trauma Salve relic, Type Plates for starter unlocks).
@@ -415,6 +415,9 @@ This creates ongoing discovery — even at Trainer Level 20, a relic the player 
 **Per CL-019 (Q18):** Tier-3 Mastery relics are the **sole Token-spend lane** — unlocked at the Pokémart in any order (5 Tokens each), funded by the Battle Pass track's milestone Tokens (§6.3.5) + achievements. Tier-2 (Discovered) unlocks stay an orthogonal achievement/event discovery layer.
 
 
+**Per CL-021 (Q10):** **Legendary** is a 4th relic _rarity class_ (§8.3.1 / §8.3.7) — distinct from these meta-tiers. Legendaries are available from run 1 but are **choice-only** (not in the random drop pool): obtained via guaranteed 1-of-3 picks at Gym victories, the Victory Road Summit, and the Black Market; **max 2 held per run**.
+
+
 ## §6.6.2 Per-Run Pool Construction
 
 
@@ -431,7 +434,7 @@ When a run starts, the active relic pool is computed:
 ## §6.6.3 Starting Relic Curation
 
 
-Per §2.1.1, the player picks 1 of 3 Starting Relics at run start (4 if Curated Starting Relic +1 Hub upgrade owned). The Starting Relic pool is **biased toward Common-and-Uncommon, never Rare** — Starting Relics set a build direction, not the build itself.
+Per §2.1.1, the player picks 1 of 3 Starting Relics at run start (4 if Curated Starting Relic +1 Hub upgrade owned). The Starting Relic pool is **biased toward Common-and-Uncommon, never Rare** — Starting Relics set a build direction, not the build itself. **Per CL-021 (Q10), Legendary relics are likewise excluded from Starting Relics** (and from shop random stock); they are earned only via the 1-of-3 Legendary picks (§8.3.7).
 
 
 ---
@@ -687,4 +690,5 @@ Topic 6 systems in the Region 1 vertical slice:
 - **Trainer Hub:** Pre/post-run menu space; kiosk-driven.
 - **Hub upgrade:** Permanent quality-of-life or option-expanding unlock purchased with Tokens.
 - **Tier 1/2/3 relic:** Meta-unlock status of a relic (NOT in-run rarity).
+- **Legendary relic (CL-021 — Q10):** a 4th relic rarity class above Rare; choice-only (never a random drop), obtained via guaranteed 1-of-3 picks (Gym victories / Victory Road Summit / Black Market), max 2/run. Replaces the former League Boons (§8.3.7).
 - **Difficulty modifier:** Run-start opt-in challenge layer; multiplies Trainer XP earned this run.

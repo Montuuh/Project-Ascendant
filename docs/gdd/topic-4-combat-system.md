@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T17:12:00.000Z -->
+<!-- Last updated from Notion: 2026-06-11T14:32:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -894,14 +894,17 @@ Only one upgrade granted per Training Grounds node. Upgrade types cannot be comb
 ### §4.5.1.4 🏔️ Summit Preparation Node (mandatory final node)
 
 - **Full HP restore** across all Box Pokémon — the last meaningful healing before the unbroken League gauntlet.
-- **League Boon selection** — 3 Boons offered from a seeded pool of 6; player picks 1 (see §4.5.2).
+- **Legendary relic pick** — per CL-021 (Q10), the Summit offers a **Legendary relic, 1 of 3** (§8.3.7) — one of several run Legendary-pick moments (max 2 Legendaries/run). Replaces the former League Boon selection.
 - **League roster preview** — type identities and silhouettes of all Elite Four members and the Champion revealed. Pokémon names and movesets remain hidden.
 - **Confirmation gate:** "Enter the League?" — one-way commitment.
 
 Note: consumables are automatically restored at every combat end, so no explicit consumable refresh is needed at the Summit node.
 
 
-## §4.5.2 League Boons
+## §4.5.2 League Boons (SUPERSEDED → §8.3.7 Legendary relics, CL-021 — Q10)
+
+
+**Superseded by CL-021 (Q10):** the Boon system is removed — the 6 Boons are ported into the relic system as **choice-only Legendary relics (§8.3.7)**, retuned to ~⅔ strength for permanent run-long scope and picked via the same 1-of-3 Legendary moments (Gym victories, Victory Road Summit, Black Market; max 2/run). The original League-only Boon table below is retained for historical reference only; the live spec is §8.3.7.
 
 
 Selected at the Victory Road Summit node. Three are offered from a seeded pool of 6; the player picks one. Active **only during the 5 League encounters** (Elite 1–4 + Champion). Stronger than Badges — temporary scope permits higher power.
@@ -939,7 +942,8 @@ Up to 1 additional Badge per run from rare in-run bonus sources. **Per CL-015 (Q
 
 # §4.6 Elite Four
 
-> ⚠️ **DEFERRED (2026-06-05)** — League & Champion are not implemented yet. Finish and polish the R1 → City 1 → R2 → City 2 → R3 → Victory Road loop first; the League (and Q10 Boons→relics) will be redesigned afterward. Spec retained for reference — do not build yet.
+> ⚠️ **DEFERRED (2026-06-05)** — League & Champion are not implemented yet. Finish and polish the R1 → City 1 → R2 → City 2 → R3 → Victory Road loop first; the League will be redesigned afterward. Spec retained for reference — do not build yet.
+> ✅ **Q10 RESOLVED (2026-06-11, CL-021):** the Boons→relics question is decided independently — Boons are now choice-only **Legendary relics (§8.3.7)**. League _combat_ itself remains deferred per this banner.
 
 Four sequential Elite Four encounters forming the League's main gauntlet. No map navigation; **micro-rests between fights restore 30% HP**.
 

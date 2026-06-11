@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-10T17:11:00.000Z -->
+<!-- Last updated from Notion: 2026-06-11T14:31:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-24 (full Consumables, 50-relic catalog, Held Items system, TM list)
+**Last Updated:** 2026-06-11 (CL-021 — Q10: League Boons → choice-only Legendary relic tier; §8.3.1 + new §8.3.7 Legendary catalog, pool 50→60)
 
 
 **Cross-references:** Topic 1 (§1.6 50 relics target), Topic 3 (§3.5 consumable rules), Topic 4 (§4.2.7 status cures, §4.5.1.1 rare relic drops), Topic 5 (§5.4.1 TMs, §5.5.4 Lead Aura), Topic 6 (§6.6 relic tier unlocks, §6.5 starter unlock relics), Topic 7 (§7.7 Region Shop, §7.8.2 City Shop).
@@ -107,10 +107,10 @@ Upgrade paths (a higher-tier item replaces the lower automatically when found, O
 ---
 
 
-# §8.3 Trainer Relics — 50 Launch Catalog
+# §8.3 Trainer Relics — 60 Launch Catalog (50 drop-pool + 10 Legendary)
 
 
-50 launch relics organized by rarity tier and synergy category. Tier reflects in-run drop weight (§6.6.2); Meta-tier (§6.6.1) governs which relics are in the pool for a given run's player.
+60 launch relics: **50 drop-pool relics** (Common / Uncommon / Rare, by rarity + synergy category — Rarity reflects in-run drop weight §6.6.2; Meta-tier §6.6.1 governs pool membership) **plus 10 choice-only Legendary relics** (§8.3.7, CL-021 — Q10) that are never random drops.
 
 
 ## §8.3.1 Rarity Distribution
@@ -121,6 +121,9 @@ Upgrade paths (a higher-tier item replaces the lower automatically when found, O
 | Common   | 25    | 60%         | Trainer drops, Region Shops, Common Mystery Events             |
 | Uncommon | 18    | 30%         | Elite drops, City Shops, Tradeoff Mystery Events               |
 | Rare     | 7     | 10%         | Gym Leader drops, Victory Road Gauntlet, Gamble Mystery Events |
+
+
+**Per CL-021 (Q10):** a 4th rarity class — **Legendary** (10 relics) — sits above Rare but is **not** in this drop table. Legendaries are **choice-only** (guaranteed 1-of-3 picks, never RNG drops, max 2/run) — full spec at §8.3.7.
 
 
 ## §8.3.2 Synergy Categories
@@ -211,9 +214,37 @@ Five categories. Each relic is tagged with one primary + up to one secondary cat
 Some relics have explicit interactions. Resolution rules:
 
 - **Choice Band vs Choice Specs:** Independent. A player can hold both. Each operates on its own AP discount cycle (Melee vs Ranged), but the discount only triggers on the first move of that type per turn.
-- **Phoenix Feather vs Sturdy/Last Stand Boon:** Resolution order — Sturdy → Last Stand → Phoenix Feather. Phoenix Feather is the last fallback; the others fire first (per Pokémon-specific designation).
+- **Phoenix Feather vs Sturdy / Last Stand:** Resolution order — Sturdy (passive) → Last Stand (Legendary relic, §8.3.7) → Phoenix Feather (Rare relic). Phoenix Feather is the last fallback; the others fire first (per Pokémon-specific designation).
 - **Trauma Salve vs Hub upgrade "Trauma Salve Cache":** Independent. The Hub upgrade guarantees one in the City 1 shop; the player can still find/buy more.
 - **Type-boost relics (Soft Sand, Mystic Water, etc.):** Stacking with field effects (§4.3.8) and Held Items multiplies normally — each is a multiplicative term in the damage formula.
+
+## §8.3.7 Legendary Relics (10 — choice-only, CL-021 — Q10)
+
+
+Per **CL-021 (Q10)**, the former League Boons (§4.5.2) are unified into the relic system as a 4th rarity class, **Legendary** — above Rare but **never in the random drop pool**. Legendaries are **choice-only**, preserving the Boons' essence: a guaranteed, telegraphed _pick_ of powerful options, not an RNG drop (Pillar 1).
+
+- **Acquisition:** a **1-of-3 Legendary pick** at each **Gym victory**, at the **Victory Road Summit** (former Boon slot, §4.5.1.4), and at the **Black Market** (§7.8.4) — ~4 pick-moments/run; seeded, excludes already-held.
+- **Hold cap:** **max 2 Legendaries/run.** At the cap a pick-moment offers a Rare relic (or skip) instead.
+- **Scope retune:** Boons were active only during the 5 League fights; as permanent run-long relics the ported six are **retuned to ~⅔ strength** (Pillar 3 anti-snowball). The 2-cap keeps them a deliberate apex sculpt (Pillar 3).
+- **Exclusions:** never in Starting Relics (§6.6.3), shop random stock, or the §6.6.2 drop pool.
+- **Meta-status:** Legendary is a _rarity class_, not a meta-tier — all 10 available from run 1.
+
+| Legendary           | Category         | Effect (run-long)                                                                                                                                        | Origin                    |
+| ------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| Battle Hardened     | Combat           | Each Active Team Pokémon starts every combat with a Shield = 10% of its max HP                                                                           | Boon 15→10%               |
+| Flow State          | Lead-Economy     | The first manual swap each combat costs 0 AP                                                                                                             | Boon (kept)               |
+| Last Stand          | Combat           | Once per combat, the first Active Team Pokémon that would faint survives at 1 HP instead                                                                 | Boon (per-mon → 1/combat) |
+| Type Mastery        | Combat           | Super-Effective moves deal +0.15× bonus damage                                                                                                           | Boon 0.25→0.15            |
+| Clear Mind          | Combat (vision)  | All Unknown enemy intents are revealed every combat (incl. the Elite/Gym baseline Unknown, CL-011)                                                       | Boon (kept — info)        |
+| Evolution's Edge    | Combat           | Fully-evolved Pokémon deal +10% damage                                                                                                                   | Boon 15→10%               |
+| Grandmaster's Tempo | Card-Economy     | +1 max hand size; the first skill card each turn costs 0 AP                                                                                              | New                       |
+| Living Legend       | Meta-Acquisition | All in-run XP ×1.3; recruited wild Pokémon enter at +2 levels with 0 Trauma                                                                              | New                       |
+| Unbreakable Will    | Status           | Immune to the first status condition each combat; status conditions you apply last +1 turn                                                               | New                       |
+| Apex Predator       | Combat           | While the Lead is at full HP its moves deal +20% damage; taking any damage disables this until the Lead is healed back to full (telegraphed double-edge) | New                       |
+
+
+**Code:** post-VS (relic-tier UI + League both deferred, CL-004). The retuned six + the four new effects compose existing relic / field / status hooks; numbers are systems-designer-tunable.
+
 
 ---
 
