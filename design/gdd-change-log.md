@@ -168,7 +168,12 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   field list), §9.8.7.5 (Pokédex/`bestiary.dat`), §9.8.7.6 (Settings/`settings.json`); new §9.8.8
   **Persistence Coverage & Verification Matrix** (every design system × layer × implemented × tested
   test-name). Surfaced one honest hole: **Settings is write-only** (no `LoadSettings`) → BACKLOG #47.
-- Status: [✅] GDD updated (Notion §9.8.6/§9.8.7.1-.6/§9.8.8 + §6.10, re-exported 2026-06-12)   [✅] Code adapted — 1187 green (13e2934)
+- Top-down completeness sweep (2026-06-12): walked all 10 topics for persistent state vs the manifest.
+  Added §9.8.7.7 (save granularity = node-entry checkpoint; EventFlags catch-all; **designed-but-deferred**
+  table). Honest deltas surfaced & flagged: MetaProgressionSO.Statistics (§6.10/§6.4.3 — designed, not
+  built), City visit-budget (CL-015, post-VS), League/Champion run-state (CL-004, deferred), Settings load
+  (#47). All built systems are covered; nothing designed is silently missing.
+- Status: [✅] GDD updated (Notion §9.8.6/§9.8.7.1-.7/§9.8.8 + §6.10, re-exported 2026-06-12)   [✅] Code adapted — 1187 green (13e2934)
 
 ### CL-001 — Bestiary → Pokédex rename   (resolves Q6)
 - Date: 2026-06-05

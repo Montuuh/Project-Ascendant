@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-12T12:46:00.000Z -->
+<!-- Last updated from Notion: 2026-06-12T13:29:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -638,6 +638,28 @@ Device-local options. **Whole-object** **`JsonUtility`** (pretty-printed). Field
 
 > ⚠️ OPEN (2026-06-12): Settings is currently **write-only** — `SaveSystem.SaveSettings` writes `settings.json`, but there is **no** **`LoadSettings`** and no boot-time read, so saved settings are not restored. Tracked as BACKLOG **#47** (lead-programmer). No round-trip test until the load path exists.
 
+### §9.8.7.7 Save granularity & designed-but-deferred state
+
+
+**Granularity — node-entry checkpoint.** The only run autosave trigger is **Node entry, before resolution** (§9.8.1). Mutations made _within_ a node or on Map View between nodes — Shop purchases, Pokémon Center heals, Dojo teaches, Held-Item equips / loadout edits, the Region-Modifier pick, the Gym-victory Legendary pick — are written to `RunStateSO` immediately but **persisted at the next node entry**. Quitting before then rolls back to the node-entry checkpoint (the action is replayed on resume). This is intentional — a single, predictable checkpoint model; the player is told “autosaves at the start of every node.” Meta unlocks earned mid-run and the Pokédex save on their own triggers (run end + select unlock points).
+
+
+**`EventFlags`** **is the persisted catch-all.** Any ad-hoc per-run flag (one-shot event outcomes, a City-Gym attempt marker, etc.) lives in `RunStateSO.EventFlags` (§9.8.7.1) and round-trips automatically. **Design rule:** any future _stateful_ relic (a per-run counter — e.g. “every Nth combat…”) must store its counter in `EventFlags` to persist; `RelicSO` assets are immutable definition data and carry no run-state.
+
+
+**Designed but persistence-deferred.** These systems are specced but not yet built; each joins the manifest when its feature lands. Listed here so the manifest is **complete by construction** — nothing designed is silently missing.
+
+
+| Designed system                                       | Topic / §      | Why not yet persisted                                                                                                             | Future layer |
+| ----------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `MetaProgressionSO.Statistics` (RunStatisticsSummary) | §6.10 / §6.4.3 | only the 3 summary ints (runs completed/attempted, high score) are implemented; the richer per-run statistics object is not built | Meta         |
+| City visit-budget + City-Gym attempt state (CL-015)   | §2.1.4 / §7.8  | the City “Choice Plaza” is post-VS (the VS ends at Gym 1)                                                                         | Run          |
+| League / Champion run-state (CL-004)                  | §2.1.6 / §4.6  | League is deferred — redesign after the R1→Victory-Road loop                                                                      | Run          |
+
+
+Today's `RunStateSO` + `MetaProgressionSO` carry **everything the currently-built systems require**; the rows above are the only designed persistent state not yet in the live manifest, and each is intentionally gated behind an unbuilt feature.
+
+
 ## §9.8.8 Persistence Coverage & Verification Matrix (CL-022)
 
 
@@ -673,7 +695,7 @@ Every design system that should persist, its save layer, whether it is **impleme
 | Schema versioning / migration                                                                                           | all layers               | SaveHeader                        | ✅ (v1; no migration yet)    | n/a — nothing to migrate (§6.12)                                                               |
 
 
-**Bottom line:** Run, Meta, and Pokédex layers are fully implemented and round-trip-tested (28 `SaveSystemTests`, 1187/1187 green). The only open hole is **Settings load** (#47). Combat-scoped state is transient by design (§9.8.7.3 / §9.8.5).
+**Bottom line.** For every **currently-built** system, its persistent state is documented above and round-trip-tested — Run, Meta, and Pokédex layers are fully implemented (28 `SaveSystemTests`, 1187/1187 green). Two open items, both flagged: **Settings load** (write-only, BACKLOG #47) and the **designed-but-deferred** state in §9.8.7.7 (Statistics summary; City + League run-state, gated behind unbuilt features). Combat-scoped state is transient by design (§9.8.7.3 / §9.8.5); the save is a node-entry checkpoint (§9.8.7.7).
 
 
 ---
