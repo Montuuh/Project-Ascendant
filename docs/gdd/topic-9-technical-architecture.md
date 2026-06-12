@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-12T09:51:00.000Z -->
+<!-- Last updated from Notion: 2026-06-12T12:46:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -547,7 +547,10 @@ flowchart TD
 
 > ⚠️ POST-VS (multi-region): the VS loop is single-region (R1), so the region-entry MapRNG state equals the stream start that `new RNGStreams(seed)` provides. A multi-region resume needs the **per-region MapRNG entry state** captured (the `GameRNG` map overload does not re-salt by `regionIndex`). Tracked in BACKLOG; out of VS scope.
 
-## §9.8.7 Run-Save Field Manifest (CL-022)
+## §9.8.7 Full Persistence Field Manifest (CL-022)
+
+
+This is the **technical source of truth for all four save layers** — Run (§9.8.7.1–.3), Meta (§9.8.7.4), Pokédex (§9.8.7.5), Settings (§9.8.7.6). For _which design systems_ land in each layer and their implementation/test status at a glance, see the coverage matrix in §9.8.8.
 
 
 The run save is **`run-current.dat`** **→** **`RunSaveDTO`**, a flat JSON-safe snapshot (`JsonUtility`). **Every nested ScriptableObject reference is stored as its stable string ID, never the unstable** **`instanceID`**, and re-resolved on load via `RunContentRegistry` (built from the run's `RunContentCatalogSO` plus the code-built pools registered explicitly on the resume path: difficulty modifiers, the 16 Region Modifiers, the **10 Legendary relics** (CL-021), and the wild **biomes** (CL-018)). Unknown IDs drop gracefully (logged) — a missing item is recoverable; a forfeited run is not. This manifest is the authoritative persistence surface for the run layer; it supersedes the illustrative §9.3.2.4 schema for save purposes.
@@ -590,6 +593,87 @@ Persisted: SpeciesId, Level, CurrentHP, CurrentXP, TraumaStacks, CurrentMoveIds[
 
 
 Combat-scoped fields, rebuilt fresh by the encounter controller each combat (safe because combat is atomic, §9.8.5): `MoveCooldowns`, `PhaseCount`, `LastObservedPhase`, `HasSturdy` / `SturdyConsumed`, `MidFightEvolutionTarget` / `HasEvolvedMidFight`, `Phase2Archetype`, and **`ShieldHP`** (CL-021 Battle Hardened — set at combat start, absorbed before HP; `PokemonInstance.Reset()` zeroes it so a pooled restore never carries a stale shield between nodes). Also not stored: the **RegionMap** (re-derived, §9.8.6) and the Box object identity (instances are re-rented from the factory pool).
+
+
+### §9.8.7.4 Meta layer — MetaProgressionSO (`meta.dat` + `.bak`)
+
+
+The cross-run account. **Whole-object** **`JsonUtility`** (no DTO) — every serialized field round-trips automatically; no per-field save code. The design surface is Topic 6 §6.10; the serialized fields are:
+
+
+| Field                                               | Type            | Persists                                              |
+| --------------------------------------------------- | --------------- | ----------------------------------------------------- |
+| TrainerLevel / TrainerXP / TrainerXPToNextLevel     | int ×3          | Trainer progression (§6.3)                            |
+| UnlockedStarterIds                                  | string[]        | meta-unlocked starters (§6.5)                         |
+| UnlockedRelicIds                                    | string[]        | relic meta-unlock pool (§6.6.1)                       |
+| UnlockedMasteryMoveIds                              | string[]        | unlocked Mastery moves (§4.3.9.2)                     |
+| ShinyUnlockedSpeciesIds                             | string[]        | Veteran-tier shiny unlocks (§4.3.9.1)                 |
+| HubUpgrades                                         | StringIntPair[] | Hub upgrade levels (§6.4)                             |
+| ClaimedPokedexMilestones                            | int[]           | Pokédex completion rewards claimed (§6.9)             |
+| ClaimedLevelMilestones                              | int[]           | Battle-Pass Token milestones claimed (CL-019, §6.3.5) |
+| TotalRunsCompleted / TotalRunsAttempted / HighScore | int ×3          | run history                                           |
+| CompletedAchievementIds                             | string[]        | one-shot achievement flags (§6.7)                     |
+| AchievementProgress                                 | StringIntPair[] | multi-step achievement counters (§6.7)                |
+| TrainerTokens                                       | int             | agency currency (CL-019)                              |
+
+
+### §9.8.7.5 Pokédex layer — PokedexProgressSO (`bestiary.dat` + `.bak`)
+
+
+Per-species knowledge, separate from Meta so it can grow large. **Whole-object** **`JsonUtility`**. `Entries : List<PokedexEntry>`, each entry:
+
+
+| Field                                             | Type                                | Persists                                       |
+| ------------------------------------------------- | ----------------------------------- | ---------------------------------------------- |
+| SpeciesId                                         | string                              | the species key                                |
+| TimesEncountered / TimesDefeated / TimesRecruited | int ×3                              | tallies that drive tier thresholds (§6.9)      |
+| MasteryTier                                       | enum (None/Familiar/Veteran/Master) | cross-run reveal/shiny/Mastery tier (§4.3.9.1) |
+| TypeChartRevealed                                 | bool                                | type-matchup reveal state                      |
+
+
+### §9.8.7.6 Settings layer — SettingsSO (`settings.json`)
+
+
+Device-local options. **Whole-object** **`JsonUtility`** (pretty-printed). Fields: `MasterVolume` / `MusicVolume` / `SFXVolume` (float), `ColorblindMode` / `ReducedMotion` / `SubtitlesEnabled` / `FullScreen` (bool), `TargetFrameRate` (int), `KeyBindingsJson` (string, §10.6).
+
+> ⚠️ OPEN (2026-06-12): Settings is currently **write-only** — `SaveSystem.SaveSettings` writes `settings.json`, but there is **no** **`LoadSettings`** and no boot-time read, so saved settings are not restored. Tracked as BACKLOG **#47** (lead-programmer). No round-trip test until the load path exists.
+
+## §9.8.8 Persistence Coverage & Verification Matrix (CL-022)
+
+
+Every design system that should persist, its save layer, whether it is **implemented**, and whether it is **tested** (EditMode, `SaveSystemTests` unless noted). Legend: ✅ done & directly asserted · ◑ implemented + covered by a whole-object/round-trip test but not separately asserted · ⚠️ gap.
+
+
+| Design system / data                                                                                                    | Layer · file             | Stored as                         | Impl.                       | Tested (EditMode)                                                                              |
+| ----------------------------------------------------------------------------------------------------------------------- | ------------------------ | --------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------- |
+| Run seed + position (region/layer/lane/node)                                                                            | Run · run-current.dat    | values                            | ✅                           | ✅ `RunRoundTrip_PreservesData`, `LoadRunInto_AppliesOntoExistingInstance`                      |
+| Active team + Lead index                                                                                                | Run                      | int[] + int                       | ✅                           | ✅ `RunRoundTrip_RestoresTeamFromBox`                                                           |
+| Box (species/moves/ability/branch/level/XP/HP/Trauma/status/stages/held)                                                | Run                      | PokemonInstanceDTO[] (stable IDs) | ✅                           | ✅ `RestoresTeamFromBox`, `EvolvedForm_DisambiguatesByBranch`                                   |
+| Relics — incl. **Legendaries**                                                                                          | Run                      | `RelicSO.Id`                      | ✅                           | ✅ `ResolvesSOReferencesById`, `HeldLegendary_SurvivesWhenCatalogRegistered`                    |
+| Consumables · ₽ · Pokéballs                                                                                             | Run                      | IDs + int                         | ✅                           | ✅ `ResolvesSOReferencesById` / `PreservesData`                                                 |
+| Earned Badges                                                                                                           | Run                      | `BadgeSO.BadgeId`                 | ✅                           | ✅ `ResolvesSOReferencesById`                                                                   |
+| Owned Held Items / TMs / Evolution Items                                                                                | Run                      | `.Id[]`                           | ✅                           | ◑ (held-item asserted via Box; owned lists via round-trip)                                     |
+| Region Modifier (active, per-Region)                                                                                    | Run                      | `RegionModifierSO.ModifierId`     | ✅                           | ✅ `RegionModifierLifecycleTests`                                                               |
+| Naturalist's Lens steered biome                                                                                         | Run                      | `BiomeSO.BiomeId`                 | ✅                           | ✅ `NaturalistLensBiome_ResolvesById`                                                           |
+| Difficulty modifiers (active)                                                                                           | Run                      | `.ModifierId[]`                   | ✅                           | ✅ `ResolvesSOReferencesById`                                                                   |
+| Event flags                                                                                                             | Run                      | StringIntPair[]                   | ✅                           | ◑ (whole-DTO round-trip)                                                                       |
+| Recorded input log (replay)                                                                                             | Run                      | InputLog                          | ✅                           | ◑ (field round-trips; replay suite §9.11.3)                                                    |
+| **RNG cursors** (5 streams)                                                                                             | Run                      | RNGCursors (5×uint)               | ✅                           | ✅ `PersistsRngCursors`, `RestoreContentCursors_ContinuesContentStreams_NotMap`                 |
+| Unknown-ID graceful drop / corrupt-run forfeit                                                                          | Run                      | —                                 | ✅                           | ✅ `UnknownIdDropsGracefully`, `CorruptedRun_ReturnsNull`                                       |
+| Resumable-save presence (Continue gate)                                                                                 | Run                      | —                                 | ✅                           | ✅ `HasRun_TrueAfterSave_FalseAfterDelete`                                                      |
+| Trainer XP / Level / Tokens                                                                                             | Meta · meta.dat          | int                               | ✅                           | ✅ `MetaRoundTrip_PreservesData`, `ClaimedLevelMilestonesAndTokens_RoundTrip`                   |
+| Unlocked Mastery moves                                                                                                  | Meta                     | string[]                          | ✅                           | ✅ `Meta_UnlockedMasteries_RoundTrip`                                                           |
+| Claimed level milestones (CL-019)                                                                                       | Meta                     | int[]                             | ✅                           | ✅ `ClaimedLevelMilestonesAndTokens_RoundTrip`                                                  |
+| Unlocked starters/relics/shiny · Hub upgrades · claimed Pokédex milestones · achievements (done+progress) · run history | Meta                     | string[]/int[]/pairs              | ✅                           | ◑ (whole-object round-trip; not each separately asserted)                                      |
+| Meta backup + corruption recovery                                                                                       | Meta                     | meta.dat.bak                      | ✅                           | ✅ `SaveMeta_Twice_CreatesBackup`, `CorruptedMeta_FallsBackToBackup`, `MissingMeta_ReturnsNull` |
+| Pokédex kill counts + tiers                                                                                             | Pokédex · bestiary.dat   | PokedexEntry[]                    | ✅                           | ✅ `PokedexRoundTrip_PreservesKillCounts`, `MissingPokedex_ReturnsNull`                         |
+| Pokédex encountered/recruited/type-chart-revealed                                                                       | Pokédex                  | PokedexEntry fields               | ✅                           | ◑ (whole-object round-trip)                                                                    |
+| Settings — volumes/accessibility/display/keybinds                                                                       | Settings · settings.json | SettingsSO                        | ⚠️ **write-only** (no load) | ⚠️ none — BACKLOG #47                                                                          |
+| Atomic write · FNV-1a checksum · save header                                                                            | all layers               | —                                 | ✅                           | ✅ `ComputeChecksum_*`  • corruption tests                                                      |
+| Schema versioning / migration                                                                                           | all layers               | SaveHeader                        | ✅ (v1; no migration yet)    | n/a — nothing to migrate (§6.12)                                                               |
+
+
+**Bottom line:** Run, Meta, and Pokédex layers are fully implemented and round-trip-tested (28 `SaveSystemTests`, 1187/1187 green). The only open hole is **Settings load** (#47). Combat-scoped state is transient by design (§9.8.7.3 / §9.8.5).
 
 
 ---

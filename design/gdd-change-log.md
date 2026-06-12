@@ -163,7 +163,12 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   (biome index); `RunController` autosave; `RunLauncher` resume (restore + Legendary register);
   `PokemonInstance.Reset`. +6 `SaveSystemTests`. **Done — 1187 green, commit 13e2934.**
 - Decision (user-approved 2026-06-12): restore 4 content cursors, re-derive MapRNG; close all 5 gaps now.
-- Status: [✅] GDD updated (Notion §9.8.6/§9.8.7 + §6.10, re-exported 2026-06-12)   [✅] Code adapted — 1187 green (13e2934)
+- Doc expansion (2026-06-12, user request "document everything — all systems, implemented + tested"):
+  §9.8.7 broadened to the **full** field manifest across all 4 layers — added §9.8.7.4 (Meta/`meta.dat`
+  field list), §9.8.7.5 (Pokédex/`bestiary.dat`), §9.8.7.6 (Settings/`settings.json`); new §9.8.8
+  **Persistence Coverage & Verification Matrix** (every design system × layer × implemented × tested
+  test-name). Surfaced one honest hole: **Settings is write-only** (no `LoadSettings`) → BACKLOG #47.
+- Status: [✅] GDD updated (Notion §9.8.6/§9.8.7.1-.6/§9.8.8 + §6.10, re-exported 2026-06-12)   [✅] Code adapted — 1187 green (13e2934)
 
 ### CL-001 — Bestiary → Pokédex rename   (resolves Q6)
 - Date: 2026-06-05
