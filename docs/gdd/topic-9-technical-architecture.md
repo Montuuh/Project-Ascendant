@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-05T14:38:00.000Z -->
+<!-- Last updated from Notion: 2026-06-12T09:51:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -460,11 +460,11 @@ Use cases:
 ## §9.8.1 Save Layers
 
 
-| Save              | Trigger                                 | Scope                 | Format                     |
-| ----------------- | --------------------------------------- | --------------------- | -------------------------- |
-| **Meta Save**     | After every run end + Pokémart purchase | MetaProgressionSO     | Binary + JSON-debug backup |
-| **Run Save**      | After every Node entry                  | RunStateSO + InputLog | Binary                     |
-| **Settings Save** | On settings change                      | SettingsSO            | JSON                       |
+| Save              | Trigger                                    | Scope                                              | Format                     |
+| ----------------- | ------------------------------------------ | -------------------------------------------------- | -------------------------- |
+| **Meta Save**     | After every run end + Pokémart purchase    | MetaProgressionSO                                  | Binary + JSON-debug backup |
+| **Run Save**      | After every Node entry (before resolution) | RunStateSO + Box + InputLog + RNG cursors (§9.8.7) | JSON (VS); binary post-VS  |
+| **Settings Save** | On settings change                         | SettingsSO                                         | JSON                       |
 
 
 ## §9.8.2 Save File Layout
@@ -496,7 +496,7 @@ public class SaveHeader {
 ```
 
 
-Migration handlers registered per old→new schema version. If migration fails, the backup is loaded automatically.
+Migration handlers registered per old→new schema version. If migration fails, the backup is loaded automatically. `SCHEMA_VERSION` stays **1** for the VS (no v0→v1 to migrate, per §6.12). Additive fields (e.g. §9.8.6 `RngCursors`, §9.8.7 `NaturalistLensBiomeId`) are backward-compatible without a bump: `JsonUtility.FromJson` leaves absent fields at default, which equals the prior behaviour.
 
 
 ## §9.8.4 Atomicity & Corruption Recovery
@@ -509,6 +509,87 @@ Migration handlers registered per old→new schema version. If migration fails, 
 
 
 Per §3.1: combat is atomic. **No mid-combat save.** A combat that begins must complete in the same Unity session. App close mid-combat = run loss (combat is recorded as a faint-out).
+
+
+Because the only autosave trigger is **Node entry (before resolution)** (§9.8.1), every combat-scoped field is **transient by construction** — it never exists at a save point. The full transient list is enumerated in §9.8.7.
+
+
+## §9.8.6 Seeded-RNG Cursor Persistence (CL-022 — gap #45)
+
+
+A resumed run must continue each RNG stream **exactly where the save left off**; otherwise already-consumed rolls (wild encounters, loot, Mystery outcomes) re-roll and the world regenerates. The run save therefore persists the live **cursor** (`GameRNG.State`, the single `uint` xorshift32 state) of all five §9.7.2 streams in `RunStateSO.RngCursors`, captured before each Node-entry autosave.
+
+
+**The map is the exception.** The Region map is **re-derived by deterministic replay** — `RegionMapGenerator` consumes `MapRNG` from its region-entry state on both `StartRun` and `Resume`. Restoring MapRNG's _save-time_ (post-build) cursor would make the replay generate a **different** map. So on resume only the **4 content cursors** are restored; **MapRNG is left to re-derive** the map by replay.
+
+
+| Stream         | Persisted            | Restored on resume | Why                                                                                       |
+| -------------- | -------------------- | ------------------ | ----------------------------------------------------------------------------------------- |
+| `MapRNG`       | ✅ (for completeness) | ❌ **re-derived**   | map rebuilds by replay from the region-entry state; a restored cursor would shift the map |
+| `CombatRNG`    | ✅                    | ✅                  | crit / AI-floor rolls continue                                                            |
+| `LootRNG`      | ✅                    | ✅                  | trainer drops, shop seeds don't re-roll                                                   |
+| `MysteryRNG`   | ✅                    | ✅                  | resolved Mystery outcomes stay resolved                                                   |
+| `EncounterRNG` | ✅                    | ✅                  | wild species rolls don't regenerate                                                       |
+
+
+```mermaid
+flowchart TD
+  A[Node-entry autosave] --> B[Capture all 5 cursors into RunStateSO.RngCursors]
+  B --> C[Write run-current.dat]
+  R[Resume] --> N[new RNGStreams from RunSeed — all 5 at start]
+  N --> M[Resume replays MapRNG to rebuild the Region map]
+  M --> P[Restore the 4 CONTENT cursors: Combat / Loot / Mystery / Encounter]
+  P --> Q[MapRNG left re-derived — the map must not shift on resume]
+```
+
+
+**Backward-compatible:** `RngCursors` defaults to all-zero in a pre-CL-022 save; `GameRNG.State` clamps 0→1, so an old save resumes with today's "re-roll from seed" behaviour rather than crashing. No schema-version bump (§9.8.3).
+
+> ⚠️ POST-VS (multi-region): the VS loop is single-region (R1), so the region-entry MapRNG state equals the stream start that `new RNGStreams(seed)` provides. A multi-region resume needs the **per-region MapRNG entry state** captured (the `GameRNG` map overload does not re-salt by `regionIndex`). Tracked in BACKLOG; out of VS scope.
+
+## §9.8.7 Run-Save Field Manifest (CL-022)
+
+
+The run save is **`run-current.dat`** **→** **`RunSaveDTO`**, a flat JSON-safe snapshot (`JsonUtility`). **Every nested ScriptableObject reference is stored as its stable string ID, never the unstable** **`instanceID`**, and re-resolved on load via `RunContentRegistry` (built from the run's `RunContentCatalogSO` plus the code-built pools registered explicitly on the resume path: difficulty modifiers, the 16 Region Modifiers, the **10 Legendary relics** (CL-021), and the wild **biomes** (CL-018)). Unknown IDs drop gracefully (logged) — a missing item is recoverable; a forfeited run is not. This manifest is the authoritative persistence surface for the run layer; it supersedes the illustrative §9.3.2.4 schema for save purposes.
+
+
+`RunSaveDTO = { RunStateDTO Run, List<PokemonInstanceDTO> Box, int BoxCapacity }`.
+
+
+### §9.8.7.1 RunStateDTO
+
+
+| Field                                                              | Type                 | Stored as                     | Notes                                                                     |
+| ------------------------------------------------------------------ | -------------------- | ----------------------------- | ------------------------------------------------------------------------- |
+| RunSeed                                                            | int                  | value                         | drives all 5 streams + map topology                                       |
+| CurrentRegion / Layer / Lane / NodeIndexInLane                     | int ×4               | value                         | resume lands on the exact node                                            |
+| ActiveTeamIndices                                                  | int[]                | value                         | indices into Box                                                          |
+| LeadIndex                                                          | int                  | value                         | §3.3.1                                                                    |
+| HeldRelicIds                                                       | string[]             | `RelicSO.Id`                  | **incl. Legendaries** (CL-021)                                            |
+| InventoryIds                                                       | string[]             | `ConsumableSO.Id`             |                                                                           |
+| PokeDollars / PokeballCount                                        | int ×2               | value                         |                                                                           |
+| EarnedBadgeIds                                                     | string[]             | `BadgeSO.BadgeId`             |                                                                           |
+| OwnedHeldItemIds / OwnedTMIds / OwnedEvolutionItemIds              | string[]             | `.Id`                         |                                                                           |
+| TrainerXPEarnedThisRun / CombatsClearedThisRun / EvolutionsThisRun | int ×3               | value                         | run-summary tallies                                                       |
+| ActiveRegionModifierIds                                            | string[]             | `RegionModifierSO.ModifierId` | per-Region, 0–1 entries (CL-016)                                          |
+| NaturalistLensBiomeId                                              | string               | `BiomeSO.BiomeId`             | the steered biome (CL-018); null when inactive                            |
+| ActiveBoonId                                                       | string               | `LeagueBoonSO.BoonId`         | **legacy** — Boons superseded by Legendary relics (CL-021); normally null |
+| ActiveDifficultyModifierIds                                        | string[]             | `.ModifierId`                 | resolved against the registered Hub choices                               |
+| EventFlags                                                         | StringIntPair[]      | value                         | JsonUtility-safe dict surrogate                                           |
+| RecordedInputs                                                     | InputLog             | value                         | §9.7.4 replay log                                                         |
+| RngCursors                                                         | RNGCursors (5 ×uint) | value                         | §9.8.6                                                                    |
+
+
+### §9.8.7.2 PokemonInstanceDTO (each Box member — durable between-node state)
+
+
+Persisted: SpeciesId, Level, CurrentHP, CurrentXP, TraumaStacks, CurrentMoveIds[], MasteryMoveId, LearnedMoveIds[], AbilityId, HeldItemId, StatStages[], Primary/SecondaryStatus (+turns remaining), CurrentStage, **SelectedBranchId**. On load, **branch-first species resolution** uses `SelectedBranch.EvolvedSpecies` to disambiguate id-colliding final forms (e.g. Blastoise A1/A2 — §5.3.5) before falling back to the unique `SpeciesId`.
+
+
+### §9.8.7.3 Transient — intentionally NOT persisted
+
+
+Combat-scoped fields, rebuilt fresh by the encounter controller each combat (safe because combat is atomic, §9.8.5): `MoveCooldowns`, `PhaseCount`, `LastObservedPhase`, `HasSturdy` / `SturdyConsumed`, `MidFightEvolutionTarget` / `HasEvolvedMidFight`, `Phase2Archetype`, and **`ShieldHP`** (CL-021 Battle Hardened — set at combat start, absorbed before HP; `PokemonInstance.Reset()` zeroes it so a pooled restore never carries a stale shield between nodes). Also not stored: the **RegionMap** (re-derived, §9.8.6) and the Box object identity (instances are re-rented from the factory pool).
 
 
 ---

@@ -57,6 +57,23 @@
 | CL-019 | Q18 | Trainer XP → Hybrid Battle Pass (per-level track + Token choice lane) | T6 §6.3.4/§6.3.5/§6.4.2/§6.5.2/§6.6.1 | ✅ | ✅¹⁵ |
 | CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ✅¹⁶ |
 | CL-021 | Q10 | League Boons → choice-only Legendary relic tier (10-relic pool, max 2/run) | T8 §8.3.1/§8.3.7; T4 §4.5.2/§4.5.1.4/§4.6; T6 §6.6.1/§6.6.3 | ✅ | ✅¹⁷ |
+| CL-022 | Q20 | Save/Load persistence manifest + close 5 gaps (RNG cursors #45, Legendary, biome, ShieldHP) | T9 §9.8/§9.8.6/§9.8.7; T6 §6.10 | ✅ | ✅¹⁸ |
+
+¹⁸ **CL-022 code complete (2026-06-12, 1187 green).** Q20 manifest reconciliation — 5 persistence gaps
+closed, +6 `SaveSystemTests` round-trips. **A (#45 RNG cursors):** `GameRNG.State` get/set (clamps 0→1);
+`RNGStreams.CaptureCursors`/`RestoreContentCursors`; `RunStateSO.RngCursors` (serializable `RNGCursors`
+struct, 5×uint) round-trips via `RunStateDTO`; `RunController` autosave captures all 5, `RunLauncher
+.ContinueSavedRun` restores the **4 content streams** post-`Resume()`. **MapRNG is NOT restored** — the
+map rebuilds by deterministic replay (`RegionMapGenerator` over MapRNG), so it must stay at region-entry
+state; restoring the save-time cursor would regenerate a different map. **B (CL-021 Legendary):**
+`RunLauncher` registers `LegendaryRelicCatalog.BuildAll()` → a held Legendary resolves on resume.
+**C (CL-018 biome):** `RunContentRegistry` biome index (`RegisterBiome`/`ResolveBiome`, registered from
+`catalog.WildConfig.RegionBiomes` in `FromCatalog`) + `RunStateDTO.NaturalistLensBiomeId`. **D (ShieldHP):**
+`PokemonInstance.Reset()` zeroes it (combat-transient). **E (CL-019):** verified `ClaimedLevelMilestones`
++ `TrainerTokens` round-trip. Commit 13e2934. **GDD doc:** Notion §9.8.6 (RNG-cursor persistence) +
+§9.8.7 (run-save field manifest) + §6.10 manifest enrichment = the recording step (pending). **Post-VS
+flag:** multi-region resume needs per-region MapRNG **entry** state (the GameRNG map overload doesn't
+re-salt by regionIndex) — BACKLOG.
 
 ¹⁵ **CL-019 VS code complete (2026-06-11, 1161 green).** `TrainerLevelMilestone.TrainerTokens` +
 `MetaProgressionSO.ClaimedLevelMilestones` (idempotency); `CommitRun` no longer grants per-run Tokens —
@@ -118,6 +135,35 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
 ---
 
 # Entries
+
+### CL-022 — Save/Load persistence manifest + close 5 gaps   (resolves Q20)
+- Date: 2026-06-12
+- Topic / §: Topic 9 §9.8 (intro), new §9.8.6 (Seeded-RNG cursor persistence), new §9.8.7 (Run-save
+  field manifest); Topic 6 §6.10 (Meta-progression manifest enrichment)
+- Change: **Documentation task + correctness reconciliation.** Authored the complete field-by-field
+  persistence manifest (every persisted object → save layer, every field, type, how SO refs store as
+  stable string IDs via the registry, what is transient, schema-versioning, atomicity, mid-combat rule),
+  then closed the 5 holes so the documented system is actually correct.
+  - **A · gap #45 — per-stream RNG cursors not persisted.** Resume re-seeded `new RNGStreams(seed)` at
+    initial state → Combat/Loot/Mystery/Encounter rolls re-rolled (encounters/loot/mystery regenerated).
+    Now all 5 cursors persist in the run save; on resume the **4 content streams** restore, **MapRNG
+    re-derives** (the map is rebuilt by deterministic replay — restoring its save-time cursor would
+    desync the regenerated map). **Determinism-on-resume bug fixed.**
+  - **B · CL-021 Legendary** — code-built catalog wasn't registered on resume → a held Legendary
+    silently dropped. Now registered in `RunLauncher`.
+  - **C · CL-018 biome** — `NaturalistLensBiome` now persists (registry biome index + DTO id) instead
+    of relying on auto-surface.
+  - **D · ShieldHP** — `PokemonInstance.Reset()` zeroes it (combat-transient; never carried between nodes).
+  - **E · CL-019** — verified `ClaimedLevelMilestones` + `TrainerTokens` round-trip (whole-object Meta).
+- Rationale: the user asked for the full save/load documentation; the honest scope is doc + fixing the
+  holes the doc would otherwise have to describe as broken. Engineering pillar DETERMINISM (seed + input
+  log replays identically) was violated on resume by #45 — closing it is the point.
+- Code impact: `GameRNG.State`; `RNGStreams.RNGCursors`/`CaptureCursors`/`RestoreContentCursors`;
+  `RunStateSO.RngCursors`; `RunStateDTO` (RngCursors + NaturalistLensBiomeId); `RunContentRegistry`
+  (biome index); `RunController` autosave; `RunLauncher` resume (restore + Legendary register);
+  `PokemonInstance.Reset`. +6 `SaveSystemTests`. **Done — 1187 green, commit 13e2934.**
+- Decision (user-approved 2026-06-12): restore 4 content cursors, re-derive MapRNG; close all 5 gaps now.
+- Status: [✅] GDD updated (Notion §9.8.6/§9.8.7 + §6.10, re-exported 2026-06-12)   [✅] Code adapted — 1187 green (13e2934)
 
 ### CL-001 — Bestiary → Pokédex rename   (resolves Q6)
 - Date: 2026-06-05

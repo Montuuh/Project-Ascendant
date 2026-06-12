@@ -423,7 +423,7 @@ Coupled to Q18 (achievements may feed Battle Pass / unlocks).
   flavor). All numbers systems-designer-tunable. **Code:** post-VS (meta Epic; VS ships ~10).
   → logged **CL-020**.
 
-## Q20 — Document the Save/Load design fully 🔵
+## Q20 — Document the Save/Load design fully ✅ DECIDED 2026-06-12
 **Owner:** lead-programmer (+ gdd-steward to author the doc)
 **User:** Document the Save/Load design — **every system and object** that must be saved and
 loaded.
@@ -432,6 +432,31 @@ by field, incl. RNG cursors).
 **Steward note (canon):** today §9.8 + §6.10 outline layers/schema; gap #45 (per-stream RNG
 cursors not persisted on resume) is the known hole. This is a *documentation* task, not a
 redesign — produces a save/load spec doc.
+**✅ Resolution — full field-by-field persistence manifest (§9.8.6/§9.8.7 + §6.10) + 5 gap fixes:**
+- **Documentation (the ask):** authored the complete manifest — for every persisted object, its
+  save layer, every field, type, how SO refs are stored (**stable string IDs via the registry, never
+  instanceIDs**), what is intentionally **transient**, schema-versioning/migration (§9.8.3,
+  SCHEMA_VERSION stays 1 — new fields are additive/back-compatible), atomicity/corruption (§9.8.4),
+  and the **mid-combat rule** (§9.8.5 — saves fire on **node entry, before resolution**; combat is
+  atomic, so every combat-scoped field is transient by construction). Layers: Meta (`meta.dat`,
+  whole-object JSON) · Pokédex (`bestiary.dat`) · Run (`run-current.dat` → `RunSaveDTO`) · Settings.
+- **Gap closure (reconcile manifest ↔ reality) — all VS-relevant, +6 tests, 1187 green:**
+  - **A · #45 RNG cursors** — `GameRNG.State` get/set; `RNGStreams.Capture/RestoreContentCursors`;
+    `RunStateSO.RngCursors` round-trips via the DTO; autosave captures all 5, resume **restores the 4
+    content streams and re-derives MapRNG** (decision below).
+  - **B · CL-021 Legendary** — `RunLauncher` registers `LegendaryRelicCatalog.BuildAll()` so a held
+    Legendary's id resolves on resume instead of silently dropping.
+  - **C · CL-018 biome** — `RunContentRegistry` biome index + `RunStateDTO.NaturalistLensBiomeId`
+    (the steered biome now round-trips instead of relying on auto-surface).
+  - **D · ShieldHP** — `PokemonInstance.Reset()` zeroes it (combat-transient; never carried between
+    nodes on a save-restore).
+  - **E · CL-019 Tokens/ClaimedLevelMilestones** — verified to round-trip (whole-object Meta JSON).
+- **Decision (user-approved 2026-06-12): map topology re-derives from seed, NOT from a saved cursor.**
+  The map is rebuilt by **deterministic replay** of MapRNG (`RegionMapGenerator` in `Resume`), so MapRNG
+  must stay at its region-entry state; restoring its save-time (post-build) cursor would regenerate a
+  *different* map. Therefore only the **4 content cursors** (Combat/Loot/Mystery/Encounter) are restored;
+  MapRNG re-derives. *(Post-VS: multi-region resume needs per-region MapRNG **entry** state — the GameRNG
+  overload doesn't re-salt by regionIndex — flagged in BACKLOG.)* → logged **CL-022**.
 
 ---
 

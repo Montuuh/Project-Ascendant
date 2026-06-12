@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-11T14:32:00.000Z -->
+<!-- Last updated from Notion: 2026-06-12T09:51:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -637,8 +637,9 @@ Detailed implementation lives in Topic 9. Topic 6 specifies the persistence surf
     - `PokédexProgress : Dictionary<string, SpeciesMastery>`
     - `Statistics : RunStatisticsSummary`
 - **Save trigger:** At run end (any outcome) AND on every Pokémart purchase.
-- **Format:** Binary serialization with a JSON debug-export option. Versioned schema (a `SchemaVersion` field for forward migration).
-- **Corruption recovery:** Last-known-good backup retained automatically.
+- **Format:** Whole-object `JsonUtility` (no DTO) — **every serialized field round-trips automatically**, so new fields (e.g. CL-019 `ClaimedLevelMilestones` + `TrainerTokens`, CL-020 achievement tiers) persist without bespoke save code. Versioned schema (a `SchemaVersion` field for forward migration; stays 1 for the VS).
+- **Corruption recovery:** Last-known-good backup (`meta.dat.bak`) retained automatically; a corrupt primary falls back to it.
+- **CL-022 manifest note:** the persistent surface above is the **Meta** layer of the three-layer save model. The **Run** layer (`run-current.dat` — position, seed + RNG cursors, the Box, inventory, Badges, modifiers, tallies, input log) is documented field-by-field in **Topic 9 §9.8.7**; Pokédex detail persists separately in `bestiary.dat` (per-species kill counts + tiers). All three layers share the atomic write + checksum + schema-header machinery of §9.8.3/§9.8.4.
 
 ---
 
