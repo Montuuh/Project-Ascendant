@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Consumable card</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;}
+.c2{max-width:680px;margin:0 auto;background:#16120f;border-radius:14px;padding:18px;font-family:'Nunito',sans-serif;}
+.c2d{font-family:'Baloo 2',cursive;}
+.c2dot{width:12px;height:12px;border-radius:50%;background:#FFE08A;border:1px solid rgba(0,0,0,0.18);display:inline-block;}
+.c2med{border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;border:3px solid #fff;}
+.c2tag{display:inline-flex;align-items:center;gap:4px;background:#EFE2C9;color:#8a6f44;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;}
+.c2drag{display:flex;align-items:center;justify-content:center;gap:5px;background:#F3E7D0;color:#8a6f44;border:1.5px dashed #C9A86A;border-radius:999px;padding:6px;font-size:12px;font-weight:700;}
+</style></head>
+<body>
+<div class="c2">
+<h2 style="position:absolute;left:-9999px;">Consumable card: pill-soft cream card, item medallion, AP dots, once-per-combat tag, effect text, drag-to-use to a teammate or the field.</h2>
+<div style="display:flex;gap:15px;margin-bottom:16px;align-items:flex-start;">
+  <div style="width:212px;flex:0 0 auto;background:#FFF7EA;border:2px solid #E7D5B5;border-radius:30px;padding:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span class="c2d" style="font-size:20px;color:#3A2E22;font-weight:700;">Potion</span>
+      <span style="display:flex;gap:3px;"><span class="c2dot"></span></span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+      <div class="c2med" style="width:66px;height:66px;background:#54D98A;box-shadow:0 0 0 2px #cdeed8;font-size:28px;"><i class="ti ti-flask-2"></i></div>
+      <span class="c2tag"><i class="ti ti-refresh-off" style="font-size:12px;"></i>Once per combat</span>
+    </div>
+    <div style="background:#F3E7D0;border-radius:14px;padding:8px 10px;margin:9px 0;text-align:center;">
+      <div style="font-size:13px;color:#6B5A45;line-height:1.4;">Restore <b style="color:#2f9c5e;">50 HP</b> to one teammate.</div>
+    </div>
+    <div class="c2drag"><i class="ti ti-hand-finger" style="font-size:15px;"></i>Drag onto a teammate</div>
+  </div>
+  <div style="flex:1;padding-top:2px;">
+    <div class="c2d" style="font-size:16px;color:#F0E2C6;margin-bottom:10px;">Per GDD §8</div>
+    <div style="color:#E0D2C2;font-size:12.5px;line-height:1.6;">
+      <div style="margin-bottom:8px;"><span style="color:#54D98A;font-weight:700;">No categories</span> — each consumable shows its own icon.</div>
+      <div style="margin-bottom:8px;"><span style="color:#FFD451;font-weight:700;">AP dots</span> — costs generic AP, same pool as moves.</div>
+      <div style="margin-bottom:8px;"><span style="color:#54D98A;font-weight:700;">Dragged, not buttoned</span> — onto a teammate, or the field for global effects.</div>
+      <div><span style="color:#54D98A;font-weight:700;">Once per combat</span>; returns to inventory after (§8.2.1).</div>
+    </div>
+  </div>
+</div>
+<div style="color:#A8967C;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;">Two drag targets — teammate vs field</div>
+<div style="display:flex;gap:12px;">
+  <div style="flex:1;background:#241d24;border:1px solid #3A3040;border-radius:12px;padding:10px;">
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div style="background:#FFF7EA;border:1.5px solid #E7D5B5;border-radius:22px;padding:7px;width:120px;flex:0 0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px 4px;"><span class="c2d" style="color:#3A2E22;font-size:13px;font-weight:700;">Potion</span><span class="c2dot" style="width:10px;height:10px;"></span></div>
+        <div style="display:flex;justify-content:center;"><span class="c2med" style="width:34px;height:34px;background:#54D98A;font-size:16px;"><i class="ti ti-flask-2"></i></span></div>
+        <div style="text-align:center;font-size:11px;color:#8a6f44;font-weight:700;margin-top:4px;">+50 HP</div>
+      </div>
+      <i class="ti ti-arrow-right" style="color:#54D98A;font-size:20px;"></i>
+      <div style="text-align:center;flex:1;">
+        <div style="width:46px;height:46px;border-radius:50%;background:#3A3040;border:2px dashed #54D98A;margin:0 auto;display:flex;align-items:center;justify-content:center;color:#9FB8F0;font-size:11px;"><i class="ti ti-paw"></i></div>
+        <div style="font-size:11px;color:#E0D2C2;margin-top:4px;">a teammate</div>
+      </div>
+    </div>
+  </div>
+  <div style="flex:1;background:#241d24;border:1px solid #3A3040;border-radius:12px;padding:10px;">
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div style="background:#FFF7EA;border:1.5px solid #E7D5B5;border-radius:22px;padding:7px;width:120px;flex:0 0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px 4px;"><span class="c2d" style="color:#3A2E22;font-size:13px;font-weight:700;">Defog</span><span class="c2dot" style="width:10px;height:10px;"></span></div>
+        <div style="display:flex;justify-content:center;"><span class="c2med" style="width:34px;height:34px;background:#4FA3E3;font-size:16px;"><i class="ti ti-wind"></i></span></div>
+        <div style="text-align:center;font-size:11px;color:#8a6f44;font-weight:700;margin-top:4px;">clear field</div>
+      </div>
+      <i class="ti ti-arrow-right" style="color:#4FA3E3;font-size:20px;"></i>
+      <div style="text-align:center;flex:1;">
+        <div style="height:46px;border-radius:10px;background:#3A3040;border:2px dashed #4FA3E3;display:flex;align-items:center;justify-content:center;color:#9FB8F0;font-size:11px;">the field / scene</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</body></html>

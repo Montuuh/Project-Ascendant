@@ -1,0 +1,61 @@
+/* ============================================================================
+   Type icon theme — the imported type glyphs are now baked to their OWN type
+   colour and centred in their viewBox (by docs/scripts/style-type-icons.js).
+   So they no longer need a colour chip — they sit on a NEUTRAL rounded pill (or
+   bare). This USS only handles the pill + sizing; the colour lives in the SVG.
+   Maps to the `type badge` component (design/ui §1.4). Epic 13 folds into theme.uss.
+   ============================================================================ */
+
+/* ---- Neutral pill (default, ~card size) -------------------------------- */
+/* Warm cream pill on light surfaces; the coloured glyph pops against it. */
+.pa-type-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;                 /* warm/rounded — §1.1 */
+    background-color: #FFFDF8;           /* --surface-1 (warm near-white) */
+    border-width: 1px;
+    border-color: #E4D4B5;               /* --border-subtle */
+    justify-content: center;
+    align-items: center;
+}
+
+/* the type glyph (already coloured + centred in its SVG) */
+.pa-type-badge__glyph {
+    width: 74%;
+    height: 74%;
+    -unity-background-scale-mode: scale-to-fit;   /* glyph is pre-centred; fills evenly */
+}
+
+/* on the warm-dim combat/map stage, swap the pill surface so the glyph still reads */
+.stage .pa-type-badge {
+    background-color: #4A3E50;           /* --surface-2 (warm-dim) */
+    border-color: #5A4C62;
+}
+
+/* ---- Size variants ----------------------------------------------------- */
+.pa-type-badge--sm { width: 20px; height: 20px; border-radius: 7px; }   /* compressed card / list rows */
+.pa-type-badge--lg { width: 42px; height: 42px; border-radius: 14px; }  /* detail panels, Pokédex */
+
+/* ---- Bare variant (no pill) ------------------------------------------- */
+/* Just the coloured glyph, for tight spots or when the surface already frames it. */
+.pa-type-glyph--bare {
+    width: 22px;
+    height: 22px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* ---- Colourblind layer (§10.6.1.1) ------------------------------------ */
+/* The glyph SHAPE already distinguishes types without colour. If a stronger cue
+   is wanted in colourblind mode, a sibling .pa-type-badge__pattern element gets a
+   per-type hatch/dot texture at low opacity over the pill (texture set, B1 manifest). */
+.pa-type-badge__pattern { display: none; opacity: 0; }
+.colorblind .pa-type-badge__pattern {
+    display: flex;
+    position: absolute;
+    width: 100%; height: 100%;
+    opacity: 0.30;
+    /* background-image: resource("Icons/Patterns/hatch-<type>"); per type */
+}
+
+/* Note: per-type colour classes are no longer needed — the colour is baked into
+   each SVG by the styling script. Re-run that script if the palette changes. */

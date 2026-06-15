@@ -9,5 +9,8 @@
     "gdd:check": "node docs/scripts/check-gdd-snapshot.js",
     "gdd:export": "node docs/scripts/export-gdd.js",
     "gdd:ensure": "node docs/scripts/ensure-gdd-snapshot.js"
+  },
+  "devDependencies": {
+    "svg-path-bounds": "^1.0.2"
   }
 }
