@@ -66,6 +66,12 @@ namespace ProjectAscendant.Core
         // transient — reset at the start of every combat.
         public int ShieldHP;
 
+        // Per §6.8.2 (#44) — Iron Will difficulty modifier scales an ENEMY's Max HP
+        // (×1.0 default). Applied at combat build (CombatController.ApplyDifficultyModifiers)
+        // and respected by PokemonVitals.MaxHP, so every HP read sees it. Combat-transient —
+        // never persisted; reset on pool release.
+        public float MaxHPMultiplier = 1f;
+
         // Per §4.3.7 + CL-024 — mid-fight evolution: the ace evolves via this
         // branch on entering Phase 2 (HP <= 50%). Null = no mid-fight evolution.
         // Per CL-013, Gym aces never set this (rival/Champion only).
@@ -106,6 +112,7 @@ namespace ProjectAscendant.Core
             HasEvolvedMidFight = false;
             Phase2Archetype = Phase2Archetype.None;
             ShieldHP = 0; // §8.3.7 (CL-021) — combat-transient; never carried between nodes on a save-restore
+            MaxHPMultiplier = 1f; // §6.8.2 (#44) — Iron Will scalar; combat-transient, never persisted
         }
 
         // Per §4.3.3 — set/check/tick helpers for AI cooldown gate.

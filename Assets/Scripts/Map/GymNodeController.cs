@@ -47,8 +47,10 @@ namespace ProjectAscendant.Map
             GameRNG combatRng)
         {
             // §4.4.5 — earned Badges active this fight; the Gym type field is set inside BuildCombatSetup.
-            return _gym.BuildCombatSetup(
+            CombatController.CombatSetup setup = _gym.BuildCombatSetup(
                 playerTeam, initialLeadIndex, baseInventory, battleConfig, combatRng, RunState.EarnedBadges);
+            // #44 — apply Iron Will (enemy HP) / Dense Fog difficulty modifiers (Gym already hides intents).
+            return CombatController.ApplyDifficultyModifiers(setup, RunState.ActiveDifficultyModifiers);
         }
 
         // Per §3.3.1 / §2.3 + R3-5 — persist final combat LeadIndex so team order survives.

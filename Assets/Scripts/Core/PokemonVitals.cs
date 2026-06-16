@@ -9,14 +9,21 @@ namespace ProjectAscendant.Core
     // in this task to keep the combat suite untouched.
     public static class PokemonVitals
     {
-        // MaxHP = Species.BaseStats.BaseHP + GrowthCurve.GetHPAt(Level). Mirrors CombatController.
+        // MaxHP = (Species.BaseStats.BaseHP + GrowthCurve.GetHPAt(Level)) × MaxHPMultiplier.
+        // The multiplier defaults to 1.0 (behaviour-preserving); the Iron Will difficulty
+        // modifier (#44, §6.8.2) sets it >1 on enemy instances at combat build, so every
+        // HP read that routes through here sees the scaled max. Floored at 1.
         public static int MaxHP(PokemonInstance p)
         {
             if (p == null || p.Species == null) return 1;
-            int max = p.Species.BaseStats.BaseHP;
+            int baseMax = p.Species.BaseStats.BaseHP;
             if (p.Species.GrowthCurve != null)
-                max += p.Species.GrowthCurve.GetHPAt(p.Level);
-            return max <= 0 ? 1 : max;
+                baseMax += p.Species.GrowthCurve.GetHPAt(p.Level);
+            if (baseMax <= 0) return 1;
+
+            float mult = p.MaxHPMultiplier <= 0f ? 1f : p.MaxHPMultiplier;
+            int scaled = (int)System.Math.Round(baseMax * mult, System.MidpointRounding.AwayFromZero);
+            return scaled < 1 ? 1 : scaled;
         }
 
         // Per §2.4.2 / §6.2.1 (CL-017) — Trauma-adjusted Max HP via a TWO-ZONE penalty curve:

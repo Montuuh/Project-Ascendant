@@ -60,6 +60,8 @@ namespace ProjectAscendant.Map
             CombatController.CombatSetup setup = _elite.BuildCombatSetup(
                 playerTeam, initialLeadIndex, baseInventory, initialField, battleConfig, combatRng);
             setup.ActiveBadges = RunState.EarnedBadges; // §4.4.5 — in-run Badge effects
+            // #44 — apply Iron Will (enemy HP) / Dense Fog (intent hide) difficulty modifiers.
+            setup = CombatController.ApplyDifficultyModifiers(setup, RunState.ActiveDifficultyModifiers);
             return setup;
         }
 

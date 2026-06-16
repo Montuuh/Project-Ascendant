@@ -586,5 +586,62 @@ namespace ProjectAscendant.Tests
             uint b = SaveSystem.ComputeChecksum("payload-b");
             Assert.That(a, Is.Not.EqualTo(b));
         }
+
+        // ── Settings save / load (BACKLOG #47 — settings were write-only) ────────────
+
+        [Test]
+        public void SaveSystem_SaveSettings_WritesFileOnDisk()
+        {
+            // Per §9.8.1 — SaveSettings produces settings.json at the canonical path.
+            SettingsSO s = ScriptableObject.CreateInstance<SettingsSO>();
+            SaveSystem.SaveSettings(s);
+            Assert.That(File.Exists(Path.Combine(_testDir, "settings.json")), Is.True);
+            Object.DestroyImmediate(s);
+        }
+
+        [Test]
+        public void SaveSystem_SettingsRoundTrip_PreservesFields()
+        {
+            // Per §9.8.7.6 (#47) — LoadSettings after SaveSettings restores every field.
+            SettingsSO original = ScriptableObject.CreateInstance<SettingsSO>();
+            original.MasterVolume = 0.42f;
+            original.MusicVolume = 0.13f;
+            original.ColorblindMode = true;
+            original.ReducedMotion = true;
+            original.SubtitlesEnabled = false;
+            original.FullScreen = false;
+            original.TargetFrameRate = 144;
+            original.KeyBindingsJson = "{\"jump\":\"space\"}";
+            SaveSystem.SaveSettings(original);
+
+            SettingsSO loaded = ScriptableObject.CreateInstance<SettingsSO>();
+            bool ok = SaveSystem.LoadSettings(loaded);
+
+            Assert.That(ok, Is.True);
+            Assert.That(loaded.MasterVolume, Is.EqualTo(0.42f).Within(0.0001f));
+            Assert.That(loaded.MusicVolume, Is.EqualTo(0.13f).Within(0.0001f));
+            Assert.That(loaded.ColorblindMode, Is.True);
+            Assert.That(loaded.ReducedMotion, Is.True);
+            Assert.That(loaded.SubtitlesEnabled, Is.False);
+            Assert.That(loaded.FullScreen, Is.False);
+            Assert.That(loaded.TargetFrameRate, Is.EqualTo(144));
+            Assert.That(loaded.KeyBindingsJson, Is.EqualTo("{\"jump\":\"space\"}"));
+
+            Object.DestroyImmediate(original);
+            Object.DestroyImmediate(loaded);
+        }
+
+        [Test]
+        public void SaveSystem_LoadSettings_NoFile_KeepsDefaults_ReturnsFalse()
+        {
+            // Per §9.8.7.6 (#47) — first boot (no settings.json) keeps SO defaults, no throw.
+            SettingsSO fresh = ScriptableObject.CreateInstance<SettingsSO>();
+            float defaultMaster = fresh.MasterVolume;
+            bool ok = SaveSystem.LoadSettings(fresh);
+
+            Assert.That(ok, Is.False);
+            Assert.That(fresh.MasterVolume, Is.EqualTo(defaultMaster));
+            Object.DestroyImmediate(fresh);
+        }
     }
 }

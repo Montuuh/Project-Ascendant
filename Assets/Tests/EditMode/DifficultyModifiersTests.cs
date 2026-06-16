@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using ProjectAscendant.Core;
+using ProjectAscendant.Combat;
 
 namespace ProjectAscendant.Tests
 {
@@ -63,6 +64,74 @@ namespace ProjectAscendant.Tests
 
             Assert.That(DifficultyModifiers.HidesIntents(null), Is.False);
             Assert.That(DifficultyModifiers.MaxRouteBranches(null), Is.EqualTo(3), "baseline.");
+        }
+
+        // ── #44 — runtime application to a CombatSetup ───────────────────────────────
+
+        private static PokemonInstance Enemy(int baseHP)
+        {
+            PokemonSpeciesSO sp = ScriptableObject.CreateInstance<PokemonSpeciesSO>();
+            sp.SpeciesId = "dummy";
+            sp.BaseStats = new BaseStats { BaseHP = baseHP, BaseAtk = 40, BaseDef = 40, BaseSpd = 40 };
+            sp.GrowthCurve = null;
+            return new PokemonInstance { Species = sp, Level = 1, CurrentHP = baseHP, MaxHPMultiplier = 1f };
+        }
+
+        [Test]
+        public void ApplyDifficultyModifiers_IronWill_ScalesEnemyMaxHpAndRefills()
+        {
+            // Per §6.8.2 (#44) — Iron Will (EnemyStatMultiplier 1.20) scales the enemy's Max HP
+            // and refills CurrentHP to the new full.
+            PokemonInstance enemy = Enemy(100);
+            CombatController.CombatSetup setup = new()
+            {
+                EnemyTeam = new List<PokemonInstance> { enemy },
+                HideBaselineIntents = false,
+            };
+            List<DifficultyModifierSO> active = new() { Mod(enemy: 1.20f) };
+
+            setup = CombatController.ApplyDifficultyModifiers(setup, active);
+
+            Assert.That(enemy.MaxHPMultiplier, Is.EqualTo(1.20f).Within(0.0001f));
+            Assert.That(PokemonVitals.MaxHP(enemy), Is.EqualTo(120), "100 × 1.20");
+            Assert.That(enemy.CurrentHP, Is.EqualTo(120), "refilled to scaled full HP");
+            Assert.That(setup.HideBaselineIntents, Is.False, "Iron Will does not hide intents");
+        }
+
+        [Test]
+        public void ApplyDifficultyModifiers_DenseFog_HidesBaselineIntents()
+        {
+            // Per §6.8.2 (#44) — Dense Fog (HideAllEnemyIntents) forces HideBaselineIntents on
+            // a wild/trainer setup and leaves enemy HP unscaled.
+            PokemonInstance enemy = Enemy(100);
+            CombatController.CombatSetup setup = new()
+            {
+                EnemyTeam = new List<PokemonInstance> { enemy },
+                HideBaselineIntents = false,
+            };
+            List<DifficultyModifierSO> active = new() { Mod(hide: true) };
+
+            setup = CombatController.ApplyDifficultyModifiers(setup, active);
+
+            Assert.That(setup.HideBaselineIntents, Is.True);
+            Assert.That(enemy.MaxHPMultiplier, Is.EqualTo(1f).Within(0.0001f), "Dense Fog does not scale HP");
+        }
+
+        [Test]
+        public void ApplyDifficultyModifiers_None_LeavesSetupUnchanged()
+        {
+            PokemonInstance enemy = Enemy(100);
+            CombatController.CombatSetup setup = new()
+            {
+                EnemyTeam = new List<PokemonInstance> { enemy },
+                HideBaselineIntents = false,
+            };
+
+            setup = CombatController.ApplyDifficultyModifiers(setup, null);
+
+            Assert.That(enemy.MaxHPMultiplier, Is.EqualTo(1f).Within(0.0001f));
+            Assert.That(enemy.CurrentHP, Is.EqualTo(100));
+            Assert.That(setup.HideBaselineIntents, Is.False);
         }
     }
 }

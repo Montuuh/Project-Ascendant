@@ -37,6 +37,14 @@ namespace ProjectAscendant.Core
             Services.Register<DamageContextFactory>(new DamageContextFactory());
             Services.Register<EnemyInstanceFactory>(new EnemyInstanceFactory());
 
+            // Per §9.8.7.6 — restore persisted user settings at boot (BACKLOG #47).
+            // Keeps SO defaults when no settings.json exists yet; applies engine-level
+            // knobs immediately and registers the live SettingsSO for the settings screen.
+            SettingsSO settings = ScriptableObject.CreateInstance<SettingsSO>();
+            SaveSystem.LoadSettings(settings);
+            settings.ApplyToEngine();
+            Services.Register<SettingsSO>(settings);
+
             yield return SceneLoader.LoadAsync(_firstScene);
         }
     }

@@ -42,16 +42,12 @@ namespace ProjectAscendant.Combat
         public static bool IsAggressivePhase(PokemonInstance enemy, BattleConfigSO config)
             => CurrentPhase(enemy, config) >= 2;
 
-        // Mirrors IntentScorer.HPFraction / StatusEffectManager.ComputeDoTDamage:
-        // MaxHP = Species.BaseStats.BaseHP + GrowthCurve.GetHPAt(Level). Kept
-        // local to avoid a tested-file change; see the shared-helper TODO.
-        // TODO: centralise HP-fraction math (4 call sites) in a CombatMath util.
+        // Per #44 — MaxHP now routes through PokemonVitals.MaxHP so the Iron Will
+        // enemy-HP multiplier is honoured here too (phase thresholds scale with it).
         private static float HPFraction(PokemonInstance p)
         {
             if (p == null || p.Species == null) return 1f;
-            int max = p.Species.BaseStats.BaseHP;
-            if (p.Species.GrowthCurve != null)
-                max += p.Species.GrowthCurve.GetHPAt(p.Level);
+            int max = PokemonVitals.MaxHP(p);
             if (max <= 0) return 1f;
             float frac = (float)p.CurrentHP / max;
             if (frac < 0f) return 0f;

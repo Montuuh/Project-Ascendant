@@ -64,13 +64,12 @@ namespace ProjectAscendant.Combat
                                        CatchConsumableEffectSO effect)
             => Evaluate(wild, effect) == CatchAttempt.Caught;
 
+        // Per #44 — routes through PokemonVitals.MaxHP so the Iron Will enemy-HP
+        // multiplier scales the catchability denominator consistently.
         private static float ComputeMaxHP(PokemonInstance p)
         {
             if (p == null || p.Species == null) return 0f;
-            int max = p.Species.BaseStats.BaseHP;
-            if (p.Species.GrowthCurve != null)
-                max += p.Species.GrowthCurve.GetHPAt(p.Level);
-            return max;
+            return PokemonVitals.MaxHP(p);
         }
     }
 }

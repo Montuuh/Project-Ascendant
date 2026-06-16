@@ -80,10 +80,13 @@ namespace ProjectAscendant.Map
 
             PokemonSpeciesSO chosen = _choices[choiceIndex];
             int level = RollWildLevel();
-            return _wild.BuildCombatSetup(
+            CombatController.CombatSetup setup = _wild.BuildCombatSetup(
                 chosen, level, playerTeam, initialLeadIndex,
                 baseInventory, initialField, battleConfig, combatRng,
                 RunState != null ? RunState.PokeballCount : 0); // §7.3.4 (Option 1) — gate the catch card
+            // #44 — apply Iron Will (enemy HP) / Dense Fog (intent hide) difficulty modifiers.
+            return CombatController.ApplyDifficultyModifiers(
+                setup, RunState != null ? RunState.ActiveDifficultyModifiers : null);
         }
 
         // Interprets the combat result and routes the recruit into the Box (§2.3.1), then Completes.

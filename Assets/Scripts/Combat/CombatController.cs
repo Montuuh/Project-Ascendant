@@ -1446,15 +1446,39 @@ namespace ProjectAscendant.Combat
             }
         }
 
-        // MaxHP = Species.BaseStats.BaseHP + GrowthCurve.GetHPAt(Level).
-        // Mirrors IntentScorer/BossPhaseTracker; see the shared-helper TODO.
+        // Per #44 (§6.8.2) — apply the run's active difficulty modifiers to a freshly-built
+        // CombatSetup. Iron Will (EnemyStatMultiplier) scales every enemy's Max HP and refills
+        // CurrentHP to the scaled full; Dense Fog (HidesIntents) forces baseline-intent hiding
+        // on top of any per-encounter flag (Elite/Gym already hide). No-op for a null/empty list.
+        // Called by the map node controllers after they build their CombatSetup.
+        public static CombatSetup ApplyDifficultyModifiers(
+            CombatSetup setup, System.Collections.Generic.IReadOnlyList<DifficultyModifierSO> active)
+        {
+            if (active == null || active.Count == 0) return setup;
+
+            if (DifficultyModifiers.HidesIntents(active))
+                setup.HideBaselineIntents = true;
+
+            float mult = DifficultyModifiers.EnemyStatMultiplier(active);
+            if (mult > 0f && !Mathf.Approximately(mult, 1f) && setup.EnemyTeam != null)
+            {
+                for (int i = 0; i < setup.EnemyTeam.Count; i++)
+                {
+                    PokemonInstance e = setup.EnemyTeam[i];
+                    if (e == null) continue;
+                    e.MaxHPMultiplier = mult;          // §6.8.2 Iron Will — scale enemy Max HP
+                    e.CurrentHP = PokemonVitals.MaxHP(e); // start at the scaled full HP
+                }
+            }
+            return setup;
+        }
+
+        // Per #44 — routes through PokemonVitals.MaxHP (base, Trauma-free; enemies carry
+        // no Trauma) so the Iron Will multiplier is honoured in the mid-fight evolution
+        // HP-fraction carry-over too.
         private static int EffectiveMaxHP(PokemonInstance p)
         {
-            if (p == null || p.Species == null) return 1;
-            int max = p.Species.BaseStats.BaseHP;
-            if (p.Species.GrowthCurve != null)
-                max += p.Species.GrowthCurve.GetHPAt(p.Level);
-            return max <= 0 ? 1 : max;
+            return PokemonVitals.MaxHP(p);
         }
 
         private void TickStatusForAll(IList<PokemonInstance> team)

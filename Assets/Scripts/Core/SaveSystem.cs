@@ -143,6 +143,25 @@ namespace ProjectAscendant.Core
             File.WriteAllText(SettingsPath, JsonUtility.ToJson(settings, prettyPrint: true));
         }
 
+        // Per §9.8.1 / §9.8.7.6 — load Settings from settings.json into an EXISTING
+        // SettingsSO (FromJsonOverwrite keeps the live reference + any fields absent
+        // from an older file at their SO defaults). Returns true if a file was read;
+        // false (defaults kept) when none exists or it can't be parsed. Settings use a
+        // plain JSON file (no atomic header) — they are non-critical and rewritten on
+        // every change. Closes BACKLOG #47 (settings were previously write-only).
+        public static bool LoadSettings(SettingsSO target)
+        {
+            if (target == null || !File.Exists(SettingsPath)) return false;
+            try
+            {
+                string json = File.ReadAllText(SettingsPath);
+                if (string.IsNullOrWhiteSpace(json)) return false;
+                JsonUtility.FromJsonOverwrite(json, target);
+                return true;
+            }
+            catch { return false; }
+        }
+
         // Per §9.8.4 — write-to-temp → verify-checksum → atomic-rename.
         // If bakPath is non-null, the prior file is preserved as a last-known-good backup.
         private static void AtomicWrite(string path, string bakPath, string dataJson)

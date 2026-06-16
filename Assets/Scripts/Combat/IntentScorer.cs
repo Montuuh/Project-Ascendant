@@ -234,15 +234,12 @@ namespace ProjectAscendant.Combat
             return attacker.IsMoveOnCooldown(intent.Move) ? 0f : 1f;
         }
 
-        // Attacker MaxHP estimate. Without a CurrentMaxHP field on
-        // PokemonInstance we use Species.BaseHP + growth curve, matching
-        // CombatStatResolver / StatusEffectManager.ComputeDoTDamage.
+        // Per #44 — MaxHP routes through PokemonVitals.MaxHP so the Iron Will enemy-HP
+        // multiplier is reflected in the AI's HP-fraction reads (low-HP targeting, etc.).
         private static float HPFraction(PokemonInstance p)
         {
             if (p == null || p.Species == null) return 1f;
-            int max = p.Species.BaseStats.BaseHP;
-            if (p.Species.GrowthCurve != null)
-                max += p.Species.GrowthCurve.GetHPAt(p.Level);
+            int max = PokemonVitals.MaxHP(p);
             if (max <= 0) return 1f;
             return Mathf.Clamp01((float)p.CurrentHP / max);
         }

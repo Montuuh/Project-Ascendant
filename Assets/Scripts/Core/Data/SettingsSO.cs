@@ -33,5 +33,17 @@ namespace ProjectAscendant.Core
         // TODO: Epic 13 — replace with structured InputActionAsset override.
         [HideInInspector]
         public string KeyBindingsJson = string.Empty;
+
+        // Per §9.8.7.6 / §10.6 — push the engine-level knobs to runtime state at boot
+        // (after SaveSystem.LoadSettings restores them). The full settings screen,
+        // audio-mixer routing for Music/SFX, and input rebinds are Epic 13/14/15; this
+        // covers the values that only take effect via engine APIs so a restored setting
+        // is actually live on launch. Part of BACKLOG #47.
+        public void ApplyToEngine()
+        {
+            AudioListener.volume = MasterVolume;
+            Application.targetFrameRate = TargetFrameRate;
+            Screen.fullScreen = FullScreen;
+        }
     }
 }
