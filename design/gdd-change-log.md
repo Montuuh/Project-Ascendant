@@ -58,7 +58,7 @@
 | CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ✅¹⁶ |
 | CL-021 | Q10 | League Boons → choice-only Legendary relic tier (10-relic pool, max 2/run) | T8 §8.3.1/§8.3.7; T4 §4.5.2/§4.5.1.4/§4.6; T6 §6.6.1/§6.6.3 | ✅ | ✅¹⁷ |
 | CL-022 | Q20 | Save/Load persistence manifest + close 5 gaps (RNG cursors #45, Legendary, biome, ShieldHP) | T9 §9.8/§9.8.6/§9.8.7; T6 §6.10 | ✅ | ✅¹⁸ |
-| CL-024 | Q24 | Elite node split: Elite Trainer (Rival/Giovanni roster, Rare-relic choice) + new Elite Wild (catchable boss, catch-vs-kill) | T7 §7.5/§7.5.2/§7.12/§7.2.2; T4 §4.3.7/§4.4.4.3 | ✅ | ☐ |
+| CL-024 | Q24 | Elite node split: Elite Trainer (Rival/Giovanni roster, Rare-relic choice) + new Elite Wild (catchable boss, catch-vs-kill) | T7 §7.5/§7.5.2/§7.12/§7.2.2; T4 §4.3.7/§4.4.4.3 | ✅ | 🟡²⁰ |
 
 ¹⁸ **CL-022 code complete (2026-06-12, 1187 green).** Q20 manifest reconciliation — 5 persistence gaps
 closed, +6 `SaveSystemTests` round-trips. **A (#45 RNG cursors):** `GameRNG.State` get/set (clamps 0→1);
@@ -172,7 +172,19 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   All numbers (80/60/40, Giovanni 30%, Rival band scaling, Elite Wild HP/phases) are **systems-designer-
   tunable placeholders**.
 - Status: [✅] GDD updated (Notion §7.5 rewrite + new §7.5.2 + §7.12 + §7.2 guarantees + §7.2.2 drift;
-  §4.3.7/§4.4.4.3 cross-refs; re-exported 2026-06-16)   [ ] Code adapted — **post-VS**
+  §4.3.7/§4.4.4.3 cross-refs; re-exported 2026-06-16)   [🟡] Code adapted — engine + R1 content done; R2/R3 pending
+- ²⁰ **CL-024 code (user-directed, 2026-06-16):** built ahead of its post-VS slot. **Engine (commit 7934264,
+  1187 green):** `NodeType.EliteWild`; `EliteWildSO` + `EliteWildController` + `EliteWildNodeController`
+  (catch→recruit via WildCatchResolver+Box / defeat→single Rare relic); `EliteTrainerSO` Rare 1-of-3 via
+  generic `RelicChoicePanelUI` (refactored from StartingRelicPanelUI); `EliteTrainerRosterSO` weighted
+  per-Region occupant resolution + seeded `TryPlaceEliteWild` in `RegionMapGenerator`. **R1 content (commit
+  c5ba6d2, 1187 green):** Snorlax + Marowak + Marowak's-Spirit species/kits (catch Spirit → recruit living
+  Marowak + Thick Club), Rival "Blue" R1, Specialist R1 (renamed ace_trainer_r1), 2 EliteWild assets, R1
+  roster 80/20, placeholder portraits. Pillar-1/2 fixes applied (deterministic multi-hits; Sand Veil;
+  Rest 50% cap; Curse 25%). **Pending:** R2/R3 content — ~13 net-new species (Alakazam, Gyarados, Exeggutor,
+  Dugtrio, Persian, Nidoqueen, Rhydon, Hitmonchan, Primeape, Haunter, Hypno, Dewgong, Cloyster), Rival R2/R3
+  (R3 ace Wartortle→Blastoise mid-fight evo), Giovanni (Elite + Viridian Gym), specialist pools, rosters R2/R3.
+  Authoring source: `design/cl-024-content-spec.md`. (R2/R3 not exercisable until the multi-region loop, post-VS.)
 
 ### CL-022 — Save/Load persistence manifest + close 5 gaps   (resolves Q20)
 - Date: 2026-06-12
