@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-11T14:32:00.000Z -->
+<!-- Last updated from Notion: 2026-06-16T10:09:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -437,7 +437,7 @@ Elite enemies and bosses follow scripted intent sequences with condition-based p
 | **Signature Phase**   | Boss uses its highest-impact move, bypassing cooldown                       |
 
 
-**Mid-fight evolution** (rival / Champion only — per CL-013, Gym Leaders no longer evolve mid-fight; see §4.4.4.3):
+**Mid-fight evolution** (rival / Champion only — per CL-013, Gym Leaders no longer evolve mid-fight; see §4.4.4.3). The **Rival** is the recurring occupant of the **Elite Trainer node** (§7.5.1, CL-024) — RNG-weighted per Region (R1 80% → R3 40% + Giovanni) and scaling by Region band:
 
 - One turn before: `✨ [Pokémon name] is gathering energy — EVOLUTION IMMINENT.`
 - The player has one turn to burst below the threshold or prepare.
@@ -649,6 +649,7 @@ No two paths within a Region share the same type. 12 total Gym types in the pool
 ### §4.4.4.3 Gym Leader design rules
 
 - **2 Pokémon, sequential.** The second is the ace (3-phase design). **Per CL-013, Gym aces no longer evolve mid-fight** — mid-fight evolution is reserved for the unique fights (rival / Champion, §4.3.7).
+- **Giovanni — dual lane (CL-024):** when the R3 Gym draws **Ground**, its leader may be **Giovanni**, who is _also_ a Team Rocket **Elite-villain** at the Elite Trainer node (§7.5.1). Both encounters are canon — the player can defeat both.
 - **Power premium:** Gym Pokémon sit at a defined **level bump above the Region's wild band** (ace > non-ace) — a tunable systems-designer value. This is the Gym's core threat: stronger Pokémon, not a transformation gimmick.
 - Type identity consistent with the drawn type — full team and moveset reflect that type.
 - A **Home Field** matching their type is set at encounter start and persists for the full fight (enemy-owned, §4.3.8.5: enemy type-moves ×1.5). This replaces the previously-inert type field — **closes BACKLOG gap #33**.

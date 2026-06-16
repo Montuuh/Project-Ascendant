@@ -1,5 +1,13 @@
 # Elite Node — Encounter Brainstorm (WIP, for game-designer / content-designer)
 
+> **✅ RESOLVED 2026-06-16 (Q24 / CL-024) — Archived. Canon now lives in Notion GDD §7.5 / §7.5.2
+> (Elite Trainer + new Elite Wild) + §7.12, and Topic 4 §4.3.7 / §4.4.4.3.** Outcome: split into
+> **Elite Trainer** (Rare-relic choice; RNG-weighted Rival/Giovanni/Specialist roster) + new **Elite
+> Wild** (catchable boss-wild, catch-vs-kill: catch → recruit, defeat → single Rare relic; R1 =
+> Snorlax/Marowak's Spirit). Giovanni = both lanes canon. See `design/open-questions.md` Q24.
+>
+> *(Original brainstorm preserved below for history.)*
+>
 > **Status:** open design question, brainstorm only. Not canon. Decide via the Design Question
 > Protocol (`.claude/docs/coordination-rules.md`), then write to Notion GDD (Topic 7 nodes / Topic 4
 > bosses) + log a CL. Raised by user 2026-06-15.

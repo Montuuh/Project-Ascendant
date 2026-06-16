@@ -58,6 +58,7 @@
 | CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ✅¹⁶ |
 | CL-021 | Q10 | League Boons → choice-only Legendary relic tier (10-relic pool, max 2/run) | T8 §8.3.1/§8.3.7; T4 §4.5.2/§4.5.1.4/§4.6; T6 §6.6.1/§6.6.3 | ✅ | ✅¹⁷ |
 | CL-022 | Q20 | Save/Load persistence manifest + close 5 gaps (RNG cursors #45, Legendary, biome, ShieldHP) | T9 §9.8/§9.8.6/§9.8.7; T6 §6.10 | ✅ | ✅¹⁸ |
+| CL-024 | Q24 | Elite node split: Elite Trainer (Rival/Giovanni roster, Rare-relic choice) + new Elite Wild (catchable boss, catch-vs-kill) | T7 §7.5/§7.5.2/§7.12/§7.2.2; T4 §4.3.7/§4.4.4.3 | ✅ | ☐ |
 
 ¹⁸ **CL-022 code complete (2026-06-12, 1187 green).** Q20 manifest reconciliation — 5 persistence gaps
 closed, +6 `SaveSystemTests` round-trips. **A (#45 RNG cursors):** `GameRNG.State` get/set (clamps 0→1);
@@ -135,6 +136,43 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
 ---
 
 # Entries
+
+### CL-024 — Elite node split: Elite Trainer + new Elite Wild (catch-vs-kill boss)   (resolves Q24)
+- Date: 2026-06-16
+- Topic / §: Topic 7 §7.5 (Elite Trainer rewrite), new §7.x (Elite Wild node), §7.12 (reward table),
+  §7.2.2/§7.5/§7.11 (Layer-3→L7 drift cleanup); Topic 4 §4.3.7/§4.4.2/§4.4.4 (Rival + Giovanni cross-refs)
+- Change: The single generic **Elite Trainer** node **splits into two node types**:
+  - **⚔️ Elite Trainer** (refines §7.5) — human mini-boss, no type lock, 2 Pokémon sequential. **Reward
+    raised Uncommon → Rare-relic choice (1 of 3)** (mirrors VR Gauntlet §4.5.1.1) + ~300₽ + 25 XP.
+    Occupant = **RNG-weighted roster per Region**: **R1** 80% Rival / 20% Specialist · **R2** 60% / 40% ·
+    **R3** 40% Rival / 30% Giovanni / 30% Specialist. **Rival** = recurring named antagonist, balanced
+    multi-type team, retains mid-fight evolution (§4.3.7), **scales by Region band** (not appearance count,
+    so RNG skips don't break it). **Specialist pool** = elevated Gen-1 archetypes (Ace Trainer / Karate
+    King / Channeler / a Gym-type-foreshadowing specialist).
+  - **🦕 Elite Wild** (NEW node type) — high-power **boss-wild** with a **catch-vs-kill dilemma**:
+    **catch** (CL-014 Catchability Gauge, §7.3.4) → recruit the boss-wild (Victory + full XP, CL-003/-004);
+    **defeat** (HP→0) → a **single Rare relic** (no choice — Elite Trainer's Rare 1-of-3 stays the "pick"
+    node, keeping catch the premium path). Boss HP + escalating 2-phase, **no evolution**. Own map marker.
+    Generation = seeded special node **≤1/Region, not on every route** (Apex-node precedent §4.5.1.2); the
+    late-trunk **guaranteed** Elite stays the Elite **Trainer**. **R1 occupant = RNG pick of ONE**:
+    **Snorlax** (Normal route-blocker) **OR** **Marowak's Spirit** (Pokémon-Tower Ghost; catch → recruit
+    Marowak). *(Marowak's Spirit recruit-vs-"lay to rest" alt-framing left as a content-designer flag.)*
+  - **Giovanni — both lanes canon:** appears as a Team-Rocket Elite-villain (R3 Elite Trainer roster, 30%)
+    **and** as the **Viridian Ground Gym Leader** (R3 Gym Ground pool); the player can defeat both.
+    *Explicitly overrides the brainstorm's "pick one lane" caution.*
+  - **Canon-drift cleanup:** §7.2.2/§7.5/§7.11 "Elite at **Layer 3**" reconciled to §7.2 v2 "late trunk
+    **~L7**"; Elite Wild noted as the new seeded special node.
+- Rationale: distinct reward/play textures (defeat-for-relic vs catch-to-recruit dilemma — Pillar 2/3),
+  a varied Elite pool (Pillar 3), and a home for iconic boss-wilds — while keeping the Gym climax's
+  Legendary pick (CL-021) reserved so the Gym stays special.
+- Code impact (**post-VS** — VS ends at Gym 1, single Region): new `EliteWild` node-type enum + map-gen
+  seeding (Apex-node-style); `EliteTrainerSO` gains a weighted per-Region roster + Rival/Giovanni/Specialist
+  entries; Elite Trainer reward Uncommon→Rare-choice (relic table); Elite Wild reuses the CL-014 catch flow
+  plus a **defeat → single-Rare-relic** branch; updates **VS gap #31** (R1 Elite roster → Rival-primary).
+  All numbers (80/60/40, Giovanni 30%, Rival band scaling, Elite Wild HP/phases) are **systems-designer-
+  tunable placeholders**.
+- Status: [✅] GDD updated (Notion §7.5 rewrite + new §7.5.2 + §7.12 + §7.2 guarantees + §7.2.2 drift;
+  §4.3.7/§4.4.4.3 cross-refs; re-exported 2026-06-16)   [ ] Code adapted — **post-VS**
 
 ### CL-022 — Save/Load persistence manifest + close 5 gaps   (resolves Q20)
 - Date: 2026-06-12

@@ -520,6 +520,39 @@ RNG (tension with Pillar 1 — flag for game-designer).
 - **Pillars:** 1 ★ (deterministic, fully telegraphed gauge), 2 (status-then-throw planning), 5
   (catch-rate flavour). → logged **CL-014**.
 
+## Q24 — Elite-node encounter design ✅ DECIDED 2026-06-16
+**Owner:** game-designer + content-designer (+ systems-designer for numbers)
+**User:** Resolve the Elite node (raised in `design/elite-nodes-brainstorm.md`, 2026-06-15) — is "Elite"
+one node or split? What fills the VS Region-1 pool? Reward tier? Rival recurrence/scaling? And the
+Giovanni lane (canonically both Team Rocket boss **and** Viridian Gym leader).
+**Steward note (canon):** today one generic **Elite Trainer** node (§7.5): 1/Region, 2 Pokémon, no type
+lock, guaranteed **Uncommon** relic + ~300₽ + 25 XP. No Rival or catchable-boss node exists yet (a
+catchable special-recruit only exists post-VS as the Apex node §4.5.1.2). §7.2 v2 already moved the Elite
+guarantee to the late trunk (~L7) but §7.2.2/§7.5/§7.11 still say "Layer 3" (drift).
+**✅ Resolution — Split into two node types (Fork 1 = B) + tiered rewards (Fork 3 = C):**
+- **⚔️ Elite Trainer node** (refines §7.5): human mini-boss, no type lock, 2 Pokémon. **Reward raised
+  Uncommon → Rare-relic choice (1 of 3)** (mirrors VR Gauntlet §4.5.1.1) + ~300₽ + 25 XP. **Occupant =
+  RNG-weighted roster per Region (Fork 4):** R1 **80% Rival / 20% Specialist** · R2 **60% / 40%** · R3
+  **40% Rival / 30% Giovanni / 30% Specialist**. **Rival** = recurring named antagonist, balanced team,
+  keeps mid-fight evolution (§4.3.7), **scales by Region band** (not appearance count → RNG-skip robust:
+  R1 = 2 mons 2-phase → R3 = up to 3 + ace mid-fight evo). **Specialist pool** = elevated Gen-1 archetypes
+  (Ace Trainer / Karate King / Channeler / a Gym-type-foreshadowing specialist) — keeps runs varied.
+- **🦕 Elite Wild node** (NEW): high-power **boss-wild** with a **catch-vs-kill dilemma** — **catch**
+  (CL-014 gauge §7.3.4) → recruit the boss-wild (Victory + full XP, CL-003/-004); **defeat** → a **single
+  Rare relic** (no choice — Elite Trainer's Rare 1-of-3 stays the "pick" node, so catch is the premium
+  path). Boss HP + 2-phase, **no evolution**. Own map marker. Generation = seeded special node **≤1/Region,
+  not on every route** (Apex-node precedent §4.5.1.2); the late-trunk **guaranteed** Elite stays the Elite
+  **Trainer**. **R1 occupant = RNG pick of ONE**: **Snorlax** OR **Marowak's Spirit** (catch → recruit
+  Marowak; recruit-vs-"lay to rest" alt-framing left as a content-designer flag).
+- **Giovanni (Fork 5) — both lanes canon:** Team-Rocket Elite-villain (R3 Elite Trainer roster, 30%)
+  **and** the **Viridian Ground Gym Leader** (R3 Gym Ground pool) — defeat both. *Overrides the brainstorm's
+  "pick one lane" caution.*
+- **Canon-drift cleanup:** §7.2.2/§7.5/§7.11 "Elite at Layer 3" → §7.2 v2 "late trunk ~L7."
+- **Pillars:** 1 ★ (telegraphed weighted roster + deterministic catch gauge), 2 (catch-vs-kill decision),
+  3 ★ (varied Elite pool + catch-to-sculpt the recruit), 5 (Gen-1 boss-wild + rival/villain flavour).
+  **VS:** R1 Elite Trainer = 80% Rival; R1 Elite Wild = Snorlax/Marowak (seeded). **Code post-VS** (map/boss
+  generation; VS ends at Gym 1). All numbers systems-designer-tunable. → logged **CL-024**.
+
 ---
 
 # Domain J — Presentation
@@ -539,12 +572,12 @@ done *after* the gameplay questions above settle, so the UI reflects final mecha
 
 ## Suggested processing order (producer recommendation)
 
-*Updated 2026-06-11. Q1–Q19, Q21, Q22 are ✅ DECIDED and in the change log (21 of 23); Q10 design
+*Updated 2026-06-16. Q1–Q22 + Q24 are ✅ DECIDED and in the change log (23 of 24); Q10 design
 resolved (CL-021, League combat still deferred per CL-004). Remaining open work:*
 
 1. ✅ **Done:** Combat feel (Q8/Q9/Q22), World structure (Q1/Q2/Q21), Trauma (Q17), progression
-   cascade (Q12–Q16), Unknown intents (Q7), Battle Pass (Q18), achievements (Q19), **Boons→Legendary (Q10)**.
-2. **Documentation:** Q20 (save/load manifest — now also covers Battle Pass track + achievement state).
-3. **Last:** **Q23 (full UI spec)** — after mechanics settle.
+   cascade (Q12–Q16), Unknown intents (Q7), Battle Pass (Q18), achievements (Q19), **Boons→Legendary (Q10)**,
+   save/load manifest (Q20), **Elite-node split (Q24)**.
+2. **Last:** **Q23 (full UI spec)** — after mechanics settle (design complete, CL-023 pending Notion ratification).
 
-*Remaining: **Q20 (doc) → Q23 last.** (Q10 done; only Q20 + Q23 remain — 2 of 23 open.)*
+*Remaining: **Q23 only** (UI design done locally; awaiting Notion ratification as CL-023 — 1 of 24 open).*

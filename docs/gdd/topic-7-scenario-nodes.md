@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-11T09:16:00.000Z -->
+<!-- Last updated from Notion: 2026-06-15T23:15:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-06-11 (CL-018: biome↔Region binding confirmed §7.3.1; Naturalist's Lens added to Region Modifier pool §7.8.3.1, pool 16→17)
+**Last Updated:** 2026-06-16 (CL-024: Elite node split — §7.5 Elite Trainer rewrite [Rare-relic choice + RNG-weighted Rival/Giovanni/Specialist roster] + new §7.5.2 Elite Wild boss-wild [catch-vs-kill], §7.12 reward table, §7.2 guarantees)
 
 
 **Cross-references:** Topic 2 (§2.1.2 node categories, branching map), Topic 4 (§4.5 Victory Road nodes — adjacent), Topic 6 (§6.5 starter unlocks; §6.6 relic tiers; achievement triggers), Topic 8 (shop inventory, consumables, relics, Held Items).
@@ -55,7 +55,7 @@ Supersedes the §7.2.1 fixed-lane table and the gap #39 single-Gym override. Res
 **Connection rules (v2):** every node links to 1–3 next-layer nodes; in-degree ≤ 2; no two adjacent nodes in a layer share a type; both sub-lanes have equal node count; all routes reach the fork (no dead ends before L9).
 
 
-**Per-region content guarantees:** ≥1 early Wild (L1–2), 1 Elite (late trunk), 1 Center per Gym sub-lane, plus weighted Trainer/Wild/Shop/Mystery.
+**Per-region content guarantees:** ≥1 early Wild (L1–2), 1 **Elite Trainer** (late trunk ≈L7), 1 Center per Gym sub-lane, plus weighted Trainer/Wild/Shop/Mystery. The **Elite Wild** boss-wild node (§7.5.2, CL-024) is a separate **seeded special node** (≤1/Region, not guaranteed — Apex-node model §4.5.1.2), outside the guaranteed set.
 
 
 ## §7.2.1 Per-Region Topology (SUPERSEDED by §7.2 v2 — historical)
@@ -82,15 +82,15 @@ Supersedes the §7.2.1 fixed-lane table and the gap #39 single-Gym override. Res
 Across both lanes (12 standard nodes per Region after Layer 0, before Gym):
 
 
-| Node Type                                                | Count per Region | Notes                                                                     |
-| -------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------- |
-| Wild Pokémon Area                                        | 2                | Plus the guaranteed Layer 0                                               |
-| Trainer Battle                                           | 4                | Standard trainers                                                         |
-| Elite Trainer                                            | 1                | Always at Layer 3                                                         |
-| Pokémon Center                                           | 1                | Always at Layer 6 (pre-Gym)                                               |
-| Shop (regional sub-shop, not City)                       | 1                | At Layer 2 or 5                                                           |
-| Mystery Event                                            | 2                | Distributed across Layers 1–5                                             |
-| **Dojo** node (off-learnset move + ability tutor, §7.14) | 1                | ≈ 1 per Region, mid-trunk layers (via `MapGenerationConfigSO.DojoWeight`) |
+| Node Type                                                | Count per Region | Notes                                                                              |
+| -------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
+| Wild Pokémon Area                                        | 2                | Plus the guaranteed Layer 0                                                        |
+| Trainer Battle                                           | 4                | Standard trainers                                                                  |
+| Elite Trainer                                            | 1                | Superseded → late trunk ≈L7 (§7.2 v2); roster + Elite Wild split per §7.5 (CL-024) |
+| Pokémon Center                                           | 1                | Always at Layer 6 (pre-Gym)                                                        |
+| Shop (regional sub-shop, not City)                       | 1                | At Layer 2 or 5                                                                    |
+| Mystery Event                                            | 2                | Distributed across Layers 1–5                                                      |
+| **Dojo** node (off-learnset move + ability tutor, §7.14) | 1                | ≈ 1 per Region, mid-trunk layers (via `MapGenerationConfigSO.DojoWeight`)          |
 
 
 **Seeding determinism:** Per Engineering Pillar 3 (§1.3.2), the map is generated from the run seed. Same seed = same map every time.
@@ -271,21 +271,37 @@ When a Trainer Battle node spawns, the seed picks one archetype from the Region'
 ---
 
 
-# §7.5 Elite Trainer Nodes
+# §7.5 Elite Nodes (Trainer & Wild)
 
 
-Distinct from Gym Leaders. One Elite per Region (always Layer 3).
+Two distinct Elite-tier node types (CL-024, Q24), both above Trainer Battles and below the Gym climax: the **⚔️ Elite Trainer** (§7.5.1 — a human mini-boss, defeat → relic) and the **🦕 Elite Wild** (§7.5.2 — a catchable boss-wild, catch-vs-kill). The Elite Trainer is the **late-trunk guaranteed** Elite (§7.2 v2, ≈L7); the Elite Wild is a **seeded special node** (≤1/Region, not on every route — modelled on the Apex node §4.5.1.2). Distinct from Gym Leaders (no type lock; see §7.5.1).
 
 
 ## §7.5.1 Elite Trainer Design Rules
 
-- **Composition:** 2 Pokémon, sequential. Both with 2-phase design (Phase 1 / Phase 2 standard).
+- **Composition:** 2 Pokémon, sequential, 2-phase (Phase 1 / Phase 2 standard). The **Rival**/**Giovanni** ace may be 3-phase + mid-fight evolution (§4.3.7).
 - **Difficulty:** between Trainer Battle and Gym Leader. A real mid-Region threat.
-- **Reward:** 1 guaranteed Uncommon relic + Trainer XP bonus + Poké Dollar windfall (~300₽).
-- **Trainer archetype:** drawn from the Ace Trainer pool, or a Region-flavor archetype (e.g., "Rocket Lieutenant" in R3).
+- **Reward (CL-024):** a **Rare-relic choice, 1 of 3** (mirrors the Victory Road Gauntlet §4.5.1.1; up from Uncommon) + Trainer XP bonus + Poké Dollar windfall (~300₽).
+- **Occupant — RNG-weighted roster per Region (CL-024):** **R1** 80% Rival / 20% Specialist · **R2** 60% Rival / 40% Specialist · **R3** 40% Rival / 30% Giovanni / 30% Specialist (all weights systems-designer-tunable).
+- **Rival** — a recurring named antagonist with a balanced multi-type team (a pure skill check, the "you again" beat); retains **mid-fight evolution** (§4.3.7). **Scales by Region band, not appearance count** (so an RNG-skipped Region never breaks the curve): R1 = 2 Pokémon (2-phase) → R3 = up to 3 + ace mid-fight evolution.
+- **Giovanni (R3+)** — Team Rocket boss, Ground-leaning Elite-villain. **Both Giovanni lanes are canon:** he appears here **and** can be drawn as the **Viridian Ground Gym Leader** (R3 Gym Ground pool, §4.4.4.2) — the player may defeat both.
+- **Specialist pool** (the non-Rival/Giovanni slice) — elevated Gen-1 archetypes (Ace Trainer, Karate King, Channeler, or a specialist that **foreshadows the next Gym's type**), drawn from the Trainer archetype pool (§7.4.1) at Elite power. Keeps runs varied (Pillar 3).
 > 📝 Design note (2026-05-29): §7.5.1's Ace-Trainer source is R3-only / out of VS scope, so the R1 Elite uses a dedicated VS Elite roster (`EliteTrainerSO`) instead. Multi-Region Elite sourcing is post-VS.
-> Blocked: the canonical R1 Elite archetype + roster. VS stub: a bespoke R1 "Ace Trainer" (no type lock per this section) fielding 2 VS-roster Pokémon — Pidgeotto(12) + Ivysaur(13), each 2-phase. See BACKLOG gap #31.
+> 📝 Updated (2026-06-16, CL-024): the R1 Elite Trainer roster is now **Rival-primary** (80%) + a specialist (20%). VS stub: the **Rival** fields 2 VS-roster Pokémon, 2-phase; the 20% specialist remains a bespoke R1 Ace Trainer (Pidgeotto(12) + Ivysaur(13)). See BACKLOG gap #31.
 - **No type lock:** Elite Trainers do NOT have a single-type identity (that's reserved for Gym Leaders). This makes them a different kind of test than the Gym ahead.
+
+## §7.5.2 Elite Wild Nodes (CL-024, Q24)
+
+
+A high-power **boss-wild** — the Region's catchable mini-boss. It presents a **catch-vs-kill dilemma** (Pillar 1/2/3): the player chooses which reward to take.
+
+- **Catch it** — weaken it to the **Catchability gauge** threshold (§7.3.4, deterministic — no RNG) and apply a Pokéball → combat ends as a **Victory + full combat XP** (CL-003/CL-004) and the boss-wild is **recruited**. The rare recruit is the prize.
+- **Defeat it** — reduce it to 0 HP → Victory + a **single Rare relic** (no choice). The Elite Trainer's Rare 1-of-3 stays the "pick" node, so **catching remains the premium path**.
+- **Profile:** boss-tier HP + an escalating **2-phase** defensive profile (harder to weaken late), but **no evolution** (it is a wild, not a trainer ace). Telegraphed throughout (Pillar 1).
+- **Generation:** a **seeded special node**, ≤1 per Region, **not guaranteed on every route** — modelled on the Victory Road Apex Pokémon node (§4.5.1.2). The late-trunk **guaranteed** Elite remains the Elite **Trainer** (§7.2 v2); the Elite Wild carries its **own map marker** (Topic 10 iconography).
+- **Reuses** the creature **portrait/battler pipeline** (no trainer sprite) and the CL-014 catch flow + a defeat → single-Rare-relic branch.
+- **R1 occupant — RNG pick of ONE boss-wild per encounter** (not both): **Snorlax** (Normal route-blocker wall) **or** **Marowak's Spirit** (a Pokémon-Tower Ghost boss-wild; catching → recruits Marowak). _Design flag (content-designer): Marowak's Spirit may optionally use a "lay to rest → relic" framing instead of a recruit — unresolved._
+- All numbers (boss HP/phases, ₽/XP) are **systems-designer-tunable placeholders**.
 
 ---
 
@@ -610,19 +626,20 @@ Constraints are applied iteratively with fallback re-rolls if no valid configura
 Aggregated reward tables for every node type. Single source for systems-designer balance review.
 
 
-| Node Type               | Combat? | Poké Dollar | XP (Trainer)             | Drop                      | Special                                                         |
-| ----------------------- | ------- | ----------- | ------------------------ | ------------------------- | --------------------------------------------------------------- |
-| Wild Pokémon Area       | Yes     | 0–25₽       | 5 (clear) + 10 (recruit) | Recruitment               | Catching mechanic                                               |
-| Trainer Battle          | Yes     | 50–150₽     | 5                        | Loot table                | —                                                               |
-| Elite Trainer           | Yes     | 300₽        | 25                       | Guaranteed Uncommon relic | —                                                               |
-| Pokémon Center (Region) | No      | —           | —                        | —                         | Heal + Trauma therapy only (Move Tutor relocated to Dojo §7.14) |
-| Shop (Region)           | No      | (spend)     | —                        | —                         | Curated inventory + re-roll                                     |
-| Tutor / Daycare         | No      | (varies)    | —                        | —                         | Move learning OR XP boost                                       |
-| Mystery Event           | Varies  | Varies      | Varies                   | Varies                    | Choice-driven                                                   |
-| Gym Leader              | Yes     | 500₽        | 50                       | Rare relic                | Badge                                                           |
-| City Pokémon Center     | No      | (varies)    | —                        | —                         | Full slate                                                      |
-| City Shop               | No      | (spend)     | —                        | —                         | 8-slot curated                                                  |
-| City Reflection         | No      | —           | —                        | —                         | Region Modifier                                                 |
+| Node Type               | Combat? | Poké Dollar | XP (Trainer)             | Drop                                                   | Special                                                         |
+| ----------------------- | ------- | ----------- | ------------------------ | ------------------------------------------------------ | --------------------------------------------------------------- |
+| Wild Pokémon Area       | Yes     | 0–25₽       | 5 (clear) + 10 (recruit) | Recruitment                                            | Catching mechanic                                               |
+| Trainer Battle          | Yes     | 50–150₽     | 5                        | Loot table                                             | —                                                               |
+| Elite Trainer           | Yes     | 300₽        | 25                       | **Rare relic — choice of 1 of 3**                      | RNG roster: Rival / Giovanni / Specialist                       |
+| Elite Wild (boss-wild)  | Yes     | (small)     | recruit XP               | **Catch → Recruitment, OR Defeat → single Rare relic** | Catch-vs-kill (CL-014 gauge)                                    |
+| Pokémon Center (Region) | No      | —           | —                        | —                                                      | Heal + Trauma therapy only (Move Tutor relocated to Dojo §7.14) |
+| Shop (Region)           | No      | (spend)     | —                        | —                                                      | Curated inventory + re-roll                                     |
+| Tutor / Daycare         | No      | (varies)    | —                        | —                                                      | Move learning OR XP boost                                       |
+| Mystery Event           | Varies  | Varies      | Varies                   | Varies                                                 | Choice-driven                                                   |
+| Gym Leader              | Yes     | 500₽        | 50                       | Rare relic                                             | Badge                                                           |
+| City Pokémon Center     | No      | (varies)    | —                        | —                                                      | Full slate                                                      |
+| City Shop               | No      | (spend)     | —                        | —                                                      | 8-slot curated                                                  |
+| City Reflection         | No      | —           | —                        | —                                                      | Region Modifier                                                 |
 
 
 ---
@@ -637,7 +654,8 @@ Aggregated reward tables for every node type. Single source for systems-designer
 | Wild Pokémon Areas + 3 biomes                         | ✅ Meadow + Cave + River                                                       | Sea, Power Plant, Sky, etc.                         |
 | Catching mechanic                                     | ✅ Pokéball v1                                                                 | Great/Ultra Ball tiers                              |
 | Trainer Battle nodes                                  | ✅ 4 archetypes (Bug Catcher, Lass, Hiker, Sailor)                             | Engineer, Hex Maniac, Ace Trainer, Rocket Grunt     |
-| Elite Trainer node                                    | ✅ 1 archetype                                                                 | —                                                   |
+| Elite Trainer node                                    | ✅ R1 — 80% Rival / 20% specialist (Rare-relic choice)                         | Multi-Region roster; Giovanni (R3)                  |
+| Elite Wild node (catchable boss-wild)                 | ✅ R1 — Snorlax / Marowak's Spirit (seeded; catch-vs-kill)                     | Legendary birds, Mewtwo (post-VS)                   |
 | Region Pokémon Center                                 | ✅ Full (heal + Trauma therapy; Move Tutor removed per CL-009)                 | —                                                   |
 | **Dojo** (move + ability tutor node)                  | ✅ CL-009 — `DojoNodeController`  • map-gen wired                              | Full UI (CL-023); pricing tuning (systems-designer) |
 | Region Shop                                           | ✅ Full + re-roll                                                              | —                                                   |
