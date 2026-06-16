@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
+  m_Name: Dugtrio
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
+  SpeciesId: 51
+  DisplayName: Dugtrio
+  Types: 08000000
+  BaseStats:
+    BaseHP: 35
+    BaseAtk: 100
+    BaseDef: 50
+    BaseSpd: 120
+  GrowthCurve: {fileID: 0}
+  Branches: []
+  EvolveLevel: 0
+  BaseLearnset: []
+  LevelUpLearnset:
+  - Level: 1
+    Move: {fileID: 11400000, guid: ead3a06e041cc5f4c8c729b866fd39fa, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: d73bc61ec3c2ffe4f9955881d66b1cdc, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: 8362c826a5dc8e6488000c7d3fb1fcd2, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: 02ab0bd6c9b8ad448844832877c648ad, type: 2}
+  TutorLearnset: []
+  TMCompatibility: []
+  AvailableAbilities:
+  - {fileID: 11400000, guid: 727599aaf76af7445bfd3bb18c4a585b, type: 2}
+  PrimaryAbility: {fileID: 0}
+  MasteryMove: {fileID: 0}
+  StatusImmunities: 
+  WildRarity: 2
+  SpawnBiomes: 
+  Portrait: {fileID: 21300000, guid: 22adcb0cf0b50cd439d730ef79e2225d, type: 3}
+  GDDReference: "\xA77.5.1 \u2014 Dugtrio (R3 Giovanni Elite, Sand Veil per spec)"

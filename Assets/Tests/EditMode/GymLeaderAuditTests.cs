@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using ProjectAscendant.Core;
@@ -45,12 +46,27 @@ namespace ProjectAscendant.Tests
             return set;
         }
 
+        // CL-024: VS audits scope to R1; post-VS R2/R3 content coexists.
+        // R1 gyms: Rock, Water, Bug, Normal (§4.4.4.2). R3 gym: Ground (Giovanni).
+        private static bool IsR1Gym(GymLeaderSO g)
+        {
+            // R1 gym types per §4.4.4.2: Rock, Water, Bug, Normal.
+            // R3 Giovanni is Ground (or check ID contains "R3" / "GIOVANNI").
+            return g != null && (g.GymType == PokemonType.Rock ||
+                                 g.GymType == PokemonType.Water ||
+                                 g.GymType == PokemonType.Bug ||
+                                 g.GymType == PokemonType.Normal);
+        }
+
         [Test]
         public void Library_HasFourR1GymsForVS()
         {
             // Per §7.2 v2 + design/map-redesign-gyms.md — R1 has a 4-gym pool.
-            Assert.That(LoadAll().Length, Is.EqualTo(4),
-                "Per §7.2 v2 the VS ships 4 R1 Gym Leaders (Rock/Water/Bug/Normal).");
+            GymLeaderSO[] allGyms = LoadAll();
+            GymLeaderSO[] r1Gyms = allGyms.Where(IsR1Gym).ToArray();
+            Assert.That(r1Gyms.Length, Is.EqualTo(4),
+                "Per §7.2 v2 the VS ships 4 R1 Gym Leaders (Rock/Water/Bug/Normal); found "
+                + r1Gyms.Length + " R1 gyms (post-VS R3 Giovanni coexists).");
         }
 
         [Test]
@@ -106,6 +122,7 @@ namespace ProjectAscendant.Tests
         [Test]
         public void Gym_CompositionSpeciesInRoster_LevelsInBand()
         {
+            // CL-024: band-check only R1 gyms (VS scope). R3 Giovanni uses higher bands.
             HashSet<PokemonSpeciesSO> roster = LoadVSRoster();
             var bad = new List<string>();
             foreach (GymLeaderSO g in LoadAll())
@@ -115,8 +132,10 @@ namespace ProjectAscendant.Tests
                 {
                     if (s.Species != null && !roster.Contains(s.Species))
                         bad.Add($"{g.GymLeaderId} → {s.Species.SpeciesId} not in roster");
-                    if (s.Level < MIN_LEVEL || s.Level > MAX_R1_LEVEL)
-                        bad.Add($"{g.GymLeaderId} level {s.Level} out of band");
+
+                    // Band-check only R1 gyms (skip R3 Giovanni).
+                    if (IsR1Gym(g) && (s.Level < MIN_LEVEL || s.Level > MAX_R1_LEVEL))
+                        bad.Add($"{g.GymLeaderId} level {s.Level} out of band [{MIN_LEVEL},{MAX_R1_LEVEL}]");
                 }
             }
             Assert.That(bad, Is.Empty, string.Join("\n  ", bad));

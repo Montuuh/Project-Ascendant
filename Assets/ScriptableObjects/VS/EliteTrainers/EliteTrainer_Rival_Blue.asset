@@ -30,9 +30,21 @@ MonoBehaviour:
   TrainerXPReward: 25
   PokeDollarReward: 300
   IsRival: 1
-  RivalEvoSpecies: {fileID: 0}
+  RivalEvoBranch: {fileID: 11400000, guid: 11890d2cd31ef8c46aed577d9495a5f0, type: 2}
   RegionScaling:
   - RegionIndex: 0
     PokemonCount: 2
     AcePhaseCount: 2
+  - RegionIndex: 1
+    PokemonCount: 3
+    AcePhaseCount: 2
+  - RegionIndex: 2
+    PokemonCount: 3
+    AcePhaseCount: 3
+  - RegionIndex: 1
+    PokemonCount: 3
+    AcePhaseCount: 2
+  - RegionIndex: 2
+    PokemonCount: 3
+    AcePhaseCount: 3
   GDDReference: "\xA77.5.1 \u2014 Rival Blue (R1 Elite Trainer)"

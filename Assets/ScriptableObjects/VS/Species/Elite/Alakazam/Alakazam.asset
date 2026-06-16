@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
+  m_Name: Alakazam
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
+  SpeciesId: 65
+  DisplayName: Alakazam
+  Types: 0a000000
+  BaseStats:
+    BaseHP: 55
+    BaseAtk: 135
+    BaseDef: 45
+    BaseSpd: 120
+  GrowthCurve: {fileID: 0}
+  Branches: []
+  EvolveLevel: 0
+  BaseLearnset: []
+  LevelUpLearnset:
+  - Level: 1
+    Move: {fileID: 11400000, guid: d32b5ec0eb8ee464690fa36d26dc460d, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: a30895b5c0718894e9119980445f6176, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: ec3477008774c8d4cb1dbbc10e8122c9, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: 8b4a6c20d61d25c4f9ed6f8b5776bcfe, type: 2}
+  TutorLearnset: []
+  TMCompatibility: []
+  AvailableAbilities:
+  - {fileID: 11400000, guid: c08c338690979f748803a7ace75a69ba, type: 2}
+  PrimaryAbility: {fileID: 0}
+  MasteryMove: {fileID: 0}
+  StatusImmunities: 
+  WildRarity: 2
+  SpawnBiomes: 
+  Portrait: {fileID: 21300000, guid: 89580302ee8295f41ae4005e82745e2d, type: 3}
+  GDDReference: "\xA77.5.1 \u2014 Alakazam (R3 Rival)"

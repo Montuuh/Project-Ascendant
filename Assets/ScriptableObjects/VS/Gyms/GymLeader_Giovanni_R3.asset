@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23339b34558611741b7be98eff59dc94, type: 3}
+  m_Name: GymLeader_Giovanni_R3
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.GymLeaderSO
+  GymLeaderId: GIOVANNI_R3_GYM
+  DisplayName: Giovanni
+  GymType: 8
+  TrainerSprite: {fileID: 0}
+  TacticalIdentity: "Ground master. Viridian Gym Leader. Entrenchment Phase-2 archetype
+    (\xA74.4.4.4)."
+  Composition:
+  - Species: {fileID: 11400000, guid: 8d76de9328af0f64da4c6f0a662909b4, type: 2}
+    Level: 35
+    PhaseCount: 2
+    IsAce: 0
+    HasSturdy: 0
+  - Species: {fileID: 11400000, guid: 2cac16a59767ea2459ede397b9572842, type: 2}
+    Level: 37
+    PhaseCount: 3
+    IsAce: 1
+    HasSturdy: 1
+  BadgeReward: {fileID: 11400000, guid: af792babe1545424090c50e72710c276, type: 2}
+  GuaranteedRareRelic: {fileID: 11400000, guid: 547e66e28e15fdc40ae98c362d8e69e6, type: 2}
+  TrainerXPReward: 50
+  PokeDollarReward: 500
+  AcePhase2Archetype: 0
+  GDDReference: "\xA74.4.4 \u2014 Giovanni Viridian Gym (Ground, R3)"

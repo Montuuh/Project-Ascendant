@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using ProjectAscendant.Core;
@@ -59,13 +60,23 @@ namespace ProjectAscendant.Tests
         // ── VS ships R1 Elite roster (§7.5.1 CL-024) ─────────────────────────
         // Per CL-024, Elite nodes use weighted rosters. VS R1 = Rival + Specialist.
 
+        // CL-024: VS audits scope to R1; post-VS R2/R3 content coexists.
+        // R1 elites: Rival + Specialist (no _R2 / _R3 suffix). R2/R3 elites have _R2/_R3 in EliteId.
+        private static bool IsR1Elite(EliteTrainerSO e)
+        {
+            // R1 elites: RIVAL_BLUE, SPECIALIST_R1 (no _R2 or _R3 suffix).
+            // R2/R3 elites: KARATE_KING_R2, GIOVANNI_R3, COOLTRAINER_R3.
+            return e != null && !e.EliteId.Contains("_R2") && !e.EliteId.Contains("_R3");
+        }
+
         [Test]
         public void Library_HasExactlyTwoElitesForVS()
         {
-            EliteTrainerSO[] elites = LoadAllElites();
-            Assert.That(elites.Length, Is.EqualTo(2),
-                "Per §7.5.1 (CL-024) the VS ships Rival + Specialist Elite; found "
-                + elites.Length);
+            EliteTrainerSO[] allElites = LoadAllElites();
+            EliteTrainerSO[] r1Elites = allElites.Where(IsR1Elite).ToArray();
+            Assert.That(r1Elites.Length, Is.EqualTo(2),
+                "Per §7.5.1 (CL-024) the VS ships Rival + Specialist Elite (R1); found "
+                + r1Elites.Length + " R1 elites (post-VS R2/R3 content coexists).");
         }
 
         // ── Identity discipline ──────────────────────────────────────────────
@@ -161,9 +172,11 @@ namespace ProjectAscendant.Tests
         [Test]
         public void AllElites_CompositionLevelsInR1Band()
         {
+            // CL-024: band-check only R1 elites (VS scope). R2/R3 elites use higher bands.
             var bad = new List<string>();
             foreach (EliteTrainerSO e in LoadAllElites())
             {
+                if (!IsR1Elite(e)) continue; // Skip R2/R3 elites
                 if (e.Composition == null) continue;
                 for (int i = 0; i < e.Composition.Count; i++)
                 {
@@ -173,7 +186,7 @@ namespace ProjectAscendant.Tests
                 }
             }
             Assert.That(bad, Is.Empty,
-                $"Per §7.4 R1 Elite levels must sit in [{MIN_LEVEL},{MAX_R1_LEVEL}].\n  "
+                $"Per §7.4 R1 Elite levels must sit in [{MIN_LEVEL},{MAX_R1_LEVEL}] (R2/R3 excluded).\n  "
                 + string.Join("\n  ", bad));
         }
 
@@ -206,7 +219,7 @@ namespace ProjectAscendant.Tests
         [Test]
         public void AllElites_RewardMatchesSpec()
         {
-            // Per §7.12 — Elite row: 25 Trainer XP, 300₽.
+            // Per §7.12 — Elite row: 25 Trainer XP, 300₽ (all regions).
             var bad = new List<string>();
             foreach (EliteTrainerSO e in LoadAllElites())
             {
@@ -216,7 +229,7 @@ namespace ProjectAscendant.Tests
                     bad.Add($"{e.EliteId} ₽={e.PokeDollarReward} (expected {ELITE_DOLLARS})");
             }
             Assert.That(bad, Is.Empty,
-                $"Per §7.12 Elite reward is {ELITE_XP} XP + {ELITE_DOLLARS}₽.\n  "
+                $"Per §7.12 Elite reward is {ELITE_XP} XP + {ELITE_DOLLARS}₽ (all regions).\n  "
                 + string.Join("\n  ", bad));
         }
     }

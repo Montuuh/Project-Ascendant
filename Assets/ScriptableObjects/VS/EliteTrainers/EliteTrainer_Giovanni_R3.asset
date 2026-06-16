@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55982a9421b56f848849c8aa798bdfca, type: 3}
+  m_Name: EliteTrainer_Giovanni_R3
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EliteTrainerSO
+  EliteId: GIOVANNI_R3
+  DisplayName: Giovanni
+  TrainerSprite: {fileID: 0}
+  TacticalIdentity: Ground specialist. Signature Persian. Dual-lane (Elite + Gym).
+  Composition:
+  - Species: {fileID: 11400000, guid: 12c099dc20077a9488ff2d687ad712f1, type: 2}
+    Level: 33
+    PhaseCount: 2
+  - Species: {fileID: 11400000, guid: 8774d434b94734c40b873662113e5caa, type: 2}
+    Level: 35
+    PhaseCount: 2
+  RareRelicChoices:
+  - {fileID: 11400000, guid: 547e66e28e15fdc40ae98c362d8e69e6, type: 2}
+  - {fileID: 11400000, guid: d49027b3d2a7c774081bd29e1b8bcf46, type: 2}
+  - {fileID: 11400000, guid: 11efe1c9ab05a1d41923b80cea9ac42a, type: 2}
+  TrainerXPReward: 25
+  PokeDollarReward: 300
+  IsRival: 0
+  RivalEvoBranch: {fileID: 0}
+  RegionScaling: []
+  GDDReference: "\xA77.5.1 \u2014 Giovanni Elite R3 (dual-lane with Gym)"

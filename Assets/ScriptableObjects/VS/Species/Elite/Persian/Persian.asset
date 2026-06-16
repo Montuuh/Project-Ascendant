@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
+  m_Name: Persian
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
+  SpeciesId: 53
+  DisplayName: Persian
+  Types: 00000000
+  BaseStats:
+    BaseHP: 65
+    BaseAtk: 70
+    BaseDef: 60
+    BaseSpd: 115
+  GrowthCurve: {fileID: 0}
+  Branches: []
+  EvolveLevel: 0
+  BaseLearnset: []
+  LevelUpLearnset:
+  - Level: 1
+    Move: {fileID: 11400000, guid: d73bc61ec3c2ffe4f9955881d66b1cdc, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: 15c36d98cfed8184c84a78811e78c124, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: 4a76369b2d7a4c445b34dfbfeefd26dc, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: be4f22f4df9c02644a0cee67a693e470, type: 2}
+  TutorLearnset: []
+  TMCompatibility: []
+  AvailableAbilities:
+  - {fileID: 11400000, guid: 258aab2730b7ea74bad9eb40a996fd29, type: 2}
+  PrimaryAbility: {fileID: 0}
+  MasteryMove: {fileID: 0}
+  StatusImmunities: 
+  WildRarity: 2
+  SpawnBiomes: 
+  Portrait: {fileID: 21300000, guid: 281e2d13c8fa0ca43af7429dd26cdbda, type: 3}
+  GDDReference: "\xA77.5.1 \u2014 Persian (R3 Giovanni Elite signature)"

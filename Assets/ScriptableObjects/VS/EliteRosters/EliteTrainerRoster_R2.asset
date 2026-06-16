@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eea07f3556399e04cb32a2a200bc4113, type: 3}
+  m_Name: EliteTrainerRoster_R2
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EliteTrainerRosterSO
+  RegionIndex: 1
+  OccupantPool:
+  - Occupant: {fileID: 11400000, guid: f5b031585613ef442acf4f190498d718, type: 2}
+    Weight: 60
+  - Occupant: {fileID: 11400000, guid: a3ba03cfdaf1e914aaec97ea631fe9ba, type: 2}
+    Weight: 40
+  GDDReference: "\xA77.5.1"

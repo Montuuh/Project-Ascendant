@@ -41,6 +41,11 @@ namespace ProjectAscendant.Editor
                 PokemonSpeciesSO sp = AssetDatabase.LoadAssetAtPath<PokemonSpeciesSO>(speciesPath);
                 if (sp == null) continue;
 
+                // CL-024 — only seed species that LACK a portrait. Never clobber an
+                // existing binding (e.g. the dex-ordered illustrated portraits); the
+                // old reassign-always behaviour regressed those when new species were added.
+                if (sp.Portrait != null) continue;
+
                 PokemonType primaryType = (sp.Types != null && sp.Types.Count > 0)
                     ? sp.Types[0]
                     : PokemonType.Normal;

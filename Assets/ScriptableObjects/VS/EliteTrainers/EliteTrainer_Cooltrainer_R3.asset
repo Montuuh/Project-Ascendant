@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55982a9421b56f848849c8aa798bdfca, type: 3}
+  m_Name: EliteTrainer_Cooltrainer_R3
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EliteTrainerSO
+  EliteId: COOLTRAINER_R3
+  DisplayName: Cooltrainer
+  TrainerSprite: {fileID: 0}
+  TacticalIdentity: Water/Ice dual-type. Defensive control.
+  Composition:
+  - Species: {fileID: 11400000, guid: bc715468b1bdfb642be312c6660c1d45, type: 2}
+    Level: 33
+    PhaseCount: 2
+  - Species: {fileID: 11400000, guid: 44e49ebdbd33ab142abae7a35c1cff34, type: 2}
+    Level: 34
+    PhaseCount: 2
+  RareRelicChoices:
+  - {fileID: 11400000, guid: 16a32c24622d03f4987f032a0bbe4ffb, type: 2}
+  - {fileID: 11400000, guid: 547e66e28e15fdc40ae98c362d8e69e6, type: 2}
+  - {fileID: 11400000, guid: d49027b3d2a7c774081bd29e1b8bcf46, type: 2}
+  TrainerXPReward: 25
+  PokeDollarReward: 300
+  IsRival: 0
+  RivalEvoBranch: {fileID: 0}
+  RegionScaling: []
+  GDDReference: "\xA77.5.1 \u2014 Specialist R3 (Cooltrainer)"
