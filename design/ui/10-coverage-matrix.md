@@ -36,15 +36,15 @@
 | Route Map View | ✅ 02.2 | ✅ | `map_screen` |
 | Node-type icons (×9) | ✅ 06/icons | ✅ | `icon_system_sheet` |
 | Node Preview popover | ✅ 03.4 | ⬜ | **gap** |
-| **Combat Screen** (side-by-side) | ✅ 02.1 | ✅ | `combat_screen_side_by_side` |
+| **Combat Screen** (squad formation) | ✅ 02.1 | ✅ | `combat-screen-final.html` (squad layout, user-iterated) |
 | — Move card (all states) | ✅ 09 | ✅ | `move_card_final_iter2` + file |
 | — Consumable card (all states) | ✅ 04.2 | ✅ | `consumable_card_final` + file |
-| — Player team HUD / battle tile | ✅ 02.1 | ✅ | `pokemon_battle_tile` |
-| — Enemy HUD + intent + tier badge | ✅ 02.1 | ✅ | in combat screen |
-| — Bag / Team / Dex toolbar buttons | ✅ 01/icons | 🟡 | icons exist; explicit combat placement to add |
-| — Catch gauge (pokéball %) | ✅ 02.1/CL-014 | ⬜ | **gap** |
-| — Swap interaction + cost ladder | ✅ 02.1 | ⬜ | **gap** |
-| — Damage preview (drag-over-target) | ✅ 09 | 🟡 | described on card; standalone view to add |
+| — Player team HUD / squad tiles | ✅ 02.1 | ✅ | in `combat-screen-final.html` |
+| — Enemy HUD + intent + tier badge | ✅ 02.1 | ✅ | in `combat-screen-final.html` |
+| — Bag / Team / Dex toolbar buttons | ✅ 01/icons | ✅ | top-bar cluster in `combat-screen-final.html` |
+| — Catch gauge (detached pill, wild-only) | ✅ 02.1/CL-014 | ✅ | in `combat-screen-final.html` |
+| — Swap interaction + cost chip | ✅ 02.1 | ✅ | swap chip on bench tiles, `combat-screen-final.html` |
+| — Damage preview (drag-over-target) | ✅ 09 | ✅ | beside-target preview in `combat-screen-final.html` |
 | Post-Combat Reward (win XP) | ✅ 03.5 | ✅ | `post_combat_reward` |
 | Evolution | ✅ 03.6 | ✅ | `evolution_screen` |
 | Legendary Pick (1-of-3) | ✅ 03.7 | ⬜ | **gap** |

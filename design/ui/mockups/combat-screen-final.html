@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Combat Screen — final (§2.1, squad formation)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+*{box-sizing:border-box;}
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.cs3{max-width:880px;margin:0 auto;background:#2A2230;border-radius:18px;overflow:hidden;}
+.cs3 .display{font-family:'Baloo 2',cursive;}
+.cs3 .topbar{background:#3A3040;border-bottom:1px solid #4A3E50;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.cs3 .relic-badge{width:30px;height:30px;background:#4A3E50;border-radius:8px;border:1px solid #5A4C62;display:flex;align-items:center;justify-content:center;font-size:13px;color:#FFF6EC;}
+.cs3 .badge-cluster,.cs3 .toolbar{display:flex;gap:7px;}
+.cs3 .toolbar button{width:40px;height:40px;background:#4A3E50;border:none;border-radius:12px;color:#FFF6EC;font-size:17px;cursor:pointer;}
+.cs3 .stage{display:flex;align-items:center;justify-content:space-between;padding:26px 22px;min-height:380px;background:radial-gradient(120% 90% at 50% 35%,#33283C 0%,#2A2230 70%);position:relative;}
+.cs3 .player-squad{width:38%;position:relative;height:312px;}
+.cs3 .squad-slot{position:absolute;width:104px;}
+.cs3 .bench1{top:0;left:0;z-index:1;}
+.cs3 .bench2{bottom:0;left:0;z-index:1;}
+.cs3 .lead-slot{left:118px;top:50%;transform:translateY(-50%) scale(1.2);z-index:3;}
+.cs3 .portrait{background:#3A3040;border-radius:14px;padding:7px;text-align:center;position:relative;min-height:148px;}
+.cs3 .lead-slot .portrait{border:4px solid #FFCB3D;min-height:auto;}
+.cs3 .bench1 .portrait,.cs3 .bench2 .portrait{border:2px solid #4A3E50;}
+.cs3 .portrait-art{width:80px;height:80px;background:#4A3E50;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#9E8FA0;margin:0 auto;}
+.cs3 .lead-slot .portrait-art{width:86px;height:86px;font-size:32px;}
+.cs3 .corner{width:19px;height:19px;border-radius:50%;position:absolute;border:2px solid #3A3040;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;z-index:2;}
+.cs3 .type-badge{top:7px;left:7px;}
+.cs3 .status-badge{top:7px;right:7px;}
+.cs3 .trauma-badge{bottom:7px;left:7px;background:#FF9F45;}
+.cs3 .crown-badge{position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:15px;color:#FFCB3D;z-index:3;}
+.cs3 .hp-bar{margin:6px auto 0;width:88px;height:8px;background:#100C14;border-radius:999px;position:relative;}
+.cs3 .lead-slot .hp-bar{width:94px;}
+.cs3 .hp-fill{height:100%;border-radius:999px;background:#54D98A;}
+.cs3 .hp-shield{position:absolute;left:0;top:0;height:100%;background:#A8E6F0;opacity:0.85;border-radius:999px;z-index:1;}
+.cs3 .hp-text{display:block;font-size:10px;color:#E0D2C2;font-weight:700;margin-top:2px;font-family:'Baloo 2',cursive;}
+.cs3 .hp-shield-text{color:#A8E6F0;}
+.cs3 .stat-chip{background:#4A3E50;border-radius:6px;padding:1px 6px;font-size:10px;color:#FFF6EC;display:inline-block;margin-top:5px;}
+.cs3 .aura-chip{margin-top:4px;font-size:10px;color:#6890F0;}
+.cs3 .swap-chip{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);background:#4A3E50;border-radius:8px;padding:2px 7px;font-size:10px;color:#FFCB3D;font-weight:700;white-space:nowrap;border:1px solid #FFC15A;}
+.cs3 .enemy-squad{width:48%;position:relative;display:flex;align-items:center;justify-content:center;}
+.cs3 .enemy-slot{width:188px;position:relative;}
+.cs3 .enemy-portrait{background:#241E2A;border-radius:18px;padding:12px;text-align:center;position:relative;border:1px solid #4A3E50;}
+.cs3 .enemy-portrait-art{width:150px;height:150px;background:#4A3E50;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:62px;color:#B7A6C2;margin:0 auto;box-shadow:0 0 32px rgba(168,168,120,0.30);}
+.cs3 .enemy-hp-bar{margin:8px auto 0;width:152px;height:12px;background:#100C14;border-radius:999px;position:relative;}
+.cs3 .intent-chip{position:absolute;bottom:103%;left:50%;transform:translateX(-50%);background:#4A3E50;border:2px solid #FF6B6B;border-radius:12px;padding:6px 11px;white-space:nowrap;font-size:13px;color:#FFF6EC;font-weight:700;z-index:4;}
+.cs3 .enemy-corner{width:22px;height:22px;border-radius:50%;position:absolute;border:2px solid #241E2A;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;z-index:2;}
+.cs3 .catch-pill{display:flex;align-items:center;gap:7px;background:#3A3040;border:1px solid #E84C4C;border-radius:999px;padding:5px 11px 5px 7px;margin:11px auto 0;width:fit-content;}
+.cs3 .catch-track{width:96px;height:8px;background:#100C14;border-radius:999px;overflow:hidden;}
+.cs3 .catch-fill{height:100%;background:#54D98A;border-radius:999px;}
+.cs3 .dmg-preview{position:absolute;top:6px;left:-116px;background:#4A3E50;border:1px solid #FFC15A;border-radius:11px;padding:7px 9px;width:116px;z-index:500;text-align:center;}
+.cs3 .dmg-value{font-size:19px;font-weight:700;color:#FF6B6B;font-family:'Baloo 2',cursive;line-height:1.1;}
+.cs3 .dmg-sub{font-size:9px;color:#E0D2C2;margin-top:2px;}
+.cs3 .dmg-tail{position:absolute;right:-6px;top:16px;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:6px solid #FFC15A;}
+.cs3 .multi-enemy{position:absolute;bottom:2px;right:0;background:#3A3040;border:1px solid #4A3E50;border-radius:10px;padding:7px;width:110px;}
+.cs3 .multi-title{font-size:9px;color:#9E8FA0;margin-bottom:4px;}
+.cs3 .multi-row{display:flex;gap:4px;justify-content:center;align-items:center;}
+.cs3 .mini-enemy{width:26px;height:26px;background:#4A3E50;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9E8FA0;}
+.cs3 .hand-tray{background:#3A3040;border-top:1px solid #4A3E50;padding:10px 14px;}
+.cs3 .tray-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.cs3 .ap-cluster{display:flex;align-items:center;gap:6px;font-size:12px;color:#9E8FA0;}
+.cs3 .ap-pip{width:13px;height:13px;border-radius:999px;background:#FFCB3D;border:1px solid rgba(0,0,0,0.2);}
+.cs3 .ap-pip.dim{background:#6B5A45;}
+.cs3 .counts{display:flex;gap:14px;font-size:12px;color:#9E8FA0;}
+.cs3 .end-turn{background:#4A3E50;border:1px solid #5A4C62;border-radius:999px;padding:7px 18px;color:#E0D2C2;font-size:13px;font-weight:700;cursor:pointer;}
+.cs3 .hand-row{display:flex;gap:7px;align-items:flex-start;flex-wrap:wrap;}
+.cs3 .move-card{position:relative;width:100px;border-radius:15px;padding:6px;flex:0 0 auto;margin-top:8px;}
+.cs3 .move-card.lifted{transform:translateY(-10px) rotate(-3deg);box-shadow:0 8px 18px rgba(0,0,0,0.5);}
+.cs3 .move-band{display:flex;align-items:center;gap:4px;justify-content:center;border-radius:9px;padding:3px 5px;}
+.cs3 .move-avatar{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.cs3 .move-footer{display:flex;justify-content:space-between;align-items:center;color:#fff;padding:5px 2px 1px;}
+.cs3 .move-dot{width:9px;height:9px;border-radius:50%;background:#FFE08A;border:1px solid rgba(0,0,0,0.18);display:inline-block;}
+.cs3 .move-dotx{width:9px;height:9px;border-radius:50%;background:transparent;border:1.5px dashed #FF6B6B;display:inline-block;}
+.cs3 .move-badge{border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid #16120f;}
+.cs3 .move-mech{position:absolute;top:-9px;left:6px;display:flex;gap:3px;z-index:3;}
+.cs3 .move-stat{position:absolute;top:-11px;right:6px;z-index:3;width:24px;height:24px;}
+.cs3 .melee-lock{position:absolute;inset:0;background:rgba(40,52,80,0.55);border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:1px;}
+.cs3 .cons-card{width:100px;background:#FFF7EA;border:2px solid #E7D5B5;border-radius:26px;padding:8px;flex:0 0 auto;margin-top:8px;}
+.cs3 .cons-icon{width:42px;height:42px;border-radius:50%;background:#54D98A;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;margin:0 auto;}
+.cs3 .cons-footer{display:flex;justify-content:space-between;align-items:center;padding:5px 2px 1px;}
+.cap{max-width:880px;margin:18px auto 0;font-size:12px;color:#8A7C68;line-height:1.6;}
+.cap b{color:#FFD451;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">Combat screen final: player squad with two equal benches stacked top-left and bottom-left (each with swap chip, type top-left, status top-right, Trauma bottom-left) and the Lead leading close to their right; an enlarged single enemy on the right with intent chip, no arrows, and the catch gauge as a detached pokeball pill outside the frame; bottom hand tray with type-flooded move and consumable cards and a small damage preview beside the enemy.</h2>
+<div class="cs3">
+  <div class="topbar">
+    <div class="badge-cluster">
+      <div class="relic-badge" title="Verdant: Grass +10%"><i class="ti ti-leaf"></i></div>
+      <div class="relic-badge" title="Grassy Terrain"><i class="ti ti-trees"></i></div>
+      <div class="relic-badge" title="Active Relic"><i class="ti ti-diamond"></i></div>
+    </div>
+    <div class="toolbar">
+      <button title="Bag"><i class="ti ti-briefcase"></i></button>
+      <button title="Team"><i class="ti ti-users"></i></button>
+      <button title="Pokédex"><i class="ti ti-book"></i></button>
+      <button title="Pause"><i class="ti ti-player-pause"></i></button>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="player-squad">
+      <div class="squad-slot bench1">
+        <div class="portrait">
+          <div class="corner type-badge" style="background:#6890F0;" title="Water"></div>
+          <div class="corner status-badge" style="background:#F08030;" title="Burn"><i class="ti ti-flame"></i></div>
+          <div class="portrait-art"><i class="ti ti-paw"></i></div>
+          <div class="hp-bar"><div class="hp-fill" style="width:80%;"></div></div>
+          <span class="hp-text">48 / 60</span>
+          <div class="stat-chip">Atk +1</div>
+          <div class="swap-chip">Swap: 1 AP</div>
+        </div>
+      </div>
+      <div class="squad-slot bench2">
+        <div class="portrait">
+          <div class="corner type-badge" style="background:#F08030;" title="Fire"></div>
+          <div class="corner status-badge" style="background:#A040A0;" title="Poison"><i class="ti ti-droplet-filled"></i></div>
+          <div class="corner trauma-badge" title="Trauma x1"><i class="ti ti-alert-triangle"></i></div>
+          <div class="portrait-art"><i class="ti ti-paw"></i></div>
+          <div class="hp-bar"><div class="hp-fill" style="width:55%;background:#FF9F45;"></div></div>
+          <span class="hp-text">33 / 60</span>
+          <div class="stat-chip">Spd -1</div>
+          <div class="swap-chip">Swap: 1 AP</div>
+        </div>
+      </div>
+      <div class="squad-slot lead-slot">
+        <div class="portrait">
+          <i class="crown-badge ti ti-crown"></i>
+          <div class="corner type-badge" style="background:#6890F0;" title="Water"></div>
+          <div class="portrait-art"><i class="ti ti-paw"></i></div>
+          <div class="hp-bar"><div class="hp-shield" style="width:18%;"></div><div class="hp-fill" style="width:75%;"></div></div>
+          <span class="hp-text"><span class="hp-shield-text">45+10</span> / 60</span>
+          <div class="aura-chip"><i class="ti ti-droplet"></i> Lead Aura</div>
+        </div>
+      </div>
+    </div>
+    <div class="enemy-squad">
+      <div class="enemy-slot">
+        <div class="intent-chip"><i class="ti ti-sword"></i> 24 &rarr; Lead</div>
+        <div class="dmg-preview">
+          <div class="dmg-value">24</div>
+          <div class="dmg-sub">STAB x1.5 &middot; super x2</div>
+          <div class="dmg-sub" style="color:#FF9F45;">crit 25% &middot; 30% Burn</div>
+          <div class="dmg-tail"></div>
+        </div>
+        <div class="enemy-portrait">
+          <div class="enemy-corner type-badge" style="background:#A8A878;top:11px;left:11px;" title="Normal"></div>
+          <div class="enemy-corner status-badge" style="background:#FFD451;color:#7a5a12;top:11px;right:11px;" title="Paralysis"><i class="ti ti-bolt"></i></div>
+          <div class="enemy-corner" style="background:#4FA3E3;bottom:11px;right:11px;" title="Veteran tier"><i class="ti ti-star"></i></div>
+          <div class="enemy-portrait-art"><i class="ti ti-paw"></i></div>
+          <div class="enemy-hp-bar"><div class="hp-fill" style="width:60%;"></div></div>
+          <span class="hp-text">36 / 60</span>
+        </div>
+        <div class="catch-pill" title="wild / elite-wild only">
+          <i class="ti ti-circle-half-2" style="color:#E84C4C;font-size:16px;"></i>
+          <div class="catch-track"><div class="catch-fill" style="width:75%;"></div></div>
+          <span style="font-size:11px;color:#54D98A;font-weight:700;">75%</span>
+        </div>
+        <div class="multi-enemy">
+          <div class="multi-title">if 2-3 enemies &rarr; squad:</div>
+          <div class="multi-row">
+            <div class="mini-enemy"><i class="ti ti-paw"></i></div>
+            <div class="mini-enemy" style="transform:scale(1.2);z-index:2;"><i class="ti ti-paw"></i></div>
+            <div class="mini-enemy"><i class="ti ti-paw"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hand-tray">
+    <div class="tray-header">
+      <div class="ap-cluster"><span class="ap-pip"></span><span class="ap-pip"></span><span class="ap-pip dim"></span><span style="margin-left:6px;">2 / 3 AP</span></div>
+      <div class="counts"><span>Deck 8</span><span>Discard 3</span></div>
+      <button class="end-turn display">End Turn</button>
+    </div>
+    <div class="hand-row">
+      <div class="move-card lifted" style="background:#6890F0;border:2px solid #3E63C8;">
+        <div class="move-mech"><span class="move-badge" style="width:19px;height:19px;background:#2c2440;font-size:10px;"><i class="ti ti-sword"></i></span></div>
+        <div class="move-band" style="background:#3E63C8;"><span class="move-avatar" style="background:#cfe0ff;color:#3E63C8;"><i class="ti ti-paw"></i></span><i class="ti ti-target-arrow" style="color:#cfe0ff;font-size:11px;"></i><span class="display" style="color:#fff;font-size:11px;font-weight:700;">Water Gun</span></div>
+        <div class="move-footer"><span style="display:flex;gap:3px;"><span class="move-dot"></span><span class="move-dot"></span></span><span class="display" style="font-size:14px;font-weight:700;">40</span></div>
+      </div>
+      <div class="move-card" style="background:#F08030;border:2px solid #FF9F45;filter:grayscale(0.8);opacity:0.55;">
+        <div class="move-mech"><span class="move-badge" style="width:19px;height:19px;background:#2c2440;font-size:10px;"><i class="ti ti-sword"></i></span></div>
+        <span class="move-stat move-badge" style="background:#F08030;font-size:13px;box-shadow:0 0 0 2px rgba(240,128,48,0.32);"><i class="ti ti-flame"></i></span>
+        <div class="move-band" style="background:#C85A1E;"><span class="move-avatar" style="background:#ffd9c0;color:#C85A1E;"><i class="ti ti-paw"></i></span><i class="ti ti-target-arrow" style="color:#ffd9c0;font-size:11px;"></i><span class="display" style="color:#fff;font-size:11px;font-weight:700;">Flamethrower</span></div>
+        <div class="move-footer"><span style="display:flex;gap:3px;align-items:center;"><i class="ti ti-alert-triangle" style="color:#FF9F45;font-size:12px;"></i><span class="move-dot"></span><span class="move-dot"></span><span class="move-dotx"></span><span class="move-dotx"></span></span><span class="display" style="font-size:14px;font-weight:700;">90</span></div>
+      </div>
+      <div class="move-card" style="background:#A8A878;border:2px solid #7C7C52;">
+        <div class="move-mech"><span class="move-badge" style="width:19px;height:19px;background:#2c2440;font-size:10px;"><i class="ti ti-sword"></i></span></div>
+        <div class="move-band" style="background:#7C7C52;"><span class="move-avatar" style="background:#e2e2cc;color:#7C7C52;"><i class="ti ti-paw"></i></span><i class="ti ti-hand-grab" style="color:#e2e2cc;font-size:11px;"></i><span class="display" style="color:#fff;font-size:11px;font-weight:700;">Tackle</span></div>
+        <div class="move-footer"><span class="move-dot"></span><span class="display" style="font-size:14px;font-weight:700;">35</span></div>
+        <div class="melee-lock"><i class="ti ti-lock" style="font-size:18px;color:#9FC0FF;"></i><span class="display" style="font-size:16px;font-weight:700;">Melee</span><span style="font-size:10px;color:#cfe0ff;font-weight:600;">needs Lead</span></div>
+      </div>
+      <div style="width:2px;background:#4A3E50;align-self:stretch;margin:8px 6px 0;"></div>
+      <div class="cons-card">
+        <div class="cons-icon"><i class="ti ti-flask-2"></i></div>
+        <div class="cons-footer"><span class="move-dot"></span><span style="font-size:10px;color:#8a6f44;font-weight:700;">+50</span></div>
+      </div>
+      <div class="cons-card" style="filter:grayscale(0.7);opacity:0.55;">
+        <div class="cons-icon"><i class="ti ti-flask-2"></i></div>
+        <div class="cons-footer"><span style="display:flex;gap:2px;"><span class="move-dot"></span><span class="move-dot"></span><span class="move-dotx"></span></span><span style="font-size:10px;color:#8a6f44;font-weight:700;">full</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="cap"><b>Combat Screen (&sect;2.1) &mdash; final mockup.</b> Squad formation: Bench&nbsp;1 top-left + Bench&nbsp;2 bottom-left (equal, each with swap chip; type top-left, status top-right, Trauma bottom-left), Lead leading close to their right (crowned, larger, cyan shield overlay 45+10/60, Lead Aura). Single enemy enlarged with intent chip (no arrows); catch gauge is a detached pok&eacute;ball pill outside the frame (wild / elite-wild only). Hand tray: locked type-flooded move + consumable cards (playable / not-enough-AP / out-of-position), AP pips, End Turn; small damage preview beside the targeted enemy. Warm-dim stage tokens; canonical type hues. Art slots are placeholders (asset pipeline, 08).</p>
+</body></html>

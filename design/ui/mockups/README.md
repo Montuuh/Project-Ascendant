@@ -11,10 +11,11 @@ Google Fonts; icons from Tabler (stand-ins for the final SVG icon set).
 
 | File | Shows | Status |
 |------|-------|--------|
+| `combat-screen-final.html` | **Full combat screen** (§2.1): squad formation (Bench 1 top-left + Bench 2 bottom-left, Lead leading right, no overlap), enlarged single enemy + detached catch-gauge pill, intent chip (no arrows), hand tray + small damage preview. User-iterated, 2026-06-17. | 🔒 canonical (spec `02 §2.1`) |
 | `move-card-final.html` | **Final move card**, one per status: playable · not-enough-AP · out-of-melee. Generic `Pokémon art` placeholder. | 🔒 canonical (spec `09`) |
 | `consumable-card-final.html` | **Final consumable card**: playable · not-enough-AP. Shares the move-card grammar. | 🔒 canonical |
 | `move-card-full.html` | A fully-loaded card + the complete icon legend (category/range/modifier/status). | legend ref |
-| `combat-hand.html` | The combat-screen hand in context (move + consumable, states). | ⚠ pre-final layout — refresh at combat-screen pass (#17) |
+| `combat-hand.html` | The combat-screen hand in context (move + consumable, states). | superseded by `combat-screen-final.html` (kept for history) |
 | `consumable-card.html` | Expanded consumable + its two drag targets (teammate / field). | drag-target ref |
 | `move-card.html` | Modifier + rider placement reference. | ⚠ pre-final layout |
 
