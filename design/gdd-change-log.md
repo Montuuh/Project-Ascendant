@@ -58,7 +58,7 @@
 | CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ✅¹⁶ |
 | CL-021 | Q10 | League Boons → choice-only Legendary relic tier (10-relic pool, max 2/run) | T8 §8.3.1/§8.3.7; T4 §4.5.2/§4.5.1.4/§4.6; T6 §6.6.1/§6.6.3 | ✅ | ✅¹⁷ |
 | CL-022 | Q20 | Save/Load persistence manifest + close 5 gaps (RNG cursors #45, Legendary, biome, ShieldHP) | T9 §9.8/§9.8.6/§9.8.7; T6 §6.10 | ✅ | ✅¹⁸ |
-| CL-024 | Q24 | Elite node split: Elite Trainer (Rival/Giovanni roster, Rare-relic choice) + new Elite Wild (catchable boss, catch-vs-kill) | T7 §7.5/§7.5.2/§7.12/§7.2.2; T4 §4.3.7/§4.4.4.3 | ✅ | 🟡²⁰ |
+| CL-024 | Q24 | Elite node split: Elite Trainer (Rival/Giovanni roster, Rare-relic choice) + new Elite Wild (catchable boss, catch-vs-kill) | T7 §7.5/§7.5.2/§7.12/§7.2.2; T4 §4.3.7/§4.4.4.3 | ✅ | ✅²⁰ |
 
 ¹⁸ **CL-022 code complete (2026-06-12, 1187 green).** Q20 manifest reconciliation — 5 persistence gaps
 closed, +6 `SaveSystemTests` round-trips. **A (#45 RNG cursors):** `GameRNG.State` get/set (clamps 0→1);
@@ -172,7 +172,7 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   All numbers (80/60/40, Giovanni 30%, Rival band scaling, Elite Wild HP/phases) are **systems-designer-
   tunable placeholders**.
 - Status: [✅] GDD updated (Notion §7.5 rewrite + new §7.5.2 + §7.12 + §7.2 guarantees + §7.2.2 drift;
-  §4.3.7/§4.4.4.3 cross-refs; re-exported 2026-06-16)   [🟡] Code adapted — engine + R1 content done; R2/R3 pending
+  §4.3.7/§4.4.4.3 cross-refs; re-exported 2026-06-16)   [✅] Code adapted — full multi-region (commits 7934264, c5ba6d2, 39c5c3f, 2e422e4; 1191 green)
 - ²⁰ **CL-024 code (user-directed, 2026-06-16):** built ahead of its post-VS slot. **Engine (commit 7934264,
   1187 green):** `NodeType.EliteWild`; `EliteWildSO` + `EliteWildController` + `EliteWildNodeController`
   (catch→recruit via WildCatchResolver+Box / defeat→single Rare relic); `EliteTrainerSO` Rare 1-of-3 via
@@ -185,6 +185,12 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
   Dugtrio, Persian, Nidoqueen, Rhydon, Hitmonchan, Primeape, Haunter, Hypno, Dewgong, Cloyster), Rival R2/R3
   (R3 ace Wartortle→Blastoise mid-fight evo), Giovanni (Elite + Viridian Gym), specialist pools, rosters R2/R3.
   Authoring source: `design/cl-024-content-spec.md`. (R2/R3 not exercisable until the multi-region loop, post-VS.)
+  **COMPLETE (2026-06-16):** mid-fight evolution mechanic built (branch-based, §4.3.7, commit 39c5c3f);
+  R2/R3 content authored (commit 2e422e4) — 13 net-new species, Rival R2/R3 (R3 ace Wartortle→Blastoise
+  mid-fight evo), Giovanni (Elite + Viridian Ground Gym w/ Earth Badge), Karate-King (R2) + Cooltrainer
+  (R3) specialists, rosters R2 (60/40) + R3 (40/30/30). VS Elite/Gym audits rescoped to R1 so post-VS
+  content coexists. `PlaceholderSpriteSeeder` made non-clobbering. All numbers systems-designer-tunable;
+  sprites are placeholders (real art per the art briefs is a later pass). 1191/1191 EditMode green.
 
 ### CL-022 — Save/Load persistence manifest + close 5 gaps   (resolves Q20)
 - Date: 2026-06-12
