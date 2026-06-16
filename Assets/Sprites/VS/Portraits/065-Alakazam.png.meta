@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 281e2d13c8fa0ca43af7429dd26cdbda
+guid: 8e7231519d47be8419ad740d288d7978
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 674084116290498958
-    second: Persian_0
+      213: 6133138149528668510
+    second: 065-Alakazam_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 96
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Persian_0
+      name: 065-Alakazam_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 96
-        height: 96
+        x: 21
+        y: 45
+        width: 433
+        height: 385
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e817a3caee3da5900800000000000000
-      internalID: 674084116290498958
+      spriteID: e598d09f6a84d1550800000000000000
+      internalID: 6133138149528668510
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Persian_0: 674084116290498958
+      065-Alakazam_0: 6133138149528668510
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

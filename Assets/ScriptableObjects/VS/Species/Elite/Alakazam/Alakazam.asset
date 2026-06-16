@@ -42,5 +42,5 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 
-  Portrait: {fileID: 21300000, guid: 89580302ee8295f41ae4005e82745e2d, type: 3}
+  Portrait: {fileID: 21300000, guid: 8e7231519d47be8419ad740d288d7978, type: 3}
   GDDReference: "\xA77.5.1 \u2014 Alakazam (R3 Rival)"

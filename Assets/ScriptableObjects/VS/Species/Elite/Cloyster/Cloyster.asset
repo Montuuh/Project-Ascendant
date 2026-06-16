@@ -42,5 +42,5 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 
-  Portrait: {fileID: 21300000, guid: 70ef9a6c47662964d9f2b50826138737, type: 3}
+  Portrait: {fileID: 21300000, guid: 93721c80d7584504ca690661849a3fba, type: 3}
   GDDReference: "\xA77.5.1 \u2014 Cloyster (R3 Specialist Cooltrainer)"

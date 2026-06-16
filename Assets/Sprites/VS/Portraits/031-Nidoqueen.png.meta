@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a92c79ce9dda0224aad90f2122b92545
+guid: 375269620090a3743aac808d0c50bd93
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8151255446664493667
-    second: Gyarados_0
+      213: 6037962914868523780
+    second: 031-Nidoqueen_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 96
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Gyarados_0
+      name: 031-Nidoqueen_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 96
-        height: 96
+        x: 27
+        y: 21
+        width: 420
+        height: 433
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d954814cb5ce0ee80800000000000000
-      internalID: -8151255446664493667
+      spriteID: 40378b3d7472bc350800000000000000
+      internalID: 6037962914868523780
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Gyarados_0: -8151255446664493667
+      031-Nidoqueen_0: 6037962914868523780
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

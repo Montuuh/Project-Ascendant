@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 42128bf7980a5644aabd2434c68a1450
+guid: 00bf9c73bda7cf24fb578063f85ebbdf
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5058986394469697044
-    second: Marowak_Spirit_0
+      213: -5047419517173118066
+    second: 053-Persian_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 96
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Marowak_Spirit_0
+      name: 053-Persian_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 96
-        height: 96
+        x: 21
+        y: 44
+        width: 433
+        height: 388
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 41686e57251253640800000000000000
-      internalID: 5058986394469697044
+      spriteID: e8bc58601b6f3f9b0800000000000000
+      internalID: -5047419517173118066
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Marowak_Spirit_0: 5058986394469697044
+      053-Persian_0: -5047419517173118066
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

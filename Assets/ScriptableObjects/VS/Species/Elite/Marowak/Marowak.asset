@@ -42,6 +42,6 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 
-  Portrait: {fileID: 21300000, guid: fc4aea6130c02174cb457452d3b55721, type: 3}
+  Portrait: {fileID: 21300000, guid: f116dd6f5f87a0f44bac8c0c682079a7, type: 3}
   GDDReference: "\xA77.5.2 \u2014 Marowak (Ground, recruited from Marowak's Spirit
     catch)"

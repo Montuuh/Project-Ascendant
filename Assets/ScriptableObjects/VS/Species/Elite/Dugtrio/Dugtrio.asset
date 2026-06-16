@@ -42,5 +42,5 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 
-  Portrait: {fileID: 21300000, guid: 22adcb0cf0b50cd439d730ef79e2225d, type: 3}
+  Portrait: {fileID: 21300000, guid: d83efc2be3d2b5745853a90276174d45, type: 3}
   GDDReference: "\xA77.5.1 \u2014 Dugtrio (R3 Giovanni Elite, Sand Veil per spec)"

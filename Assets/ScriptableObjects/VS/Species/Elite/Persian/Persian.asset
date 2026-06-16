@@ -42,5 +42,5 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 
-  Portrait: {fileID: 21300000, guid: 281e2d13c8fa0ca43af7429dd26cdbda, type: 3}
+  Portrait: {fileID: 21300000, guid: 00bf9c73bda7cf24fb578063f85ebbdf, type: 3}
   GDDReference: "\xA77.5.1 \u2014 Persian (R3 Giovanni Elite signature)"

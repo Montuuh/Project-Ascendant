@@ -42,5 +42,5 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 
-  Portrait: {fileID: 21300000, guid: 79f33388bee068d4f9f739fe853d79d0, type: 3}
+  Portrait: {fileID: 21300000, guid: 5ac27787715466443bf80f0324895a18, type: 3}
   GDDReference: "\xA77.5.1 \u2014 Primeape (R2 Specialist Karate King)"

@@ -43,6 +43,6 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 
-  Portrait: {fileID: 21300000, guid: 42128bf7980a5644aabd2434c68a1450, type: 3}
+  Portrait: {fileID: 21300000, guid: 8bb8c30d084f21e47a9a4c7db1c4ce4c, type: 3}
   GDDReference: "\xA77.5.2 \u2014 Elite Wild boss (R1, Marowak's Spirit \u2014 Ghost
     variant)"

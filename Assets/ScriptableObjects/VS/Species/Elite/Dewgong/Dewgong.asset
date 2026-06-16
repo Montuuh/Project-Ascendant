@@ -42,5 +42,5 @@ MonoBehaviour:
   StatusImmunities: 
   WildRarity: 2
   SpawnBiomes: 
-  Portrait: {fileID: 21300000, guid: bd6ac445f52e6a54d804ff959c82af07, type: 3}
+  Portrait: {fileID: 21300000, guid: d00e0634cc222084297fe83c6f253361, type: 3}
   GDDReference: "\xA77.5.1 \u2014 Dewgong (R3 Specialist Cooltrainer)"

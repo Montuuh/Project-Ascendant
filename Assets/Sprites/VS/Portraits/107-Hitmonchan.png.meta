@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: fc4aea6130c02174cb457452d3b55721
+guid: 8dd81edc0da903f48a19f3a0ab8d0c71
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5831593825031865922
-    second: Marowak_0
+      213: -7993791185798975097
+    second: 107-Hitmonchan_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 96
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Marowak_0
+      name: 107-Hitmonchan_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 96
-        height: 96
+        x: 74
+        y: 21
+        width: 327
+        height: 433
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb93d903054021fa0800000000000000
-      internalID: -5831593825031865922
+      spriteID: 781bdc9f449501190800000000000000
+      internalID: -7993791185798975097
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Marowak_0: -5831593825031865922
+      107-Hitmonchan_0: -7993791185798975097
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
