@@ -3,7 +3,8 @@
     "rootNamespace": "ProjectAscendant.Combat",
     "references": [
         "ProjectAscendant.Core",
-        "ProjectAscendant.Deck"
+        "ProjectAscendant.Deck",
+        "ProjectAscendant.Progression"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

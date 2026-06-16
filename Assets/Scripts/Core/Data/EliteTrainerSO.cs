@@ -47,12 +47,12 @@ namespace ProjectAscendant.Core
         [Tooltip("PokéDollar windfall on victory. §7.12 — Elite = 300.")]
         public int PokeDollarReward;
 
-        [Header("Rival Identity (CL-024 — §7.5.1)")]
+        [Header("Rival Identity (CL-024 — §7.5.1 + §4.3.7)")]
         [Tooltip("Is this the recurring Rival? (Blue in Gen I).")]
         public bool IsRival;
 
-        [Tooltip("Rival ace evolution species (e.g., Wartortle → Blastoise at 50% HP in R3).")]
-        public PokemonSpeciesSO RivalEvoSpecies;
+        [Tooltip("Rival ace evolution branch (e.g., Wartortle → Blastoise at 50% HP in R3). Per CL-024, uses EvolutionBranchSO so moves upgrade properly.")]
+        public EvolutionBranchSO RivalEvoBranch;
 
         [Header("Region Scaling (Rival / Giovanni — CL-024)")]
         [Tooltip("Per-Region power scaling (R1 = 2 Pokémon/2-phase → R3 = 3 Pokémon/ace 3-phase + evo).")]

@@ -1403,9 +1403,9 @@ namespace ProjectAscendant.Combat
                 if (phase <= e.LastObservedPhase) continue; // escalate forward only
 
                 // Entering Phase 2 (HP ≤ 50%) → mid-fight evolution (ace, once).
-                // Per CL-013 this never fires for Gym aces (MidFightEvolutionTarget null);
-                // retained for rival/Champion.
-                if (phase >= 2 && e.MidFightEvolutionTarget != null && !e.HasEvolvedMidFight)
+                // Per CL-013 this never fires for Gym aces (MidFightEvolutionBranch null);
+                // retained for rival/Champion. CL-024 builds the mechanic via EvolutionExecutor.
+                if (phase >= 2 && e.MidFightEvolutionBranch != null && !e.HasEvolvedMidFight)
                     EvolveMidFight(e);
 
                 // Per §4.4.4.4 (CL-013) — Entrenchment: on first reaching Phase 2 the ace hardens
@@ -1427,20 +1427,23 @@ namespace ProjectAscendant.Combat
             }
         }
 
-        // Per §4.4.4.3 — mid-fight evolution. Swaps the ace to its evolved
-        // species and preserves the HP FRACTION across the stat jump, so the
-        // evolution is a power spike (bigger effective max HP + Atk/Def) rather
-        // than an instant phase shift. Stats recompute downstream from the new
-        // Species.BaseStats; moves are unchanged in the VS.
+        // Per §4.3.7 + CL-024 — mid-fight evolution. Reuses EvolutionExecutor.Evolve
+        // (the player-side primitive) to carry move upgrades, swap the species, and
+        // preserve HP FRACTION across the stat jump. One-shot per combat.
         private void EvolveMidFight(PokemonInstance e)
         {
-            PokemonSpeciesSO target = e.MidFightEvolutionTarget;
-            if (target == null) return;
-            float frac = (float)e.CurrentHP / Mathf.Max(1, EffectiveMaxHP(e));
-            e.Species = target;
-            e.HasEvolvedMidFight = true;
-            int newMax = EffectiveMaxHP(e);
-            e.CurrentHP = Mathf.Clamp(Mathf.RoundToInt(newMax * frac), 1, newMax);
+            if (e.MidFightEvolutionBranch == null) return;
+            float hpFrac = (float)e.CurrentHP / Mathf.Max(1, EffectiveMaxHP(e));
+            ProjectAscendant.Progression.EvolutionExecutor.Result res = ProjectAscendant.Progression.EvolutionExecutor.Evolve(e, e.MidFightEvolutionBranch);
+            if (res.Evolved)
+            {
+                e.HasEvolvedMidFight = true;
+                // EvolutionExecutor already clamps HP to newMax; recompute fraction-preserving HP.
+                int newMax = EffectiveMaxHP(e);
+                e.CurrentHP = Mathf.Clamp(Mathf.RoundToInt(newMax * hpFrac), 1, newMax);
+                State.CombatLog.Add(new CombatLogEntry(CombatLogCategory.TurnEvent,
+                    $"{res.From?.DisplayName} → {res.To?.DisplayName} (mid-fight evolution!)"));
+            }
         }
 
         // MaxHP = Species.BaseStats.BaseHP + GrowthCurve.GetHPAt(Level).

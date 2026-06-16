@@ -135,6 +135,13 @@ namespace ProjectAscendant.Combat
             // unauthored slot behaves like an ordinary single-phase Pokémon.
             inst.PhaseCount = slot.PhaseCount < 1 ? 1 : slot.PhaseCount;
 
+            // Per §4.3.7 + CL-024 — if this is the Rival's ace (last Pokémon in the
+            // composition, IsRival=true, and RivalEvoBranch set), wire the mid-fight
+            // evolution branch so CombatController can evolve it at Phase 2 (≤50% HP).
+            bool isAce = _remaining.Count == 0 && _elite != null && _elite.Composition != null;
+            if (isAce && _elite.IsRival && _elite.RivalEvoBranch != null)
+                inst.MidFightEvolutionBranch = _elite.RivalEvoBranch;
+
             // Mirror TrainerBattleController/PokemonInstanceFactory: the factory
             // does not auto-fill CurrentMoves, so copy the species learnset
             // (capped at the §3.7 active-4 slot count) to give the AI candidate

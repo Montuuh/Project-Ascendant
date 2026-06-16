@@ -153,7 +153,7 @@ namespace ProjectAscendant.Tests
             Assert.That(ace.Count, Is.EqualTo(1));
             Assert.That(ace[0].PhaseCount, Is.EqualTo(3), "Ace is 3-phase (§4.4.3).");
             Assert.That(ace[0].HasSturdy, Is.True);
-            Assert.That(ace[0].MidFightEvolutionTarget, Is.Null, "CL-013: Gym aces no longer evolve.");
+            Assert.That(ace[0].MidFightEvolutionBranch, Is.Null, "CL-013: Gym aces no longer evolve.");
             Assert.That(ace[0].Level, Is.EqualTo(16));
         }
 

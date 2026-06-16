@@ -6,6 +6,16 @@
 > learnset. Engine already built (commit 7934264): `EliteTrainerSO` (RareRelicChoices, IsRival,
 > RivalEvoSpecies, RegionScaling), `EliteWildSO`, `EliteTrainerRosterSO`, weighted map-gen placement.
 
+## Decisions locked (R2/R3 pass, 2026-06-16)
+- **Boss mid-fight evolution: BUILD THE MECHANIC NOW.** It is currently unimplemented (BossPhaseTracker
+  defers it; CL-013 removed it from Gyms). Implement it as a combat feature for a flagged ace: at the
+  Phase-2 (≤50% HP) threshold the enemy evolves — reuse `EvolutionExecutor.Evolve` + the existing
+  Wartortle→Blastoise `EvolutionBranchSO`; carry HP% across, swap moveset, telegraph it. Add EditMode
+  tests. Used by the Rival R3 ace (and reserved for Champion). Cite §4.3.7.
+- **Specialist depth: ONE specialist per Region.** R2 = Karate King (Hitmonchan + Primeape); R3 =
+  Cooltrainer (Dewgong + Cloyster). Roster: R2 Rival 60 / Karate-King 40; R3 Rival 40 / Giovanni 30 /
+  Cooltrainer 30. (Channeler/others deferred — can expand the sub-pool later.)
+
 ## Decisions locked
 - **Marowak's Spirit catch → recruit a LIVING Ground-type Marowak** (+ a **Thick Club** held item, Marowak-only, +50% Melee). Not a "lay to rest → relic".
 - **Pillar-1/2 fixes (apply during authoring):** deterministic multi-hit counts — Fury Swipes=3, Icicle Spear/Spike Cannon=5, Bonemerang=2, Thrash=fixed 2 turns. Dugtrio passive = **Sand Veil** (NOT Arena Trap). Snorlax **Rest heal capped 50% MaxHP**. Marowak's Spirit **Curse = 25% self-HP** (not 50%).

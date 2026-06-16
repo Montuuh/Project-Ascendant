@@ -286,7 +286,7 @@ namespace ProjectAscendant.EditorSetup
             rival.PokeDollarReward = 300;
 
             rival.IsRival = true;
-            rival.RivalEvoSpecies = null; // R1 = 2-phase, no mid-fight evo
+            rival.RivalEvoBranch = null; // R1 = 2-phase, no mid-fight evo
 
             // Per §7.5.1 — Rival scales by Region. R1 = 2 Pokémon, 2-phase.
             rival.RegionScaling = new List<EliteRegionScaling>
@@ -334,7 +334,7 @@ namespace ProjectAscendant.EditorSetup
             specialist.TrainerXPReward = 25;
             specialist.PokeDollarReward = 300;
             specialist.IsRival = false;
-            specialist.RivalEvoSpecies = null;
+            specialist.RivalEvoBranch = null;
             specialist.RegionScaling = new List<EliteRegionScaling>();
             specialist.GDDReference = "§7.5.1 — Specialist R1 (Ace Trainer)";
             EditorUtility.SetDirty(specialist);

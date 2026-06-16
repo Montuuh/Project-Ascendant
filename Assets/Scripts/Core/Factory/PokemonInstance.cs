@@ -66,10 +66,10 @@ namespace ProjectAscendant.Core
         // transient — reset at the start of every combat.
         public int ShieldHP;
 
-        // Per §4.4.4.3 — mid-fight evolution: the ace evolves into this species
-        // on entering Phase 2 (HP <= 50%). Null = no mid-fight evolution.
+        // Per §4.3.7 + CL-024 — mid-fight evolution: the ace evolves via this
+        // branch on entering Phase 2 (HP <= 50%). Null = no mid-fight evolution.
         // Per CL-013, Gym aces never set this (rival/Champion only).
-        public PokemonSpeciesSO MidFightEvolutionTarget;
+        public EvolutionBranchSO MidFightEvolutionBranch;
         public bool HasEvolvedMidFight;
 
         // Per §4.4.4.4 (CL-013) — the Gym ace's Phase-2 signature archetype. None for
@@ -102,7 +102,7 @@ namespace ProjectAscendant.Core
             LastObservedPhase = 1;
             HasSturdy = false;
             SturdyConsumed = false;
-            MidFightEvolutionTarget = null;
+            MidFightEvolutionBranch = null;
             HasEvolvedMidFight = false;
             Phase2Archetype = Phase2Archetype.None;
             ShieldHP = 0; // §8.3.7 (CL-021) — combat-transient; never carried between nodes on a save-restore

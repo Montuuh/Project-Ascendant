@@ -80,6 +80,16 @@ namespace ProjectAscendant.Tests
             return s;
         }
 
+        // CL-024 — synthetic mid-fight evolution branch whose EvolvedSpecies is `evolved`.
+        // EvolutionExecutor.Evolve sets instance.Species = branch.EvolvedSpecies (§4.3.7).
+        private EvolutionBranchSO Branch(PokemonSpeciesSO evolved)
+        {
+            EvolutionBranchSO b = ScriptableObject.CreateInstance<EvolutionBranchSO>();
+            b.EvolvedSpecies = evolved;
+            _disposables.Add(b);
+            return b;
+        }
+
         private sealed class PassiveAgent : IPlayerAgent
         {
             public int PickLeadReplacement(CombatController.CombatState s,
@@ -116,7 +126,7 @@ namespace ProjectAscendant.Tests
             PokemonInstance ace = new()
             {
                 Species = baseSp, Level = 1, CurrentHP = 50, // 50% → Phase 2
-                PhaseCount = 3, MidFightEvolutionTarget = evolved,
+                PhaseCount = 3, MidFightEvolutionBranch = Branch(evolved),
             };
             ace.CurrentMoves.Add(Mk(40));
             PokemonInstance lead = new() { Species = Species(100), Level = 1, CurrentHP = 100 };
@@ -138,7 +148,7 @@ namespace ProjectAscendant.Tests
             PokemonInstance ace = new()
             {
                 Species = baseSp, Level = 1, CurrentHP = 50,
-                PhaseCount = 3, MidFightEvolutionTarget = evolved,
+                PhaseCount = 3, MidFightEvolutionBranch = Branch(evolved),
             };
             ace.CurrentMoves.Add(Mk(40));
             CombatController c = BuildWithEnemy(ace, new() { Species = Species(100), Level = 1, CurrentHP = 100 });
@@ -157,7 +167,7 @@ namespace ProjectAscendant.Tests
             PokemonInstance ace = new()
             {
                 Species = baseSp, Level = 1, CurrentHP = 80, // 80% → Phase 1
-                PhaseCount = 3, MidFightEvolutionTarget = Species(200),
+                PhaseCount = 3, MidFightEvolutionBranch = Branch(Species(200)),
             };
             ace.CurrentMoves.Add(Mk(40));
             CombatController c = BuildWithEnemy(ace, new() { Species = Species(100), Level = 1, CurrentHP = 100 });
@@ -198,7 +208,7 @@ namespace ProjectAscendant.Tests
             PokemonInstance e = new()
             {
                 Species = Species(100), Level = 1, CurrentHP = 10, // 10%
-                PhaseCount = 1, MidFightEvolutionTarget = Species(200),
+                PhaseCount = 1, MidFightEvolutionBranch = Branch(Species(200)),
             };
             e.CurrentMoves.Add(sig);
             e.SetMoveCooldown(sig, 2);
