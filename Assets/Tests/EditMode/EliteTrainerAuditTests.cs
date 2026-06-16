@@ -56,14 +56,15 @@ namespace ProjectAscendant.Tests
             return set;
         }
 
-        // ── VS ships exactly one R1 Elite (§7.13) ────────────────────────────
+        // ── VS ships R1 Elite roster (§7.5.1 CL-024) ─────────────────────────
+        // Per CL-024, Elite nodes use weighted rosters. VS R1 = Rival + Specialist.
 
         [Test]
-        public void Library_HasExactlyOneEliteForVS()
+        public void Library_HasExactlyTwoElitesForVS()
         {
             EliteTrainerSO[] elites = LoadAllElites();
-            Assert.That(elites.Length, Is.EqualTo(1),
-                "Per §7.13 the VS ships exactly one Elite Trainer; found "
+            Assert.That(elites.Length, Is.EqualTo(2),
+                "Per §7.5.1 (CL-024) the VS ships Rival + Specialist Elite; found "
                 + elites.Length);
         }
 

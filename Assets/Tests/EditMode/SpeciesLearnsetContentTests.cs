@@ -42,12 +42,15 @@ namespace ProjectAscendant.Tests
 
         [Test]
         // §5.12.1 — base forms start with 2 moves: no more than two learnset entries at L<=1.
+        // Final forms (EvolveLevel==0 OR Branches empty) and boss-wilds are exempt.
         public void Learnset_StartsWithAtMostTwoMovesAtLevelOne()
         {
             List<string> violations = new();
             foreach (PokemonSpeciesSO s in AllSpecies())
             {
                 if (s.LevelUpLearnset == null || s.LevelUpLearnset.Count == 0) continue;
+                // Skip final forms (EvolveLevel==0) and boss-wilds (no evolution, full kit).
+                if (s.EvolveLevel == 0 && (s.Branches == null || s.Branches.Count == 0)) continue;
                 int atOne = 0;
                 foreach (LevelUpEntry e in s.LevelUpLearnset) if (e.Level <= 1) atOne++;
                 if (atOne > 2) violations.Add($"{s.SpeciesId}: {atOne} moves at L<=1 (expected <=2)");

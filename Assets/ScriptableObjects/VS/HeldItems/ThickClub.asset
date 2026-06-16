@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f805ffc51a39ea24bbcb470f73fc5ce8, type: 3}
+  m_Name: ThickClub
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.HeldItemSO
+  Id: thick_club
+  DisplayName: Thick Club
+  Icon: {fileID: 0}
+  EffectDescription: Marowak-only. +50% Melee damage.
+  BoostsType: 0
+  WearerDamageMultiplier: 1.5
+  LeftoversRegenDivisor: 0
+  GrantsLeadAura: 0
+  LeadAuraType: 0
+  OnEquipHook: {fileID: 0}
+  EventHooks: []
+  GDDReference: "\xA77.5.2 \u2014 Thick Club (Marowak-only, +50% Melee)"

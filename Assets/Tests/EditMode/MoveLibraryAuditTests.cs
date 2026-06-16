@@ -60,11 +60,15 @@ namespace ProjectAscendant.Tests
         {
             var bad = new List<string>();
             foreach (MoveSO m in LoadAllMoves())
+            {
+                // Skip non-damaging moves (BasePower=0) — multiplier is irrelevant.
+                if (m.BasePower == 0) continue;
                 if (m.Range == MoveRange.Ranged
                     && !UnityEngine.Mathf.Approximately(m.RangeModifierMultiplier, 0.75f))
                     bad.Add($"{m.MoveId} mult={m.RangeModifierMultiplier:F3}");
+            }
             Assert.That(bad, Is.Empty,
-                "Per §9.3.2.2 — Ranged moves use a 0.75 RangeModifierMultiplier.\n"
+                "Per §9.3.2.2 — Ranged damaging moves use a 0.75 RangeModifierMultiplier.\n"
                 + "Offenders:\n  " + string.Join("\n  ", bad));
         }
 

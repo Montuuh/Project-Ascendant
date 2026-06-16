@@ -28,9 +28,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 968089b2d9e448d49815fd53ae06372d, type: 2}
   - {fileID: 11400000, guid: 39dd3126e7666294e9f1f73824273091, type: 2}
   EliteRosters:
+  - {fileID: 11400000, guid: 57653427c7541f140b7b1b3b952b2a68, type: 2}
   - {fileID: 11400000, guid: 4143c5aef75473845967a8575ac1bceb, type: 2}
   EliteWilds:
   - {fileID: 11400000, guid: 637a357096e54d141a33b48be63c36a1, type: 2}
+  - {fileID: 11400000, guid: 44192fe1ed6fa974fbe5b2207261563b, type: 2}
+  - {fileID: 11400000, guid: 3427f501b61574a44af3bd7ab549093d, type: 2}
   GymPool:
   - {fileID: 11400000, guid: 1c5067fbe20414948b26b5a4251a00b9, type: 2}
   - {fileID: 11400000, guid: 91292087e44c6a247a54dcce6167256f, type: 2}
@@ -80,6 +83,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2c74a757f70f0f143816cec748bda7ae, type: 2}
   - {fileID: 11400000, guid: 288f1dc1655021a46b04102888d5105c, type: 2}
   - {fileID: 11400000, guid: 2246837e5c87c9648ad545aedb22b95f, type: 2}
+  - {fileID: 11400000, guid: 25c25c2267e6d934395e671d76222b80, type: 2}
   TMs:
   - {fileID: 11400000, guid: 7b19fcebc3d6d9e438cc325f4c6b756c, type: 2}
   - {fileID: 11400000, guid: c70b5acbd2c90894f9e2437285b23770, type: 2}

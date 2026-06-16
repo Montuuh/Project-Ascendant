@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2ee2a8ffc062644821147de84d9b26, type: 3}
+  m_Name: Marowak
+  m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.PokemonSpeciesSO
+  SpeciesId: 105
+  DisplayName: Marowak
+  Types: 08000000
+  BaseStats:
+    BaseHP: 60
+    BaseAtk: 80
+    BaseDef: 70
+    BaseSpd: 45
+  GrowthCurve: {fileID: 0}
+  Branches: []
+  EvolveLevel: 0
+  BaseLearnset: []
+  LevelUpLearnset:
+  - Level: 1
+    Move: {fileID: 11400000, guid: 8597416f6dd2d034883bfecad61b986a, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: e1b9ad2c4566fd549812edb9a9b0977f, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: 9b63401ecab620041a7b3fadddff6ba0, type: 2}
+  - Level: 1
+    Move: {fileID: 11400000, guid: 4ccefcc01fa93b347a38529a8a3d7004, type: 2}
+  TutorLearnset: []
+  TMCompatibility: []
+  AvailableAbilities:
+  - {fileID: 11400000, guid: bc027cd19cd80cc4994faa43e66a7667, type: 2}
+  PrimaryAbility: {fileID: 0}
+  MasteryMove: {fileID: 0}
+  StatusImmunities: 
+  WildRarity: 2
+  SpawnBiomes: 
+  Portrait: {fileID: 21300000, guid: fc4aea6130c02174cb457452d3b55721, type: 3}
+  GDDReference: "\xA77.5.2 \u2014 Marowak (Ground, recruited from Marowak's Spirit
+    catch)"

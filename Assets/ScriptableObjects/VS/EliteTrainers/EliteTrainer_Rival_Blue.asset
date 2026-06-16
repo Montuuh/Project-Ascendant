@@ -10,21 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 55982a9421b56f848849c8aa798bdfca, type: 3}
-  m_Name: ace_trainer_r1
+  m_Name: EliteTrainer_Rival_Blue
   m_EditorClassIdentifier: ProjectAscendant.Core::ProjectAscendant.Core.EliteTrainerSO
-  EliteId: ace_trainer_r1
-  DisplayName: Ace Trainer
+  EliteId: RIVAL_BLUE
+  DisplayName: Blue
   TrainerSprite: {fileID: 0}
-  TacticalIdentity: "No type lock \u2014 fields evolved Pok\xE9mon of mixed types.
-    Pidgeotto opens with tempo chip and Feather Dance to shred Attack; Ivysaur sets
-    up with Leech Seed / status, then escalates. At or below 50% HP each Pok\xE9mon
-    abandons setup and presses for damage (Phase 2)."
+  TacticalIdentity: Balanced multi-type. Recurring antagonist.
   Composition:
   - Species: {fileID: 11400000, guid: 262430a8c293ae84298046d92ee493aa, type: 2}
-    Level: 12
+    Level: 13
     PhaseCount: 2
   - Species: {fileID: 11400000, guid: cd2d3cba28dcbb34f9d34f259b0e42a0, type: 2}
-    Level: 13
+    Level: 14
     PhaseCount: 2
   RareRelicChoices:
   - {fileID: 11400000, guid: 547e66e28e15fdc40ae98c362d8e69e6, type: 2}
@@ -32,8 +29,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 11efe1c9ab05a1d41923b80cea9ac42a, type: 2}
   TrainerXPReward: 25
   PokeDollarReward: 300
-  IsRival: 0
+  IsRival: 1
   RivalEvoSpecies: {fileID: 0}
-  RegionScaling: []
-  GDDReference: "\xA77.5.1 | R1 Elite \u2014 bespoke Ace Trainer, no type lock, 2\xD72-phase.
-    See \u26A0 OPEN gap #31 (Ace Trainer pool R3-only)."
+  RegionScaling:
+  - RegionIndex: 0
+    PokemonCount: 2
+    AcePhaseCount: 2
+  GDDReference: "\xA77.5.1 \u2014 Rival Blue (R1 Elite Trainer)"
