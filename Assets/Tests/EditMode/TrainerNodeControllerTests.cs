@@ -71,7 +71,8 @@ namespace ProjectAscendant.Tests
             {
                 new() { Species = MakeSpecies("elite_p"), Level = 12, PhaseCount = phaseCount },
             };
-            e.GuaranteedRelic = relic;
+            // TODO CL-024: RareRelicChoices (1 of 3).
+            e.RareRelicChoices = new List<RelicSO> { relic, relic, relic };
             e.TrainerXPReward = xp;
             e.PokeDollarReward = dollars;
             return e;

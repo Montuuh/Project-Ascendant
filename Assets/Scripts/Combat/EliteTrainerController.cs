@@ -97,9 +97,9 @@ namespace ProjectAscendant.Combat
             return preview;
         }
 
-        // Per §7.5.1 / §7.12 — guaranteed reward, no RNG. Returns Empty for any
-        // outcome other than Victory. The single relic is the authored
-        // GuaranteedRelic (designer-verified Uncommon-tier via the audit test).
+        // Per §7.5.1 / §7.12 (CL-024) — guaranteed reward, no RNG. Returns Empty for any
+        // outcome other than Victory. The Elite Trainer's Rare-relic choice (1 of 3) is
+        // built into the bundle; EliteNodeController opens the choice panel post-combat.
         public TrainerRewardBundle ResolveReward(CombatController.CombatOutcome outcome)
         {
             TrainerRewardBundle bundle = TrainerRewardBundle.Empty;
@@ -108,8 +108,13 @@ namespace ProjectAscendant.Combat
 
             bundle.TrainerXP = _elite.TrainerXPReward;
             bundle.PokeDollars = _elite.PokeDollarReward;
-            if (_elite.GuaranteedRelic != null)
-                bundle.RelicDrops.Add(_elite.GuaranteedRelic);
+
+            // Per §7.5.1 (CL-024) — the 3 Rare relics go into the bundle; EliteNodeController
+            // handles the 1-of-3 choice via RelicChoicePanelUI after combat.
+            if (_elite.RareRelicChoices != null)
+                foreach (RelicSO relic in _elite.RareRelicChoices)
+                    if (relic != null)
+                        bundle.RelicDrops.Add(relic);
 
             return bundle;
         }

@@ -44,6 +44,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e1b9ad2c4566fd549812edb9a9b0977f, type: 2}
   - {fileID: 11400000, guid: 10fbbbb27efc6e34ea3d9bb246b74596, type: 2}
   TMCompatibility: []
+  AvailableAbilities: []
   PrimaryAbility: {fileID: 0}
   MasteryMove: {fileID: 11400000, guid: b1ec5a849aa2e27439d9a5630ae95a4c, type: 2}
   StatusImmunities: 

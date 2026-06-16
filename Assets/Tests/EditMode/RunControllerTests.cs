@@ -115,11 +115,15 @@ namespace ProjectAscendant.Tests
             archetype.RelicLootTable = new List<RelicSO>();
             archetype.ConsumableLootTable = new List<ConsumableSO>();
 
-            // Elite
+            // Elite (CL-024: roster pattern)
             EliteTrainerSO elite = Make<EliteTrainerSO>();
             elite.EliteId = "ace_r1";
             elite.Composition = new List<ElitePokemonSlot> { new() { Species = MakeSpecies("ep"), Level = 12, PhaseCount = 2 } };
-            elite.GuaranteedRelic = Make<RelicSO>(); elite.TrainerXPReward = 25; elite.PokeDollarReward = 300;
+            elite.RareRelicChoices = new List<RelicSO> { Make<RelicSO>(), Make<RelicSO>(), Make<RelicSO>() };
+            elite.TrainerXPReward = 25; elite.PokeDollarReward = 300;
+            EliteTrainerRosterSO roster = Make<EliteTrainerRosterSO>();
+            roster.RegionIndex = 0;
+            roster.OccupantPool = new List<EliteOccupantEntry> { new() { Occupant = elite, Weight = 100f } };
 
             // Shop
             RegionShopConfigSO shopConfig = Make<RegionShopConfigSO>();
@@ -179,7 +183,8 @@ namespace ProjectAscendant.Tests
                 Pokeball = Make<ConsumableSO>(),
                 BoxOverflow = new AutoSkipBoxOverflowHandler(),
                 ArchetypePool = new List<TrainerArchetypeSO> { archetype },
-                EliteSO = elite,
+                EliteRosters = new List<EliteTrainerRosterSO> { roster },
+                EliteWilds = new List<EliteWildSO>(),
                 ShopConfig = shopConfig,
                 ShopPools = shopPools,
                 MysteryPool = new List<MysteryEventSO> { berry },

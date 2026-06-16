@@ -36,9 +36,14 @@ namespace ProjectAscendant.Map
         public ConsumableSO Pokeball;
         public IBoxOverflowHandler BoxOverflow;
 
-        // ── Trainer / Elite (9.4) ────────────────────────────────────────────
+        // ── Trainer / Elite (9.4 + CL-024) ───────────────────────────────────
         public IReadOnlyList<TrainerArchetypeSO> ArchetypePool;
-        public EliteTrainerSO EliteSO;
+
+        // Per §7.5.1 (CL-024) — Elite Trainer RNG-weighted rosters per Region.
+        public IReadOnlyList<EliteTrainerRosterSO> EliteRosters;
+
+        // Per §7.5.2 (CL-024) — Elite Wild pool (boss-wild catch-vs-kill).
+        public IReadOnlyList<EliteWildSO> EliteWilds;
 
         // ── Shop (9.6) ───────────────────────────────────────────────────────
         public RegionShopConfigSO ShopConfig;
@@ -84,8 +89,9 @@ namespace ProjectAscendant.Map
             factory.Register(NodeType.Trainer, (node, run) => new TrainerBattleNodeController(
                 node, run, ArchetypePool, PokemonFactory, Streams.LootRNG, Streams.LootRNG, Economy));
 
+            // Per §7.5.1 (CL-024) — Elite occupant resolved at map-gen (stored in node.EliteTrainerOccupant).
             factory.Register(NodeType.Elite, (node, run) => new EliteNodeController(
-                node, run, EliteSO, PokemonFactory, Economy));
+                node, run, node.EliteTrainerOccupant, PokemonFactory, Economy));
 
             factory.Register(NodeType.Center, (node, run) => new PokemonCenterNodeController(
                 node, run, Box, Economy));
@@ -105,6 +111,10 @@ namespace ProjectAscendant.Map
             // Per §7.14 (CL-009) — Dojo node: teach moves / abilities for Poké Dollars.
             factory.Register(NodeType.Dojo, (node, run) => new DojoNodeController(
                 node, run, Box, Economy));
+
+            // Per §7.5.2 (CL-024) — Elite Wild node: boss-wild catch-vs-kill (≤1/Region, not guaranteed).
+            factory.Register(NodeType.EliteWild, (node, run) => new EliteWildNodeController(
+                node, run, node.EliteWildOccupant, PokemonFactory, Pokeball, Streams.EncounterRNG, Box, BoxOverflow, Economy));
         }
     }
 }

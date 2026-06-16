@@ -65,9 +65,11 @@ namespace ProjectAscendant.Editor
                     new ElitePokemonSlot { Species = pidgeotto, Level = 12, PhaseCount = 2 },
                     new ElitePokemonSlot { Species = ivysaur,   Level = 13, PhaseCount = 2 },
                 };
-                elite.GuaranteedRelic = relic;   // Uncommon-tier (audit-verified)
+                // Per §7.5.1 (CL-024) — Rare-relic choice (1 of 3). Placeholder: 3 copies of same relic.
+                elite.RareRelicChoices = new List<RelicSO> { relic, relic, relic };
                 elite.TrainerXPReward = 25;      // §7.12
                 elite.PokeDollarReward = 300;    // §7.12
+                elite.IsRival = false;           // CL-024 — this is the 20% specialist, not Rival
                 elite.GDDReference =
                     "§7.5.1 | R1 Elite — bespoke Ace Trainer, no type lock, 2×2-phase. "
                     + "See ⚠ OPEN gap #31 (Ace Trainer pool R3-only).";

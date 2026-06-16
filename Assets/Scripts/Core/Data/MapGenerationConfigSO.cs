@@ -42,6 +42,11 @@ namespace ProjectAscendant.Core
         // One entry per layer. Weights are relative — not probabilities. Forced types are excluded
         // at sample time.
         public List<NodeLayerWeights> LayerWeights;
+
+        [Header("Elite Wild Placement — §7.5.2 (CL-024)")]
+        [Tooltip("Per §7.5.2 — probability of placing ONE Elite Wild node per Region (≤1, not guaranteed). 0.5 = 50% chance.")]
+        [Range(0f, 1f)]
+        public float EliteWildPlacementChance = 0.5f;
     }
 
     // How a forced node type is distributed within a layer.

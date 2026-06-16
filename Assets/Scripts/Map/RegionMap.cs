@@ -20,6 +20,14 @@ namespace ProjectAscendant.Map
         // Per §7.2 v2 — for Gym nodes, which gym from the pool (0-based index). -1 for non-Gym nodes.
         public int GymIndex = -1;
 
+        // Per §7.5.1 (CL-024) — RNG-weighted Elite Trainer occupant (Rival / Giovanni / Specialist).
+        // Resolved at map-gen via RegionMapGenerator.ResolveEliteOccupant.
+        public EliteTrainerSO EliteTrainerOccupant;
+
+        // Per §7.5.2 (CL-024) — Elite Wild occupant (Snorlax OR Marowak's Spirit in R1).
+        // Resolved at map-gen for the seeded EliteWild node (≤1/Region, not guaranteed).
+        public EliteWildSO EliteWildOccupant;
+
         // Per §7.2 v2 — transient generation flag: this node's type was force-stamped (Wild entry,
         // Elite, Center, Gym) and must not be rerolled by the no-adjacent-same-type pass. Not persisted.
         public bool Forced;

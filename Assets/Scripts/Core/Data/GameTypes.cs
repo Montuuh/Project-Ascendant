@@ -43,7 +43,8 @@ namespace ProjectAscendant.Core
     // Per §7.2.1 — Elite is a distinct map node (always Layer 3). Appended last to keep
     // the serialized int values of Wild..Gym (0..5) stable for existing assets.
     // Per §7.14 (CL-009) — Dojo appended after Elite; existing serialized values unchanged.
-    public enum NodeType { Wild, Trainer, Center, Shop, Mystery, Gym, Elite, Dojo }
+    // Per §7.5.2 (CL-024) — EliteWild appended last for serialization stability.
+    public enum NodeType { Wild, Trainer, Center, Shop, Mystery, Gym, Elite, Dojo, EliteWild }
 
     // Per §7.9.3 + Epic 9 Task 9.7.5 — Mystery Event risk badge (🟢 Safe / 🟡 Tradeoff / 🔴 Gamble).
     public enum MysteryRiskProfile { Safe, Tradeoff, Gamble }

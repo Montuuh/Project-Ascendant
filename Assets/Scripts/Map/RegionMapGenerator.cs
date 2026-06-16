@@ -18,14 +18,16 @@ namespace ProjectAscendant.Map
     public static class RegionMapGenerator
     {
         public static RegionMap Generate(MapGenerationConfigSO config, uint runSeed, int regionIndex,
-            IReadOnlyList<GymLeaderSO> gymPool = null)
+            IReadOnlyList<GymLeaderSO> gymPool = null, IReadOnlyList<EliteTrainerRosterSO> eliteRosters = null,
+            IReadOnlyList<EliteWildSO> eliteWilds = null)
         {
             uint seed = runSeed ^ RNGStreams.FNV1a("MapRNG") ^ (uint)regionIndex;
-            return Generate(config, new GameRNG(seed), regionIndex, gymPool);
+            return Generate(config, new GameRNG(seed), regionIndex, gymPool, eliteRosters, eliteWilds);
         }
 
         public static RegionMap Generate(MapGenerationConfigSO config, GameRNG rng, int regionIndex,
-            IReadOnlyList<GymLeaderSO> gymPool = null)
+            IReadOnlyList<GymLeaderSO> gymPool = null, IReadOnlyList<EliteTrainerRosterSO> eliteRosters = null,
+            IReadOnlyList<EliteWildSO> eliteWilds = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (rng == null) throw new ArgumentNullException(nameof(rng));
@@ -36,6 +38,13 @@ namespace ProjectAscendant.Map
             List<List<MapNode>> layers = BuildSkeleton(config, specs, rng);
             EnforceNoAdjacentSameType(config, layers, rng);
             WireConnections(config, layers, rng);
+
+            // Per §7.5.1 (CL-024) — resolve Elite Trainer occupants from weighted roster.
+            ResolveEliteOccupants(layers, regionIndex, eliteRosters, rng);
+
+            // Per §7.5.2 (CL-024) — seeded Elite Wild placement (≤1/Region, Apex-node model §4.5.1.2).
+            TryPlaceEliteWild(layers, config, eliteWilds, rng);
+
             List<GymLeaderSO> chosenGyms = AssignGyms(layers, gymPool, rng);
             return new RegionMap(regionIndex, layers, chosenGyms);
         }
@@ -350,6 +359,88 @@ namespace ProjectAscendant.Map
                 gyms[i].GymIndex = i;
 
             return chosenGyms;
+        }
+
+        // ── Elite Trainer occupant resolution ────────────────────────────────
+
+        // Per §7.5.1 (CL-024) — weighted pick from EliteTrainerRosterSO for each Elite node.
+        // Deterministic: same (seed, regionIndex) → same occupant.
+        private static void ResolveEliteOccupants(List<List<MapNode>> layers, int regionIndex,
+            IReadOnlyList<EliteTrainerRosterSO> eliteRosters, GameRNG rng)
+        {
+            if (eliteRosters == null || eliteRosters.Count == 0) return;
+
+            // Find the roster for this region.
+            EliteTrainerRosterSO roster = null;
+            foreach (var r in eliteRosters)
+                if (r != null && r.RegionIndex == regionIndex)
+                {
+                    roster = r;
+                    break;
+                }
+
+            if (roster == null || roster.OccupantPool == null || roster.OccupantPool.Count == 0)
+                return;
+
+            // Build weighted options from the roster.
+            List<(EliteTrainerSO occupant, float weight)> options = new();
+            foreach (var entry in roster.OccupantPool)
+                if (entry.Occupant != null && entry.Weight > 0f)
+                    options.Add((entry.Occupant, entry.Weight));
+
+            if (options.Count == 0) return;
+
+            // Walk all layers, find Elite nodes, assign occupant.
+            foreach (var layer in layers)
+                foreach (var node in layer)
+                    if (node.NodeType == NodeType.Elite)
+                        node.EliteTrainerOccupant = rng.PickWeighted(options);
+        }
+
+        // ── Elite Wild special-node placement ────────────────────────────────
+
+        // Per §7.5.2 (CL-024) — seeded Elite Wild placement (≤1/Region, not guaranteed).
+        // Modelled on Apex node (§4.5.1.2): roll EliteWildPlacementChance; if hit, stamp
+        // ONE mid/late-trunk non-forced node as NodeType.EliteWild, weighted-pick occupant.
+        // Deterministic: same seed → same placement + occupant (or none).
+        private static void TryPlaceEliteWild(List<List<MapNode>> layers, MapGenerationConfigSO config,
+            IReadOnlyList<EliteWildSO> eliteWilds, GameRNG rng)
+        {
+            if (eliteWilds == null || eliteWilds.Count == 0) return;
+            if (config.EliteWildPlacementChance <= 0f) return;
+
+            // Roll placement.
+            if (rng.Range01() > config.EliteWildPlacementChance) return;
+
+            // Find eligible nodes: mid/late trunk (L4–L8 for a 12-layer map), non-forced, not Gym/Elite.
+            List<MapNode> candidates = new();
+            int midLayer = layers.Count / 3; // ≈L4 for 12-layer
+            int lateLayer = layers.Count - 4; // ≈L8 for 12-layer
+            for (int l = midLayer; l <= lateLayer && l < layers.Count; l++)
+            {
+                foreach (var node in layers[l])
+                {
+                    if (node.Forced) continue;
+                    if (node.NodeType == NodeType.Gym || node.NodeType == NodeType.Elite) continue;
+                    candidates.Add(node);
+                }
+            }
+
+            if (candidates.Count == 0) return;
+
+            // Pick one candidate.
+            MapNode chosen = candidates[rng.Range(0, candidates.Count)];
+            chosen.NodeType = NodeType.EliteWild;
+
+            // Weighted-pick occupant from the EliteWilds pool.
+            // All EliteWildSO carry equal implicit weight 1.0 for the VS (R1 pool: Snorlax OR Marowak's Spirit).
+            List<(EliteWildSO wild, float weight)> options = new();
+            foreach (var wild in eliteWilds)
+                if (wild != null)
+                    options.Add((wild, 1.0f));
+
+            if (options.Count > 0)
+                chosen.EliteWildOccupant = rng.PickWeighted(options);
         }
 
         // ── Helpers ──────────────────────────────────────────────────────────

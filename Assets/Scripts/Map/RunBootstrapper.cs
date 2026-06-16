@@ -89,7 +89,9 @@ namespace ProjectAscendant.Map
                 Pokeball = catalog.Pokeball,
                 BoxOverflow = new AutoSkipBoxOverflowHandler(),
                 ArchetypePool = catalog.Archetypes,
-                EliteSO = catalog.Elite,
+                // Per §7.5.1 (CL-024) — Elite Trainer roster replaces single Elite; placeholder stub.
+                EliteRosters = catalog.EliteRosters ?? new List<EliteTrainerRosterSO>(),
+                EliteWilds = catalog.EliteWilds ?? new List<EliteWildSO>(),
                 ShopConfig = catalog.ShopConfig,
                 ShopPools = new RegionShopNodeController.ShopItemPools
                 {

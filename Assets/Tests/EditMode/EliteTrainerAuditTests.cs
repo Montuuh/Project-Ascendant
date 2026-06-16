@@ -182,19 +182,23 @@ namespace ProjectAscendant.Tests
         public void AllElites_HaveGuaranteedUncommonRelic()
         {
             var bad = new List<string>();
+            // TODO CL-024: audit RareRelicChoices (3 Rare-tier relics, not 1 Uncommon).
             foreach (EliteTrainerSO e in LoadAllElites())
             {
-                if (e.GuaranteedRelic == null)
+                if (e.RareRelicChoices == null || e.RareRelicChoices.Count != 3)
                 {
-                    bad.Add($"{e.EliteId} has no GuaranteedRelic");
+                    bad.Add($"{e.EliteId} has {e.RareRelicChoices?.Count ?? 0} RareRelicChoices, expected 3");
                     continue;
                 }
-                if (e.GuaranteedRelic.Rarity != RarityTier.Uncommon)
-                    bad.Add($"{e.EliteId} relic {e.GuaranteedRelic.DisplayName} is "
-                        + $"{e.GuaranteedRelic.Rarity}, not Uncommon");
+                foreach (RelicSO r in e.RareRelicChoices)
+                {
+                    if (r == null) bad.Add($"{e.EliteId} has null relic in RareRelicChoices");
+                    else if (r.Rarity != RarityTier.Rare)
+                        bad.Add($"{e.EliteId} relic {r.DisplayName} is {r.Rarity}, not Rare");
+                }
             }
             Assert.That(bad, Is.Empty,
-                "Per §7.5.1 the Elite drops one GUARANTEED Uncommon relic.\n  "
+                "Per §7.5.1 (CL-024) the Elite offers 3 Rare relics (choice of 1).\n  "
                 + string.Join("\n  ", bad));
         }
 

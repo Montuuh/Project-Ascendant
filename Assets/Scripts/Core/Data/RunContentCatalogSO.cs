@@ -27,7 +27,12 @@ namespace ProjectAscendant.Core
 
         [Header("Encounters")]
         public List<TrainerArchetypeSO> Archetypes;
-        public EliteTrainerSO Elite;
+
+        [Tooltip("Per §7.5.1 (CL-024) — weighted Elite Trainer roster per Region. Replaced single Elite.")]
+        public List<EliteTrainerRosterSO> EliteRosters;
+
+        [Tooltip("Per §7.5.2 (CL-024) — Elite Wild pool (boss-wild catch-vs-kill). R1: Snorlax, Marowak's Spirit.")]
+        public List<EliteWildSO> EliteWilds;
 
         [Tooltip("Per §7.2 v2 — gym pool for 2-gym fork. Falls back to single Gym if <2 entries.")]
         public List<GymLeaderSO> GymPool;

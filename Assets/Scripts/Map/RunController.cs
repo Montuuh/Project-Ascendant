@@ -60,7 +60,9 @@ namespace ProjectAscendant.Map
         // Generates the Region map from the MapRNG stream and boots the run into Map View.
         public void StartRun(int regionIndex = 0)
         {
-            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex, _ctx.GymPool);
+            // Per §7.5.1/§7.5.2 (CL-024) — Elite Trainer rosters + Elite Wild pool.
+            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex,
+                _ctx.GymPool, _ctx.EliteRosters, _ctx.EliteWilds);
             _ctx.CurrentMap = Map; // Per §7.2 v2 — context needs map to resolve gyms.
             _ctx.Run.CurrentRegionIndex = regionIndex;
             // §7.3.4 (Option 1) — Pokéball grant: starting stock on region 0, +PerRegion on later regions.
@@ -88,7 +90,8 @@ namespace ProjectAscendant.Map
             if (_ctx.Run == null) return false;
 
             int regionIndex = _ctx.Run.CurrentRegionIndex;
-            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex, _ctx.GymPool);
+            Map = RegionMapGenerator.Generate(_ctx.MapConfig, _ctx.Streams.MapRNG, regionIndex,
+                _ctx.GymPool, _ctx.EliteRosters, _ctx.EliteWilds);
             _ctx.CurrentMap = Map; // Per §7.2 v2 — context needs map to resolve gyms.
             RunOver = false;
             Outcome = null;

@@ -5,15 +5,14 @@ using ProjectAscendant.Combat;
 
 namespace ProjectAscendant.Map
 {
-    // Per §7.5 + Epic 9 Task 9.4 — the Elite Trainer node controller (Layer 3, NodeType.Elite).
+    // Per §7.5.1 + Epic 9 Task 9.4 (CL-024) — the Elite Trainer node controller.
     //
-    // A thin run-layer shell over Epic-8 EliteTrainerController (gap #31 resolution: the Elite is
-    // its own node type, not folded into the Trainer node — its 2-phase composition and guaranteed
-    // Uncommon-relic reward are distinct from standard-trainer loot tables).
+    // A thin run-layer shell over Epic-8 EliteTrainerController. The Elite fields 2 Pokémon (2-phase),
+    // rewards 3 Rare relics (player chooses 1 of 3), and grants 25 XP + 300₽.
     //
     //   • BuildCombat: EliteTrainerController.BuildCombatSetup (sequential 2-phase spawn) + run Badges.
-    //   • ResolveCombat: on Victory apply the guaranteed reward (§7.5.1/§7.12) and Complete (→ MapView);
-    //     on Defeat Complete PlayerWiped (→ run-failure).
+    //   • ResolveCombat: on Victory, if 3 Rare relics → apply choice callback (or auto-pick first if null);
+    //     apply chosen relic + ₽/XP, Complete (→ MapView). On Defeat → PlayerWiped (run-failure).
     public sealed class EliteNodeController : NodeController
     {
         private readonly EliteTrainerSO _eliteSO;
@@ -21,6 +20,7 @@ namespace ProjectAscendant.Map
         private readonly EconomyConfigSO _economy; // §8.3.3 — Coin Pouch
 
         private EliteTrainerController _elite;
+        private Func<IReadOnlyList<RelicSO>, RelicSO> _relicChoiceCallback; // Optional: UI injects choice logic.
 
         public EliteTrainerSO EliteSO => _eliteSO;
 
@@ -35,6 +35,13 @@ namespace ProjectAscendant.Map
             _eliteSO = eliteSO ?? throw new ArgumentNullException(nameof(eliteSO));
             _factory = factory;
             _economy = economy;
+        }
+
+        // Per §7.5.1 (CL-024) — optional callback for 1-of-3 Rare-relic choice. UI layer injects this.
+        // If null, controller auto-picks the first relic (headless tests).
+        public void SetRelicChoiceCallback(Func<IReadOnlyList<RelicSO>, RelicSO> callback)
+        {
+            _relicChoiceCallback = callback;
         }
 
         protected override void OnEnter()
@@ -56,12 +63,30 @@ namespace ProjectAscendant.Map
             return setup;
         }
 
-        // Per §3.3.1 / §2.3 + R3-5 — persist final combat LeadIndex so team order survives.
+        // Per §7.5.1 (CL-024) + §3.3.1 / §2.3 + R3-5 — resolve reward + 1-of-3 Rare-relic choice.
         public TrainerRewardBundle ResolveCombat(CombatController.CombatOutcome outcome, int finalLeadIndex)
         {
             TrainerRewardBundle bundle = _elite.ResolveReward(outcome);
+
             if (outcome == CombatController.CombatOutcome.Victory)
+            {
+                // Per §7.5.1 (CL-024) — if bundle holds 3 Rare relics, open choice UI (or auto-pick).
+                if (bundle.RelicDrops != null && bundle.RelicDrops.Count == 3)
+                {
+                    RelicSO chosenRelic = PickOneRelic(bundle.RelicDrops);
+                    // Build a new bundle with ONLY the chosen relic + ₽/XP.
+                    bundle = new TrainerRewardBundle
+                    {
+                        RelicDrops = new List<RelicSO> { chosenRelic },
+                        TrainerXP = bundle.TrainerXP,
+                        PokeDollars = bundle.PokeDollars,
+                        ConsumableDrops = bundle.ConsumableDrops,
+                        BadgeAwards = bundle.BadgeAwards
+                    };
+                }
+
                 RewardApplier.Apply(RunState, bundle, _economy);
+            }
 
             // Per R3-5 — persist final combat LeadIndex so team order survives node→MapView.
             RunState.LeadIndex = finalLeadIndex;
@@ -70,6 +95,20 @@ namespace ProjectAscendant.Map
                 ? NodeOutcome.PlayerWiped
                 : NodeOutcome.Cleared);
             return bundle;
+        }
+
+        // Per §7.5.1 (CL-024) — 1-of-3 Rare-relic choice. Calls the injected callback (UI layer),
+        // or auto-picks first if no callback (headless tests). Returns the chosen relic.
+        private RelicSO PickOneRelic(IReadOnlyList<RelicSO> offer)
+        {
+            if (offer == null || offer.Count == 0) return null;
+
+            // If a choice callback is injected (runtime UI), use it.
+            if (_relicChoiceCallback != null)
+                return _relicChoiceCallback(offer) ?? offer[0];
+
+            // Headless path (EditMode tests, no callback): auto-pick first.
+            return offer[0];
         }
     }
 }

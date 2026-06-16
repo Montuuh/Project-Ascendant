@@ -26,8 +26,14 @@ MonoBehaviour:
   - Species: {fileID: 11400000, guid: cd2d3cba28dcbb34f9d34f259b0e42a0, type: 2}
     Level: 13
     PhaseCount: 2
-  GuaranteedRelic: {fileID: 11400000, guid: 210755303810de84d84a200e72b9fb0f, type: 2}
+  RareRelicChoices:
+  - {fileID: 11400000, guid: 547e66e28e15fdc40ae98c362d8e69e6, type: 2}
+  - {fileID: 11400000, guid: d49027b3d2a7c774081bd29e1b8bcf46, type: 2}
+  - {fileID: 11400000, guid: 11efe1c9ab05a1d41923b80cea9ac42a, type: 2}
   TrainerXPReward: 25
   PokeDollarReward: 300
+  IsRival: 0
+  RivalEvoSpecies: {fileID: 0}
+  RegionScaling: []
   GDDReference: "\xA77.5.1 | R1 Elite \u2014 bespoke Ace Trainer, no type lock, 2\xD72-phase.
     See \u26A0 OPEN gap #31 (Ace Trainer pool R3-only)."

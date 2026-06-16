@@ -109,11 +109,17 @@ namespace ProjectAscendant.Tests
             arch.BasePokeDollarReward = 60; arch.RelicLootTable = new List<RelicSO>(); arch.ConsumableLootTable = new List<ConsumableSO>();
             cat.Archetypes = new List<TrainerArchetypeSO> { arch };
 
+            // TODO CL-024: update to EliteRosters + EliteWilds.
             EliteTrainerSO elite = Make<EliteTrainerSO>();
             elite.EliteId = "ace"; elite.DisplayName = "Ace";
             elite.Composition = new List<ElitePokemonSlot> { new() { Species = MakeSpecies("ep"), Level = 12, PhaseCount = 2 } };
-            elite.GuaranteedRelic = Make<RelicSO>(); elite.TrainerXPReward = 25; elite.PokeDollarReward = 300;
-            cat.Elite = elite;
+            elite.RareRelicChoices = new List<RelicSO> { Make<RelicSO>(), Make<RelicSO>(), Make<RelicSO>() };
+            elite.TrainerXPReward = 25; elite.PokeDollarReward = 300;
+            EliteTrainerRosterSO roster = Make<EliteTrainerRosterSO>();
+            roster.RegionIndex = 0;
+            roster.OccupantPool = new List<EliteOccupantEntry> { new() { Occupant = elite, Weight = 100f } };
+            cat.EliteRosters = new List<EliteTrainerRosterSO> { roster };
+            cat.EliteWilds = new List<EliteWildSO>();
 
             GymLeaderSO gym = Make<GymLeaderSO>();
             gym.GymLeaderId = "rock"; gym.DisplayName = "Brock"; gym.GymType = PokemonType.Rock;

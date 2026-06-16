@@ -33,8 +33,13 @@ namespace ProjectAscendant.EditorSetup
             catalog.Pokeball = ByName<ConsumableSO>("pokeball");
             catalog.Potion = ByName<ConsumableSO>("potion");
             catalog.Archetypes = All<TrainerArchetypeSO>();
-            catalog.Elite = First<EliteTrainerSO>();
+            // Per §7.5.1 (CL-024) — Elite Trainer rosters replace single Elite.
+            catalog.EliteRosters = All<EliteTrainerRosterSO>();
+            // Per §7.5.2 (CL-024) — Elite Wild pool (boss-wild catch-vs-kill).
+            catalog.EliteWilds = All<EliteWildSO>();
             catalog.Gym = First<GymLeaderSO>();
+            // Per §7.2 v2 — Gym pool for 2-gym fork.
+            catalog.GymPool = All<GymLeaderSO>();
             catalog.MysteryEvents = All<MysteryEventSO>();
             catalog.Relics = All<RelicSO>();
             catalog.Consumables = All<ConsumableSO>();
@@ -63,7 +68,7 @@ namespace ProjectAscendant.EditorSetup
                       $"archetypes={catalog.Archetypes.Count}, mystery={catalog.MysteryEvents.Count}, " +
                       $"relics={catalog.Relics.Count}, consumables={catalog.Consumables.Count}, " +
                       $"heldItems={catalog.HeldItems.Count}, TMs={catalog.TMs.Count}, starters={catalog.Starters.Count}, " +
-                      $"elite={(catalog.Elite ? catalog.Elite.name : "MISSING")}, gym={(catalog.Gym ? catalog.Gym.name : "MISSING")}, " +
+                      $"eliteRosters={catalog.EliteRosters.Count}, eliteWilds={catalog.EliteWilds.Count}, gym={(catalog.Gym ? catalog.Gym.name : "MISSING")}, " +
                       $"pokeball={(catalog.Pokeball ? "ok" : "MISSING")}, potion={(catalog.Potion ? "ok" : "MISSING")}");
         }
 

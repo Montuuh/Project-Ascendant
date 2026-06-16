@@ -101,7 +101,8 @@ namespace ProjectAscendant.Tests
             e.DisplayName = "Test Elite";
             e.TacticalIdentity = "No type lock test elite.";
             e.Composition = new List<ElitePokemonSlot>(slots);
-            e.GuaranteedRelic = relic;
+            // Per §7.5.1 (CL-024) — Rare-relic choice (1 of 3).
+            e.RareRelicChoices = new List<RelicSO> { relic, relic, relic };
             e.TrainerXPReward = xp;
             e.PokeDollarReward = dollars;
             _disposables.Add(e);
@@ -208,9 +209,9 @@ namespace ProjectAscendant.Tests
         [Test]
         public void ResolveReward_OnVictory_GivesGuaranteedRelicAndFixedXPDollars()
         {
-            // Per §7.5.1 / §7.12 — exactly one guaranteed relic, 25 XP, 300₽.
+            // Per §7.5.1 (CL-024) / §7.12 — 3 Rare relics (player picks 1 of 3 at node layer), 25 XP, 300₽.
             PokemonSpeciesSO sp = MakeSpecies(40, 30, 30, PokemonType.Normal);
-            RelicSO relic = MakeRelic("uncommon_relic");
+            RelicSO relic = MakeRelic("rare_relic");
             EliteTrainerSO elite = MakeElite(new[]
             {
                 new ElitePokemonSlot { Species = sp, Level = 12, PhaseCount = 2 },
@@ -220,8 +221,11 @@ namespace ProjectAscendant.Tests
             TrainerRewardBundle bundle = ctrl.ResolveReward(CombatController.CombatOutcome.Victory);
             Assert.That(bundle.TrainerXP, Is.EqualTo(25));
             Assert.That(bundle.PokeDollars, Is.EqualTo(300));
-            Assert.That(bundle.RelicDrops.Count, Is.EqualTo(1));
+            // The controller returns the full 3-relic bundle; EliteNodeController handles the 1-of-3 choice.
+            Assert.That(bundle.RelicDrops.Count, Is.EqualTo(3));
             Assert.That(bundle.RelicDrops[0], Is.SameAs(relic));
+            Assert.That(bundle.RelicDrops[1], Is.SameAs(relic));
+            Assert.That(bundle.RelicDrops[2], Is.SameAs(relic));
             Assert.That(bundle.ConsumableDrops, Is.Empty);
         }
 
