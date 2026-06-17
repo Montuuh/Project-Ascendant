@@ -21,6 +21,10 @@ Google Fonts; icons from Tabler (stand-ins for the final SVG icon set).
 | `settings-basic.html` | **Settings — bare basics** (§5.3↻): Audio (Master/Music/SFX) + Fullscreen + Language. Accessibility deferred post-VS (§10.6 override, user 2026-06-17). | 🔒 canonical (spec `05 §5.3`) |
 | `achievements.html` | **Achievements** (§5.2): medal-tier rows — complete / in-progress / hidden / locked; count + Tokens; filters. | 🔒 canonical (spec `05 §5.2`) |
 | `boot-splash.html` | **Boot / Splash** (§3.1): logo lockup + fan disclaimer + loading bar. | 🔒 canonical (spec `03 §3.1`) |
+| `victory-summary.html` | **Victory / Run-Cleared** (§3.8): banner, run-stat tiles, Trainer-XP + Tokens + level-up unlock, unlocked achievements, Continue. | 🔒 canonical (spec `03 §3.8`) |
+| `defeat-summary.html` | **Defeat / Run-Over** (§3.9): warm-not-punishing banner, how-far tiles, rewards still earned, encouraging line, Continue. | 🔒 canonical (spec `03 §3.9`) |
+| `node-preview.html` | **Node Preview popover** (§3.4): anchored to a map node; Wild example (encounters + rarity + Pokédex tier + reward), Enter/Cancel. | 🔒 canonical (spec `03 §3.4`) |
+| `legendary-pick.html` | **Legendary Pick** (§3.7 / CL-021): 1-of-3 Legendary relics, gold treatment, max-2-per-run counter, skip option. | 🔒 canonical (spec `03 §3.7`) |
 | `move-card-final.html` | **Final move card**, one per status: playable · not-enough-AP · out-of-melee. Generic `Pokémon art` placeholder. | 🔒 canonical (spec `09`) |
 | `consumable-card-final.html` | **Final consumable card**: playable · not-enough-AP. Shares the move-card grammar. | 🔒 canonical |
 | `move-card-full.html` | A fully-loaded card + the complete icon legend (category/range/modifier/status). | legend ref |

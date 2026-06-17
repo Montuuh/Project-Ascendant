@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Legendary Pick (§3.7 / CL-021)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.lg{max-width:780px;margin:0 auto;background:#FBF4E6;border-radius:18px;overflow:hidden;}
+.lg .head{text-align:center;padding:18px 16px 6px;}
+.lg .head h1{font-family:'Baloo 2',cursive;font-size:24px;color:#3A2E22;margin:0;display:flex;align-items:center;justify-content:center;gap:8px;}
+.lg .head h1 i{color:#E0A91E;}
+.lg .head p{font-size:13px;color:#6B5A45;margin:3px 0 0;}
+.lg .counter{display:inline-flex;align-items:center;gap:6px;background:#FFF1CC;color:#9A6A12;font-size:12px;font-weight:700;border-radius:999px;padding:4px 13px;margin-top:8px;}
+.lg .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:14px 22px;}
+.lg .card{background:#FFFDF8;border:2px solid #E0B43A;border-radius:18px;padding:16px 14px;text-align:center;cursor:pointer;position:relative;box-shadow:0 0 0 3px rgba(224,180,58,0.18),inset 0 0 22px rgba(255,203,61,0.12);}
+.lg .card.sel{border-color:#E84C4C;box-shadow:0 0 0 4px rgba(232,76,76,0.22),inset 0 0 22px rgba(255,203,61,0.14);}
+.lg .shimmer{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#FFE7A0,#E0A91E,#FFF6E0,transparent);border-radius:18px 18px 0 0;}
+.lg .ico{width:62px;height:62px;border-radius:16px;background:linear-gradient(140deg,#FFE08A,#E0A91E);display:flex;align-items:center;justify-content:center;font-size:30px;color:#7a5410;margin:0 auto 10px;border:2px solid #FFF6E0;}
+.lg .lname{font-family:'Baloo 2',cursive;font-size:17px;color:#3A2E22;font-weight:700;}
+.lg .lrar{display:inline-flex;align-items:center;gap:4px;background:#FBEFC9;color:#9A6A12;font-size:9px;font-weight:700;border-radius:999px;padding:2px 9px;margin:5px 0 9px;text-transform:uppercase;letter-spacing:.4px;border:1px solid #EBD58A;}
+.lg .leff{font-size:12px;color:#6B5A45;line-height:1.5;}
+.lg .leff b{color:#9A6A12;}
+.lg .footer{display:flex;align-items:center;justify-content:space-between;padding:8px 22px 20px;}
+.lg .skip{font-size:13px;color:#A8967C;font-weight:700;background:none;border:none;cursor:pointer;}
+.lg .confirm{background:#FFCB3D;border:none;border-radius:16px;padding:12px 34px;color:#3A2E22;font-size:15px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+.cap{max-width:780px;margin:16px auto 0;font-size:12px;color:#8A7C68;line-height:1.55;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">Legendary Pick: choose 1 of 3 Legendary relics on Gym victory, gold rarity treatment, max-2-per-run counter, Confirm.</h2>
+<div class="lg">
+  <div class="head">
+    <h1><i class="ti ti-diamond"></i> Choose a Legendary relic</h1>
+    <p>Gym cleared — pick one of three. These are the run's most powerful sculpts.</p>
+    <span class="counter"><i class="ti ti-diamond"></i> Legendary relics: 0 / 2 held</span>
+  </div>
+  <div class="grid">
+    <div class="card sel">
+      <div class="shimmer"></div>
+      <div class="ico"><i class="ti ti-bolt"></i></div>
+      <div class="lname">Grandmaster's Tempo</div>
+      <span class="lrar"><i class="ti ti-diamond"></i> Legendary</span>
+      <div class="leff">Start every combat with <b>+1 AP</b>.</div>
+    </div>
+    <div class="card">
+      <div class="shimmer"></div>
+      <div class="ico"><i class="ti ti-heart-bolt"></i></div>
+      <div class="lname">Living Legend</div>
+      <span class="lrar"><i class="ti ti-diamond"></i> Legendary</span>
+      <div class="leff">Once per combat, the first ally to faint <b>revives at 25% HP</b>.</div>
+    </div>
+    <div class="card">
+      <div class="shimmer"></div>
+      <div class="ico"><i class="ti ti-target"></i></div>
+      <div class="lname">Apex Predator</div>
+      <span class="lrar"><i class="ti ti-diamond"></i> Legendary</span>
+      <div class="leff">Your <b>first attack each combat</b> is a guaranteed critical hit.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <button class="skip">Skip (take ₽ instead)</button>
+    <button class="confirm"><i class="ti ti-check"></i> Take Grandmaster's Tempo</button>
+  </div>
+</div>
+<p class="cap"><b style="color:#FFD451;">Legendary Pick (§3.7 / CL-021).</b> Gym-victory reward: 1-of-3 Legendary relics with the gold rarity treatment (static shimmer — reduced-motion safe) + a <b>max-2-per-run</b> held counter. Skip → take ₽ instead. Selected card takes the brand-red ring. Effects are systems-designer-tunable placeholders.</p>
+</body></html>

@@ -35,7 +35,7 @@
 |--------|:---:|:---:|-------|
 | Route Map View | ✅ 02.2 | ✅ | `map_screen` |
 | Node-type icons (×9) | ✅ 06/icons | ✅ | `icon_system_sheet` |
-| Node Preview popover | ✅ 03.4 | ⬜ | **gap** |
+| Node Preview popover | ✅ 03.4 | ✅ | `node-preview.html` (anchored; Wild example) |
 | **Combat Screen** (squad formation) | ✅ 02.1 | ✅ | `combat-screen-final.html` (squad layout, user-iterated) |
 | — Move card (all states) | ✅ 09 | ✅ | `move_card_final_iter2` + file |
 | — Consumable card (all states) | ✅ 04.2 | ✅ | `consumable_card_final` + file |
@@ -47,7 +47,7 @@
 | — Damage preview (drag-over-target) | ✅ 09 | ✅ | beside-target preview in `combat-screen-final.html` |
 | Post-Combat Reward (win XP) | ✅ 03.5 | ✅ | `post_combat_reward` |
 | Evolution | ✅ 03.6 | ✅ | `evolution_screen` |
-| Legendary Pick (1-of-3) | ✅ 03.7 | ⬜ | **gap** |
+| Legendary Pick (1-of-3) | ✅ 03.7 | ✅ | `legendary-pick.html` (gold 1-of-3, max-2 counter) |
 
 ## Node service screens
 
@@ -72,8 +72,8 @@
 
 | System | Designed | Mocked | Notes |
 |--------|:---:|:---:|-------|
-| Victory / Run-cleared summary | ✅ 03.8 | ⬜ | **gap** |
-| Defeat / Run-over summary | ✅ 03.9 | ⬜ | **gap** |
+| Victory / Run-cleared summary | ✅ 03.8 | ✅ | `victory-summary.html` (banner, stats, XP/Tokens, achievements) |
+| Defeat / Run-over summary | ✅ 03.9 | ✅ | `defeat-summary.html` (warm, rewards kept — Pillar 5) |
 
 ## Cross-cutting overlays & foundations
 

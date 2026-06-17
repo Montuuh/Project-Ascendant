@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Node Preview popover (§3.4)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.np-stage{max-width:720px;margin:0 auto;background:#2A2230;border-radius:16px;padding:26px;position:relative;min-height:300px;display:flex;align-items:center;justify-content:center;}
+.np-map-node{position:absolute;left:90px;top:60px;width:46px;height:46px;border-radius:50%;background:#54A06A;border:3px solid #FFCB3D;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;box-shadow:0 0 0 6px rgba(255,203,61,0.2);}
+.np-edge{position:absolute;left:113px;top:106px;width:2px;height:40px;background:#4A3E50;}
+.np{width:300px;background:#FBF4E6;border-radius:16px;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,0.45);}
+.np .head{display:flex;align-items:center;gap:9px;padding:12px 14px;background:#F3E7D0;border-bottom:1px solid #E4D4B5;}
+.np .nicon{width:34px;height:34px;border-radius:10px;background:#54A06A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto;}
+.np .ntitle{font-family:'Baloo 2',cursive;font-size:15px;color:#3A2E22;font-weight:700;}
+.np .nsub{font-size:11px;color:#6B5A45;}
+.np .body{padding:12px 14px;}
+.np .lbl{font-size:10px;color:#A8967C;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin:0 0 7px;}
+.np .mons{display:flex;gap:8px;margin-bottom:11px;}
+.np .mon{flex:1;text-align:center;}
+.np .mon .pf{width:100%;height:50px;background:#F3E7D0;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.np .mon .pf img{width:46px;height:46px;object-fit:contain;}
+.np .mon .pf .q{font-family:'Baloo 2',cursive;font-size:24px;color:#C9BBA0;}
+.np .mon .rar{font-size:9px;font-weight:700;margin-top:3px;border-radius:999px;padding:1px 6px;display:inline-block;}
+.np .rar-c{background:#ECEEF3;color:#5A6275;}
+.np .rar-u{background:#E6F7EC;color:#1F8A4C;}
+.np .meta{display:flex;align-items:center;gap:8px;font-size:11px;color:#6B5A45;}
+.np .tier{display:inline-flex;align-items:center;gap:4px;background:#EAF1FF;color:#2C5FA5;font-weight:700;border-radius:999px;padding:2px 8px;}
+.np .reward{display:inline-flex;align-items:center;gap:4px;background:#F3E7D0;color:#6B5A45;font-weight:700;border-radius:999px;padding:2px 8px;}
+.np .acts{display:flex;gap:8px;padding:0 14px 14px;}
+.np .cancel{flex:0 0 auto;background:#F3E7D0;border:1px solid #E4D4B5;border-radius:12px;padding:9px 16px;color:#6B5A45;font-size:13px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;}
+.np .enter{flex:1;background:#FFCB3D;border:none;border-radius:12px;padding:9px;color:#3A2E22;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.cap{max-width:720px;margin:14px auto 0;font-size:12px;color:#8A7C68;line-height:1.5;text-align:center;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">Node Preview popover anchored to a map node: Wild Area in the Meadow biome, possible encounters with rarity, Pokédex tier, reward hint, Enter / Cancel.</h2>
+<div class="np-stage">
+  <div class="np-map-node"><i class="ti ti-paw"></i></div>
+  <div class="np-edge"></div>
+  <div class="np">
+    <div class="head">
+      <div class="nicon"><i class="ti ti-paw"></i></div>
+      <div><div class="ntitle">Wild Area</div><div class="nsub">Meadow biome · recruit a Pokémon</div></div>
+    </div>
+    <div class="body">
+      <div class="lbl">Possible encounters</div>
+      <div class="mons">
+        <div class="mon"><div class="pf"><img src="../../../Assets/Sprites/VS/Portraits/010-Caterpie.png" alt="Caterpie"></div><span class="rar rar-c">Common</span></div>
+        <div class="mon"><div class="pf"><img src="../../../Assets/Sprites/VS/Portraits/016-Pidgey.png" alt="Pidgey"></div><span class="rar rar-c">Common</span></div>
+        <div class="mon"><div class="pf"><span class="q">?</span></div><span class="rar rar-u">Uncommon</span></div>
+      </div>
+      <div class="meta"><span class="tier"><i class="ti ti-star"></i> Pokédex: Familiar</span> <span class="reward"><i class="ti ti-pokeball"></i> Recruit + XP</span></div>
+    </div>
+    <div class="acts">
+      <button class="cancel">Cancel</button>
+      <button class="enter">Enter <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+<p class="cap"><b style="color:#C9A86A;">Node Preview popover (§3.4)</b> — anchored to the map node (gold-ringed). Wild shows biome + possible species (uncommon/rare = "?" until the Pokédex tier reveals them) + tier + reward; Trainer/Elite/Gym show archetype + reward; service nodes a one-liner. Enter routes per node type; Cancel returns to the map. Confirms before the team locks (Pillar 2).</p>
+</body></html>
