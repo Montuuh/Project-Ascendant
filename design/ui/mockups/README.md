@@ -12,6 +12,10 @@ Google Fonts; icons from Tabler (stand-ins for the final SVG icon set).
 | File | Shows | Status |
 |------|-------|--------|
 | `combat-screen-final.html` | **Full combat screen** (§2.1): squad formation (Bench 1 top-left + Bench 2 bottom-left, Lead leading right, no overlap), enlarged single enemy + detached catch-gauge pill, intent chip (no arrows), hand tray + small damage preview. User-iterated, 2026-06-17. | 🔒 canonical (spec `02 §2.1`) |
+| `newrun-1-difficulty.html` | **New-Run 1/4 — Difficulty Select** (§3.3a): stepper chrome + warm-light front-end theme; tier cards show Modifier + Trainer-XP **Reward**; locked tiers. | 🔒 canonical (spec `03 §3.3a`) |
+| `newrun-2-starter.html` | **New-Run 2/4 — Starter Select** (§3.3b): real portraits + real type icons (type top-left on tiles; type chip off-photo in detail); stats, 2 starting moves, evo line. | 🔒 canonical (spec `03 §3.3b`) |
+| `newrun-3-relic.html` | **New-Run 3/4 — Starting Relic Select** (§3.3c): rarity-tinted grid (scrollable), detail effect/source. | 🔒 canonical (spec `03 §3.3c`) |
+| `newrun-4-region.html` | **New-Run 4/4 — Region Modifier Select** (§3.3d): curated 3-offer + the run-lock confirm modal. | 🔒 canonical (spec `03 §3.3d`) |
 | `move-card-final.html` | **Final move card**, one per status: playable · not-enough-AP · out-of-melee. Generic `Pokémon art` placeholder. | 🔒 canonical (spec `09`) |
 | `consumable-card-final.html` | **Final consumable card**: playable · not-enough-AP. Shares the move-card grammar. | 🔒 canonical |
 | `move-card-full.html` | A fully-loaded card + the complete icon legend (category/range/modifier/status). | legend ref |

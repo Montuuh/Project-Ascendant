@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>New Run 4 — Region Modifier Select + lock (§3.3d)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.rm{max-width:880px;margin:0 auto;background:#FBF4E6;border-radius:18px;overflow:hidden;position:relative;}
+.rm .display{font-family:'Baloo 2',cursive;}
+.rm .stepper{display:flex;align-items:center;justify-content:center;padding:18px 16px 4px;}
+.rm .step{display:flex;align-items:center;gap:8px;}
+.rm .dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Baloo 2',cursive;}
+.rm .dot.done{background:#54D98A;color:#173404;}
+.rm .dot.active{background:#FFCB3D;color:#3A2E22;box-shadow:0 0 0 4px rgba(255,203,61,0.28);}
+.rm .step-label{font-size:13px;color:#6B5A45;}
+.rm .step.active .step-label{color:#3A2E22;font-weight:700;}
+.rm .step-line{width:30px;height:2px;background:#E4D4B5;margin:0 7px;}
+.rm .title{text-align:center;padding:4px 16px 2px;}
+.rm .title h1{font-family:'Baloo 2',cursive;font-size:25px;color:#3A2E22;margin:0;}
+.rm .title p{font-size:13px;color:#6B5A45;margin:3px 0 0;}
+.rm .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 22px;}
+.rm .card{background:#FFFDF8;border:2px solid #E4D4B5;border-radius:16px;padding:14px;position:relative;cursor:pointer;}
+.rm .card.sel{border-color:#E84C4C;box-shadow:0 0 0 3px rgba(232,76,76,0.16);}
+.rm .m-ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;margin-bottom:9px;}
+.rm .m-name{font-family:'Baloo 2',cursive;font-size:16px;color:#3A2E22;font-weight:700;}
+.rm .tier{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;border-radius:999px;padding:1px 8px;margin:4px 0 8px;text-transform:uppercase;letter-spacing:.3px;}
+.rm .tier-strong{background:#FFF1CC;color:#9A6A12;border:1px solid #F2D27A;}
+.rm .tier-medium{background:#E3EEFB;color:#2C5FA5;border:1px solid #BFD6F2;}
+.rm .m-eff{font-size:12px;color:#6B5A45;line-height:1.45;}
+.rm .m-eff b{color:#3A2E22;}
+.rm .type-pick{display:flex;gap:4px;margin-top:8px;}
+.rm .tp{width:18px;height:18px;border-radius:5px;border:1px solid #E4D4B5;}
+.rm .footer{display:flex;align-items:center;justify-content:space-between;padding:12px 22px 18px;border-top:1px solid #E4D4B5;}
+.rm .hint{font-size:12px;color:#A8967C;max-width:340px;}
+.rm .btns{display:flex;gap:10px;}
+.rm .btn-back{background:#F3E7D0;border:1px solid #E4D4B5;border-radius:14px;padding:10px 18px;color:#6B5A45;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.rm .btn-lock{background:#E84C4C;border:none;border-radius:14px;padding:11px 22px;color:#fff;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.rm .scrim{position:absolute;inset:0;background:rgba(58,46,34,0.55);display:flex;align-items:center;justify-content:center;border-radius:18px;}
+.rm .modal{background:#FFFDF8;border-radius:24px;padding:24px;max-width:380px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.3);}
+.rm .modal-ico{width:54px;height:54px;border-radius:16px;background:#FFF1CC;color:#9A6A12;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;}
+.rm .modal h2{font-family:'Baloo 2',cursive;font-size:20px;color:#3A2E22;margin:0 0 8px;}
+.rm .modal p{font-size:13px;color:#6B5A45;line-height:1.55;margin:0 0 18px;}
+.rm .modal p b{color:#3A2E22;}
+.rm .modal-btns{display:flex;gap:10px;justify-content:center;}
+.rm .m-cancel{background:#F3E7D0;border:1px solid #E4D4B5;border-radius:14px;padding:10px 18px;color:#6B5A45;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;}
+.rm .m-confirm{background:#FFCB3D;border:none;border-radius:14px;padding:10px 22px;color:#3A2E22;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.cap{max-width:880px;margin:16px auto 0;font-size:12px;color:#8A7C68;line-height:1.55;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">New-Run setup step 4 of 4: Region Modifier Select. Three offered modifier cards (one selected) with the run-locking confirm modal open over a dimmed screen.</h2>
+<div class="rm">
+  <div class="stepper">
+    <div class="step"><span class="dot done"><i class="ti ti-check"></i></span><span class="step-label">Difficulty</span></div>
+    <div class="step-line"></div>
+    <div class="step"><span class="dot done"><i class="ti ti-check"></i></span><span class="step-label">Starter</span></div>
+    <div class="step-line"></div>
+    <div class="step"><span class="dot done"><i class="ti ti-check"></i></span><span class="step-label">Relic</span></div>
+    <div class="step-line"></div>
+    <div class="step active"><span class="dot active">4</span><span class="step-label">Region</span></div>
+  </div>
+  <div class="title">
+    <h1>Choose this Region's modifier</h1>
+    <p>One accent for Region 1, re-picked each Region. Three are offered — weighted to your team.</p>
+  </div>
+  <div class="grid">
+    <div class="card sel">
+      <div class="m-ico" style="background:#54A06A;"><i class="ti ti-cards"></i></div>
+      <div class="m-name">Hand of Plenty</div>
+      <span class="tier tier-strong"><i class="ti ti-flame"></i> Strong</span>
+      <div class="m-eff">Draw <b>+1 card</b> every turn this Region.</div>
+    </div>
+    <div class="card">
+      <div class="m-ico" style="background:#C9A23A;"><i class="ti ti-coins"></i></div>
+      <div class="m-name">Coin Purse</div>
+      <span class="tier tier-medium"><i class="ti ti-circle"></i> Medium</span>
+      <div class="m-eff">All Poké Dollar drops <b>x1.5</b> this Region.</div>
+    </div>
+    <div class="card">
+      <div class="m-ico" style="background:#B0556A;"><i class="ti ti-flame"></i></div>
+      <div class="m-name">Type Affinity</div>
+      <span class="tier tier-strong"><i class="ti ti-flame"></i> Strong</span>
+      <div class="m-eff"><b>+10%</b> damage for one type you choose:</div>
+      <div class="type-pick"><span class="tp" style="background:#6890F0;"></span><span class="tp" style="background:#F08030;"></span><span class="tp" style="background:#78C850;"></span><span class="tp" style="background:#A8A878;"></span></div>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="hint"><i class="ti ti-info-circle"></i> Confirming generates the map — locked for this Region.</span>
+    <div class="btns">
+      <button class="btn-back"><i class="ti ti-arrow-left"></i> Back</button>
+      <button class="btn-lock"><i class="ti ti-lock"></i> Confirm &amp; start run</button>
+    </div>
+  </div>
+  <div class="scrim">
+    <div class="modal">
+      <div class="modal-ico"><i class="ti ti-map-pin-cog"></i></div>
+      <h2>Lock in your choice?</h2>
+      <p><b>Hand of Plenty</b> becomes Region 1's modifier. The map is generated from your seed now and can't be re-picked until the next Region.</p>
+      <div class="modal-btns">
+        <button class="m-cancel">Cancel</button>
+        <button class="m-confirm"><i class="ti ti-player-play"></i> Lock in &amp; start</button>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="cap"><b style="color:#FFD451;">New Run 4/4 — Region Modifier Select (§3.3d).</b> Curated 3-offer (weighted to team, §7.8.3) with tier badges; Type Affinity carries a type picker. The brand-red Confirm opens the run-lock modal — confirming generates the map from the seed and locks the modifier for the Region (re-picked at each City, CL-016). 17-modifier pool (CL-016/CL-018).</p>
+</body></html>

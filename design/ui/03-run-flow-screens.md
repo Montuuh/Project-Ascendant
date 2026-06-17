@@ -38,6 +38,18 @@ Difficulty → Starter → Starting Relic → Region Modifier. A shared **steppe
 top, `◀ Back` / `Continue ▶` bottom) wraps all four; Back is allowed within setup; the final
 **Region-Modifier Confirm** locks the run (seed → map gen) behind a confirm modal.
 
+> **Mockups + refinements (user-iterated 2026-06-17 — `mockups/newrun-1..4-*.html`):**
+> - **3.3a** each difficulty card shows **both** its challenge **Modifier** (gray) **and** its **Trainer-XP
+>   Reward** (green multiplier) — risk and reward read together; recommended tier carries a brand outline.
+> - **3.3b** uses the **real Pokémon portrait** (not a placeholder icon); the **type icon sits top-left
+>   inside the roster tile**, but in the **detail panel the type is a labelled chip beside the name**
+>   (off the photo). Stats render as labelled bars (the §3.3b "stat radial" text-equivalent). Real art per
+>   the mockup-art doctrine (`06`): portraits `Assets/Sprites/VS/Portraits/`, type icons `…/UI/Icons/Type/`.
+> - **3.3c** the relic grid is **scrollable** (detail + footer fixed) so any pool size fits; canon offer is a
+>   curated **1-of-3** (§6.6.3 / Task 12.11). Rarity by border **and** label (not colour-only).
+> - **3.3d** shows the **curated 3-offer** (§7.8.3, weighted to team) with tier badges + the **run-lock confirm
+>   modal** ("map is generated from the seed now; can't re-pick until the next Region").
+
 ### 3.3a Difficulty Select
 **Purpose.** Choose difficulty (`DifficultyModifierSO`). **Components.** 2–4 `option cards` (one
 recommended, 2px brand outline), each: name, one-line effect, modifiers list. **Bindings.**

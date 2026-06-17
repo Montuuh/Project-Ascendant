@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>New Run 1 — Difficulty Select (§3.3a)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.nr{max-width:880px;margin:0 auto;background:#FBF4E6;border-radius:18px;overflow:hidden;}
+.nr .display{font-family:'Baloo 2',cursive;}
+.nr .stepper{display:flex;align-items:center;justify-content:center;padding:18px 16px 6px;}
+.nr .step{display:flex;align-items:center;gap:8px;}
+.nr .dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Baloo 2',cursive;}
+.nr .dot.done{background:#54D98A;color:#173404;}
+.nr .dot.active{background:#FFCB3D;color:#3A2E22;box-shadow:0 0 0 4px rgba(255,203,61,0.28);}
+.nr .dot.todo{background:#EAD9B8;color:#A8967C;}
+.nr .step-label{font-size:13px;color:#6B5A45;}
+.nr .step.active .step-label{color:#3A2E22;font-weight:700;}
+.nr .step-line{width:34px;height:2px;background:#E4D4B5;margin:0 8px;}
+.nr .title{text-align:center;padding:6px 16px 2px;}
+.nr .title h1{font-family:'Baloo 2',cursive;font-size:26px;color:#3A2E22;margin:0;}
+.nr .title p{font-size:13px;color:#6B5A45;margin:4px 0 0;}
+.nr .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:18px 24px;}
+.nr .card{background:#FFFDF8;border:1px solid #E4D4B5;border-radius:18px;padding:16px;position:relative;cursor:pointer;}
+.nr .card.sel{border:3px solid #E84C4C;}
+.nr .card.locked{opacity:0.62;}
+.nr .rec-chip{position:absolute;top:-11px;left:16px;background:#E84C4C;color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:3px 12px;font-family:'Baloo 2',cursive;}
+.nr .card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.nr .card-ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;color:#fff;}
+.nr .card-name{font-family:'Baloo 2',cursive;font-size:18px;color:#3A2E22;font-weight:700;}
+.nr .card-eff{font-size:13px;color:#6B5A45;line-height:1.45;min-height:38px;}
+.nr .rows{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.nr .info-line{display:flex;align-items:center;gap:7px;font-size:12px;}
+.nr .line-label{width:74px;color:#A8967C;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;}
+.nr .mod-chip{background:#F3E7D0;color:#6B5A45;font-size:11px;border-radius:999px;padding:3px 9px;display:inline-flex;align-items:center;gap:4px;}
+.nr .reward-chip{background:#E6F7EC;color:#1F8A4C;font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;display:inline-flex;align-items:center;gap:4px;border:1px solid #BFE9CE;}
+.nr .lock-note{display:flex;align-items:center;gap:5px;margin-top:10px;font-size:12px;color:#A8967C;font-weight:700;}
+.nr .footer{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 20px;border-top:1px solid #E4D4B5;}
+.nr .btn-back{background:transparent;border:1px solid #E4D4B5;border-radius:14px;padding:10px 20px;color:#A8967C;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:not-allowed;display:flex;align-items:center;gap:6px;}
+.nr .btn-go{background:#FFCB3D;border:none;border-radius:14px;padding:11px 28px;color:#3A2E22;font-size:15px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.cap{max-width:880px;margin:16px auto 0;font-size:12px;color:#8A7C68;line-height:1.55;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">New-Run setup step 1 of 4: Difficulty Select. Stepper, four difficulty cards each showing its modifier and Trainer-XP reward (Standard recommended; One Path locked), Back/Continue.</h2>
+<div class="nr">
+  <div class="stepper">
+    <div class="step active"><span class="dot active">1</span><span class="step-label">Difficulty</span></div>
+    <div class="step-line"></div>
+    <div class="step"><span class="dot todo">2</span><span class="step-label">Starter</span></div>
+    <div class="step-line"></div>
+    <div class="step"><span class="dot todo">3</span><span class="step-label">Relic</span></div>
+    <div class="step-line"></div>
+    <div class="step"><span class="dot todo">4</span><span class="step-label">Region</span></div>
+  </div>
+  <div class="title">
+    <h1>Choose your difficulty</h1>
+    <p>Tougher tiers add challenge modifiers — and pay out more Trainer XP toward unlocks.</p>
+  </div>
+  <div class="grid">
+    <div class="card sel">
+      <div class="rec-chip">Recommended</div>
+      <div class="card-head"><div class="card-ico" style="background:#54D98A;"><i class="ti ti-leaf"></i></div><div class="card-name">Standard</div></div>
+      <div class="card-eff">The intended balance. Full telegraphy, normal enemy strength.</div>
+      <div class="rows">
+        <div class="info-line"><span class="line-label">Modifier</span><span class="mod-chip"><i class="ti ti-check"></i> None</span></div>
+        <div class="info-line"><span class="line-label">Reward</span><span class="reward-chip"><i class="ti ti-star"></i> x1.0 Trainer XP</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-ico" style="background:#FF6B6B;"><i class="ti ti-heart-bolt"></i></div><div class="card-name">Iron Will</div></div>
+      <div class="card-eff">Enemies are sturdier — every foe fights past its usual limit.</div>
+      <div class="rows">
+        <div class="info-line"><span class="line-label">Modifier</span><span class="mod-chip"><i class="ti ti-arrow-up-right"></i> +25% enemy HP</span></div>
+        <div class="info-line"><span class="line-label">Reward</span><span class="reward-chip"><i class="ti ti-star"></i> x1.25 Trainer XP</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-ico" style="background:#8A6FB0;"><i class="ti ti-eye-off"></i></div><div class="card-name">Dense Fog</div></div>
+      <div class="card-eff">You can't read the first intent each foe shows — scout carefully.</div>
+      <div class="rows">
+        <div class="info-line"><span class="line-label">Modifier</span><span class="mod-chip"><i class="ti ti-help-circle"></i> Hidden intents</span></div>
+        <div class="info-line"><span class="line-label">Reward</span><span class="reward-chip"><i class="ti ti-star"></i> x1.2 Trainer XP</span></div>
+      </div>
+    </div>
+    <div class="card locked">
+      <div class="card-head"><div class="card-ico" style="background:#A8967C;"><i class="ti ti-route"></i></div><div class="card-name">One Path</div></div>
+      <div class="card-eff">No branch choices — the map gives you a single route to the Gym.</div>
+      <div class="rows">
+        <div class="info-line"><span class="line-label">Modifier</span><span class="mod-chip"><i class="ti ti-git-branch-deleted"></i> Single route</span></div>
+        <div class="info-line"><span class="line-label">Reward</span><span class="reward-chip"><i class="ti ti-star"></i> x1.3 Trainer XP</span></div>
+      </div>
+      <div class="lock-note"><i class="ti ti-lock"></i> Unlocks at Trainer Lv 8</div>
+    </div>
+  </div>
+  <div class="footer">
+    <button class="btn-back"><i class="ti ti-arrow-left"></i> Back</button>
+    <button class="btn-go">Continue <i class="ti ti-arrow-right"></i></button>
+  </div>
+</div>
+<p class="cap"><b style="color:#FFD451;">New Run 1/4 — Difficulty Select (§3.3a).</b> Each tier shows its challenge Modifier (gray) and Trainer-XP Reward (green). Standard recommended (brand outline + chip); locked tiers show their unlock level (not hidden). Shared stepper + warm-light front-end theme. Difficulty maps to DifficultyModifierSO.</p>
+</body></html>

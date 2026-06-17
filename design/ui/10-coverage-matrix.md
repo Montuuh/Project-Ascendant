@@ -24,10 +24,10 @@
 
 | System | Designed | Mocked | Notes |
 |--------|:---:|:---:|-------|
-| Difficulty Select | ✅ 03.3a | ⬜ | **gap** (select-grid pattern) |
-| Starter Select | ✅ 03.3b | ⬜ | **gap** |
-| Starting Relic Select | ✅ 03.3c | ⬜ | **gap** |
-| Region Modifier Select | ✅ 03.3d | ⬜ | **gap** |
+| Difficulty Select | ✅ 03.3a | ✅ | `newrun-1-difficulty.html` (modifier + reward per tier) |
+| Starter Select | ✅ 03.3b | ✅ | `newrun-2-starter.html` (real portraits + type icons) |
+| Starting Relic Select | ✅ 03.3c | ✅ | `newrun-3-relic.html` (rarity grid, scrollable) |
+| Region Modifier Select | ✅ 03.3d | ✅ | `newrun-4-region.html` (3-offer + run-lock modal) |
 
 ## In-run core loop
 

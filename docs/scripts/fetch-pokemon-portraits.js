@@ -59,21 +59,35 @@ function apiName(fileBase) {
     process.exit(1);
   }
 
-  const files = fs.readdirSync(DEST).filter(isPng);
-  const placeholders = files.filter((f) => !isDexFormat(f));
-
-  if (placeholders.length === 0) {
-    console.log('No placeholder portraits found — every portrait is already dex-format. Nothing to fetch.');
-    return;
+  // Two modes: explicit `--species=a,b,c` fetches those species by name (e.g. new
+  // evolution lines not yet in the roster); the default scans for plain `<Name>.png`
+  // placeholders and resolves them to dex art.
+  const speciesArg = (process.argv.find((a) => a.startsWith('--species=')) || '').slice('--species='.length);
+  let work;
+  if (speciesArg) {
+    work = speciesArg.split(',').map((s) => s.trim()).filter(Boolean).map((name) => {
+      const lookup = apiName(name);
+      const base = lookup.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join('-'); // PascalCase filename
+      return { base, lookup, placeholder: null };
+    });
+    console.log(`Fetching ${work.length} species by name:\n  ${work.map((w) => w.lookup).join(', ')}\n`);
+  } else {
+    const files = fs.readdirSync(DEST).filter(isPng);
+    const placeholders = files.filter((f) => !isDexFormat(f));
+    if (placeholders.length === 0) {
+      console.log('No placeholder portraits found — every portrait is already dex-format. Nothing to fetch.');
+      return;
+    }
+    console.log(`Found ${placeholders.length} placeholder portrait(s) to resolve:\n  ${placeholders.join(', ')}\n`);
+    work = placeholders.map((ph) => ({ base: ph.replace(/\.png$/i, ''), lookup: apiName(ph.replace(/\.png$/i, '')), placeholder: ph }));
   }
-
-  console.log(`Found ${placeholders.length} placeholder portrait(s) to resolve:\n  ${placeholders.join(', ')}\n`);
 
   let got = 0, skipped = 0, failed = 0, cleaned = 0;
 
-  for (const placeholder of placeholders) {
-    const base = placeholder.replace(/\.png$/i, '');        // e.g. "Marowak_Spirit"
-    const lookup = apiName(base);                            // e.g. "marowak"
+  for (const item of work) {
+    const base = item.base;          // e.g. "Marowak_Spirit" or "Pikachu"
+    const lookup = item.lookup;      // e.g. "marowak" / "pikachu"
+    const placeholder = item.placeholder;
     try {
       const res = await fetch(API(lookup));
       if (!res.ok) throw new Error(`PokeAPI HTTP ${res.status} for "${lookup}"`);
@@ -93,12 +107,12 @@ function apiName(fileBase) {
         if (!img.ok) throw new Error(`artwork HTTP ${img.status}`);
         const buf = Buffer.from(await img.arrayBuffer());
         fs.writeFileSync(out, buf);
-        console.log(`saved  ${dexFile}  (${(buf.length / 1024).toFixed(0)} KB)  ← ${placeholder}`);
+        console.log(`saved  ${dexFile}  (${(buf.length / 1024).toFixed(0)} KB)${placeholder ? `  ← ${placeholder}` : ''}`);
         got++;
       }
 
       // Optional: remove the placeholder (and its .meta) now that the dex file exists.
-      if (CLEAN && fs.existsSync(out)) {
+      if (CLEAN && placeholder && fs.existsSync(out)) {
         const ph = path.join(DEST, placeholder);
         const phMeta = ph + '.meta';
         if (fs.existsSync(ph)) { fs.unlinkSync(ph); cleaned++; }
@@ -108,7 +122,7 @@ function apiName(fileBase) {
 
       await new Promise((r) => setTimeout(r, 150)); // be polite to PokeAPI
     } catch (e) {
-      console.error(`FAIL   ${placeholder}  — ${e.message}`);
+      console.error(`FAIL   ${placeholder || lookup}  — ${e.message}`);
       failed++;
     }
   }
