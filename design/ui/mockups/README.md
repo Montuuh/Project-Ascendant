@@ -18,6 +18,9 @@ Google Fonts; icons from Tabler (stand-ins for the final SVG icon set).
 | `newrun-4-region.html` | **New-Run 4/4 — Region Modifier Select** (§3.3d): curated 3-offer + the run-lock confirm modal. | 🔒 canonical (spec `03 §3.3d`) |
 | `team-loadout.html` | **Team & Loadout** overlay (§4.1): Active 3 (Lead crowned) + scrollable Box (Trauma/fainted), detail panel, Confirm. Real portraits. | 🔒 canonical (spec `04 §4.1`) |
 | `move-manager.html` | **TM & Move Manager** overlay (§4.4): target selector, active kit 4/4 + Mastery, teachable pool, at-cap replace preview. | 🔒 canonical (spec `04 §4.4`) |
+| `settings-basic.html` | **Settings — bare basics** (§5.3↻): Audio (Master/Music/SFX) + Fullscreen + Language. Accessibility deferred post-VS (§10.6 override, user 2026-06-17). | 🔒 canonical (spec `05 §5.3`) |
+| `achievements.html` | **Achievements** (§5.2): medal-tier rows — complete / in-progress / hidden / locked; count + Tokens; filters. | 🔒 canonical (spec `05 §5.2`) |
+| `boot-splash.html` | **Boot / Splash** (§3.1): logo lockup + fan disclaimer + loading bar. | 🔒 canonical (spec `03 §3.1`) |
 | `move-card-final.html` | **Final move card**, one per status: playable · not-enough-AP · out-of-melee. Generic `Pokémon art` placeholder. | 🔒 canonical (spec `09`) |
 | `consumable-card-final.html` | **Final consumable card**: playable · not-enough-AP. Shares the move-card grammar. | 🔒 canonical |
 | `move-card-full.html` | A fully-loaded card + the complete icon legend (category/range/modifier/status). | legend ref |

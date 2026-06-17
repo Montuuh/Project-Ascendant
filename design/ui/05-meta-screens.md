@@ -40,9 +40,19 @@ focusable; hidden-reveal rule in text. **Loc:** `achievement.*`.
 
 ---
 
-## 5.3 Settings  (full overlay · reachable from Main Menu and Pause · §10.6)
+## 5.3 Settings  (full overlay · reachable from Main Menu and Pause)
 
-**Purpose.** All player options, **accessibility-first** (§10.6 is mandatory-launch). Tabbed.
+> **`↻ DECISION (user 2026-06-17): VS Settings = BARE BASICS; accessibility is NOT mandatory-launch.`**
+> Mock: `mockups/settings-basic.html`. The VS Settings screen ships only **Audio** (Master / Music / SFX)
+> · **Display** (Fullscreen) · **Game** (Language) — a single panel, no tabs. The full accessibility suite
+> below (colour-blind, text-size, reduced-motion, subtitles, photosensitivity, A/B rebind profiles) is
+> **deferred to a post-VS accessibility epic**. This **overrides §10.6** ("accessibility mandatory-launch")
+> → reconcile §10.6 + this section at CL-023 ratification. Maps to the existing `SettingsSO` basic fields
+> (MasterVolume/MusicVolume/SFXVolume/FullScreen + Language); #47 (LoadSettings + boot-restore) is **DONE**.
+>
+> The accessibility-first design below is **retained for the post-VS epic** (historical/forward spec).
+
+**Purpose.** All player options, **accessibility-first** (§10.6) — *(post-VS; see the decision above).* Tabbed.
 **Zones / tabs:**
 - **Display & Accessibility** — colorblind mode (Deuter/Protan/Tritan, with type-pattern overlays
   §10.6.1.1) · text size 80/100/125/150% (live preview) · reduced-motion · damage-preview always-on
@@ -57,11 +67,9 @@ binding + "press a key"), `Apply/Reset`. **Bindings.** `SettingsService` → `se
 surface; every control keyboard/pad reachable; text-size preview updates the whole UI live. **Loc:**
 `ui.settings.*`.
 
-> **Implementation note (#47):** the design **assumes Settings exists and fully persists** (load on
-> open, apply at boot). The backing load path isn't built yet — `SaveSettings` exists but
-> `LoadSettings`/boot-restore is pending (§9.8.7.6, BACKLOG #47). This is a normal Epic-13 build item,
-> **not a design blocker**: design the screen as if persistence works; lead-programmer closes #47 as
-> part of wiring the screen.
+> **Implementation note (#47 — ✅ DONE `c20558c`):** settings persistence is wired —
+> `SaveSystem.LoadSettings` + `Bootstrap` boot-restore + `SettingsSO.ApplyToEngine` (load on open, apply
+> at boot). The screen can rely on it. (Previously flagged as the open blocker; now closed.)
 
 ---
 

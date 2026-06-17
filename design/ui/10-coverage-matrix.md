@@ -14,11 +14,11 @@
 
 | System | Designed | Mocked | Notes |
 |--------|:---:|:---:|-------|
-| Boot / Splash | ✅ 03.1 | ⬜ | trivial; will add a simple lockup |
+| Boot / Splash | ✅ 03.1 | ✅ | `boot-splash.html` |
 | Main Menu | ✅ 03.2 | ✅ | `main_menu_screen` |
 | Trainer Hub (Trainer Card + PC Terminal + **Trainer Shop / Token spend** + **Battle-Pass track**) | ✅ 05.1 | ✅ | `trainer_hub_screen` |
-| Achievements list (medal tiers, hidden) | ✅ 05.2 | ⬜ | **gap** |
-| Settings (Display/Accessibility · Audio · Controls) | ✅ 05.3 | ⬜ | **gap** |
+| Achievements list (medal tiers, hidden) | ✅ 05.2 | ✅ | `achievements.html` |
+| Settings (**bare basics** — a11y deferred post-VS) | ✅ 05.3↻ | ✅ | `settings-basic.html` (Audio/Fullscreen/Language; §10.6 override) |
 
 ## New-Run configuration
 
