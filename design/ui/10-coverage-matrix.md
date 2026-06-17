@@ -63,9 +63,9 @@
 
 | System | Designed | Mocked | Notes |
 |--------|:---:|:---:|-------|
-| Manage Active Team / Loadout | ✅ 04.1 | 🟡 | shown inside Map; needs dedicated overlay |
+| Manage Active Team / Loadout | ✅ 04.1 | ✅ | `team-loadout.html` (Active 3 + Box, drag-swap, detail, Confirm) |
 | Inventory (Relics · Consumables · Held) | ✅ 04.2 | ✅ | `inventory_screen` |
-| Manage moves + Held items (TM / Move Manager) | ✅ 04.4 | ⬜ | **gap** |
+| Manage moves + Held items (TM / Move Manager) | ✅ 04.4 | ✅ | `move-manager.html` (kit 4/4 + Mastery, teach/replace) |
 | Pokédex | ✅ 04.3 | ✅ | `pokedex_screen` |
 
 ## Run end

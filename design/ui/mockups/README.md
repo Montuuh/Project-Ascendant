@@ -16,6 +16,8 @@ Google Fonts; icons from Tabler (stand-ins for the final SVG icon set).
 | `newrun-2-starter.html` | **New-Run 2/4 — Starter Select** (§3.3b): real portraits + real type icons (type top-left on tiles; type chip off-photo in detail); stats, 2 starting moves, evo line. | 🔒 canonical (spec `03 §3.3b`) |
 | `newrun-3-relic.html` | **New-Run 3/4 — Starting Relic Select** (§3.3c): rarity-tinted grid (scrollable), detail effect/source. | 🔒 canonical (spec `03 §3.3c`) |
 | `newrun-4-region.html` | **New-Run 4/4 — Region Modifier Select** (§3.3d): curated 3-offer + the run-lock confirm modal. | 🔒 canonical (spec `03 §3.3d`) |
+| `team-loadout.html` | **Team & Loadout** overlay (§4.1): Active 3 (Lead crowned) + scrollable Box (Trauma/fainted), detail panel, Confirm. Real portraits. | 🔒 canonical (spec `04 §4.1`) |
+| `move-manager.html` | **TM & Move Manager** overlay (§4.4): target selector, active kit 4/4 + Mastery, teachable pool, at-cap replace preview. | 🔒 canonical (spec `04 §4.4`) |
 | `move-card-final.html` | **Final move card**, one per status: playable · not-enough-AP · out-of-melee. Generic `Pokémon art` placeholder. | 🔒 canonical (spec `09`) |
 | `consumable-card-final.html` | **Final consumable card**: playable · not-enough-AP. Shares the move-card grammar. | 🔒 canonical |
 | `move-card-full.html` | A fully-loaded card + the complete icon legend (category/range/modifier/status). | legend ref |
