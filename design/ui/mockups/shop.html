@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Shop / Poké Mart (§4.5)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.sh{max-width:660px;margin:0 auto;background:#FBF4E6;border-radius:16px;overflow:hidden;}
+.sh .head{background:#FCEBC9;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #EED699;}
+.sh .hl{display:flex;align-items:center;gap:11px;}
+.sh .hi{width:40px;height:40px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:#C98A1E;font-size:20px;border:2px solid #fff;}
+.sh .htitle{font-family:'Baloo 2',cursive;font-size:19px;color:#8A5E14;font-weight:700;}
+.sh .hsub{font-size:12px;color:#A8801E;font-weight:700;}
+.sh .money{font-size:14px;color:#9A6A12;font-weight:700;display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #EED699;border-radius:999px;padding:6px 14px;}
+.sh .cols{display:grid;grid-template-columns:1.5fr 1fr;gap:0;}
+.sh .stock{padding:13px 14px;border-right:1px solid #E4D4B5;}
+.sh .lblrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.sh .lbl{font-size:10px;color:#A8967C;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+.sh .scroll{display:flex;flex-direction:column;gap:6px;max-height:236px;overflow-y:auto;padding-right:6px;}
+.sh .scroll::-webkit-scrollbar{width:8px;}
+.sh .scroll::-webkit-scrollbar-thumb{background:#DCC9A4;border-radius:999px;}
+.sh .scroll::-webkit-scrollbar-track{background:transparent;}
+.sh .sitem{display:flex;align-items:center;gap:10px;background:#FFFDF8;border:1px solid #E4D4B5;border-radius:11px;padding:7px 10px;cursor:pointer;}
+.sh .sitem.sel{border:2px solid #C9A86A;box-shadow:0 0 0 2px rgba(201,168,106,.16);padding:6px 9px;}
+.sh .sitem.sold{opacity:.55;background:#F3EEE2;}
+.sh .sico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto;}
+.sh .sname{flex:1;min-width:0;}
+.sh .sname .nm{font-size:12px;color:#3A2E22;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sh .sname .nm.struck{color:#8A7A60;text-decoration:line-through;}
+.sh .sname .warn{font-size:9px;color:#C0392B;font-weight:700;}
+.sh .scls{font-size:8px;font-weight:700;border-radius:999px;padding:1px 6px;text-transform:uppercase;letter-spacing:.3px;flex:0 0 auto;}
+.sh .sprice{font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;display:flex;align-items:center;gap:3px;flex:0 0 auto;}
+.sh .panel{padding:13px 14px;background:#FBF4E6;}
+.sh .selbox{text-align:center;margin-bottom:9px;}
+.sh .selico{width:54px;height:54px;border-radius:14px;background:#F3E7D0;display:flex;align-items:center;justify-content:center;color:#9A6A12;font-size:26px;margin:0 auto 6px;border:2px solid #FBEFC9;}
+.sh .selnm{font-family:'Baloo 2',cursive;font-size:16px;color:#3A2E22;font-weight:700;}
+.sh .selrar{display:inline-block;font-size:9px;font-weight:700;background:#FBEFC9;color:#9A6A12;border-radius:999px;padding:2px 9px;margin-top:3px;text-transform:uppercase;letter-spacing:.3px;}
+.sh .seleff{font-size:12px;color:#6B5A45;line-height:1.5;background:#FFFDF8;border:1px solid #E4D4B5;border-radius:11px;padding:9px 11px;}
+.sh .buy{width:100%;background:#FFCB3D;border:none;border-radius:13px;padding:12px;color:#3A2E22;font-size:15px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;margin-top:11px;display:flex;align-items:center;justify-content:center;gap:7px;}
+.sh .after{font-size:11px;color:#A8967C;text-align:center;margin-top:7px;font-weight:700;}
+.sh .foot{border-top:1px solid #E4D4B5;padding:11px 20px;text-align:right;}
+.sh .leave{background:#F3E7D0;border:1px solid #E4D4B5;border-radius:12px;padding:9px 22px;color:#6B5A45;font-size:13px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;}
+.cap{max-width:660px;margin:16px auto 0;font-size:12px;color:#8A7C68;line-height:1.55;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">Shop / Poké Mart node screen: scrollable compact stock rows (relic/item/TM/Held) with class chips and prices, can't-afford and sold-out states, buy panel with spend preview, Leave to Map.</h2>
+<div class="sh">
+  <div class="head">
+    <div class="hl">
+      <div class="hi"><i class="ti ti-shopping-bag"></i></div>
+      <div><div class="htitle">Poké Mart</div><div class="hsub">Spend your winnings</div></div>
+    </div>
+    <span class="money"><i class="ti ti-coins"></i> ₽ 340</span>
+  </div>
+  <div class="cols">
+    <div class="stock">
+      <div class="lblrow"><span class="lbl">In stock</span><span class="lbl">8 items</span></div>
+      <div class="scroll">
+
+        <div class="sitem sel">
+          <div class="sico" style="background:#F3E7D0;color:#9A6A12;"><i class="ti ti-flame"></i></div>
+          <div class="sname"><div class="nm">Ember Charm</div></div>
+          <span class="scls" style="background:#FBEFC9;color:#9A6A12;">Rare</span>
+          <span class="sprice" style="color:#1F8A4C;"><i class="ti ti-coins" style="font-size:11px;"></i>220</span>
+        </div>
+
+        <div class="sitem">
+          <div class="sico" style="background:#EAF1FF;color:#2C5FA5;"><i class="ti ti-flask"></i></div>
+          <div class="sname"><div class="nm">Super Potion</div></div>
+          <span class="scls" style="background:#ECEEF3;color:#5A6275;">Item</span>
+          <span class="sprice" style="color:#1F8A4C;"><i class="ti ti-coins" style="font-size:11px;"></i>90</span>
+        </div>
+
+        <div class="sitem">
+          <div class="sico" style="background:#E6F7EC;color:#1F8A4C;"><i class="ti ti-book"></i></div>
+          <div class="sname"><div class="nm">TM — Surf</div></div>
+          <span class="scls" style="background:#E6F7EC;color:#1F8A4C;">TM</span>
+          <span class="sprice" style="color:#1F8A4C;"><i class="ti ti-coins" style="font-size:11px;"></i>150</span>
+        </div>
+
+        <div class="sitem">
+          <div class="sico" style="background:#FBEAF0;color:#C04C78;"><i class="ti ti-diamond"></i></div>
+          <div class="sname"><div class="nm">Focus Band</div><div class="warn">Can't afford</div></div>
+          <span class="scls" style="background:#F3E1F7;color:#8A3FA0;">Held</span>
+          <span class="sprice" style="color:#E24B4A;"><i class="ti ti-coins" style="font-size:11px;"></i>400</span>
+        </div>
+
+        <div class="sitem">
+          <div class="sico" style="background:#EAF1FF;color:#2C5FA5;"><i class="ti ti-pokeball"></i></div>
+          <div class="sname"><div class="nm">Great Ball ×3</div></div>
+          <span class="scls" style="background:#ECEEF3;color:#5A6275;">Item</span>
+          <span class="sprice" style="color:#1F8A4C;"><i class="ti ti-coins" style="font-size:11px;"></i>120</span>
+        </div>
+
+        <div class="sitem sold">
+          <div class="sico" style="background:#E7DFCD;color:#A8967C;"><i class="ti ti-shield"></i></div>
+          <div class="sname"><div class="nm struck">Guard Spec.</div></div>
+          <span class="scls" style="background:#E7DFCD;color:#8A7A60;">Sold</span>
+          <span class="sprice" style="color:#A8967C;">—</span>
+        </div>
+
+        <div class="sitem">
+          <div class="sico" style="background:#E6F7EC;color:#1F8A4C;"><i class="ti ti-bolt"></i></div>
+          <div class="sname"><div class="nm">TM — Thunderbolt</div></div>
+          <span class="scls" style="background:#E6F7EC;color:#1F8A4C;">TM</span>
+          <span class="sprice" style="color:#1F8A4C;"><i class="ti ti-coins" style="font-size:11px;"></i>180</span>
+        </div>
+
+        <div class="sitem">
+          <div class="sico" style="background:#F3E7D0;color:#9A6A12;"><i class="ti ti-leaf"></i></div>
+          <div class="sname"><div class="nm">Verdant Band</div></div>
+          <span class="scls" style="background:#E6F7EC;color:#1F8A4C;">Unc.</span>
+          <span class="sprice" style="color:#1F8A4C;"><i class="ti ti-coins" style="font-size:11px;"></i>140</span>
+        </div>
+
+      </div>
+    </div>
+    <div class="panel">
+      <div class="lbl" style="margin-bottom:8px;">Selected</div>
+      <div class="selbox">
+        <div class="selico"><i class="ti ti-flame"></i></div>
+        <div class="selnm">Ember Charm</div>
+        <span class="selrar">Rare relic</span>
+      </div>
+      <div class="seleff">Fire-type moves deal <b style="color:#9A6A12;">+20%</b> damage. Your Lead resists burn.</div>
+      <button class="buy"><i class="ti ti-shopping-cart"></i> Buy · ₽ 220</button>
+      <div class="after">₽ 340 &rarr; <span style="color:#6B5A45;">₽ 120</span> after</div>
+    </div>
+  </div>
+  <div class="foot">
+    <button class="leave">Leave <i class="ti ti-arrow-right"></i></button>
+  </div>
+</div>
+<p class="cap"><b style="color:#FFD451;">Shop / Poké Mart (§4.5).</b> Seeded stock (<code>ShopStockChannel</code>) as <b>compact scrollable rows</b> — relic / item / TM / Held, each with a class chip + price chip. States: selected (gold border) · can't-afford (price red + "Can't afford" label, never colour-only) · sold-out (greyed, struck). Buy panel shows the effect + a <b>₽ before&rarr;after</b> spend preview; big spends confirm. CL-015 City "Black Market" reuses this chrome for Legendaries (gold + max-2, CL-021). Leave &rarr; Map.</p>
+</body></html>

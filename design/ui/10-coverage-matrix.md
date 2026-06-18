@@ -53,11 +53,11 @@
 
 | System | Designed | Mocked | Notes |
 |--------|:---:|:---:|-------|
-| Pokémon Center | ✅ 04.6 | ⬜ | **gap** |
-| Shop / Mart | ✅ 04.5 | ⬜ | **gap** |
-| Dojo / Tutor | ✅ 04.7 | ⬜ | **gap** |
-| City / Choice Plaza (CL-015) | ✅ 00/07 | ⬜ | **gap** |
-| Mystery Event | ✅ 00 | ⬜ | **gap** (event card layout) |
+| Pokémon Center | ✅ 04.6 | ✅ | `pokemon-center.html` (heal before&rarr;after bars, Trauma Care) |
+| Shop / Mart | ✅ 04.5 | ✅ | `shop.html` (scrollable compact stock, buy panel + spend preview) |
+| Dojo / Tutor | ✅ 04.7 | ✅ | `dojo-tutor.html` (4 slots + empty/Mastery, pick-slot teach, priced services) |
+| City / Choice Plaza (CL-015) | ✅ 00/07 | ✅ | `city-plaza.html` (aerial town, clickable buildings — StS-style stop) |
+| Mystery Event | ✅ 00 | ✅ | `mystery-event.html` (event card, telegraphed-outcome choices) |
 
 ## Pokémon & loadout management
 

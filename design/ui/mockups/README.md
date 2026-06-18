@@ -25,6 +25,11 @@ Google Fonts; icons from Tabler (stand-ins for the final SVG icon set).
 | `defeat-summary.html` | **Defeat / Run-Over** (§3.9): warm-not-punishing banner, how-far tiles, rewards still earned, encouraging line, Continue. | 🔒 canonical (spec `03 §3.9`) |
 | `node-preview.html` | **Node Preview popover** (§3.4): anchored to a map node; Wild example (encounters + rarity + Pokédex tier + reward), Enter/Cancel. | 🔒 canonical (spec `03 §3.4`) |
 | `legendary-pick.html` | **Legendary Pick** (§3.7 / CL-021): 1-of-3 Legendary relics, gold treatment, max-2-per-run counter, skip option. | 🔒 canonical (spec `03 §3.7`) |
+| `pokemon-center.html` | **Pokémon Center** (§4.6): warm pink interior, heal before&rarr;after bars (current + healed segments), Full Heal + Trauma Care, Leave. | 🔒 canonical (spec `04 §4.6`) |
+| `shop.html` | **Shop / Poké Mart** (§4.5): scrollable compact stock (relic/item/TM/Held), class + price chips, can't-afford / sold-out, buy panel + spend preview. | 🔒 canonical (spec `04 §4.5`) |
+| `dojo-tutor.html` | **Dojo / Tutor** (§4.7 · CL-009): 4 move slots (filled + empty) + locked Mastery 5th, pick-slot teach, scrollable priced services incl. CL-008 ability. | 🔒 canonical (spec `04 §4.7`) |
+| `city-plaza.html` | **City / Choice Plaza** (CL-015): aerial Pokémon town with clickable buildings (Center/Mart/Dojo/Black Market) — StS-style stop, pick one. | 🔒 canonical (spec `04` / CL-015) |
+| `mystery-event.html` | **Mystery Event** (? node): scene art + flavor + 2–3 choices with telegraphed-outcome tags (gain/cost/risk). | 🔒 canonical (event template) |
 | `move-card-final.html` | **Final move card**, one per status: playable · not-enough-AP · out-of-melee. Generic `Pokémon art` placeholder. | 🔒 canonical (spec `09`) |
 | `consumable-card-final.html` | **Final consumable card**: playable · not-enough-AP. Shares the move-card grammar. | 🔒 canonical |
 | `move-card-full.html` | A fully-loaded card + the complete icon legend (category/range/modifier/status). | legend ref |
