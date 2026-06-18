@@ -64,10 +64,13 @@ Thumbs.db
 # GDD snapshots (optional — remove this line if you want them committed)
 # docs/gdd/
 
-# Session state — local only, changes every session
-production/session-state/active.md
-production/session-state/session-log.md
-production/session-state/agent-log.md
+# Local-only working docs — NOT part of the shipped repo.
+# The repo tracks only the game (Assets/, Packages/, ProjectSettings/, tooling)
+# and the GDD (docs/gdd/). Design notes, production/session state, and AI-
+# orchestration docs live locally; canon is the Notion GDD + its docs/gdd/ snapshot.
+design/
+production/
+docs/ai/
 
 
 ## UNITY GENERATED
