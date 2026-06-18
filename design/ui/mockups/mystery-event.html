@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Mystery Event (? node)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.my{max-width:600px;margin:0 auto;background:#FBF4E6;border-radius:16px;overflow:hidden;}
+.my .head{background:#E3DCEF;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #CFC3E2;}
+.my .hl{display:flex;align-items:center;gap:10px;}
+.my .qmark{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:#7B52A8;font-size:19px;border:2px solid #fff;font-family:'Baloo 2',cursive;font-weight:700;}
+.my .htitle{font-family:'Baloo 2',cursive;font-size:17px;color:#5E3F86;font-weight:700;}
+.my .money{font-size:13px;color:#9A6A12;font-weight:700;display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #CFC3E2;border-radius:999px;padding:5px 13px;}
+.my .body{padding:16px 20px;}
+.my .scene{height:96px;border-radius:13px;background:#EBE3D2;display:flex;align-items:center;justify-content:center;color:#B8A98C;margin-bottom:13px;position:relative;overflow:hidden;}
+.my .scene .ph{position:absolute;bottom:7px;right:10px;font-size:10px;color:#A8967C;font-weight:700;}
+.my .etitle{font-family:'Baloo 2',cursive;font-size:19px;color:#3A2E22;font-weight:700;margin-bottom:5px;}
+.my .flavor{font-size:13px;color:#6B5A45;line-height:1.55;margin-bottom:14px;}
+.my .opts{display:flex;flex-direction:column;gap:9px;}
+.my .opt{display:flex;align-items:center;gap:12px;background:#FFFDF8;border:1px solid #E4D4B5;border-radius:13px;padding:11px 13px;cursor:pointer;transition:transform .1s;}
+.my .opt:hover{transform:translateX(2px);border-color:#C9A86A;}
+.my .oico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto;}
+.my .oname{font-size:14px;color:#3A2E22;font-weight:700;}
+.my .ocost{font-size:11px;color:#A8967C;font-weight:700;}
+.my .tags{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+.my .tag{font-size:10px;font-weight:700;border-radius:999px;padding:2px 9px;display:inline-flex;align-items:center;gap:4px;}
+.cap{max-width:600px;margin:16px auto 0;font-size:12px;color:#8A7C68;line-height:1.55;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">Mystery Event node: scene art, event title and flavor text, and 2-3 choices each telegraphing their outcomes with coloured gain/cost/risk tags.</h2>
+<div class="my">
+  <div class="head">
+    <div class="hl">
+      <div class="qmark">?</div>
+      <div class="htitle">Mystery</div>
+    </div>
+    <span class="money"><i class="ti ti-coins"></i> ₽ 260</span>
+  </div>
+
+  <div class="body">
+    <div class="scene">
+      <i class="ti ti-building-arch" style="font-size:46px;"></i>
+      <span class="ph">scene art placeholder</span>
+    </div>
+    <div class="etitle">A Mossy Shrine</div>
+    <div class="flavor">An old stone shrine sits off the path, a worn offering bowl at its base. The air hums faintly. Something here responds to those who give — or those who are bold.</div>
+
+    <div class="opts">
+
+      <div class="opt">
+        <div class="oico" style="background:#FFF1CC;color:#C99A1E;"><i class="ti ti-coins"></i></div>
+        <div style="flex:1;">
+          <div class="oname">Leave an offering <span class="ocost">(₽ 100)</span></div>
+          <div class="tags">
+            <span class="tag" style="background:#E6F7EC;color:#1F8A4C;"><i class="ti ti-plus"></i> Gain an Uncommon relic</span>
+            <span class="tag" style="background:#F1E2E2;color:#9A4444;"><i class="ti ti-minus"></i> -₽ 100</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="opt">
+        <div class="oico" style="background:#FBE3E7;color:#D6536E;"><i class="ti ti-flame"></i></div>
+        <div style="flex:1;">
+          <div class="oname">Disturb the shrine</div>
+          <div class="tags">
+            <span class="tag" style="background:#FBEFC9;color:#9A6A12;"><i class="ti ti-diamond"></i> Chance: Rare relic</span>
+            <span class="tag" style="background:#F1E2E2;color:#9A4444;"><i class="ti ti-swords"></i> Chance: ambush battle</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="opt">
+        <div class="oico" style="background:#E6F7EC;color:#1F8A4C;"><i class="ti ti-walk"></i></div>
+        <div style="flex:1;">
+          <div class="oname">Walk away</div>
+          <div class="tags">
+            <span class="tag" style="background:#ECEEF3;color:#5A6275;"><i class="ti ti-check"></i> Nothing ventured, nothing lost</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<p class="cap"><b style="color:#FFD451;">Mystery Event (? node).</b> Data-driven narrative card: scene art + title + flavor + 2–3 choices. Each choice <b>telegraphs its outcomes</b> with coloured tags — green gain · red cost/risk · gold rare upside (Pillar 1: outcomes are hinted, never blind RNG). Content authors swap art/text/choices per entry from the seeded <code>?</code> pool. Resolves &rarr; toast/result &rarr; Map.</p>
+</body></html>

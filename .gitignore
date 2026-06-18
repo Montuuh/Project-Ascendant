@@ -65,10 +65,13 @@ Thumbs.db
 # docs/gdd/
 
 # Local-only working docs — NOT part of the shipped repo.
-# The repo tracks only the game (Assets/, Packages/, ProjectSettings/, tooling)
-# and the GDD (docs/gdd/). Design notes, production/session state, and AI-
-# orchestration docs live locally; canon is the Notion GDD + its docs/gdd/ snapshot.
-design/
+# The repo tracks the game (Assets/, Packages/, ProjectSettings/, tooling), the
+# GDD (docs/gdd/), and the UI design spec + mockups (design/ui/ — the living
+# reference per GDD §10.12). Everything else under design/ (brainstorms,
+# change-log, open-questions, systems notes), production/ session state, and
+# docs/ai/ orchestration notes are local-only; canon is the Notion GDD snapshot.
+design/*
+!design/ui/
 production/
 docs/ai/
 

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>City / Choice Plaza (CL-015)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.ct{max-width:660px;margin:0 auto;background:#FBF4E6;border-radius:16px;overflow:hidden;}
+.ct .head{background:#D7E8F0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #BBD6E4;}
+.ct .hl{display:flex;align-items:center;gap:11px;}
+.ct .hi{width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:#3E84A8;font-size:19px;border:2px solid #fff;}
+.ct .htitle{font-family:'Baloo 2',cursive;font-size:18px;color:#2E6285;font-weight:700;}
+.ct .hsub{font-size:11px;color:#4E84A0;font-weight:700;}
+.ct .money{font-size:13px;color:#9A6A12;font-weight:700;display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #BBD6E4;border-radius:999px;padding:5px 13px;}
+.ct .town{position:relative;height:330px;overflow:hidden;}
+.ct .town svg{position:absolute;inset:0;width:100%;height:100%;}
+.bld{position:absolute;cursor:pointer;text-align:center;transition:transform .12s;}
+.bld:hover{transform:translateY(-3px);}
+.roof{width:0;height:0;margin:0 auto;border-left:42px solid transparent;border-right:42px solid transparent;}
+.wall{width:74px;height:50px;margin:0 auto;border-radius:0 0 7px 7px;display:flex;align-items:center;justify-content:center;position:relative;border:2px solid rgba(0,0,0,.08);border-top:none;}
+.badge{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.blabel{font-family:'Baloo 2',cursive;font-size:12px;font-weight:700;color:#3A2E22;background:#FFFDF8;border:1px solid #E4D4B5;border-radius:999px;padding:1px 9px;margin-top:5px;display:inline-block;white-space:nowrap;}
+.pin{position:absolute;top:-26px;left:50%;transform:translateX(-50%);color:#E0A91E;font-size:22px;filter:drop-shadow(0 1px 0 #fff);display:none;}
+.bld.sel .pin{display:block;}
+.bld.sel .wall{box-shadow:0 0 0 3px rgba(224,169,30,.55);}
+.ct .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 20px;border-top:1px solid #E4D4B5;background:#FBF4E6;}
+.ct .barL{display:flex;align-items:center;gap:9px;min-width:0;}
+.ct .barIco{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto;}
+.ct .barNm{font-family:'Baloo 2',cursive;font-size:14px;color:#3A2E22;font-weight:700;}
+.ct .barDesc{font-size:11px;color:#6B5A45;font-weight:700;}
+.ct .skip{background:#F3E7D0;border:1px solid #E4D4B5;border-radius:12px;padding:10px 16px;color:#6B5A45;font-size:13px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;}
+.ct .enter{background:#FFCB3D;border:none;border-radius:12px;padding:10px 22px;color:#3A2E22;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;display:flex;align-items:center;gap:7px;}
+.cap{max-width:660px;margin:16px auto 0;font-size:12px;color:#8A7C68;line-height:1.55;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">City / Choice Plaza node: an aerial view of a Pokémon town with clickable buildings (Pokémon Center, Poké Mart, Move Dojo, Black Market). Pick one to enter; the others close.</h2>
+<div class="ct">
+  <div class="head">
+    <div class="hl">
+      <div class="hi"><i class="ti ti-building-community"></i></div>
+      <div><div class="htitle">Cerulean City</div><div class="hsub">Visit one building, then move on</div></div>
+    </div>
+    <span class="money"><i class="ti ti-coins"></i> ₽ 480</span>
+  </div>
+
+  <div class="town">
+    <svg viewBox="0 0 660 330" aria-hidden="true">
+      <rect width="660" height="330" fill="#EBDFC4"/>
+      <path d="M-20 250 q120 -40 260 -20 q160 25 300 -10 q80 -18 140 6 l0 120 l-700 0 Z" fill="#CDE3B0"/>
+      <ellipse cx="120" cy="90" rx="90" ry="40" fill="#CDE3B0"/>
+      <ellipse cx="560" cy="80" rx="80" ry="34" fill="#CDE3B0"/>
+      <circle cx="330" cy="175" r="62" fill="#E4D4B0"/>
+      <circle cx="330" cy="175" r="62" fill="none" stroke="#D6C39A" stroke-width="3"/>
+      <g stroke="#D8C9A6" stroke-width="22" stroke-linecap="round" fill="none">
+        <path d="M330 175 L150 95"/>
+        <path d="M330 175 L520 95"/>
+        <path d="M330 175 L165 270"/>
+        <path d="M330 175 L515 275"/>
+      </g>
+      <circle cx="330" cy="175" r="26" fill="#BFE0EE"/>
+      <circle cx="330" cy="175" r="26" fill="none" stroke="#fff" stroke-width="3"/>
+      <circle cx="330" cy="175" r="9" fill="#8FCBE2"/>
+      <g fill="#7FBF6A"><circle cx="60" cy="200" r="15"/><circle cx="612" cy="200" r="15"/><circle cx="395" cy="60" r="13"/><circle cx="250" cy="300" r="13"/></g>
+      <g fill="#5E4326"><rect x="57" y="210" width="6" height="12"/><rect x="609" y="210" width="6" height="12"/><rect x="392" y="70" width="6" height="11"/><rect x="247" y="310" width="6" height="11"/></g>
+    </svg>
+
+    <div class="bld sel" data-name="Pokémon Center" data-desc="Full heal + revive · Trauma care" data-icon="ti-plus" data-color="#E06A82" data-bg="#FAD7DE" style="left:96px;top:38px;">
+      <i class="ti ti-map-pin-filled pin"></i>
+      <div class="roof" style="border-bottom:24px solid #E66B7E;"></div>
+      <div class="wall" style="background:#FFFDF8;"><div class="badge" style="color:#E06A82;"><i class="ti ti-plus"></i></div></div>
+      <div class="blabel">Pokémon Center</div>
+    </div>
+
+    <div class="bld" data-name="Poké Mart" data-desc="Relics, items, TMs &amp; Held gear" data-icon="ti-shopping-bag" data-color="#C98A1E" data-bg="#FCEBC9" style="left:466px;top:38px;">
+      <i class="ti ti-map-pin-filled pin"></i>
+      <div class="roof" style="border-bottom:24px solid #5FA8D6;"></div>
+      <div class="wall" style="background:#FFFDF8;"><div class="badge" style="color:#C98A1E;"><i class="ti ti-shopping-bag"></i></div></div>
+      <div class="blabel">Poké Mart</div>
+    </div>
+
+    <div class="bld" data-name="Move Dojo" data-desc="Teach moves &amp; abilities" data-icon="ti-karate" data-color="#7B52A8" data-bg="#E7DCF0" style="left:96px;top:212px;">
+      <i class="ti ti-map-pin-filled pin"></i>
+      <div class="roof" style="border-bottom:24px solid #9B7AC0;"></div>
+      <div class="wall" style="background:#FFFDF8;"><div class="badge" style="color:#7B52A8;"><i class="ti ti-karate"></i></div></div>
+      <div class="blabel">Move Dojo</div>
+    </div>
+
+    <div class="bld" data-name="Black Market" data-desc="Legendary relics · pricey" data-icon="ti-diamond" data-color="#E0B43A" data-bg="#43304E" style="left:470px;top:214px;">
+      <i class="ti ti-map-pin-filled pin"></i>
+      <div class="roof" style="border-bottom:24px solid #3A2E44;"></div>
+      <div class="wall" style="background:#2C2230;border-color:rgba(255,255,255,.06);"><div class="badge" style="background:#43304E;color:#E0B43A;"><i class="ti ti-diamond"></i></div></div>
+      <div class="blabel" style="background:#2C2230;color:#F0E2C0;border-color:#4A3A52;">Black Market</div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="barL">
+      <div class="barIco" id="barIco" style="background:#FAD7DE;color:#E06A82;"><i class="ti ti-plus"></i></div>
+      <div style="min-width:0;"><div class="barNm" id="barNm">Pokémon Center</div><div class="barDesc" id="barDesc">Full heal + revive · Trauma care</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;flex:0 0 auto;">
+      <button class="skip">Skip</button>
+      <button class="enter"><i class="ti ti-door-enter"></i> Enter</button>
+    </div>
+  </div>
+</div>
+<p class="cap"><b style="color:#FFD451;">City / Choice Plaza (CL-015).</b> A Slay-the-Spire-style stop: an <b>aerial town</b> with clickable buildings (Pokémon Center, Poké Mart, Move Dojo, Black Market). Pick one — the rest stay shut (Pillar 2/3: every choice costs the others). Each routes to its own node screen; the Black Market reuses the Shop chrome with the gold + max-2 Legendary rule (CL-021). Skip &rarr; Map. Background art is placeholder — final is an illustrated city.</p>
+<script>
+document.querySelectorAll('.bld').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.bld').forEach(function(x){x.classList.remove('sel');});
+    b.classList.add('sel');
+    var ico=document.getElementById('barIco');
+    ico.style.background=b.dataset.bg; ico.style.color=b.dataset.color;
+    ico.innerHTML='<i class="ti '+b.dataset.icon+'"></i>';
+    document.getElementById('barNm').textContent=b.dataset.name;
+    document.getElementById('barDesc').innerHTML=b.dataset.desc;
+  });
+});
+</script>
+</body></html>

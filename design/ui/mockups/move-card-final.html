@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Move card — final (iteration 2)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;}
+.mv{max-width:680px;margin:0 auto;background:#16120f;border-radius:14px;padding:18px;font-family:'Nunito',sans-serif;}
+.mvd{font-family:'Baloo 2',cursive;}
+.mvdot{width:11px;height:11px;border-radius:50%;background:#FFE08A;border:1px solid rgba(0,0,0,0.18);display:inline-block;}
+.mvdotx{width:11px;height:11px;border-radius:50%;background:transparent;border:1.5px dashed #FF6B6B;display:inline-block;}
+.mvbadge{border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid #16120f;}
+.mvmech{position:absolute;top:-10px;left:7px;display:flex;gap:3px;z-index:3;}
+.mvstat{position:absolute;top:-12px;right:7px;z-index:3;box-shadow:0 0 0 3px rgba(240,128,48,0.32);}
+.mvmod{background:#FFD451;color:#7a5a12;}
+.mvcell{border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center;}
+.mvplate{background:#FFF3E2;border-radius:8px;padding:5px 7px;}
+.mvfoot{display:flex;justify-content:space-between;align-items:center;}
+.mvcard{position:relative;width:196px;border-radius:16px;padding:7px;margin-top:7px;}
+.mvband{display:flex;align-items:center;gap:6px;justify-content:center;border-radius:9px;padding:4px 8px;margin-top:4px;}
+.mvlabel{text-align:center;font-size:12px;font-weight:700;margin-top:6px;}
+</style></head>
+<body>
+<div class="mv">
+<h2 style="position:absolute;left:-9999px;">Final move card with five iteration-2 refinements: owner-tinted inset, range icon in the top bar, larger glowing status badge, amber not-enough-AP cue, and out-of-position text hierarchy.</h2>
+<div style="display:flex;gap:8px;justify-content:center;align-items:flex-start;">
+
+  <div>
+    <div class="mvcard" style="background:#6890F0;border:2px solid #3E63C8;">
+      <div class="mvmech"><span class="mvbadge" style="width:20px;height:20px;background:#2c2440;font-size:11px;"><i class="ti ti-sword"></i></span><span class="mvbadge mvmod" style="width:20px;height:20px;font-size:11px;"><i class="ti ti-chevrons-up"></i></span></div>
+      <span class="mvstat mvbadge" style="width:27px;height:27px;background:#F08030;font-size:14px;"><i class="ti ti-flame"></i></span>
+      <div class="mvband" style="background:#3E63C8;"><i class="ti ti-target-arrow" style="color:#cfe0ff;font-size:13px;"></i><span class="mvd" style="color:#fff;font-size:15px;font-weight:700;">Move Name</span></div>
+      <div style="display:flex;gap:5px;margin:6px 0;height:56px;">
+        <div class="mvcell" style="width:62px;flex:0 0 auto;flex-direction:column;gap:2px;background:#dbe7ff;border:1px solid #b3c8f0;color:#3E63C8;"><i class="ti ti-photo" style="font-size:15px;"></i>Pokémon art</div>
+        <div class="mvcell" style="flex:1;background:#FFF3E2;border:1px dashed #C9B488;color:#A8967C;">move art</div>
+      </div>
+      <div class="mvplate"><div style="font-size:11px;color:#33518f;line-height:1.35;">Effect text — deal damage, <b style="color:#9a6a12;">Step Fwd</b>, may <b style="color:#c0461c;">Burn</b>.</div></div>
+      <div class="mvfoot" style="color:#fff;padding:7px 3px 1px;"><span style="display:flex;gap:3px;"><span class="mvdot"></span><span class="mvdot"></span></span><span class="mvd" style="font-size:16px;font-weight:700;">PWR 40</span></div>
+    </div>
+    <div class="mvlabel" style="color:#54D98A;">Playable</div>
+  </div>
+
+  <div>
+    <div class="mvcard" style="background:#6890F0;border:2px solid #FF9F45;filter:grayscale(0.8);opacity:0.55;">
+      <div class="mvmech"><span class="mvbadge" style="width:20px;height:20px;background:#2c2440;font-size:11px;"><i class="ti ti-sword"></i></span><span class="mvbadge mvmod" style="width:20px;height:20px;font-size:11px;"><i class="ti ti-chevrons-up"></i></span></div>
+      <span class="mvstat mvbadge" style="width:27px;height:27px;background:#F08030;font-size:14px;box-shadow:none;"><i class="ti ti-flame"></i></span>
+      <div class="mvband" style="background:#3E63C8;"><i class="ti ti-target-arrow" style="color:#cfe0ff;font-size:13px;"></i><span class="mvd" style="color:#fff;font-size:15px;font-weight:700;">Move Name</span></div>
+      <div style="display:flex;gap:5px;margin:6px 0;height:56px;">
+        <div class="mvcell" style="width:62px;flex:0 0 auto;flex-direction:column;gap:2px;background:#dbe7ff;border:1px solid #b3c8f0;color:#3E63C8;"><i class="ti ti-photo" style="font-size:15px;"></i>Pokémon art</div>
+        <div class="mvcell" style="flex:1;background:#FFF3E2;border:1px dashed #C9B488;color:#A8967C;">move art</div>
+      </div>
+      <div class="mvplate"><div style="font-size:11px;color:#33518f;line-height:1.35;">Effect text — deal damage, <b>Step Fwd</b>, may <b>Burn</b>.</div></div>
+      <div class="mvfoot" style="color:#fff;padding:7px 3px 1px;"><span style="display:flex;gap:3px;align-items:center;"><i class="ti ti-alert-triangle" style="color:#FF9F45;font-size:13px;"></i><span class="mvdot"></span><span class="mvdot"></span><span class="mvdotx"></span><span class="mvdotx"></span></span><span class="mvd" style="font-size:16px;font-weight:700;">PWR 40</span></div>
+    </div>
+    <div class="mvlabel" style="color:#FF9F45;"><i class="ti ti-bolt-off" style="font-size:13px;vertical-align:-2px;"></i> Not enough AP</div>
+  </div>
+
+  <div>
+    <div class="mvcard" style="background:#C03028;border:2px solid #8E211C;">
+      <div class="mvmech"><span class="mvbadge" style="width:20px;height:20px;background:#2c2440;font-size:11px;"><i class="ti ti-sword"></i></span></div>
+      <div class="mvband" style="background:#8E211C;"><i class="ti ti-hand-grab" style="color:#f3c2bd;font-size:13px;"></i><span class="mvd" style="color:#fff;font-size:15px;font-weight:700;">Move Name</span></div>
+      <div style="display:flex;gap:5px;margin:6px 0;height:56px;">
+        <div class="mvcell" style="width:62px;flex:0 0 auto;flex-direction:column;gap:2px;background:#f6dcd9;border:1px solid #e0b0ab;color:#a8443a;"><i class="ti ti-photo" style="font-size:15px;"></i>Pokémon art</div>
+        <div class="mvcell" style="flex:1;background:#FFF3E2;border:1px dashed #C9B488;color:#A8967C;">move art</div>
+      </div>
+      <div class="mvplate"><div style="font-size:11px;color:#8a3530;line-height:1.35;">Effect text — a heavy melee strike.</div></div>
+      <div class="mvfoot" style="color:#fff;padding:7px 3px 1px;"><span class="mvdot"></span><span class="mvd" style="font-size:16px;font-weight:700;">PWR 60</span></div>
+      <div style="position:absolute;inset:0;background:rgba(40,52,80,0.52);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:2px;"><i class="ti ti-lock" style="font-size:20px;color:#9FC0FF;"></i><span class="mvd" style="font-size:18px;font-weight:700;">Melee</span><span style="font-size:11px;color:#cfe0ff;font-weight:600;">needs Lead slot</span></div>
+    </div>
+    <div class="mvlabel" style="color:#9FC0FF;">Out of melee range</div>
+  </div>
+
+</div>
+
+<div style="border-top:1px solid #2a2730;margin-top:16px;padding-top:12px;display:flex;align-items:center;gap:14px;">
+  <div style="position:relative;background:#6890F0;border-radius:11px;padding:5px;width:140px;">
+    <div class="mvmech" style="top:-9px;"><span class="mvbadge" style="width:17px;height:17px;background:#2c2440;font-size:9px;"><i class="ti ti-sword"></i></span><span class="mvbadge mvmod" style="width:17px;height:17px;font-size:9px;"><i class="ti ti-chevrons-up"></i></span></div>
+    <span class="mvstat mvbadge" style="width:20px;height:20px;background:#F08030;font-size:11px;top:-9px;box-shadow:0 0 0 2px rgba(240,128,48,0.32);"><i class="ti ti-flame"></i></span>
+    <div style="display:flex;align-items:center;gap:4px;background:#3E63C8;border-radius:7px;padding:3px 6px;"><span style="width:18px;height:18px;border-radius:50%;background:#cfe0ff;color:#3E63C8;display:flex;align-items:center;justify-content:center;font-size:10px;"><i class="ti ti-paw"></i></span><i class="ti ti-target-arrow" style="color:#cfe0ff;font-size:11px;"></i><span class="mvd" style="color:#fff;font-size:11px;font-weight:700;">Move</span></div>
+    <div class="mvfoot" style="color:#fff;padding:6px 3px 1px;"><span style="display:flex;gap:3px;"><span class="mvdot" style="width:10px;height:10px;"></span><span class="mvdot" style="width:10px;height:10px;"></span></span><span class="mvd" style="font-size:14px;font-weight:700;">40</span></div>
+  </div>
+  <div style="font-size:12px;color:#C5B79E;line-height:1.5;">Compressed now floats the <b style="color:#9FB8F0;">range icon</b> (◎/✊) into the top bar beside the owner, so melee-vs-ranged reads even shrunk.</div>
+</div>
+</div>
+</body></html>

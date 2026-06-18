@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>TM & Move Manager overlay (§4.4)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;font-family:'Nunito',sans-serif;}
+.mm{max-width:880px;margin:0 auto;background:#FBF4E6;border-radius:18px;overflow:hidden;}
+.mm .display{font-family:'Baloo 2',cursive;}
+.mm .bar{display:flex;align-items:center;justify-content:space-between;background:#F3E7D0;border-bottom:1px solid #E4D4B5;padding:12px 18px;}
+.mm .bar h1{font-family:'Baloo 2',cursive;font-size:19px;color:#3A2E22;margin:0;display:flex;align-items:center;gap:8px;}
+.mm .close{width:32px;height:32px;border-radius:10px;background:#EAD9B8;border:none;color:#6B5A45;font-size:16px;cursor:pointer;}
+.mm .target{display:flex;align-items:center;gap:8px;padding:12px 18px 4px;}
+.mm .t-label{font-size:11px;color:#A8967C;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-right:4px;}
+.mm .pick{width:42px;height:42px;border-radius:11px;background:#FFFDF8;border:2px solid #E4D4B5;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;}
+.mm .pick img{width:38px;height:38px;object-fit:contain;}
+.mm .pick.sel{border-color:#E84C4C;box-shadow:0 0 0 3px rgba(232,76,76,0.18);}
+.mm .body{display:flex;gap:16px;padding:12px 18px;}
+.mm .col{flex:1;}
+.mm .sec-label{font-size:11px;color:#A8967C;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px;display:flex;align-items:center;justify-content:space-between;}
+.mm .cap-chip{font-size:10px;color:#C0742A;font-weight:700;background:#FBEEDD;border:1px solid #EBD3B0;border-radius:999px;padding:1px 8px;}
+.mm .mcard{position:relative;border-radius:12px;padding:6px 8px;margin-bottom:8px;color:#fff;}
+.mm .mtop{display:flex;align-items:center;gap:5px;}
+.mm .mbadge{width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,0.22);display:flex;align-items:center;justify-content:center;font-size:9px;}
+.mm .mname{font-family:'Baloo 2',cursive;font-size:13px;font-weight:700;flex:1;}
+.mm .mfoot{display:flex;align-items:center;justify-content:space-between;margin-top:3px;}
+.mm .dot{width:8px;height:8px;border-radius:50%;background:#FFE08A;display:inline-block;border:1px solid rgba(0,0,0,0.2);}
+.mm .pwr{font-family:'Baloo 2',cursive;font-size:12px;font-weight:700;}
+.mm .mastery{border:2px dashed #E0B84A;background:#FFF6E0;color:#9A6A12;}
+.mm .mastery .mname,.mm .mastery .pwr{color:#9A6A12;}
+.mm .flag-replace{position:absolute;inset:0;border-radius:12px;border:2px solid #E84C4C;background:rgba(232,76,76,0.12);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;}
+.mm .flag-replace span{background:#E84C4C;color:#fff;font-size:9px;font-weight:700;border-radius:999px;padding:2px 7px;display:flex;align-items:center;gap:3px;}
+.mm .avail .mcard{cursor:pointer;}
+.mm .avail .mcard.picked{box-shadow:0 0 0 3px #FFCB3D;}
+.mm .tm-tag{font-size:8px;background:rgba(255,255,255,0.28);border-radius:4px;padding:1px 4px;font-weight:700;}
+.mm .footer{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 16px;border-top:1px solid #E4D4B5;}
+.mm .swap-note{font-size:12px;color:#3A2E22;display:flex;align-items:center;gap:7px;}
+.mm .swap-note b{color:#C0742A;}
+.mm .btns{display:flex;gap:10px;}
+.mm .btn-ghost{background:#F3E7D0;border:1px solid #E4D4B5;border-radius:14px;padding:10px 18px;color:#6B5A45;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;}
+.mm .btn-go{background:#FFCB3D;border:none;border-radius:14px;padding:10px 22px;color:#3A2E22;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.cap{max-width:880px;margin:16px auto 0;font-size:12px;color:#8A7C68;line-height:1.55;}
+</style></head>
+<body>
+<h2 style="position:absolute;left:-9999px;">TM and Move Manager overlay: a target-Pokémon selector, the selected Pokémon's four active moves plus immutable Mastery slot, an available pool of TMs and learnable moves, and an at-cap replace preview where teaching Surf replaces Bite.</h2>
+<div class="mm">
+  <div class="bar">
+    <h1><i class="ti ti-book-2"></i> Moves &amp; TMs</h1>
+    <button class="close"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="target">
+    <span class="t-label">Manage</span>
+    <div class="pick sel"><img src="../../../Assets/Sprites/VS/Portraits/008-Wartortle.png" alt="Wartortle"></div>
+    <div class="pick"><img src="../../../Assets/Sprites/VS/Portraits/002-Ivysaur.png" alt="Ivysaur"></div>
+    <div class="pick"><img src="../../../Assets/Sprites/VS/Portraits/017-Pidgeotto.png" alt="Pidgeotto"></div>
+    <div class="pick"><img src="../../../Assets/Sprites/VS/Portraits/004-Charmander.png" alt="Charmander"></div>
+    <div class="pick"><img src="../../../Assets/Sprites/VS/Portraits/074-Geodude.png" alt="Geodude"></div>
+    <span style="font-size:12px;color:#6B5A45;margin-left:6px;"><b class="display" style="color:#3A2E22;">Wartortle</b> · Lv 16</span>
+  </div>
+  <div class="body">
+    <div class="col">
+      <div class="sec-label"><span>Active moves</span><span class="cap-chip">Kit full · 4 / 4</span></div>
+      <div class="mcard" style="background:#6890F0;"><div class="mtop"><span class="mbadge"><i class="ti ti-target-arrow"></i></span><span class="mname">Water Gun</span></div><div class="mfoot"><span class="dot"></span><span class="pwr">PWR 40</span></div></div>
+      <div class="mcard" style="background:#6890F0;"><div class="mtop"><span class="mbadge"><i class="ti ti-chevrons-up"></i></span><span class="mname">Aqua Tail</span></div><div class="mfoot"><span><span class="dot"></span> <span class="dot"></span></span><span class="pwr">PWR 90</span></div></div>
+      <div class="mcard" style="background:#A8A878;">
+        <div class="mtop"><span class="mbadge"><i class="ti ti-hand-grab"></i></span><span class="mname">Bite</span></div><div class="mfoot"><span><span class="dot"></span> <span class="dot"></span></span><span class="pwr">PWR 65</span></div>
+        <div class="flag-replace"><span><i class="ti ti-replace"></i> replacing</span></div>
+      </div>
+      <div class="mcard" style="background:#6890F0;"><div class="mtop"><span class="mbadge"><i class="ti ti-chevrons-down"></i></span><span class="mname">Withdraw</span></div><div class="mfoot"><span class="dot"></span><span class="pwr">DEF +2</span></div></div>
+      <div class="mcard mastery"><div class="mtop"><span class="mbadge" style="background:rgba(154,106,18,0.18);color:#9A6A12;"><i class="ti ti-lock"></i></span><span class="mname">Waterfall <span class="tm-tag" style="background:#F0DDA8;color:#7a5a12;">MASTERY</span></span></div><div class="mfoot"><span style="font-size:9px;">immutable 5th</span><span class="pwr">PWR 80</span></div></div>
+    </div>
+    <div class="col avail">
+      <div class="sec-label"><span>Teach a move</span><span style="font-size:10px;color:#A8967C;">TMs owned + learnable</span></div>
+      <div class="mcard picked" style="background:#6890F0;">
+        <div class="mtop"><span class="mbadge"><i class="ti ti-target-arrow"></i></span><span class="mname">Surf <span class="tm-tag">TM</span></span></div>
+        <div style="font-size:10px;opacity:.92;margin:2px 0;">Water · Ranged · Cleave (hits all)</div>
+        <div class="mfoot"><span><span class="dot"></span> <span class="dot"></span></span><span class="pwr">PWR 90</span></div>
+      </div>
+      <div class="mcard" style="background:#98D8D8;color:#214a4a;">
+        <div class="mtop"><span class="mbadge" style="color:#214a4a;"><i class="ti ti-target-arrow"></i></span><span class="mname" style="color:#214a4a;">Ice Beam <span class="tm-tag" style="background:rgba(0,0,0,0.15);color:#214a4a;">TM</span></span></div>
+        <div style="font-size:10px;margin:2px 0;">Ice · Ranged · 10% Freeze</div>
+        <div class="mfoot"><span><span class="dot"></span> <span class="dot"></span></span><span class="pwr" style="color:#214a4a;">PWR 90</span></div>
+      </div>
+      <div class="mcard" style="background:#A8A878;">
+        <div class="mtop"><span class="mbadge"><i class="ti ti-hand-grab"></i></span><span class="mname">Rapid Spin <span class="tm-tag" style="background:#E6F7EC;color:#1F8A4C;">Lv 18</span></span></div>
+        <div style="font-size:10px;opacity:.92;margin:2px 0;">Normal · Melee · clears hazards</div>
+        <div class="mfoot"><span class="dot"></span><span class="pwr">PWR 50</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="swap-note"><i class="ti ti-arrow-right"></i> Teach <b>Surf</b> &nbsp;·&nbsp; replaces <b>Bite</b> (kit is full)</span>
+    <div class="btns">
+      <button class="btn-ghost">Close</button>
+      <button class="btn-go"><i class="ti ti-check"></i> Confirm teach</button>
+    </div>
+  </div>
+</div>
+<p class="cap"><b style="color:#FFD451;">TM &amp; Move Manager overlay (§4.4).</b> Target selector (Box) → the chosen Pokémon's active kit (4/4 + immutable Mastery 5th, CL-006) on the left; teachable pool (TMs owned + level-up moves learnable now) on the right. At cap, teaching prompts a replace (here Surf → Bite, before/after flagged). Move cards use the locked grammar (type-flooded, AP dots, PWR, mechanics badge). Kit/replace rules from §5.3.4/§5.3.6.</p>
+</body></html>

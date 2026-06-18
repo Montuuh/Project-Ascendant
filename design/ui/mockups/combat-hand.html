@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Combat hand — cards in context</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;}
+.ch{max-width:680px;margin:0 auto;background:#000;border-radius:14px;padding:14px;font-family:'Nunito',sans-serif;}
+.chd{font-family:'Baloo 2',cursive;}
+.chdot{width:11px;height:11px;border-radius:50%;background:#FFE08A;display:inline-block;border:1px solid rgba(0,0,0,0.2);}
+.chdotx{width:11px;height:11px;border-radius:50%;background:transparent;border:1.5px dashed #FF6B6B;display:inline-block;}
+.chdotoff{width:11px;height:11px;border-radius:50%;background:#3a3340;display:inline-block;}
+.chcard{border-radius:10px;padding:5px;width:108px;flex:0 0 auto;}
+.chtop{display:flex;align-items:center;gap:5px;border-radius:7px;padding:3px 6px;}
+.chav{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex:0 0 auto;}
+.chtr{width:19px;height:19px;border-radius:6px;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;}
+.chmod{background:#FFD451;color:#7a5a12;}
+</style></head>
+<body>
+<div class="ch">
+<h2 style="position:absolute;left:-9999px;">Combat screen hand area with compressed move and consumable cards, one expanded card, a not-enough-AP card and an out-of-melee card.</h2>
+
+<div style="display:flex;align-items:center;justify-content:space-between;background:#1c1722;border:1px solid #3A3040;border-radius:10px;padding:6px 11px;margin-bottom:10px;">
+  <div style="display:flex;align-items:center;gap:14px;color:#E0D2C2;font-size:12px;">
+    <span style="display:flex;align-items:center;gap:5px;">AP <span class="chdot"></span><span class="chdot"></span><span class="chdotoff"></span> <span style="color:#9E8FA0;">2 / 3</span></span>
+    <span style="color:#9E8FA0;">deck 8</span><span style="color:#9E8FA0;">discard 3</span>
+  </div>
+  <button class="chd" style="background:#3A3040;color:#9E8FA0;border:1px solid #5A4C62;border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700;">End turn</button>
+</div>
+
+<div style="border:1px dashed #2a2730;border-radius:10px;padding:18px 10px;text-align:center;color:#5a5560;font-size:12px;margin-bottom:12px;">
+  <i class="ti ti-photo-off" style="font-size:18px;"></i>&nbsp; battle stage — background pending (black placeholder)
+</div>
+
+<div style="position:relative;background:#181320;border:1px solid #3A3040;border-radius:12px;padding:10px;">
+  <div style="display:flex;justify-content:center;margin-bottom:8px;">
+    <div style="width:182px;background:#6890F0;border:2px solid #3E63C8;border-radius:14px;padding:6px;">
+      <div class="chtop" style="background:#3E63C8;padding:4px 8px;"><span class="chav" style="background:#cfe0ff;color:#3E63C8;width:22px;height:22px;font-size:11px;"><i class="ti ti-paw"></i></span><span class="chd" style="color:#fff;font-size:14px;font-weight:700;">Water Gun</span><span style="margin-left:auto;display:flex;gap:3px;"><span class="chdot"></span><span class="chdot"></span></span></div>
+      <div style="display:flex;gap:4px;margin:5px 0;height:46px;">
+        <div style="width:52px;background:#eaf1ff;border:1px solid #bcd2f5;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#3E63C8;font-size:10px;gap:1px;"><i class="ti ti-paw" style="font-size:14px;"></i>Squirtle</div>
+        <div style="flex:1;background:#FFF3E2;border:1px dashed #C9B488;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#A8967C;font-size:10px;position:relative;">art<span style="position:absolute;right:-5px;bottom:-5px;width:22px;height:22px;border-radius:50%;background:#F08030;border:2px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;"><i class="ti ti-flame"></i></span></div>
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:5px;"><span class="chtr"><i class="ti ti-sword"></i></span><span class="chtr"><i class="ti ti-target-arrow"></i></span><span class="chtr chmod"><i class="ti ti-chevrons-up"></i></span></div>
+      <div style="background:#FFF3E2;border-radius:7px;padding:5px 7px;"><span style="font-size:11px;color:#33518f;">Damage + <b style="color:#9a6a12;">Step Fwd</b>, 30% <b style="color:#c0461c;">Burn</b>.</span></div>
+      <div style="text-align:right;color:#fff;padding-top:4px;"><span class="chd" style="font-size:15px;font-weight:700;">PWR 40</span></div>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:10px;color:#FFB42E;font-weight:700;margin-bottom:8px;">↑ expanded on hover / select / drag</div>
+
+  <div style="display:flex;gap:7px;justify-content:center;align-items:flex-start;">
+
+    <div>
+      <div class="chcard" style="background:#F08030;">
+        <div class="chtop" style="background:#C85A1E;"><span class="chav" style="background:#ffd9c0;color:#C85A1E;"><i class="ti ti-paw"></i></span><span class="chd" style="color:#fff;font-size:11px;font-weight:700;">Ember</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 3px 2px;"><span class="chdot"></span><span class="chd" style="color:#fff;font-size:13px;font-weight:700;">40</span></div>
+        <div style="display:flex;gap:3px;padding:0 3px 2px;"><span class="chtr" style="width:17px;height:17px;font-size:10px;"><i class="ti ti-sword"></i></span><span class="chtr" style="width:17px;height:17px;font-size:10px;"><i class="ti ti-target-arrow"></i></span></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#54D98A;font-weight:700;margin-top:2px;">playable</div>
+    </div>
+
+    <div>
+      <div class="chcard" style="background:#6890F0;filter:grayscale(0.85);opacity:0.5;">
+        <div class="chtop" style="background:#3E63C8;"><span class="chav" style="background:#cfe0ff;color:#3E63C8;"><i class="ti ti-paw"></i></span><span class="chd" style="color:#fff;font-size:11px;font-weight:700;">Hydro Pump</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 3px 2px;"><span style="display:flex;gap:2px;"><span class="chdot"></span><span class="chdot"></span><span class="chdotx"></span><span class="chdotx"></span></span><span class="chd" style="color:#fff;font-size:13px;font-weight:700;">110</span></div>
+        <div style="display:flex;gap:3px;padding:0 3px 2px;"><span class="chtr" style="width:17px;height:17px;font-size:10px;"><i class="ti ti-sword"></i></span><span class="chtr" style="width:17px;height:17px;font-size:10px;"><i class="ti ti-target-arrow"></i></span></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#FF9F45;font-weight:700;margin-top:2px;">not enough AP</div>
+    </div>
+
+    <div>
+      <div class="chcard" style="background:#A8A878;position:relative;">
+        <div class="chtop" style="background:#7C7C52;"><span class="chav" style="background:#e2e2cc;color:#7C7C52;"><i class="ti ti-paw"></i></span><span class="chd" style="color:#fff;font-size:11px;font-weight:700;">Tackle</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 3px 2px;"><span class="chdot"></span><span class="chd" style="color:#fff;font-size:13px;font-weight:700;">35</span></div>
+        <div style="display:flex;gap:3px;padding:0 3px 2px;"><span class="chtr" style="width:17px;height:17px;font-size:10px;"><i class="ti ti-sword"></i></span><span class="chtr" style="width:17px;height:17px;font-size:10px;"><i class="ti ti-hand-grab"></i></span></div>
+        <div style="position:absolute;inset:0;background:rgba(40,52,80,0.5);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:1px;"><i class="ti ti-lock" style="font-size:16px;color:#9FC0FF;"></i><span style="font-size:10px;font-weight:700;">Melee</span></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#9FC0FF;font-weight:700;margin-top:2px;">needs Lead</div>
+    </div>
+
+    <div>
+      <div class="chcard" style="background:#FFF7EA;border:1.5px solid #E7D5B5;border-radius:18px;">
+        <div style="display:flex;align-items:center;gap:5px;padding:2px 3px;"><span style="width:22px;height:22px;border-radius:50%;background:#54D98A;border:2px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;"><i class="ti ti-flask-2"></i></span><span class="chd" style="color:#3A2E22;font-size:12px;font-weight:700;">Potion</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 4px 2px;"><span class="chdot"></span><span style="font-size:10px;color:#8a6f44;font-weight:700;">+50</span></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#54D98A;font-weight:700;margin-top:2px;">consumable</div>
+    </div>
+
+    <div>
+      <div class="chcard" style="background:#FFF7EA;border:1.5px solid #E7D5B5;border-radius:18px;filter:grayscale(0.7);opacity:0.55;">
+        <div style="display:flex;align-items:center;gap:5px;padding:2px 3px;"><span style="width:22px;height:22px;border-radius:50%;background:#54D98A;border:2px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;"><i class="ti ti-flask-2"></i></span><span class="chd" style="color:#3A2E22;font-size:12px;font-weight:700;">Max Potion</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 4px 2px;"><span style="display:flex;gap:2px;"><span class="chdot"></span><span class="chdot"></span><span class="chdotx"></span></span><span style="font-size:10px;color:#8a6f44;font-weight:700;">full</span></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#FF9F45;font-weight:700;margin-top:2px;">not enough AP</div>
+    </div>
+
+  </div>
+</div>
+</div>
+</body></html>

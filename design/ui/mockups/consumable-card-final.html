@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Consumable card — final + statuses</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap');
+body{margin:0;background:#0e0c0a;padding:24px;}
+.cf{max-width:680px;margin:0 auto;background:#16120f;border-radius:14px;padding:18px;font-family:'Nunito',sans-serif;}
+.cfd{font-family:'Baloo 2',cursive;}
+.cfdot{width:11px;height:11px;border-radius:50%;background:#FFE08A;border:1px solid rgba(0,0,0,0.18);display:inline-block;}
+.cfdotx{width:11px;height:11px;border-radius:50%;background:transparent;border:1.5px dashed #FF6B6B;display:inline-block;}
+.cfmed{border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;border:3px solid #fff;}
+.cftag{display:inline-flex;align-items:center;gap:4px;background:#EFE2C9;color:#8a6f44;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;}
+.cfplate{background:#F3E7D0;border-radius:12px;padding:7px 9px;text-align:center;}
+.cfdrag{display:flex;align-items:center;justify-content:center;gap:5px;background:#F3E7D0;color:#8a6f44;border:1.5px dashed #C9A86A;border-radius:999px;padding:5px;font-size:11px;font-weight:700;}
+.cfcard{width:205px;background:#FFF7EA;border:2px solid #E7D5B5;border-radius:28px;padding:11px;}
+.cffoot{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 1px;}
+.cflabel{text-align:center;font-size:12px;font-weight:700;margin-top:7px;}
+</style></head>
+<body>
+<div class="cf">
+<h2 style="position:absolute;left:-9999px;">Final consumable card in two statuses: playable and not enough AP. AP cost bottom-left, effect magnitude bottom-right, drag-to-use.</h2>
+<div style="display:flex;gap:16px;justify-content:center;align-items:flex-start;">
+
+  <div>
+    <div class="cfcard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+        <span class="cfd" style="font-size:18px;color:#3A2E22;font-weight:700;">Item Name</span>
+        <span class="cftag"><i class="ti ti-refresh-off" style="font-size:11px;"></i>1×/combat</span>
+      </div>
+      <div style="display:flex;justify-content:center;margin-bottom:7px;"><div class="cfmed" style="width:60px;height:60px;background:#54D98A;box-shadow:0 0 0 2px #cdeed8;font-size:26px;"><i class="ti ti-flask-2"></i></div></div>
+      <div class="cfplate"><div style="font-size:12px;color:#6B5A45;line-height:1.35;">Restore <b style="color:#2f9c5e;">50 HP</b> to one teammate.</div></div>
+      <div class="cfdrag" style="margin-top:8px;"><i class="ti ti-hand-finger" style="font-size:14px;"></i>Drag onto a teammate</div>
+      <div class="cffoot"><span class="cfdot"></span><span class="cfd" style="font-size:15px;color:#3A2E22;font-weight:700;">+50 HP</span></div>
+    </div>
+    <div class="cflabel" style="color:#54D98A;">Playable</div>
+  </div>
+
+  <div>
+    <div class="cfcard" style="filter:grayscale(0.8);opacity:0.5;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+        <span class="cfd" style="font-size:18px;color:#3A2E22;font-weight:700;">Item Name</span>
+        <span class="cftag"><i class="ti ti-refresh-off" style="font-size:11px;"></i>1×/combat</span>
+      </div>
+      <div style="display:flex;justify-content:center;margin-bottom:7px;"><div class="cfmed" style="width:60px;height:60px;background:#54D98A;box-shadow:0 0 0 2px #cdeed8;font-size:26px;"><i class="ti ti-flask-2"></i></div></div>
+      <div class="cfplate"><div style="font-size:12px;color:#6B5A45;line-height:1.35;">Restore <b>50 HP</b> to one teammate.</div></div>
+      <div class="cfdrag" style="margin-top:8px;"><i class="ti ti-hand-finger" style="font-size:14px;"></i>Drag onto a teammate</div>
+      <div class="cffoot"><span style="display:flex;gap:3px;"><span class="cfdot"></span><span class="cfdotx"></span><span class="cfdotx"></span></span><span class="cfd" style="font-size:15px;color:#3A2E22;font-weight:700;">+50 HP</span></div>
+    </div>
+    <div class="cflabel" style="color:#FF9F45;"><i class="ti ti-bolt-off" style="font-size:13px;vertical-align:-2px;"></i> Not enough AP</div>
+  </div>
+
+</div>
+<div style="text-align:center;font-size:11px;color:#8A95B0;margin-top:14px;">Consumables share the move-card grammar: <span style="color:#FFD451;">AP ● bottom-left</span>, output bottom-right, dragged to use. No melee restriction.</div>
+</div>
+</body></html>

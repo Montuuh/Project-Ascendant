@@ -1,0 +1,17 @@
+Category;Asset;Where to get it;Destination folder;Save as;Notes
+Node marker;Wild;https://game-icons.net/?s=high+grass;Assets/Sprites/UI/Icons/Node/;icon-node-wild.svg;White SVG on transparent. I warm-tint per node in USS. CC BY 3.0 (add credit).
+Node marker;Trainer;https://game-icons.net/?s=person;Assets/Sprites/UI/Icons/Node/;icon-node-trainer.svg;Pick a single-person silhouette.
+Node marker;Elite;https://game-icons.net/?s=spartan+helmet;Assets/Sprites/UI/Icons/Node/;icon-node-elite.svg;Or 'laurels' / 'podium' for an elite trainer.
+Node marker;Pokemon Center;https://game-icons.net/?s=health+cross;Assets/Sprites/UI/Icons/Node/;icon-node-center.svg;A medical/heal cross. Healing node.
+Node marker;Shop;https://game-icons.net/?s=shop;Assets/Sprites/UI/Icons/Node/;icon-node-shop.svg;A market stall / shop front.
+Node marker;Dojo (Tutor);https://game-icons.net/?s=torii+gate;Assets/Sprites/UI/Icons/Node/;icon-node-dojo.svg;Torii gate or a punch/kick glyph for training.
+Node marker;Mystery;https://game-icons.net/?s=card+random;Assets/Sprites/UI/Icons/Node/;icon-node-mystery.svg;A random card / dice / question glyph.
+Node marker;Gym;https://game-icons.net/?s=trophy;Assets/Sprites/UI/Icons/Node/;icon-node-gym.svg;Trophy / stadium / badge for the Gym climax.
+Node marker;City;https://game-icons.net/?s=city;Assets/Sprites/UI/Icons/Node/;icon-node-city.svg;A small town/city skyline.
+Battle background;Combat backdrop - Region 1 (grass/route);https://www.spriters-resource.com/ds_dsi/pokemonblackwhite/ (Battle Backgrounds) or Pokemon Essentials packs (Luka EBS / Klein BW);Assets/Sprites/UI/Backgrounds/;bg-combat-r1.png;Authentic alternative to the AI background. Pick a grass/forest battle BG.
+Battle background;Gym arena backdrop;https://www.spriters-resource.com/ (search Gym interior);Assets/Sprites/UI/Backgrounds/;bg-gym-r1.png;For the boss/Gym stage.
+Map tileset;Region-1 route + town tiles;https://www.spriters-resource.com/custom_edited/pokemoncustoms/ (Tilesets);Assets/Sprites/Environments/;(keep pack name);Build the Map view from tiles instead of one AI image.
+Battle HUD (optional);HP bar / battle UI chrome;https://www.spriters-resource.com/ds_dsi/pokemonblackwhite/asset/43946/ (Battle HUD);Assets/Sprites/UI/Chrome/;(per asset);Optional - we already have USS-built chrome.
+Animated battler (optional);Per-species front/back (Gen-5 animated);https://github.com/PokeAPI/sprites  path: sprites/pokemon/versions/generation-v/black-white/animated/<dexid>.gif;Assets/Sprites/VS/Battlers/;<NNN-Name>-front.gif;GIF needs frame-splitting for Unity. I can script this if you want pixel battle anims.
+Status icon (optional);Burn / Poison / Para / Sleep / Freeze / Confuse;Already in project as original SVG (Assets/Sprites/UI/Icons/Status/);Assets/Sprites/UI/Icons/Status/;(have originals);Only replace if you want ripped game versions.
+Font (DONE);Baloo 2 + Nunito;Auto-imported via docs/scripts/fetch-fonts.js;Assets/Fonts/;(done);OFL licences included.
