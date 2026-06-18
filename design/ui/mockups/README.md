@@ -30,6 +30,7 @@ Google Fonts; icons from Tabler (stand-ins for the final SVG icon set).
 | `dojo-tutor.html` | **Dojo / Tutor** (§4.7 · CL-009): 4 move slots (filled + empty) + locked Mastery 5th, pick-slot teach, scrollable priced services incl. CL-008 ability. | 🔒 canonical (spec `04 §4.7`) |
 | `city-plaza.html` | **City / Choice Plaza** (CL-015): aerial Pokémon town with clickable buildings (Center/Mart/Dojo/Black Market) — StS-style stop, pick one. | 🔒 canonical (spec `04` / CL-015) |
 | `mystery-event.html` | **Mystery Event** (? node): scene art + flavor + 2–3 choices with telegraphed-outcome tags (gain/cost/risk). | 🔒 canonical (event template) |
+| `pause-menu.html` | **Pause menu** (§5.4): dim modal over the in-run scene — Resume / Settings / Save & Quit / Abandon run; mid-combat autosave note. Button set minimal for VS (extensible). | 🔒 canonical (spec `05 §5.4`) |
 | `move-card-final.html` | **Final move card**, one per status: playable · not-enough-AP · out-of-melee. Generic `Pokémon art` placeholder. | 🔒 canonical (spec `09`) |
 | `consumable-card-final.html` | **Final consumable card**: playable · not-enough-AP. Shares the move-card grammar. | 🔒 canonical |
 | `move-card-full.html` | A fully-loaded card + the complete icon legend (category/range/modifier/status). | legend ref |

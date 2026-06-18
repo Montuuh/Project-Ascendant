@@ -79,7 +79,7 @@
 
 | System | Designed | Mocked | Notes |
 |--------|:---:|:---:|-------|
-| Pause menu | ✅ 05.4 | ⬜ | **gap** |
+| Pause menu | ✅ 05.4 | ✅ | `pause-menu.html` (dim modal; Resume/Settings/Save&Quit/Abandon; mid-combat note) |
 | Confirmation modal | ✅ 01 | ✅ | in `ui_components_sheet` |
 | Toast / notification | ✅ 01 | ✅ | in components |
 | Tooltip | ✅ 01 | ✅ | in components |
