@@ -58,6 +58,7 @@
 | CL-020 | Q19 | Achievements → medal-tier framework + 50-entry catalog (XP + Tokens) | T6 §6.7.0/§6.7.1/§6.7.1.1 | ✅ | ✅¹⁶ |
 | CL-021 | Q10 | League Boons → choice-only Legendary relic tier (10-relic pool, max 2/run) | T8 §8.3.1/§8.3.7; T4 §4.5.2/§4.5.1.4/§4.6; T6 §6.6.1/§6.6.3 | ✅ | ✅¹⁷ |
 | CL-022 | Q20 | Save/Load persistence manifest + close 5 gaps (RNG cursors #45, Legendary, biome, ShieldHP) | T9 §9.8/§9.8.6/§9.8.7; T6 §6.10 | ✅ | ✅¹⁸ |
+| CL-023 | Q23 | Full UI design pass → warm two-theme palette + squad-formation combat + every-screen spec & scene flow; a11y deferred post-VS | T10 §10.1.1/§10.1.3/§10.2/§10.6/§10.11 + new §10.12 | ✅ | ☐ (UI build = Epic 13) |
 | CL-024 | Q24 | Elite node split: Elite Trainer (Rival/Giovanni roster, Rare-relic choice) + new Elite Wild (catchable boss, catch-vs-kill) | T7 §7.5/§7.5.2/§7.12/§7.2.2; T4 §4.3.7/§4.4.4.3 | ✅ | ✅²⁰ |
 
 ¹⁸ **CL-022 code complete (2026-06-12, 1187 green).** Q20 manifest reconciliation — 5 persistence gaps
@@ -136,6 +137,39 @@ catch-specific code needed. · **All code changes verified: 1029/1029 EditMode t
 ---
 
 # Entries
+
+### CL-023 — Full UI design pass: warm two-theme palette + squad-formation combat + every-screen spec & scene flow   (resolves Q23)
+- Date: 2026-06-18
+- Topic / §: Topic 10 §10.1.1 (two-theme statement), §10.1.3.1 (palette rewrite), §10.2.1/§10.2.2.2/
+  §10.2.2.3/§10.2.4 (squad-formation combat layout), §10.6/§10.6.1 (accessibility deferred post-VS),
+  §10.11 (VS carve-out a11y row), **new §10.12** (screen inventory + scene-flow Mermaid)
+- Change: ratifies the full UI design pass (every game screen specced in `design/ui/00`–`10` + mocked in
+  `design/ui/mockups/*.html`, 26 screens) into Notion Topic 10:
+  - **Palette → warm two-theme system** (overrides the old dark navy §10.1.3.1): a **warm-light front-end**
+    (`--surface-0` #FBF4E6 cream, `--ink-primary` #3A2E22, `--accent-action` #FFCB3D gold, `--brand-red`
+    #E84C4C) + a **warm-dim combat stage** (`--surface-0` #2A2230, `--ink-primary` #FFF6EC). Fonts **Baloo 2**
+    (display) + **Nunito** (body); Tabler outline icons. Type hues (§10.1.3.2) unchanged.
+  - **Combat layout → squad formation** (rewrites §10.2.1/.2.2/.2.3/.2.4): Active 3 cluster on the LEFT
+    (**Bench 1 top-left + Bench 2 bottom-left** stacked, same size, swap button + AP cost chip each; **Lead
+    leading forward to the right**, no overlap); **single enemy enlarged/imposing on the right** (2–3 use the
+    same cluster grammar); **intent = chip above the enemy, no arrows**; **detached wild-only catch-gauge pill**
+    (CL-014); **compact drag-to-target damage preview** by the targeted Pokémon.
+  - **Accessibility deferred (user decision):** §10.6 is **no longer mandatory-launch** — full a11y suite
+    (colour-blind, text-size, reduced-motion, subtitles, photosensitivity, A/B rebinds) → **post-VS epic**.
+    VS **Settings = bare basics** (Audio Master/Music/SFX · Fullscreen · Language), mapping to existing
+    `SettingsSO` fields (#47 done). §10.11 carve-out a11y row updated.
+  - **New §10.12** = canonical screen inventory (27-row table: cluster · screen · mockup · ratified decision)
+    + a Mermaid **scene-flow graph**. Notable ratified specs: **Dojo pick-slot teach** (4 slots + empty
+    placeholder + locked Mastery; player picks the slot to fill/overwrite — §4.7/CL-009), **City Choice Plaza
+    as an aerial clickable town** (StS-style stop — CL-015), heal before→after preview (§4.6), telegraphed
+    Mystery-Event choices (Pillar 1). `design/ui/` designated the **living detail reference**.
+- Rationale: the UI now reflects the finalised mechanics (the reason Q23 was sequenced last); a single warm,
+  cheerful identity (Pillar 5) with a legible squad-formation combat stage (readability pillar). Accessibility
+  is real but not VS-blocking — deferring it keeps the slice focused.
+- Code impact: **none yet — design/doc only.** The build is **Epic 13 (UI/UX)** in UI Toolkit (UXML/USS) per
+  the §10.12 specs; current in-engine UI is the temp uGUI layer (gap #38). All palette/layout values are the
+  canonical targets for that build. Settings basics (#47) already shipped.
+- Status: [✅] GDD updated (Notion Topic 10 §10.1.1/§10.1.3.1/§10.2.x/§10.6/§10.11 + new §10.12, 2026-06-18; re-export pending)   [☐] Code adapted — UI build = Epic 13
 
 ### CL-024 — Elite node split: Elite Trainer + new Elite Wild (catch-vs-kill boss)   (resolves Q24)
 - Date: 2026-06-16

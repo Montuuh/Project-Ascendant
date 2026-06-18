@@ -1,10 +1,10 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-05T14:35:00.000Z -->
+<!-- Last updated from Notion: 2026-06-18T10:23:00.000Z -->
 
 **Status:** 🟢 In Progress
 
 
-**Last Updated:** 2026-05-24 (full style guide, combat screen spec, iconography, audio bible, accessibility)
+**Last Updated:** 2026-06-18 (CL-023 — full screen-by-screen UI design pass: warm two-theme palette, squad-formation combat layout, every-screen spec + scene flow in §10.12, accessibility deferred post-VS)
 
 
 **Cross-references:** Topic 1 (cheerful core + regional flavor pillar), Topic 3 (combat phases, Lead/bench), Topic 4 (intent display, status icons, type effectiveness UI), Topic 6 (Trauma UI), Topic 7 (Region palettes), Topic 9 (UI Toolkit architecture).
@@ -27,6 +27,9 @@
 - Base mode: **cheerful, warm, vibrant**. Pillar 5 alignment.
 - Regional accent: each Region introduces its own palette and lighting, never breaking the cheerful base — even Volcanic Highlands is "intense and dramatic," not "grim."
 
+**Two-theme system (CL-023).** The shipped UI runs two coordinated warm themes: a **warm-light front-end** (cream surfaces, warm-brown ink — menus, map, node services, management, run-end, meta) and a **warm-dim combat stage** (deep-plum surface, warm-cream ink) for the in-combat screen. Display font **Baloo 2** (rounded); body font **Nunito**; iconography is the Tabler outline set (final SVG icons per §10.4). The full design system + per-screen mockups are maintained as living references in `design/ui/` (specs `00`–`10` + `mockups/*.html`); §10.12 is the canonical decision record.
+
+
 ## §10.1.2 Sprite Specifications
 
 
@@ -46,21 +49,39 @@
 ## §10.1.3 Color Palette (Master)
 
 
-### §10.1.3.1 Core UI Palette
+### §10.1.3.1 Core UI Palette  ↻ CL-023
+
+> **↻ CHANGED (CL-023, 2026-06-18).** The original dark navy palette is **superseded** by the warm two-theme system below.
+
+**Warm-light front-end** (menus · map · node services · management · run-end · meta):
 
 
-| Token               | Hex     | Use                              |
-| ------------------- | ------- | -------------------------------- |
-| `--bg-primary`      | #1A1F2E | Combat backdrop fade, card back  |
-| `--bg-secondary`    | #2A3142 | Panel backgrounds                |
-| `--bg-tertiary`     | #3D4861 | Tooltip / overlay backgrounds    |
-| `--text-primary`    | #FFFFFF | Headings, key data               |
-| `--text-secondary`  | #C5CDE0 | Body text                        |
-| `--text-muted`      | #8A95B0 | Disabled, watermark              |
-| `--accent-action`   | #FFD451 | Playable card glow, AP icons     |
-| `--accent-positive` | #5CE181 | Heals, buffs, positive change    |
-| `--accent-negative` | #FF6B6B | Damage, debuffs, faints          |
-| `--accent-warning`  | #FFB13C | Status conditions, Trauma badges |
+| Token             | Hex     | Use                                       |
+| ----------------- | ------- | ----------------------------------------- |
+| `--surface-0`     | #FBF4E6 | Page background (cream)                   |
+| `--surface-1`     | #FFFDF8 | Cards, raised tiles                       |
+| `--surface-2`     | #F3E7D0 | Panels, headers                           |
+| `--ink-primary`   | #3A2E22 | Headings, key data (warm brown)           |
+| `--ink-secondary` | #6B5A45 | Body text                                 |
+| `--ink-muted`     | #A8967C | Labels, disabled                          |
+| `--border`        | #E4D4B5 | Card / panel borders                      |
+| `--accent-action` | #FFCB3D | Primary buttons, playable glow, AP (gold) |
+| `--brand-red`     | #E84C4C | Poké-Ball brand mark, danger accents      |
+| `--positive`      | #54D98A | Heals, gains, XP                          |
+| `--negative`      | #E24B4A | Damage, costs, faint                      |
+| `--warning`       | #C99A1E | Status, Trauma, can't-afford              |
+
+
+**Warm-dim combat stage** (in-combat screen only) — reuses the accent tokens over a dark warm surface:
+
+
+| Token                   | Hex     | Use                                 |
+| ----------------------- | ------- | ----------------------------------- |
+| `--surface-0` (stage)   | #2A2230 | Combat stage background (deep plum) |
+| `--ink-primary` (stage) | #FFF6EC | On-stage text (warm cream)          |
+
+
+Fonts: **Baloo 2** (display/headings) · **Nunito** (body). Type hues unchanged (§10.1.3.2); type icons ship at `Assets/Sprites/UI/Icons/Type/`.
 
 
 ### §10.1.3.2 Pokémon Type Palette (15 types — Gen I)
@@ -94,8 +115,16 @@ All type colors verified for WCAG AA contrast against `--bg-primary` and `--bg-s
 # §10.2 Combat Screen Layout
 
 
-## §10.2.1 Master Layout (1920×1080 reference)
+## §10.2.1 Master Layout (squad formation)  ↻ CL-023
 
+> **↻ CHANGED (CL-023, 2026-06-18).** The combat stage is re-laid-out to the **squad formation** (canonical mockup: `design/ui/mockups/combat-screen-final.html`, spec `design/ui/02 §2.1`):
+> - **Player Active 3 cluster on the LEFT** — **Bench 1 top-left**, **Bench 2 bottom-left** (stacked, same size, each with a swap button + AP cost chip), and the **Lead leading forward to the right** of the two benches, **no overlap**.
+> - **Single enemy is the default**, drawn **enlarged / imposing** and anchored on the **right**; 2–3 enemies use the same squad-cluster grammar.
+> - **No intent arrows** — the enemy's intent is a **chip above it** (icon + magnitude + target label).
+> - **Catch gauge** (wild encounters only) is a **detached pill** beside the enemy frame, not overlaid (CL-014, §7.3.4).
+> - Hand tray along the bottom; the **damage preview is compact and appears next to the targeted Pokémon** when a card is dragged onto a target.
+> 
+> The ASCII below is the **legacy wireframe**, retained for zone-sizing reference only.
 
 ```javascript
 ┌─────────────────────────────────────────────────────────────────┐
@@ -182,10 +211,10 @@ Persistent status row. Always visible. Hover any badge to see full text. Stacks 
 - Status rider: small condition icon at bottom-right of art slot.
 - Unplayable state: 60% desaturated, NOT hidden (per `ui.md` rule).
 
-## §10.2.4 Hover State (Damage Preview)
+## §10.2.4 Hover / Drag State (Damage Preview)
 
 
-Hovering a card with a target selected reveals:
+Hovering a card with a target selected — or, in the squad layout, **dragging a card onto a target** — reveals a **compact preview placed next to the targeted Pokémon** (CL-023):
 
 
 ```javascript
@@ -366,10 +395,11 @@ Stems crossfade with 250ms ramps.
 ---
 
 
-# §10.6 Accessibility
+# §10.6 Accessibility  ↻ CL-023
 
+> **↻ CHANGED (CL-023, 2026-06-18, user decision).** Accessibility is **no longer mandatory-launch** — the full suite below is **deferred to a post-VS accessibility epic**. The **Vertical Slice Settings ship bare basics only**: **Audio** (Master / Music / SFX) · **Display** (Fullscreen) · **Game** (Language), mapping to the existing `SettingsSO` fields (LoadSettings + boot-restore done, BACKLOG #47; mockup `design/ui/mockups/settings-basic.html`). The list below is **retained as the post-VS epic spec**.
 
-## §10.6.1 Mandatory Launch Accessibility Features
+## §10.6.1 Accessibility Features (post-VS epic — formerly "mandatory launch")
 
 1. **Colorblind modes:** Deuteranopia, Protanopia, Tritanopia palette swaps. Selectable at boot or via Settings. Type colors remap; type icons gain pattern overlays (stripes/dots) so they're distinguishable WITHOUT color.
 2. **Text size:** UI text scales 80% / 100% / 125% / 150% via Settings. All UI elements designed at 150% to ensure no clipping at max scale.
@@ -504,15 +534,107 @@ Full mobile port is a roadmap item, not a launch commitment.
 # §10.11 Vertical Slice Carve-Out
 
 
-| System                              | In VS                                           | Out of VS                            |
-| ----------------------------------- | ----------------------------------------------- | ------------------------------------ |
-| Combat screen layout                | ✅ Full                                          | —                                    |
-| Card anatomy + hover damage preview | ✅ Full                                          | —                                    |
-| Map view layout                     | ✅ Region 1 scope                                | City + Victory Road + League screens |
-| Iconography                         | ✅ Full type + status + node icons               | Pokédex mastery visual polish        |
-| Audio bible                         | ✅ Combat stems (R1) + 1 boss track              | R2/R3 themes, full SFX bible polish  |
-| Accessibility                       | ✅ Colorblind modes + reduced motion + rebinding | Screen reader, hint overlay          |
-| UI Toolkit theme system             | ✅ Full                                          | —                                    |
-| Animation suite                     | ✅ All combat anims                              | Evolution animation polish           |
-| Localization architecture           | ✅ Hookup                                        | Only en-US locale shipped            |
+| System                              | In VS                                                       | Out of VS                                                                                                      |
+| ----------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Combat screen layout                | ✅ Full                                                      | —                                                                                                              |
+| Card anatomy + hover damage preview | ✅ Full                                                      | —                                                                                                              |
+| Map view layout                     | ✅ Region 1 scope                                            | City + Victory Road + League screens                                                                           |
+| Iconography                         | ✅ Full type + status + node icons                           | Pokédex mastery visual polish                                                                                  |
+| Audio bible                         | ✅ Combat stems (R1) + 1 boss track                          | R2/R3 themes, full SFX bible polish                                                                            |
+| Accessibility (↻ CL-023)            | ✅ Bare-basics Settings only (Audio · Fullscreen · Language) | Full a11y suite (colour-blind, text-size, reduced-motion, subtitles, photosensitivity, rebinds) → post-VS epic |
+| UI Toolkit theme system             | ✅ Full                                                      | —                                                                                                              |
+| Animation suite                     | ✅ All combat anims                                          | Evolution animation polish                                                                                     |
+| Localization architecture           | ✅ Hookup                                                    | Only en-US locale shipped                                                                                      |
 
+
+---
+
+
+# §10.12 Screen-by-Screen UI Spec & Scene Flow  (CL-023)
+
+
+**Added CL-023 (2026-06-18)** — ratifies the full UI design pass (resolves Q23). Every game screen now has a written spec (`design/ui/00`–`10`) and a visual mockup (`design/ui/mockups/*.html`). Those files are the **living detail reference** (purpose · zones · components · bindings · interactions · states); this section is the canonical decision record and screen inventory. Art slots use real Pokémon portraits + the type-icon set (fan-portfolio scope); backgrounds are placeholder pending the art pass.
+
+
+## §10.12.1 Scene Flow
+
+
+```mermaid
+flowchart TD
+  Boot[Boot / Splash] --> Main[Main Menu]
+  Main --> NewRun[New-Run setup]
+  Main --> Hub[Trainer Hub]
+  Main --> Settings[Settings]
+  Hub --> Ach[Achievements]
+  NewRun --> D1[1 Difficulty] --> D2[2 Starter] --> D3[3 Starting Relic] --> D4[4 Region Modifier] --> Map
+  Map[Route Map] --> NP[Node Preview]
+  NP --> Combat
+  NP --> Center[Pokemon Center]
+  NP --> Shop
+  NP --> Dojo
+  NP --> City[City / Choice Plaza]
+  NP --> Mystery[Mystery Event]
+  City --> Center
+  City --> Shop
+  City --> Dojo
+  Combat --> Reward[Post-Combat Reward]
+  Combat --> Evo[Evolution]
+  Combat --> GymWin{Gym cleared?}
+  GymWin -- yes --> Legendary[Legendary Pick]
+  Reward --> Map
+  Legendary --> Victory[Victory / Run-Cleared]
+  Combat -- party wipe --> Defeat[Defeat / Run-Over]
+  Victory --> Hub
+  Defeat --> Hub
+  Map -. overlay .-> TeamLoadout[Team & Loadout]
+  Map -. overlay .-> MoveMgr[Move Manager]
+  Map -. overlay .-> Inv[Inventory]
+  Map -. overlay .-> Dex[Pokedex]
+  Combat -. Esc .-> Pause[Pause]
+  Map -. Esc .-> Pause
+```
+
+
+## §10.12.2 Screen Inventory
+
+
+| Cluster      | Screen                | Canonical mockup         | Key decisions ratified                                                                                   |
+| ------------ | --------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Front-end    | Boot / Splash         | boot-splash.html         | Logo lockup + fan disclaimer + loading bar                                                               |
+| Front-end    | Main Menu             | main_menu_screen         | Warm-light kiosk menu                                                                                    |
+| Front-end    | Trainer Hub           | trainer_hub_screen       | Trainer Card + PC Terminal kiosks (§6.4)                                                                 |
+| Front-end    | Achievements          | achievements.html        | Medal tiers, hidden, count + Tokens (CL-020)                                                             |
+| Front-end    | Settings              | settings-basic.html      | Bare basics (Audio / Fullscreen / Language); a11y deferred (§10.6)                                       |
+| New-Run      | 1 Difficulty          | newrun-1-difficulty.html | Modifier + Trainer-XP reward per tier                                                                    |
+| New-Run      | 2 Starter             | newrun-2-starter.html    | Real portraits; type top-left on tile, type chip off-photo in detail                                     |
+| New-Run      | 3 Starting Relic      | newrun-3-relic.html      | Scrollable rarity-tinted grid                                                                            |
+| New-Run      | 4 Region Modifier     | newrun-4-region.html     | Curated 3-offer + run-lock confirm (CL-016)                                                              |
+| In-run       | Route Map             | map_screen               | Squad team panel + branching graph                                                                       |
+| In-run       | Node Preview          | node-preview.html        | Anchored popover; encounters + rarity + tier + reward (§3.4)                                             |
+| In-run       | Combat                | combat-screen-final.html | Squad formation; enlarged enemy; detached catch pill; no intent arrows (§10.2)                           |
+| In-run       | Post-Combat Reward    | post_combat_reward       | Win XP + drops                                                                                           |
+| In-run       | Evolution             | evolution_screen         | Archetype pick (CL-007)                                                                                  |
+| In-run       | Legendary Pick        | legendary-pick.html      | Gym 1-of-3 gold, max-2/run (CL-021)                                                                      |
+| Node service | Pokémon Center        | pokemon-center.html      | Heal before→after bars; optional Trauma Care (§6.2 flag)                                                 |
+| Node service | Shop / Mart           | shop.html                | Scrollable compact stock; buy panel + spend preview; can't-afford / sold-out                             |
+| Node service | Dojo / Tutor          | dojo-tutor.html          | 4 slots + empty placeholder + locked Mastery; pick-slot teach; priced services + CL-008 ability (CL-009) |
+| Node service | City / Choice Plaza   | city-plaza.html          | Aerial town, clickable buildings (StS-style stop); pick one, others close (CL-015)                       |
+| Node service | Mystery Event         | mystery-event.html       | Event card; telegraphed-outcome choices (Pillar 1)                                                       |
+| Management   | Team & Loadout        | team-loadout.html        | Active 3 (Lead crowned) + Box drag-swap (§4.1)                                                           |
+| Management   | Move Manager          | move-manager.html        | Kit 4/4 + Mastery; teach / replace                                                                       |
+| Management   | Inventory             | inventory_screen         | Relics · Consumables · Held                                                                              |
+| Management   | Pokédex               | pokedex_screen           | Tiered knowledge view                                                                                    |
+| Run end      | Victory / Run-Cleared | victory-summary.html     | Stats + XP / Tokens + level-up unlock + achievements                                                     |
+| Run end      | Defeat / Run-Over     | defeat-summary.html      | Warm, not punishing; rewards kept (Pillar 5)                                                             |
+| Overlay      | Pause                 | pause-menu.html          | Resume / Settings / Save & Quit / Abandon; mid-combat autosave note (§5.4)                               |
+
+
+## §10.12.3 Notable specs
+
+- **Combat squad formation** — see §10.2 (rewritten under CL-023).
+- **Dojo pick-slot teach (§4.7 / CL-009):** the move kit always renders **4 slots** (filled or empty placeholder) plus the **locked Mastery 5th**; teaching is a **player choice of which slot to fill or overwrite** (an empty slot fills with nothing lost; Mastery is never a replace target).
+- **City Choice Plaza (CL-015):** presented as a **top-down aerial town** with **clickable building destinations** (Pokémon Center, Poké Mart, Move Dojo, Black Market). Pick one — the rest close (Pillar 2/3). The Black Market reuses the Shop chrome with the gold + max-2 Legendary rule (CL-021).
+- **Heal preview (§4.6):** team rows show the heal as **before→after** (solid = current HP, hatched = restored amount).
+- **Telegraphed events (Pillar 1):** Mystery Event choices show outcome tags (gain / cost / risk) — never blind RNG.
+- **Settings = bare basics** for the VS (§10.6); the accessibility suite is a post-VS epic.
+> **Living references.** Full per-screen template specs live in `design/ui/02`–`05`; the design system (warm themes, fonts, components, type hues) in `design/ui/01`; the coverage audit in `design/ui/10-coverage-matrix.md`.

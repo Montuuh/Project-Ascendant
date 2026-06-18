@@ -557,7 +557,7 @@ guarantee to the late trunk (~L7) but §7.2.2/§7.5/§7.11 still say "Layer 3" (
 
 # Domain J — Presentation
 
-## Q23 — Full UI design of every system 🔵
+## Q23 — Full UI design of every system ✅ DECIDED (2026-06-18 — CL-023)
 **Owner:** ui-programmer + art-director
 **User:** With the full design of every topic (cards, map, trainers, wild, etc.), fully design
 the UI: what data appears and **how** it's shown, plus the **scene flows**. Examples: what data
@@ -568,16 +568,24 @@ done *after* the gameplay questions above settle, so the UI reflects final mecha
 **Steward note (canon):** today Topic 10 has combat layout, card anatomy, map view, iconography
 (§10.2–10.4). This expands it to a full per-system UI spec. **Sequencing:** do this last.
 
+**✅ DECISION (CL-023, 2026-06-18).** Full UI design pass complete: every non-trivial screen
+specced (`design/ui/00`–`10`) + mocked (`design/ui/mockups/*.html`, 26 screens). **Ratified into
+Notion Topic 10** — §10.1.3 palette → warm two-theme system (warm-light front-end + warm-dim
+combat stage; Baloo 2 / Nunito); §10.2 combat layout → squad formation (benches stacked left,
+Lead leading right, enlarged single enemy, detached wild-only catch pill, no intent arrows,
+drag-to-target compact damage preview); §10.6 accessibility → **deferred post-VS** (VS Settings =
+bare basics); **new §10.12** = screen inventory + scene-flow graph. The `design/ui/` files remain
+the canonical **living detail references** per §10.12.
+
 ---
 
 ## Suggested processing order (producer recommendation)
 
-*Updated 2026-06-16. Q1–Q22 + Q24 are ✅ DECIDED and in the change log (23 of 24); Q10 design
-resolved (CL-021, League combat still deferred per CL-004). Remaining open work:*
+*Updated 2026-06-18. **All Q1–Q24 are ✅ DECIDED and in the change log (24 of 24).** Q10 design
+resolved (CL-021, League combat still deferred per CL-004).*
 
 1. ✅ **Done:** Combat feel (Q8/Q9/Q22), World structure (Q1/Q2/Q21), Trauma (Q17), progression
    cascade (Q12–Q16), Unknown intents (Q7), Battle Pass (Q18), achievements (Q19), **Boons→Legendary (Q10)**,
-   save/load manifest (Q20), **Elite-node split (Q24)**.
-2. **Last:** **Q23 (full UI spec)** — after mechanics settle (design complete, CL-023 pending Notion ratification).
+   save/load manifest (Q20), **Elite-node split (Q24)**, **full UI design pass (Q23 → CL-023, ratified into Topic 10)**.
 
-*Remaining: **Q23 only** (UI design done locally; awaiting Notion ratification as CL-023 — 1 of 24 open).*
+*Remaining: **none** — the design-question backlog is closed (24 of 24 decided + ratified).*

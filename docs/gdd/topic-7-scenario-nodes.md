@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED SNAPSHOT — DO NOT EDIT DIRECTLY -->
-<!-- Last updated from Notion: 2026-06-15T23:15:00.000Z -->
+<!-- Last updated from Notion: 2026-06-16T10:33:00.000Z -->
 
 **Status:** 🟢 In Progress
 
@@ -300,7 +300,7 @@ A high-power **boss-wild** — the Region's catchable mini-boss. It presents a *
 - **Profile:** boss-tier HP + an escalating **2-phase** defensive profile (harder to weaken late), but **no evolution** (it is a wild, not a trainer ace). Telegraphed throughout (Pillar 1).
 - **Generation:** a **seeded special node**, ≤1 per Region, **not guaranteed on every route** — modelled on the Victory Road Apex Pokémon node (§4.5.1.2). The late-trunk **guaranteed** Elite remains the Elite **Trainer** (§7.2 v2); the Elite Wild carries its **own map marker** (Topic 10 iconography).
 - **Reuses** the creature **portrait/battler pipeline** (no trainer sprite) and the CL-014 catch flow + a defeat → single-Rare-relic branch.
-- **R1 occupant — RNG pick of ONE boss-wild per encounter** (not both): **Snorlax** (Normal route-blocker wall) **or** **Marowak's Spirit** (a Pokémon-Tower Ghost boss-wild; catching → recruits Marowak). _Design flag (content-designer): Marowak's Spirit may optionally use a "lay to rest → relic" framing instead of a recruit — unresolved._
+- **R1 occupant — RNG pick of ONE boss-wild per encounter** (not both): **Snorlax** (Normal route-blocker wall) **or** **Marowak's Spirit** (a Pokémon-Tower Ghost boss-wild; catching lays the spirit to rest and recruits a **living Ground-type Marowak** — which arrives with a **Thick Club** held item, CL-024 resolution 2026-06-16). The "lay to rest → relic" alternative was considered and rejected (it would remove the recruit and weaken the catch-vs-kill framing).
 - All numbers (boss HP/phases, ₽/XP) are **systems-designer-tunable placeholders**.
 
 ---
